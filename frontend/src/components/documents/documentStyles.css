@@ -1,0 +1,5271 @@
+/* ==========================================================================
+   DOCUMENT STYLESHEET (A4 PRINT & PDF ARCHITECTURE)
+   Dedicated, self-contained business document styles for Delivery Challan & Invoice
+   Zero CRM shell dependencies, strict A4 layout rules
+   ========================================================================== */
+
+@page {
+  size: A4 portrait;
+  margin: 8mm 8mm 8mm 8mm;
+}
+
+/* Base Sheet Container */
+.doc-sheet-root {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 194mm;
+  margin: 0 auto;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: 'Helvetica', 'Arial', sans-serif; /* System default fonts as per user decision */
+  font-size: 14px;
+  line-height: 1.4;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Ensure all elements use border-box */
+.doc-sheet-root * {
+  box-sizing: border-box;
+}
+
+/* Multi-Page & Page Break Rules */
+.doc-sheet-root tr {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.doc-sheet-root thead {
+  display: table-header-group;
+}
+
+.doc-sheet-root tfoot {
+  display: table-footer-group;
+}
+
+.doc-avoid-break {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+/* Document Top Header Banner */
+.doc-header-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #0f172a;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+  page-break-inside: avoid;
+}
+
+.doc-main-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #0f172a;
+  text-transform: uppercase;
+}
+
+.doc-copy-tag {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  background: #f8fafc;
+}
+
+/* Company & Document Meta Section */
+.doc-company-meta-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
+  gap: 16px;
+  margin-bottom: 8px;
+  page-break-inside: avoid;
+}
+
+.doc-company-block {
+  display: flex;
+  gap: 12px;
+}
+
+.doc-company-logo {
+  flex: 0 0 auto;
+  max-width: 150px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.doc-company-logo-img {
+  max-width: 150px;
+  max-height: 48px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.doc-company-logo-fallback {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doc-company-info {
+  flex: 1 1 auto;
+}
+
+.doc-company-name {
+  margin: 0 0 2px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.doc-company-sub {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2563eb;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.doc-company-address {
+  margin: 0 0 3px;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.35;
+}
+
+.doc-company-contact {
+  margin: 0 0 2px;
+  font-size: 12.5px;
+  color: #475569;
+}
+
+.doc-company-contact a,
+.doc-company-info a,
+.doc-ref-val a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.doc-company-gstin {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* Meta Reference Table (Right Side) */
+.doc-ref-pane {
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.doc-ref-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+}
+
+.doc-ref-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+
+.doc-ref-table tr:last-child td {
+  border-bottom: none;
+}
+
+.doc-ref-key {
+  width: 40%;
+  font-weight: 700;
+  color: #475569;
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+}
+
+.doc-ref-val {
+  width: 60%;
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.doc-ref-val.bold {
+  font-weight: 700;
+}
+
+.doc-ref-val.mono {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 13.5px;
+}
+
+/* Parties Grid (Consignee & Shipping Destination) */
+.doc-parties-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-bottom: 10px;
+  page-break-inside: avoid;
+}
+
+.doc-party-card {
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.doc-party-title {
+  background: #f1f5f9;
+  border-bottom: 1px solid #cbd5e1;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #334155;
+}
+
+.doc-party-body {
+  padding: 8px 10px;
+}
+
+.doc-party-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.doc-party-company {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 2px;
+}
+
+.doc-party-address {
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.35;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.doc-party-meta {
+  font-size: 12.5px;
+  color: #475569;
+  line-height: 1.3;
+}
+
+/* Data Tables */
+.doc-table-wrapper {
+  margin-bottom: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13.5px;
+}
+
+.doc-table th {
+  background: #f1f5f9;
+  border-bottom: 2px solid #cbd5e1;
+  border-right: 1px solid #e2e8f0;
+  padding: 6px 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.doc-table th:last-child {
+  border-right: none;
+}
+
+.doc-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  vertical-align: top;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.doc-table td:last-child {
+  border-right: none;
+}
+
+.doc-table tbody tr:nth-child(even) {
+  background: #fbfcfe;
+}
+
+.doc-table tfoot td {
+  background: #f8fafc;
+  border-top: 2px solid #cbd5e1;
+  border-bottom: none;
+  padding: 6px 8px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Item Detail Formatting */
+.doc-item-title {
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 1px;
+}
+
+.doc-item-code {
+  font-size: 12.5px;
+  color: #111827; /* Dark print-safe */
+  font-weight: 600;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  margin-bottom: 2px;
+}
+
+.doc-item-desc {
+  font-size: 12.5px;
+  color: #475569;
+  line-height: 1.25;
+  margin-bottom: 4px;
+}
+
+/* Plain-Text Serial Numbers Under Item (Compact, readable, wrapping) */
+.doc-serials {
+  margin-top: 3px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: #1e293b;
+  word-break: break-word;
+  white-space: normal;
+}
+
+.doc-serials-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 1px;
+}
+
+.doc-serials-values {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 11.5px;
+  color: #0f172a;
+  word-break: break-word;
+  white-space: normal;
+}
+
+/* Clean Serial Numbers Under Item */
+.doc-sn-container {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.doc-sn-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.doc-sn-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.doc-sn-pill {
+  display: inline-block;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* Alignment Utilities */
+.doc-text-center {
+  text-align: center !important;
+}
+
+.doc-text-right {
+  text-align: right !important;
+}
+
+.doc-text-left {
+  text-align: left !important;
+}
+
+.doc-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+/* Transit & Notes Bar */
+.doc-transit-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  page-break-inside: avoid;
+}
+
+.doc-transit-label {
+  font-weight: 700;
+  color: #475569;
+}
+
+.doc-transit-value {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* Physical Receipt Verification Record (Conditional) */
+.doc-receipt-record-block {
+  border: 1px solid #94a3b8;
+  border-radius: 4px;
+  background: #ffffff;
+  margin-bottom: 14px;
+  overflow: hidden;
+  page-break-inside: avoid;
+}
+
+.doc-receipt-header {
+  background: #e2e8f0;
+  border-bottom: 1px solid #cbd5e1;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.doc-receipt-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1e293b;
+}
+
+.doc-receipt-meta-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  padding: 6px 10px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 13px;
+}
+
+.doc-receipt-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+}
+
+.doc-receipt-table th {
+  background: #f1f5f9;
+  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #e2e8f0;
+  padding: 4px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.doc-receipt-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.doc-receipt-table td:last-child,
+.doc-receipt-table th:last-child {
+  border-right: none;
+}
+
+/* Invoice Specific Summary Blocks */
+.doc-words-strip {
+  padding: 6px 10px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  page-break-inside: avoid;
+}
+
+.doc-words-label {
+  font-weight: 700;
+  color: #475569;
+  margin-right: 6px;
+}
+
+.doc-words-value {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.doc-tax-summary-wrapper {
+  margin-bottom: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  overflow: hidden;
+  page-break-inside: avoid;
+}
+
+/* Terms & Bank Details */
+.doc-terms-bank-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+  page-break-inside: avoid;
+}
+
+.doc-terms-pane,
+.doc-bank-pane {
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  padding: 8px 10px;
+  font-size: 12.5px;
+}
+
+.doc-section-subtitle {
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #334155;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 2px;
+}
+
+.doc-terms-list {
+  margin: 0;
+  padding-left: 14px;
+  color: #475569;
+  line-height: 1.35;
+}
+
+.doc-bank-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.doc-bank-table td {
+  padding: 2px 0;
+  vertical-align: middle;
+}
+
+.doc-bank-key {
+  width: 35%;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.doc-bank-val {
+  width: 65%;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* Signatures Section */
+.doc-signatures-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 10px;
+  margin-bottom: 8px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.doc-signatures-grid.with-qr {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 0.75fr);
+  gap: 12px;
+}
+
+.doc-sig-box {
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 85px;
+  text-align: center;
+}
+
+.doc-qr-box {
+  align-items: center;
+  background: #fafafa;
+}
+
+.doc-qr-space {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doc-qr-canvas {
+  display: block;
+  max-width: 60px;
+  max-height: 60px;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+}
+
+.doc-sig-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 3px;
+}
+
+.doc-sig-space {
+  flex: 1 1 auto;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doc-sig-seal-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+
+.doc-sig-sub {
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 4px;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.doc-computer-gen-notice {
+  text-align: center;
+  font-size: 11.5px;
+  color: #94a3b8;
+  margin-top: 8px;
+  page-break-inside: avoid;
+}
+
+/* Document Preview Modal Container (Screen View) */
+.doc-preview-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.doc-preview-modal-shell {
+  width: 100%;
+  max-width: 210mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.doc-preview-action-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1e293b;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.doc-preview-page-nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #334155;
+  color: #f1f5f9;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  border: 1px solid #475569;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.doc-preview-page-pill {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.doc-preview-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.doc-preview-badge {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.doc-preview-badge.dc {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+.doc-preview-badge.inv {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.doc-preview-badge.pi {
+  background: #7c3aed;
+  color: #ffffff;
+}
+
+.doc-preview-badge.po,
+.doc-preview-badge.purchase-order {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.doc-preview-id {
+  font-size: 15px;
+  font-weight: 700;
+  font-family: monospace;
+}
+
+.doc-preview-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.doc-preview-btn {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.doc-preview-btn.primary {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #3b82f6;
+}
+
+.doc-preview-btn.primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.doc-preview-btn.secondary {
+  background: #334155;
+  color: #f1f5f9;
+  border-color: #475569;
+}
+
+.doc-preview-btn.secondary:hover:not(:disabled) {
+  background: #475569;
+}
+
+.doc-preview-btn.close {
+  background: transparent;
+  color: #94a3b8;
+  border-color: transparent;
+  font-size: 18px;
+  padding: 0 8px;
+}
+
+.doc-preview-btn.close:hover {
+  color: #ffffff;
+  background: #334155;
+}
+
+.doc-preview-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.doc-preview-paper {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 0 0 8px 8px;
+  padding: 8mm 8mm 8mm 8mm;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  margin-bottom: 40px;
+  box-sizing: border-box;
+}
+
+.printable-delivery-challan .doc-header-banner {
+  border-bottom: 2px solid #000000 !important;
+  margin-bottom: 10px !important;
+  padding-bottom: 4px !important;
+  width: 100% !important;
+}
+
+.printable-delivery-challan .doc-main-title {
+  color: #000000 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+}
+
+.printable-delivery-challan .doc-copy-tag {
+  border: 1px solid #000000 !important;
+  color: #000000 !important;
+  background: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.printable-delivery-challan .doc-company-meta-grid {
+  gap: 12px !important;
+  margin-bottom: 10px !important;
+  width: 100% !important;
+}
+
+.printable-delivery-challan .doc-company-name {
+  color: #000000 !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.printable-delivery-challan .doc-item-code {
+  font-size: 12.5px !important;
+  color: #111827 !important;
+  font-weight: 600 !important;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace !important;
+  margin-bottom: 2px !important;
+}
+
+.printable-delivery-challan .doc-company-address,
+.printable-delivery-challan .doc-company-contact,
+.printable-delivery-challan .doc-company-gstin {
+  color: #000000 !important;
+}
+
+.printable-delivery-challan .doc-ref-pane {
+  border: 1.5px solid #000000 !important;
+  border-radius: 0 !important;
+}
+
+.printable-delivery-challan .doc-ref-table td {
+  border-bottom: 1px solid #000000 !important;
+  color: #000000 !important;
+  padding: 3px 6px !important;
+}
+
+.printable-delivery-challan .doc-ref-key {
+  border-right: 1px solid #000000 !important;
+  background: #f8fafc !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+.printable-delivery-challan .doc-parties-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+  align-items: stretch !important;
+}
+
+.printable-delivery-challan .doc-party-card {
+  border: 1.5px solid #000000 !important;
+  border-radius: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: #ffffff !important;
+}
+
+.printable-delivery-challan .doc-party-title {
+  border-bottom: 1px solid #000000 !important;
+  background: #f1f5f9 !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+  padding: 4px 8px !important;
+  font-size: 13px !important;
+  letter-spacing: 0.04em !important;
+}
+
+.printable-delivery-challan .doc-party-body {
+  padding: 6px 8px !important;
+  flex: 1 1 auto !important;
+  color: #000000 !important;
+}
+
+.printable-delivery-challan .doc-party-name {
+  color: #000000 !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  margin-bottom: 2px !important;
+}
+
+.printable-delivery-challan .doc-party-company {
+  color: #1e293b !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  margin-bottom: 2px !important;
+}
+
+.printable-delivery-challan .doc-party-address {
+  color: #0f172a !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  word-break: break-word !important;
+}
+
+.printable-delivery-challan .doc-table-wrapper {
+  border: 1.5px solid #000000 !important;
+  border-radius: 0 !important;
+  margin-bottom: 10px !important;
+}
+
+.printable-delivery-challan .doc-table th {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-bottom: 1.5px solid #000000 !important;
+  border-right: 1px solid #000000 !important;
+  padding: 5px 8px !important;
+  font-weight: 800 !important;
+}
+
+.printable-delivery-challan .doc-table th:last-child {
+  border-right: none !important;
+}
+
+.printable-delivery-challan .doc-table td {
+  border-bottom: 1px solid #000000 !important;
+  border-right: 1px solid #000000 !important;
+  padding: 5px 8px !important;
+  color: #000000 !important;
+  vertical-align: top !important;
+}
+
+.printable-delivery-challan .doc-table td:last-child {
+  border-right: none !important;
+}
+
+.printable-delivery-challan .doc-table tfoot td {
+  border-top: 1.5px solid #000000 !important;
+  background: #f8fafc !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+}
+
+.printable-delivery-challan .doc-sn-container {
+  border-top: 1px dashed #000000 !important;
+  margin-top: 4px !important;
+  padding-top: 4px !important;
+}
+
+.printable-delivery-challan .doc-sn-title {
+  color: #000000 !important;
+  font-weight: 700 !important;
+  font-size: 11.5px !important;
+}
+
+.printable-delivery-challan .doc-sn-pill {
+  border: 1px solid #000000 !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+.printable-delivery-challan .doc-transit-bar {
+  border: 1px solid #000000 !important;
+  border-radius: 0 !important;
+  background: #f8fafc !important;
+  color: #000000 !important;
+  margin-bottom: 10px !important;
+  padding: 4px 8px !important;
+}
+
+.printable-delivery-challan .doc-transit-label {
+  color: #000000 !important;
+  font-weight: 800 !important;
+}
+
+.printable-delivery-challan .doc-transit-value {
+  color: #000000 !important;
+}
+
+.printable-delivery-challan .doc-receipt-record-block {
+  border: 1.5px solid #000000 !important;
+  border-radius: 0 !important;
+  margin-bottom: 10px !important;
+}
+
+.printable-delivery-challan .doc-receipt-header {
+  border-bottom: 1px solid #000000 !important;
+  background: #f1f5f9 !important;
+  color: #000000 !important;
+}
+
+.printable-delivery-challan .doc-receipt-title {
+  color: #000000 !important;
+  font-weight: 800 !important;
+}
+
+.printable-delivery-challan .doc-receipt-meta-grid {
+  border-bottom: 1px solid #000000 !important;
+  background: #f8fafc !important;
+  color: #000000 !important;
+}
+
+.printable-delivery-challan .doc-receipt-table th {
+  border-bottom: 1px solid #000000 !important;
+  border-right: 1px solid #000000 !important;
+  background: #f1f5f9 !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+.printable-delivery-challan .doc-receipt-table td {
+  border-bottom: 1px solid #000000 !important;
+  border-right: 1px solid #000000 !important;
+  color: #000000 !important;
+}
+
+.printable-delivery-challan .doc-terms-pane {
+  border: 1px solid #000000 !important;
+  border-radius: 0 !important;
+  padding: 6px 8px !important;
+  color: #000000 !important;
+}
+
+.printable-delivery-challan .doc-section-subtitle {
+  border-bottom: 1px solid #000000 !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+}
+
+.printable-delivery-challan .doc-terms-list {
+  color: #000000 !important;
+}
+
+.printable-delivery-challan .doc-signatures-grid {
+  margin-top: 8px !important;
+  margin-bottom: 6px !important;
+  gap: 8px !important;
+}
+
+.printable-delivery-challan .doc-sig-box {
+  border: 1.5px solid #000000 !important;
+  border-radius: 0 !important;
+  padding: 6px 8px !important;
+  min-height: 80px !important;
+  background: #ffffff !important;
+}
+
+.printable-delivery-challan .doc-sig-label {
+  color: #000000 !important;
+  font-weight: 800 !important;
+}
+
+.printable-delivery-challan .doc-sig-sub {
+  border-top: 1px dashed #000000 !important;
+  color: #000000 !important;
+}
+
+.printable-delivery-challan .doc-computer-gen-notice {
+  color: #475569 !important;
+  font-size: 11px !important;
+  margin-top: 6px !important;
+}
+
+/* Print Media Rules */
+@media print {
+  /* Suppress browser default page margins where supported */
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Completely eliminate modal backdrops, screen headers, sidebars, buttons */
+  .doc-preview-modal-backdrop {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    inset: auto !important;
+  }
+
+  .doc-preview-modal-shell {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .doc-preview-action-bar,
+  .doc-preview-page-nav-badge,
+  .doc-preview-page-pill,
+  .quotation-page-badge,
+  .quotation-viewer-page-gap,
+  .crm-sidebar,
+  .crm-header,
+  .crm-navbar,
+  .no-print,
+  button {
+    display: none !important;
+  }
+
+  .doc-preview-paper {
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    width: 100% !important;
+  }
+
+  .doc-sheet-root {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* Dark visible black/near-black borders for printed tables and boxes */
+  .doc-table-wrapper,
+  .doc-table th,
+  .doc-table td,
+  .doc-table tfoot td,
+  .doc-party-card,
+  .doc-party-title,
+  .doc-ref-pane,
+  .doc-ref-table td,
+  .doc-ref-key,
+  .doc-transit-bar,
+  .doc-footer-grid,
+  .doc-sig-card {
+    border-color: #0f172a !important;
+  }
+
+  .doc-table th,
+  .doc-party-title {
+    background-color: #f1f5f9 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .doc-inv-watermark-overlay,
+  .quotation-watermark,
+  .printable-sales-invoice .doc-inv-watermark-overlay,
+  .printable-proforma-invoice .doc-inv-watermark-overlay,
+  .printable-delivery-challan .doc-inv-watermark-overlay {
+    opacity: 0.12 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    display: flex !important;
+    visibility: visible !important;
+  }
+}
+
+
+
+/* ==========================================================================
+   FINAL MASTER SALES INVOICE STYLES (MATCHING PRINTED SAMPLE & DOCUMENT ARCHITECTURE)
+   ========================================================================== */
+
+.printable-sales-invoice {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  color: #0f172a;
+  background: #ffffff;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12.5px;
+  line-height: 1.32;
+  box-sizing: border-box;
+}
+
+/* Background Watermark Logo (for Invoice, Proforma, DC & Quotation, centered on ~172mm printable width: 30mm + 86mm = 116mm) */
+.doc-inv-watermark-overlay {
+  position: absolute;
+  top: 50%;
+  left: 116mm;
+  transform: translate(-50%, -50%);
+  width: 440px;
+  max-width: 60%;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.11; /* Optimal watermark visibility matching physical printed copy and canvas export */
+}
+
+.doc-inv-watermark-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.doc-inv-watermark-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+}
+
+.printable-sales-invoice .doc-inv-top-title,
+.printable-sales-invoice .doc-inv-header-box,
+.printable-sales-invoice .doc-inv-parties-box,
+.printable-sales-invoice .doc-inv-table-wrapper,
+.printable-sales-invoice .doc-inv-words-box,
+.printable-sales-invoice .doc-inv-tax-box,
+.printable-sales-invoice .doc-inv-bottom-box,
+.printable-sales-invoice .doc-inv-computer-notice {
+  position: relative;
+  z-index: 1;
+}
+
+.printable-sales-invoice .doc-inv-words-box {
+  background: transparent;
+}
+
+.printable-sales-invoice .doc-inv-tax-words-strip {
+  background: transparent;
+}
+
+.printable-sales-invoice .doc-inv-total-row td {
+  background: rgba(248, 250, 252, 0.4);
+}
+
+.printable-sales-invoice .doc-inv-tax-table tfoot td {
+  background: rgba(248, 250, 252, 0.4);
+}
+
+/* 1. Top Document Title */
+.doc-inv-top-title {
+  text-align: center;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  padding: 0;
+}
+
+/* 2. Top Header Box (Left: Company Info | Right: Metadata Table) */
+.doc-inv-header-box {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  border: 1px solid #111827;
+  margin-bottom: -1px; /* Collapses border with parties box */
+  align-items: stretch;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Company Left Block */
+.doc-inv-company-pane {
+  padding: 6px 10px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  border-right: 1px solid #111827;
+  box-sizing: border-box;
+}
+
+.doc-inv-logo-wrap {
+  flex: 0 0 auto;
+  align-self: flex-start;
+}
+
+.doc-inv-logo-img {
+  max-width: 120px;
+  max-height: 120px;
+  object-fit: contain;
+  display: block;
+}
+
+.doc-inv-company-details {
+  flex: 1 1 auto;
+  font-size: 12px;
+  line-height: 1.3;
+  color: #1e293b;
+}
+
+.doc-inv-company-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.doc-inv-company-address {
+  margin-bottom: 3px;
+  color: #334155;
+  line-height: 1.28;
+}
+
+/* Strict address line 3: Chennai - 600095 as non-breaking text unit */
+.doc-inv-city-pin {
+  white-space: nowrap !important;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.doc-inv-company-phones,
+.doc-inv-company-email,
+.doc-inv-company-gstin,
+.doc-inv-company-website {
+  font-size: 12px;
+  color: #334155;
+  margin-bottom: 1px;
+}
+
+.doc-inv-company-gstin strong {
+  color: #0f172a;
+}
+
+/* Metadata Right Pane */
+.doc-inv-meta-pane {
+  border-left: none;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.doc-inv-meta-table {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  table-layout: fixed;
+}
+
+.doc-inv-meta-table td {
+  padding: 3px 5px;
+  border-bottom: 1px solid #111827;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.doc-inv-meta-table tr:last-child td {
+  border-bottom: none;
+}
+
+.doc-meta-col-label {
+  width: 46%;
+}
+
+.doc-meta-col-val {
+  width: 24%;
+}
+
+.doc-meta-col-date {
+  width: 30%;
+}
+
+.doc-inv-meta-cell-label {
+  white-space: nowrap;
+  overflow: visible;
+  padding-right: 2px !important;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.doc-inv-meta-cell-val {
+  white-space: nowrap;
+  overflow: visible;
+  border-right: 1px solid #111827;
+  padding-left: 2px !important;
+  padding-right: 4px !important;
+  line-height: 1.25;
+}
+
+.doc-inv-meta-cell-date {
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: clip;
+  text-align: left;
+  padding-left: 5px !important;
+  padding-right: 3px !important;
+  line-height: 1.25;
+}
+
+.doc-inv-meta-cell-full {
+  white-space: nowrap;
+  padding: 3px 5px;
+  line-height: 1.25;
+}
+
+.doc-inv-meta-cell-keyval {
+  width: auto;
+  border-right: 1px solid #111827;
+  color: #0f172a;
+  white-space: nowrap;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-inv-meta-keyval-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.doc-inv-meta-key {
+  font-weight: 700;
+  color: #111827;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.doc-inv-meta-val {
+  font-weight: 600;
+  color: #111827;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.doc-inv-meta-val.bold {
+  font-weight: 700;
+}
+
+.doc-inv-meta-date-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.doc-inv-meta-date-label {
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+}
+
+.doc-inv-meta-date-val {
+  font-weight: 500;
+  color: #111827;
+  white-space: nowrap;
+}
+
+/* 3. Parties Box (Consignee | Shipping Address) */
+.doc-inv-parties-box {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  border: 1px solid #94a3b8;
+  margin-bottom: -1px; /* Collapses with item table */
+  align-items: stretch;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.doc-inv-party-pane {
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.32;
+  box-sizing: border-box;
+}
+
+.doc-inv-party-pane.border-right {
+  border-right: 1px solid #94a3b8;
+}
+
+.doc-inv-party-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 2px;
+}
+
+.doc-inv-party-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.doc-inv-party-line {
+  color: #334155;
+  margin-bottom: 1px;
+}
+
+.doc-party-company {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.doc-party-state {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.doc-inv-party-gstin {
+  margin-top: 3px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* 4. Main Item Table (100% Usable Width, Fixed Geometry) */
+.doc-inv-table-wrapper {
+  width: 100%;
+  border: 1px solid #94a3b8;
+  margin-bottom: -1px;
+}
+
+.doc-inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+}
+
+.doc-inv-table thead {
+  display: table-header-group;
+}
+
+.doc-inv-table th {
+  background: #f8fafc;
+  border-bottom: 1px solid #94a3b8;
+  border-right: 1px solid #94a3b8;
+  padding: 4px 3px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #1e293b;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.doc-inv-table th.doc-th-sl {
+  padding: 4px 2px !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+}
+
+.doc-inv-table th.doc-th-desc {
+  padding-left: 8px !important;
+  text-align: left !important;
+}
+
+.doc-inv-table th:last-child {
+  border-right: none;
+}
+
+.doc-inv-table td {
+  padding: 4.5px 5px;
+  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #cbd5e1;
+  vertical-align: top;
+  color: #0f172a;
+  box-sizing: border-box;
+}
+
+.doc-inv-table td:last-child {
+  border-right: none;
+}
+
+.doc-inv-table tbody tr {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Item details inside table */
+.doc-inv-item-name {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 12.5px;
+  line-height: 1.25;
+}
+
+/* SKU / Model in solid black #0f172a (never brown/orange) */
+.doc-inv-item-sku {
+  color: #0f172a !important;
+  font-weight: 600;
+  font-size: 11.5px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  margin-top: 1px;
+}
+
+.doc-inv-item-desc {
+  font-size: 11.5px;
+  color: #475569;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+
+/* Serial numbers in solid black #0f172a wrapping naturally */
+.doc-serials {
+  margin-top: 3px;
+}
+
+.doc-serials-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 1px;
+}
+
+.doc-serials-values {
+  font-size: 11.5px;
+  color: #0f172a;
+  font-weight: 500;
+  word-break: break-word;
+  white-space: normal;
+}
+
+/* Summary Rows in Item Table */
+.doc-inv-summary-row td {
+  background: #ffffff;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.doc-inv-summary-label {
+  font-weight: 700;
+  color: #1e293b;
+  text-align: right;
+  letter-spacing: 0.02em;
+}
+
+.doc-inv-summary-val {
+  font-weight: 700;
+  color: #0f172a;
+  text-align: right;
+}
+
+.doc-inv-total-row td {
+  background: #f8fafc;
+  border-top: 1px solid #94a3b8;
+  font-size: 13px;
+  padding: 5px 8px;
+}
+
+.doc-inv-total-label {
+  font-weight: 800;
+  color: #0f172a;
+  text-align: right;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.doc-inv-total-val {
+  font-weight: 800;
+  color: #0f172a;
+  text-align: right;
+  font-size: 13.5px;
+}
+
+/* 5. Amount in Words Box */
+.doc-inv-words-box {
+  border: 1px solid #94a3b8;
+  padding: 4.5px 10px;
+  font-size: 12px;
+  margin-bottom: -1px;
+  background: #ffffff;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.doc-inv-words-title {
+  color: #475569;
+  font-size: 11.5px;
+  margin-bottom: 1px;
+}
+
+.doc-inv-words-text {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* 6. Tax Summary Table (HSN / SAC Breakdown) */
+.doc-inv-tax-box {
+  width: 100%;
+  border: 1px solid #94a3b8;
+  margin-bottom: -1px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.doc-inv-tax-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 11.5px;
+}
+
+.doc-inv-tax-table th {
+  background: #f8fafc;
+  border-bottom: 1px solid #94a3b8;
+  border-right: 1px solid #94a3b8;
+  padding: 3.5px 4px;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: center;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.doc-inv-tax-table th:last-child {
+  border-right: none;
+}
+
+.doc-inv-tax-table td {
+  padding: 3.5px 6px;
+  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #cbd5e1;
+  vertical-align: middle;
+  color: #0f172a;
+  box-sizing: border-box;
+}
+
+.doc-inv-tax-table td:last-child {
+  border-right: none;
+}
+
+.doc-inv-tax-table tfoot td {
+  border-top: 1px solid #94a3b8;
+  border-bottom: none;
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+.doc-inv-tax-words-strip {
+  padding: 3.5px 10px;
+  border-top: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 11.5px;
+  color: #1e293b;
+}
+
+.doc-inv-tax-words-strip strong {
+  color: #0f172a;
+}
+
+/* 7. Bottom Section (Invoice Note & Bank Details | Signature) */
+.doc-inv-bottom-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  border: 1px solid #94a3b8;
+  margin-bottom: 4px;
+  align-items: stretch;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.doc-inv-bottom-left {
+  padding: 6px 10px;
+  border-right: 1px solid #94a3b8;
+  font-size: 11.5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.doc-inv-note-label {
+  font-weight: 700;
+  color: #b91c1c; /* Crimson note header matching printed sample */
+  margin-bottom: 1px;
+}
+
+.doc-inv-note-text {
+  color: #334155;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+
+.doc-inv-bank-pane {
+  margin-top: 2px;
+}
+
+.doc-inv-bank-title {
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 1px;
+}
+
+.doc-inv-bank-line {
+  color: #334155;
+  line-height: 1.3;
+}
+
+.doc-inv-bank-line strong {
+  color: #0f172a;
+}
+
+.doc-inv-bottom-right {
+  padding: 6px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+
+.doc-inv-for-company {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+  align-self: flex-end;
+}
+
+.doc-inv-sig-space {
+  flex: 1 1 auto;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 0;
+}
+
+.doc-inv-sig-img {
+  max-width: 100px;
+  max-height: 60px;
+  object-fit: contain;
+}
+
+.doc-inv-authorized-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+  align-self: flex-end;
+}
+
+/* 8. Computer Generated Notice Footer */
+.doc-inv-computer-notice {
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  margin-top: 3px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* ==========================================================================
+   9. PROFORMA INVOICE DEDICATED EXTENSIONS
+   ========================================================================== */
+.printable-proforma-invoice {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  color: #0f172a;
+  background: #ffffff;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.35;
+  box-sizing: border-box;
+}
+
+.proforma-main-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+  padding: 0;
+}
+
+.doc-inv-meta-cell-full {
+  padding: 3.5px 8px;
+  border-bottom: 1px solid #94a3b8;
+  vertical-align: middle;
+  color: #0f172a;
+  width: 100%;
+}
+
+.proforma-items-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.proforma-items-table th {
+  padding: 5px 3px;
+  font-size: 10.5px;
+  letter-spacing: 0.01em;
+  box-sizing: border-box;
+}
+
+.proforma-items-table td {
+  padding: 5px 4px;
+  box-sizing: border-box;
+}
+
+.proforma-items-wrapper {
+  width: 100%;
+  border: 1px solid #94a3b8;
+  margin-bottom: -1px;
+}
+
+.company-city-line {
+  white-space: nowrap !important;
+}
+
+.doc-inv-meta-val.bold {
+  font-weight: 700;
+}
+
+/* Medium-sized ASI company logo for Proforma Invoice Header */
+.doc-proforma-company-logo {
+  width: 104px;
+  max-width: 104px;
+  height: 104px;
+  max-height: 104px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Non-breaking address last line */
+.doc-address-last-line {
+  white-space: nowrap !important;
+}
+
+/* Section 19: Scoped Reusable Document Table Utility */
+.doc-table-container {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.doc-table-container table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  box-sizing: border-box;
+}
+
+/* Section 8, 9 & 10: Proforma Document Table Geometry, Cell Safety & Borders */
+.proforma-items-table {
+  width: 100% !important;
+  max-width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+}
+
+.proforma-items-table th,
+.proforma-items-table td {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+}
+
+.proforma-cell-desc {
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+
+.proforma-cell-nowrap {
+  white-space: nowrap !important;
+}
+
+.proforma-cell-numeric {
+  white-space: nowrap !important;
+  text-align: right !important;
+}
+
+.proforma-items-table th {
+  border-bottom: 1px solid #111827 !important;
+  border-right: 1px solid #111827 !important;
+  color: #111827 !important;
+}
+
+.proforma-items-table th:last-child {
+  border-right: none !important;
+}
+
+.proforma-items-table td {
+  border-bottom: 1px solid #111827 !important;
+  border-right: 1px solid #111827 !important;
+}
+
+.proforma-items-table td:last-child {
+  border-right: none !important;
+}
+
+.proforma-items-wrapper {
+  border: 1px solid #111827 !important;
+}
+
+/* Section 21: Print Safety */
+.proforma-items-table thead,
+.doc-inv-tax-table thead {
+  display: table-header-group !important;
+}
+
+.proforma-items-table tr,
+.doc-inv-tax-table tr {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+/* Section 10: 1px solid #111827 Table & Box Borders for Proforma Document */
+.printable-proforma-invoice .doc-inv-header-box,
+.printable-proforma-invoice .doc-inv-company-pane,
+.printable-proforma-invoice .doc-inv-meta-pane,
+.printable-proforma-invoice .doc-inv-meta-table td,
+.printable-proforma-invoice .doc-inv-parties-box,
+.printable-proforma-invoice .doc-inv-party-pane.border-right,
+.printable-proforma-invoice .doc-inv-table-wrapper,
+.printable-proforma-invoice .doc-inv-summary-row td,
+.printable-proforma-invoice .doc-inv-total-row td,
+.printable-proforma-invoice .doc-inv-words-box,
+.printable-proforma-invoice .doc-inv-tax-box,
+.printable-proforma-invoice .doc-inv-tax-table th,
+.printable-proforma-invoice .doc-inv-tax-table td,
+.printable-proforma-invoice .doc-inv-tax-table tfoot td,
+.printable-proforma-invoice .doc-inv-tax-words-strip,
+.printable-proforma-invoice .doc-inv-bottom-box,
+.printable-proforma-invoice .doc-inv-bottom-left {
+  border-color: #111827 !important;
+}
+
+.printable-proforma-invoice .doc-inv-header-box {
+  display: grid !important;
+  grid-template-columns: 50% 50% !important;
+}
+
+.printable-proforma-invoice .doc-inv-company-pane {
+  border-right: 1px solid #111827 !important;
+  box-sizing: border-box !important;
+}
+
+.printable-proforma-invoice .doc-inv-meta-pane {
+  border-left: none !important;
+  box-sizing: border-box !important;
+}
+
+.printable-proforma-invoice .doc-inv-parties-box {
+  display: grid !important;
+  grid-template-columns: 50% 50% !important;
+}
+
+/* Section 6: Top Metadata Table Ratio (42% / 27% / 31%) & Complete Date Fit Safety */
+.printable-proforma-invoice .doc-inv-meta-table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  font-size: 11.5px !important;
+}
+
+.printable-proforma-invoice .doc-meta-col-label {
+  width: 27% !important;
+}
+
+.printable-proforma-invoice .doc-meta-col-val {
+  width: 39% !important;
+}
+
+.printable-proforma-invoice .doc-meta-col-date {
+  width: 34% !important;
+}
+
+.printable-proforma-invoice .doc-inv-meta-cell-label {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  padding: 3px 2px 3px 4px !important;
+  font-size: 11.5px !important;
+}
+
+.printable-proforma-invoice .doc-inv-meta-cell-val {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  word-break: keep-all !important;
+  border-right: 1px solid #111827 !important;
+  padding: 3px 4px 3px 2px !important;
+  font-size: 11.5px !important;
+}
+
+.printable-proforma-invoice .doc-inv-meta-cell-date {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  text-align: left !important;
+  padding: 3px 3px 3px 4px !important;
+  font-size: 11.5px !important;
+  box-sizing: border-box !important;
+}
+
+.printable-proforma-invoice .doc-inv-meta-date-wrap {
+  display: inline-flex !important;
+  align-items: baseline !important;
+  gap: 3px !important;
+  white-space: nowrap !important;
+}
+
+.printable-proforma-invoice .doc-inv-meta-date-label {
+  font-weight: 700 !important;
+  color: #111827 !important;
+  white-space: nowrap !important;
+  font-size: 11.5px !important;
+}
+
+.printable-proforma-invoice .doc-inv-meta-date-val {
+  font-weight: 600 !important;
+  color: #111827 !important;
+  white-space: nowrap !important;
+  font-size: 11.5px !important;
+}
+
+.printable-proforma-invoice .doc-inv-meta-val {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+/* Preserved Company Header Block Typography - Exact Existing Footprint */
+.printable-proforma-invoice .doc-inv-company-name {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+}
+
+.printable-proforma-invoice .doc-inv-company-address {
+  font-size: 12px !important;
+  line-height: 1.28 !important;
+}
+
+.printable-proforma-invoice .doc-inv-company-phones,
+.printable-proforma-invoice .doc-inv-company-email,
+.printable-proforma-invoice .doc-inv-company-gstin,
+.printable-proforma-invoice .doc-inv-company-website {
+  font-size: 12px !important;
+}
+
+/* Targeted Document Typography Scale (+10-15%) Scoped to Proforma */
+.printable-proforma-invoice .doc-inv-party-pane {
+  padding: 5px 8px !important;
+  font-size: 13px !important;
+  line-height: 1.32 !important;
+}
+
+.printable-proforma-invoice .doc-inv-party-label {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+.printable-proforma-invoice .doc-inv-party-name {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+.printable-proforma-invoice .doc-inv-party-line {
+  font-size: 13px !important;
+}
+
+.doc-party-nowrap-line,
+.printable-proforma-invoice .doc-party-nowrap-line,
+.printable-sales-invoice .doc-party-nowrap-line {
+  white-space: nowrap !important;
+}
+
+.printable-proforma-invoice .doc-inv-party-gstin {
+  font-size: 13px !important;
+}
+
+.printable-proforma-invoice .proforma-items-table th {
+  font-size: 12px !important;
+  padding: 4px 4px !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+  border-bottom: 1px solid #111827 !important;
+  border-right: 1px solid #111827 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.printable-proforma-invoice .proforma-items-table th.doc-th-sl {
+  padding: 4px 2px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  text-transform: none !important;
+}
+
+.printable-proforma-invoice .proforma-items-table th.doc-th-desc {
+  padding-left: 8px !important;
+  padding-right: 6px !important;
+  text-align: left !important;
+}
+
+.printable-proforma-invoice .proforma-items-table th:last-child {
+  border-right: none !important;
+}
+
+.printable-proforma-invoice .proforma-items-table td {
+  font-size: 13px !important;
+  padding: 4px 4px !important;
+  border-bottom: 1px solid #111827 !important;
+  border-right: 1px solid #111827 !important;
+  color: #0f172a !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.printable-proforma-invoice .proforma-items-table td.proforma-cell-desc {
+  padding-left: 8px !important;
+  padding-right: 6px !important;
+}
+
+.printable-proforma-invoice .proforma-items-table td:last-child {
+  border-right: none !important;
+}
+
+.printable-proforma-invoice .doc-inv-item-name {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+
+.printable-proforma-invoice .doc-inv-item-sku {
+  font-size: 12.5px !important;
+}
+
+.printable-proforma-invoice .doc-inv-item-desc {
+  font-size: 12.5px !important;
+  line-height: 1.25 !important;
+}
+
+.printable-proforma-invoice .doc-serials-values {
+  font-size: 12.5px !important;
+}
+
+.printable-proforma-invoice .doc-inv-summary-row td {
+  padding: 3.5px 8px !important;
+  font-size: 13.5px !important;
+}
+
+.printable-proforma-invoice .doc-inv-summary-label {
+  font-size: 13.5px !important;
+}
+
+.printable-proforma-invoice .doc-inv-summary-val {
+  font-size: 13.5px !important;
+  white-space: nowrap !important;
+}
+
+.printable-proforma-invoice .doc-inv-total-row td {
+  padding: 4.5px 8px !important;
+  font-size: 13.5px !important;
+}
+
+.printable-proforma-invoice .doc-inv-total-row td.doc-inv-total-val,
+.printable-proforma-invoice td.doc-inv-total-val {
+  font-size: 15.5px !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+}
+
+.printable-proforma-invoice .doc-inv-words-box {
+  padding: 4px 8px !important;
+}
+
+.printable-proforma-invoice .doc-inv-words-title {
+  font-size: 12.5px !important;
+}
+
+.printable-proforma-invoice .doc-inv-words-text {
+  font-size: 14px !important;
+}
+
+.printable-proforma-invoice .doc-inv-tax-table th {
+  font-size: 12px !important;
+  padding: 3.5px 4px !important;
+}
+
+.printable-proforma-invoice .doc-inv-tax-table td {
+  font-size: 12.5px !important;
+  padding: 3.5px 6px !important;
+}
+
+.printable-proforma-invoice .doc-inv-tax-table tfoot td {
+  font-size: 12.5px !important;
+  padding: 3.5px 6px !important;
+}
+
+.printable-proforma-invoice .doc-inv-tax-words-strip {
+  font-size: 12.5px !important;
+  padding: 3px 8px !important;
+}
+
+.printable-proforma-invoice .doc-inv-bottom-box {
+  display: grid !important;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) !important;
+  border: 1px solid #111827 !important;
+  margin-bottom: 4px !important;
+  align-items: stretch !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+.printable-proforma-invoice .doc-inv-bottom-left {
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  border-right: 1px solid #111827 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+}
+
+.printable-proforma-invoice .doc-inv-bank-pane {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-proforma-invoice .doc-inv-bank-title {
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  margin-bottom: 2px !important;
+}
+
+.printable-proforma-invoice .doc-inv-bank-inline-wrap {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 3px 6px !important;
+  line-height: 1.35 !important;
+  color: #334155 !important;
+  font-size: 11.5px !important;
+}
+
+.printable-proforma-invoice .doc-inv-bank-inline-wrap strong {
+  color: #0f172a !important;
+}
+
+.printable-proforma-invoice .doc-inv-bottom-right {
+  padding: 6px 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.printable-proforma-invoice .doc-inv-for-company {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  align-self: flex-end !important;
+  white-space: nowrap !important;
+}
+
+.printable-proforma-invoice .doc-inv-authorized-label {
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  align-self: flex-end !important;
+  white-space: nowrap !important;
+}
+
+.printable-proforma-invoice .doc-inv-computer-notice {
+  font-size: 12px !important;
+  margin-top: 3px !important;
+}
+
+/* ==========================================================================
+   PRINTABLE SALES INVOICE (A4 PRINT & PDF TYPOGRAPHY & LAYOUT)
+   Inherits the improved typography scale and robust layout from Proforma
+   ========================================================================== */
+
+/* Top Header Box (50% Company | 50% Metadata) perfectly aligned with parties divider */
+.printable-sales-invoice .doc-inv-header-box {
+  display: grid !important;
+  grid-template-columns: 50% 50% !important;
+  border: 1px solid #111827 !important;
+  margin-bottom: -1px !important;
+  align-items: stretch !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+.printable-sales-invoice .doc-inv-company-pane,
+.printable-proforma-invoice .doc-inv-company-pane {
+  padding: 6px 8px !important;
+  display: flex !important;
+  gap: 9px !important;
+  align-items: flex-start !important;
+  border-right: 1px solid #111827 !important;
+  box-sizing: border-box !important;
+}
+
+.printable-sales-invoice .doc-inv-company-details,
+.printable-proforma-invoice .doc-inv-company-details {
+  flex: 1 1 auto !important;
+  font-family: 'Times New Roman', Times, Georgia, serif !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  color: #000000 !important;
+}
+
+.printable-sales-invoice .doc-inv-company-name,
+.printable-proforma-invoice .doc-inv-company-name {
+  font-family: 'Times New Roman', Times, Georgia, serif !important;
+  font-size: 15.5px !important;
+  font-weight: 700 !important;
+  color: #000000 !important;
+  margin: 0 0 2px 0 !important;
+  line-height: 1.25 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.printable-sales-invoice .doc-inv-company-address,
+.printable-proforma-invoice .doc-inv-company-address {
+  margin: 0 0 2px 0 !important;
+  color: #000000 !important;
+  line-height: 1.35 !important;
+  font-size: 13px !important;
+  font-family: 'Times New Roman', Times, Georgia, serif !important;
+}
+
+.printable-sales-invoice .dc-address-line,
+.printable-proforma-invoice .dc-address-line {
+  white-space: nowrap !important;
+  color: #000000 !important;
+  font-family: 'Times New Roman', Times, Georgia, serif !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+}
+
+.printable-sales-invoice .dc-city-pin,
+.printable-proforma-invoice .dc-city-pin {
+  white-space: nowrap !important;
+  color: #000000 !important;
+  font-family: 'Times New Roman', Times, Georgia, serif !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+}
+
+.printable-sales-invoice .dc-company-phone,
+.printable-proforma-invoice .dc-company-phone {
+  margin: 2px 0 0 0 !important;
+  font-size: 13px !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+  font-family: 'Times New Roman', Times, Georgia, serif !important;
+  white-space: nowrap !important;
+  line-height: 1.35 !important;
+}
+
+.printable-sales-invoice .dc-company-gstin,
+.printable-proforma-invoice .dc-company-gstin {
+  margin: 2px 0 0 0 !important;
+  font-size: 13px !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+  font-family: 'Times New Roman', Times, Georgia, serif !important;
+  white-space: nowrap !important;
+  line-height: 1.35 !important;
+}
+
+.printable-sales-invoice .doc-inv-meta-pane {
+  border-left: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+}
+
+.printable-sales-invoice .doc-inv-meta-table {
+  width: 100% !important;
+  height: 100% !important;
+  border-collapse: collapse !important;
+  table-layout: fixed !important;
+  font-size: 12px !important;
+}
+
+.printable-sales-invoice .doc-inv-meta-table td {
+  padding: 3.5px 5px !important;
+  border-bottom: 1px solid #111827 !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+}
+
+.printable-sales-invoice .doc-inv-meta-table tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* 2-Column Meta Table Geometry: 60% Ref/SO/Dispatch | 40% Date (approx 140px safe width) */
+.printable-sales-invoice .doc-meta-col-info {
+  width: 60% !important;
+}
+
+.printable-sales-invoice .doc-meta-col-date {
+  width: 40% !important;
+  min-width: 130px !important;
+}
+
+/* Also support 3-col legacy classes if present */
+.printable-sales-invoice .doc-meta-col-label {
+  width: 27% !important;
+}
+.printable-sales-invoice .doc-meta-col-val {
+  width: 39% !important;
+}
+
+.printable-sales-invoice .doc-inv-meta-cell-info {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  border-right: 1px solid #111827 !important;
+  padding: 3.5px 5px !important;
+  color: #0f172a !important;
+  line-height: 1.25 !important;
+  font-size: 12px !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+}
+
+.printable-sales-invoice .doc-inv-meta-cell-date {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-align: left !important;
+  padding: 3.5px 6px !important;
+  color: #0f172a !important;
+  line-height: 1.25 !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  vertical-align: middle !important;
+}
+
+.printable-sales-invoice .doc-inv-meta-key {
+  font-weight: 700 !important;
+  color: #111827 !important;
+  font-size: 12px !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  display: inline !important;
+}
+
+.printable-sales-invoice .doc-inv-meta-val {
+  font-weight: 600 !important;
+  color: #111827 !important;
+  font-size: 12px !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  display: inline !important;
+}
+
+.printable-sales-invoice .doc-inv-meta-val.bold {
+  font-weight: 700 !important;
+}
+
+.printable-sales-invoice .doc-inv-meta-date-wrap {
+  display: inline-flex !important;
+  align-items: baseline !important;
+  gap: 3px !important;
+  white-space: nowrap !important;
+}
+
+.printable-sales-invoice .doc-inv-meta-date-label {
+  font-weight: 700 !important;
+  color: #111827 !important;
+  white-space: nowrap !important;
+  font-size: 12px !important;
+}
+
+.printable-sales-invoice .doc-inv-meta-date-val {
+  font-weight: 600 !important;
+  color: #111827 !important;
+  white-space: nowrap !important;
+  font-size: 12px !important;
+}
+
+/* Company Header Block Typography */
+.printable-sales-invoice .doc-inv-company-name {
+  font-size: 15.5px !important;
+  font-weight: 700 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-company-address {
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-company-phones,
+.printable-sales-invoice .doc-inv-company-email,
+.printable-sales-invoice .doc-inv-company-gstin,
+.printable-sales-invoice .doc-inv-company-website {
+  font-size: 13px !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Parties Section Typography (+10-15% readability matching Proforma) */
+.printable-sales-invoice .doc-inv-parties-box {
+  border: 1px solid #111827 !important;
+}
+
+.printable-sales-invoice .doc-inv-party-pane {
+  padding: 5px 8px !important;
+  font-size: 13px !important;
+  line-height: 1.32 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-party-pane.border-right {
+  border-right: 1px solid #111827 !important;
+}
+
+.printable-sales-invoice .doc-inv-party-label {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-party-name {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-party-line {
+  font-size: 13px !important;
+  color: #334155 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-party-company {
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-party-state {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-party-gstin {
+  font-size: 13px !important;
+  color: #0f172a !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Product Line Items Table Typography */
+.printable-sales-invoice .doc-inv-table th {
+  font-size: 12px !important;
+  padding: 4px 4px !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+  border-bottom: 1px solid #111827 !important;
+  border-right: 1px solid #111827 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.printable-sales-invoice .doc-inv-table th.doc-th-sl {
+  padding: 4px 2px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  text-transform: none !important;
+}
+
+.printable-sales-invoice .doc-inv-table th.doc-th-desc {
+  padding-left: 8px !important;
+  padding-right: 6px !important;
+  text-align: left !important;
+}
+
+.printable-sales-invoice .doc-inv-table th:last-child {
+  border-right: none !important;
+}
+
+.printable-sales-invoice .doc-inv-table td {
+  font-size: 13px !important;
+  padding: 4px 4px !important;
+  border-bottom: 1px solid #111827 !important;
+  border-right: 1px solid #111827 !important;
+  color: #0f172a !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.printable-sales-invoice .doc-inv-table td:nth-child(2) {
+  padding-left: 8px !important;
+  padding-right: 6px !important;
+}
+
+.printable-sales-invoice .doc-inv-table td:last-child {
+  border-right: none !important;
+}
+
+.printable-sales-invoice .doc-inv-table-wrapper {
+  border: 1px solid #111827 !important;
+}
+
+.printable-sales-invoice .doc-inv-item-name {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-item-sku {
+  font-size: 12.5px !important;
+  color: #475569 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-item-desc {
+  font-size: 12.5px !important;
+  line-height: 1.25 !important;
+  color: #334155 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-item-serials {
+  font-size: 12.5px !important;
+  color: #0f172a !important;
+  font-weight: 500 !important;
+  font-family: monospace !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Summary Rows */
+.printable-sales-invoice .doc-inv-summary-row td {
+  padding: 3.5px 8px !important;
+  font-size: 13.5px !important;
+  border-bottom: 1px solid #111827 !important;
+  border-color: #111827 !important;
+}
+
+.printable-sales-invoice .doc-inv-summary-label {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+}
+
+.printable-sales-invoice .doc-inv-summary-val {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+
+.printable-sales-invoice .doc-inv-total-row td {
+  padding: 4.5px 8px !important;
+  font-size: 13.5px !important;
+  border-bottom: none !important;
+  border-color: #111827 !important;
+}
+
+.printable-sales-invoice .doc-inv-total-row td.doc-inv-total-val,
+.printable-sales-invoice td.doc-inv-total-val {
+  font-size: 15.5px !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+}
+
+/* Amount in Words Box */
+.printable-sales-invoice .doc-inv-words-box {
+  padding: 4px 8px !important;
+  border: 1px solid #111827 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-words-title {
+  font-size: 12.5px !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-words-text {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Tax Table */
+.printable-sales-invoice .doc-inv-tax-box {
+  border: 1px solid #111827 !important;
+}
+
+.printable-sales-invoice .doc-inv-tax-table th {
+  font-size: 12px !important;
+  padding: 3.5px 4px !important;
+  border-bottom: 1px solid #111827 !important;
+  border-right: 1px solid #111827 !important;
+}
+
+.printable-sales-invoice .doc-inv-tax-table td {
+  font-size: 12.5px !important;
+  padding: 3.5px 6px !important;
+  border-bottom: 1px solid #111827 !important;
+  border-right: 1px solid #111827 !important;
+}
+
+.printable-sales-invoice .doc-inv-tax-table tfoot td {
+  font-size: 12.5px !important;
+  padding: 3.5px 6px !important;
+  border-bottom: 1px solid #111827 !important;
+  border-right: 1px solid #111827 !important;
+}
+
+.printable-sales-invoice .doc-inv-tax-words-strip {
+  font-size: 12.5px !important;
+  padding: 3px 8px !important;
+  border-top: 1px solid #111827 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Bottom Section */
+.printable-sales-invoice .doc-inv-bottom-box {
+  display: grid !important;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) !important;
+  border: 1px solid #111827 !important;
+}
+
+.printable-sales-invoice .doc-inv-bottom-left {
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  border-right: 1px solid #111827 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-bank-pane {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-bank-title {
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+.printable-sales-invoice .doc-inv-bank-inline-wrap {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 3px 6px !important;
+  line-height: 1.35 !important;
+  color: #334155 !important;
+  font-size: 11.5px !important;
+}
+
+.printable-sales-invoice .doc-inv-bank-inline-wrap strong {
+  color: #0f172a !important;
+}
+
+.printable-sales-invoice .doc-inv-bank-sep {
+  color: #94a3b8 !important;
+  font-weight: 400 !important;
+  user-select: none !important;
+}
+
+.printable-sales-invoice .doc-inv-bank-terms {
+  font-size: 11.5px !important;
+  line-height: 1.3 !important;
+  color: #334155 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+.printable-sales-invoice .doc-inv-bottom-right {
+  padding: 6px 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.printable-sales-invoice .doc-inv-for-company {
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  align-self: flex-end !important;
+}
+
+.printable-sales-invoice .doc-inv-authorized-label {
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.02em !important;
+}
+
+.printable-sales-invoice .doc-inv-authorized-label {
+  font-size: 13px !important;
+}
+
+.printable-sales-invoice .doc-inv-computer-notice {
+  font-size: 12px !important;
+  margin-top: 3px !important;
+}
+
+/* ==========================================================================
+   DELIVERY CHALLAN FINAL ARCHITECTURE & PRINT-FORM STYLES
+   Compact, structured, low-whitespace, matching physical printed sample
+   ========================================================================== */
+
+.printable-delivery-challan {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  color: #000000;
+  background: #ffffff;
+  font-family: 'Times New Roman', Times, Georgia, serif;
+  font-size: 13px;
+  line-height: 1.3;
+  box-sizing: border-box;
+}
+
+/* 1. Page Top / Title Architecture */
+.dc-top-title-wrap {
+  text-align: center;
+  margin: 0 0 8px 0;
+  padding: 0;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.dc-main-title {
+  margin: 0;
+  padding: 0;
+  font-family: 'Times New Roman', Times, Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #000000;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.dc-title-divider {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* 2. Header Architecture (50% Company | 50% Metadata - perfectly aligned with parties section) */
+.dc-header-box {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  border: 1px solid #000000;
+  margin-bottom: -1px; /* collapse border with next section */
+  align-items: stretch;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.dc-company-pane {
+  padding: 6px 8px;
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  box-sizing: border-box;
+  border-right: 1px solid #000000;
+}
+
+.dc-doc-logo-wrap,
+.dc-logo-wrap {
+  flex: 0 0 auto;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  align-self: flex-start !important;
+}
+
+.dc-doc-company-logo,
+.printable-delivery-challan .dc-company-logo,
+.dc-company-logo {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain !important;
+  display: block !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.dc-doc-company-details,
+.dc-company-details {
+  flex: 1 1 auto;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #000000;
+}
+
+.dc-doc-company-name,
+.printable-delivery-challan .dc-company-name,
+.dc-company-name {
+  font-family: 'Times New Roman', Times, Georgia, serif !important;
+  font-size: 15.5px !important;
+  font-weight: 700 !important;
+  color: #000000 !important;
+  margin: 0 0 2px 0 !important;
+  line-height: 1.25 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.dc-company-address {
+  margin: 0 0 2px 0;
+  color: #000000;
+  line-height: 1.35;
+  font-size: 13px;
+}
+
+.dc-address-line {
+  white-space: nowrap !important;
+  color: #000000;
+  font-size: 13px;
+}
+
+.dc-city-pin {
+  white-space: nowrap !important;
+  color: #000000;
+  font-size: 13px;
+}
+
+.dc-company-phone {
+  margin: 2px 0 0 0;
+  font-size: 13px;
+  color: #000000;
+  font-weight: 700;
+}
+
+.dc-company-gstin {
+  margin: 2px 0 0 0;
+  font-size: 13px;
+  color: #000000;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.printable-delivery-challan .dc-meta-pane,
+.dc-meta-pane {
+  border-left: none !important;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.printable-delivery-challan .dc-meta-table,
+.dc-meta-table {
+  width: 100% !important;
+  height: 100% !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  font-size: 13px;
+  table-layout: fixed;
+}
+
+.printable-delivery-challan .dc-meta-table td,
+.dc-meta-table td {
+  padding: 3px 6px !important;
+  border-bottom: 1px solid #000000 !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+  line-height: 1.25 !important;
+  color: #000000 !important;
+  display: table-cell !important;
+}
+
+.printable-delivery-challan .dc-meta-table tr:last-child td,
+.dc-meta-table tr:last-child td {
+  border-bottom: none !important;
+}
+
+.printable-delivery-challan .dc-doc-meta-label,
+.dc-doc-meta-label {
+  width: 96px !important;
+  min-width: 96px !important;
+  max-width: 96px !important;
+  font-weight: 700 !important;
+  color: #000000 !important;
+  text-align: left !important;
+  border-right: none !important;
+  white-space: nowrap !important;
+  display: table-cell !important;
+}
+
+.printable-delivery-challan .dc-doc-meta-sep,
+.dc-doc-meta-sep {
+  width: 14px !important;
+  min-width: 14px !important;
+  max-width: 14px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  border-right: none !important;
+  color: #000000 !important;
+  padding: 0 !important;
+  display: table-cell !important;
+}
+
+.printable-delivery-challan .dc-doc-meta-value,
+.dc-doc-meta-value {
+  padding-left: 6px !important;
+  font-weight: 500 !important;
+  color: #000000 !important;
+  text-align: left !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  display: table-cell !important;
+}
+
+/* 3. Consignee / Delivery Section (Two Columns, 50/50, 3 Structured Rows) */
+.dc-parties-box {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #000000;
+  margin-bottom: -1px; /* collapse border */
+  box-sizing: border-box;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  background: #ffffff;
+}
+
+.dc-parties-row {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  box-sizing: border-box;
+}
+
+.dc-parties-header-row {
+  border-bottom: 1px solid #000000;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.dc-parties-client-row {
+  border-bottom: 1px solid #000000;
+  min-height: 28px;
+}
+
+.dc-parties-cell {
+  padding: 4px 8px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.dc-parties-client-row .dc-parties-cell {
+  padding: 4px 8px;
+}
+
+.dc-parties-cell.border-right {
+  border-right: 1px solid #000000;
+}
+
+.dc-party-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 2px;
+}
+
+.dc-party-company {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 2px;
+}
+
+.dc-party-address {
+  font-size: 12.5px;
+  color: #000000;
+  line-height: 1.3;
+}
+
+.dc-party-gstin {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #000000;
+  margin-top: 2px;
+}
+
+.dc-eng-field {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 2px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.dc-eng-field:last-child {
+  margin-bottom: 0;
+}
+
+.dc-eng-label {
+  font-weight: 700;
+  color: #000000;
+  white-space: nowrap;
+}
+
+.dc-eng-sep {
+  font-weight: 700;
+  color: #000000;
+}
+
+.dc-eng-val {
+  color: #000000;
+  font-weight: 500;
+}
+
+/* 4. Main Items Table (Full-Width, Pure Black Header, White Text, 16 Rows Total) */
+.printable-delivery-challan .dc-doc-table-wrapper,
+.dc-doc-table-wrapper {
+  width: 100%;
+  border: 1px solid #000000;
+  margin-bottom: -1px;
+  box-sizing: border-box;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.printable-delivery-challan .dc-doc-table,
+.dc-doc-table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.printable-delivery-challan .dc-doc-table thead th,
+.dc-doc-table thead th {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #000000 !important;
+  border-right: 1px solid #334155 !important;
+  padding: 5px 6px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.03em !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+}
+
+.printable-delivery-challan .dc-doc-table thead th:first-child,
+.dc-doc-table thead th:first-child {
+  text-transform: none !important;
+}
+
+.printable-delivery-challan .dc-doc-table th:last-child,
+.dc-doc-table th:last-child {
+  border-right: none !important;
+}
+
+.printable-delivery-challan .dc-doc-table tbody td,
+.dc-doc-table tbody td {
+  padding: 3px 6px !important;
+  border-bottom: 1px solid #000000 !important;
+  border-right: 1px solid #000000 !important;
+  vertical-align: middle !important;
+  color: #000000 !important;
+  box-sizing: border-box !important;
+  line-height: 1.25 !important;
+}
+
+.printable-delivery-challan .dc-doc-table td:last-child,
+.dc-doc-table td:last-child {
+  border-right: none !important;
+}
+
+.printable-delivery-challan .dc-doc-table tr:last-child td,
+.dc-doc-table tr:last-child td {
+  border-bottom: none !important;
+}
+
+.printable-delivery-challan .dc-doc-table tbody tr.dc-product-row td,
+.dc-doc-table tbody tr.dc-product-row td {
+  padding: 6px 10px !important;
+  vertical-align: top !important;
+  box-sizing: border-box !important;
+}
+
+.printable-delivery-challan .dc-empty-row td,
+.dc-doc-table .dc-empty-row td {
+  height: 22px !important;
+  padding: 0 6px !important;
+  vertical-align: middle !important;
+}
+
+.printable-delivery-challan .dc-item-title,
+.dc-item-title {
+  font-weight: 700;
+  color: #000000 !important;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.printable-delivery-challan .dc-item-sku,
+.dc-item-sku {
+  font-size: 12px;
+  color: #000000 !important;
+  margin-top: 2px;
+  line-height: 1.25;
+}
+
+.printable-delivery-challan .dc-item-desc,
+.dc-item-desc {
+  font-size: 12px;
+  color: #000000 !important;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.printable-delivery-challan .dc-item-serials,
+.dc-item-serials {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #000000 !important;
+  line-height: 1.3;
+}
+
+/* 5. Goods / Delivery Condition Box */
+.printable-delivery-challan .dc-condition-box,
+.dc-condition-box {
+  border: 1px solid #000000;
+  margin-bottom: -1px;
+  padding: 5px 8px;
+  background: #ffffff;
+  box-sizing: border-box;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  color: #000000;
+}
+
+.printable-delivery-challan .dc-condition-text,
+.dc-condition-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #000000;
+  line-height: 1.25;
+}
+
+.printable-delivery-challan .dc-condition-remarks,
+.dc-condition-remarks {
+  font-size: 12px;
+  color: #000000;
+  margin-top: 2px;
+  line-height: 1.25;
+}
+
+/* 6. Signatures Section (Equal Width 50/50, Same Height, Square Corners) */
+.printable-delivery-challan .dc-signatures-box,
+.dc-signatures-box {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  border: 1px solid #000000;
+  margin-bottom: -1px;
+  box-sizing: border-box;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  background: #ffffff;
+  color: #000000;
+}
+
+.printable-delivery-challan .dc-sig-col,
+.dc-sig-col {
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 105px;
+  box-sizing: border-box;
+  color: #000000;
+}
+
+.printable-delivery-challan .dc-sig-col.border-right,
+.dc-sig-col.border-right {
+  border-right: 1px solid #000000;
+}
+
+.printable-delivery-challan .dc-sig-title,
+.dc-sig-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #000000;
+  line-height: 1.25;
+}
+
+.printable-delivery-challan .dc-sig-space,
+.dc-sig-space {
+  flex: 1 1 auto;
+  min-height: 48px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.printable-delivery-challan .dc-sig-receiver-name,
+.dc-sig-receiver-name {
+  font-size: 13px;
+  color: #000000;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.printable-delivery-challan .dc-sig-line,
+.dc-sig-line {
+  border-top: 1px dashed #000000;
+  margin: 3px 0 4px 0;
+  width: 100%;
+}
+
+.printable-delivery-challan .dc-sig-auth,
+.dc-sig-auth {
+  font-size: 12px;
+  color: #000000;
+  font-weight: 700;
+}
+
+/* 7. Footer Notice */
+.printable-delivery-challan .dc-footer-notice,
+.dc-footer-notice {
+  text-align: center;
+  font-size: 12px;
+  color: #000000;
+  margin-top: 6px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+
+
+
+
+
+/* ==========================================================================
+   OFFICIAL ASI QUOTATION FORMAT STYLES
+   Exact reproduction of real-world printed ASI quotation samples
+   media_1790317792590.png (Page 1) & media_1790317799226.png (Page 2)
+   ========================================================================== */
+
+.doc-sheet-root.doc-quotation-root {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 210mm !important;
+  margin: 0 auto !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.doc-quotation-root * {
+  box-sizing: border-box;
+}
+
+.doc-quotation-page {
+  position: relative;
+  width: 100%;
+  max-width: 210mm;
+  min-height: 297mm;
+  padding: 10mm 10mm 10mm 30mm; /* Strict 30mm (3cm) protected left-side binding margin */
+  background: #ffffff;
+  box-sizing: border-box;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.doc-quotation-page-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.doc-preview-paper.quotation-paper,
+.doc-preview-paper:has(.doc-quotation-root),
+.doc-preview-paper:has(.doc-paged-root) {
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.doc-quotation-page.doc-page-break {
+  page-break-after: always !important;
+  break-after: page !important;
+  margin-bottom: 0px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Viewer-only Inter-Page Gap & Separator */
+.quotation-viewer-page-gap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  margin: 24px 0;
+  user-select: none;
+}
+
+.quotation-viewer-gap-line {
+  flex: 1;
+  height: 1px;
+  background: #cbd5e1;
+}
+
+.quotation-viewer-gap-badge {
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 14px;
+  border-radius: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid #cbd5e1;
+}
+
+@media print {
+  .doc-sheet-root.doc-quotation-root {
+    width: 210mm !important;
+    max-width: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .doc-quotation-page {
+    width: 210mm !important;
+    max-width: 210mm !important;
+    min-height: 297mm !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: 10mm 10mm 10mm 30mm !important; /* Strict 30mm (3cm) protected left-side binding margin for print */
+    box-shadow: none !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+  }
+  .doc-quotation-page.doc-page-break {
+    page-break-after: always !important;
+    break-after: page !important;
+    margin-bottom: 0 !important;
+    box-shadow: none !important;
+  }
+  .quotation-viewer-page-gap {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+.is-exporting-pdf .quotation-viewer-page-gap {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.is-exporting-pdf .doc-sheet-root.doc-quotation-root,
+.doc-sheet-root.doc-quotation-root.is-exporting-pdf {
+  width: 210mm !important;
+  max-width: 210mm !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.is-exporting-pdf .doc-quotation-page {
+  width: 210mm !important;
+  max-width: 210mm !important;
+  min-height: 297mm !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 10mm 10mm 10mm 30mm !important; /* Strict 30mm (3cm) protected left-side binding margin for PDF */
+  box-sizing: border-box !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+
+/* ==========================================================================
+   MULTI-PAGE ARCHITECTURE FOR INVOICE, PROFORMA, DELIVERY CHALLAN, PURCHASE ORDER
+   ========================================================================== */
+.doc-sheet-root.doc-paged-root {
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+}
+
+.doc-paged-page {
+  position: relative;
+  width: 100%;
+  max-width: 210mm;
+  min-height: 297mm;
+  padding: 8mm 8mm 8mm 8mm;
+  background: #ffffff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 30mm (3cm) Protected Left-Side Binding Margin for Delivery Challan, Sales Invoice, and Proforma Invoice */
+.printable-delivery-challan .doc-paged-page,
+.printable-sales-invoice .doc-paged-page,
+.printable-proforma-invoice .doc-paged-page {
+  padding: 8mm 8mm 8mm 30mm !important;
+}
+
+/* Purchase Order STRICT EXCEPTION: Preserve 100% original 8mm symmetric margins */
+.doc-po-root .doc-paged-page {
+  padding: 8mm 8mm 8mm 8mm !important;
+}
+
+.doc-paged-page-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.doc-paged-page.doc-page-break {
+  page-break-after: always !important;
+  break-after: page !important;
+  margin-bottom: 0px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.doc-viewer-page-gap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  margin: 24px 0;
+  user-select: none;
+}
+
+.doc-viewer-gap-line {
+  flex: 1;
+  height: 1px;
+  background: #cbd5e1;
+}
+
+.doc-viewer-gap-badge {
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 14px;
+  border-radius: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid #cbd5e1;
+}
+
+@media print {
+  .doc-sheet-root.doc-paged-root {
+    width: 210mm !important;
+    max-width: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .doc-paged-page {
+    width: 210mm !important;
+    max-width: 210mm !important;
+    min-height: 297mm !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: 8mm 8mm 8mm 8mm !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+  }
+  /* 30mm Protected Left-Side Binding Margin for Print */
+  .printable-delivery-challan .doc-paged-page,
+  .printable-sales-invoice .doc-paged-page,
+  .printable-proforma-invoice .doc-paged-page {
+    padding: 8mm 8mm 8mm 30mm !important;
+  }
+  /* Purchase Order STRICT EXCEPTION for Print: Keep 8mm symmetric margins */
+  .doc-po-root .doc-paged-page {
+    padding: 8mm 8mm 8mm 8mm !important;
+  }
+  .doc-paged-page.doc-page-break {
+    page-break-after: always !important;
+    break-after: page !important;
+    margin-bottom: 0 !important;
+    box-shadow: none !important;
+  }
+  .doc-viewer-page-gap {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+.is-exporting-pdf .doc-viewer-page-gap {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.is-exporting-pdf .doc-sheet-root.doc-paged-root,
+.doc-sheet-root.doc-paged-root.is-exporting-pdf {
+  width: 210mm !important;
+  max-width: 210mm !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.is-exporting-pdf .doc-paged-page {
+  width: 210mm !important;
+  max-width: 210mm !important;
+  min-height: 297mm !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 8mm 8mm 8mm 8mm !important;
+  box-sizing: border-box !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+
+/* 30mm Protected Left-Side Binding Margin for PDF Export */
+.is-exporting-pdf .printable-delivery-challan .doc-paged-page,
+.printable-delivery-challan.is-exporting-pdf .doc-paged-page,
+.is-exporting-pdf .printable-sales-invoice .doc-paged-page,
+.printable-sales-invoice.is-exporting-pdf .doc-paged-page,
+.is-exporting-pdf .printable-proforma-invoice .doc-paged-page,
+.printable-proforma-invoice.is-exporting-pdf .doc-paged-page {
+  padding: 8mm 8mm 8mm 30mm !important;
+}
+
+/* Purchase Order STRICT EXCEPTION for PDF Export: Keep 8mm symmetric margins */
+.is-exporting-pdf .doc-po-root .doc-paged-page,
+.doc-po-root.is-exporting-pdf .doc-paged-page {
+  padding: 8mm 8mm 8mm 8mm !important;
+}
+
+/* Ensure Watermark is Crisp & Visible in PDF Export across all documents */
+.is-exporting-pdf .doc-inv-watermark-overlay,
+.is-exporting-pdf .quotation-watermark,
+.doc-sheet-root.is-exporting-pdf .doc-inv-watermark-overlay,
+.doc-sheet-root.is-exporting-pdf .quotation-watermark {
+  opacity: 0.12 !important;
+  display: flex !important;
+  visibility: visible !important;
+}
+
+/* Compact Continuation Header on Page 3+ (No Address, No Contacts) */
+.quotation-continuation-compact-wrap {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid #000000;
+  position: relative;
+  z-index: 1;
+}
+
+.quotation-continuation-compact-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.quotation-continuation-compact-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quotation-continuation-logo-img {
+  max-height: 38px;
+  max-width: 90px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.quotation-continuation-brand-text {
+  font-size: 14px;
+  font-weight: 800;
+  color: #374151;
+  letter-spacing: normal;
+}
+
+.quotation-continuation-brand-text .asi-brand-initial {
+  color: #bdd63d;
+  font-weight: 800;
+}
+
+.quotation-continuation-compact-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12.5px;
+  color: #000000;
+  white-space: nowrap;
+}
+
+.quotation-continuation-page-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+
+.quotation-continuation-compact-sub {
+  margin-top: 6px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #000000;
+}
+
+/* Quotation Continuation Header on Page 2+ */
+.quotation-continuation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  border-bottom: 1.5px solid #000000;
+  position: relative;
+  z-index: 1;
+}
+
+.quotation-continuation-brand {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quotation-continuation-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #334155;
+  letter-spacing: 0.04em;
+  background: #f1f5f9;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid #cbd5e1;
+}
+
+.quotation-continuation-meta {
+  font-size: 10.5px;
+  color: #000000;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.quotation-continuation-sep {
+  color: #94a3b8;
+}
+
+.quotation-continuation-page {
+  font-weight: 800;
+  color: #000000;
+}
+
+/* Watermark (Centered on 170mm content area: 30mm + 85mm = 115mm) */
+.quotation-watermark {
+  position: absolute;
+  top: 50%;
+  left: 115mm;
+  transform: translate(-50%, -50%);
+  width: 440px;
+  max-width: 60%;
+  pointer-events: none;
+  z-index: 0;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.11;
+}
+
+.quotation-watermark-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.quotation-watermark-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+}
+
+/* Letterhead Top Header */
+.quotation-header-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.quotation-header-logo {
+  flex: 0 0 152px;
+  width: 152px;
+  max-width: 160px;
+  min-height: 150px;
+  padding-top: 0px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.quotation-header-logo-img {
+  width: auto;
+  max-width: 152px;
+  max-height: 150px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.quotation-header-company {
+  flex: 0 0 246px;
+  min-width: 246px;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #000000;
+}
+
+.quotation-company-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #374151 !important; /* Subtle dark grey */
+  margin-bottom: 2px;
+  letter-spacing: normal;
+  line-height: 1.25;
+}
+
+.quotation-company-name .asi-brand-initial {
+  color: #bdd63d !important; /* Exact primary green sampled from ASI logo artwork */
+  font-weight: 800;
+}
+
+.quotation-company-iso {
+  display: none !important; /* ISO removed as required */
+  font-size: 13px;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 4px;
+  line-height: 1.35;
+}
+
+.quotation-company-address {
+  font-size: 14px;
+  color: #000000;
+  margin-bottom: 8px; /* Clean gap before phone */
+  line-height: 1.45;
+}
+
+.quotation-company-contacts {
+  font-size: 14px;
+  color: #000000;
+  display: block;
+}
+
+.quotation-contact-row {
+  display: flex;
+  align-items: baseline;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #000000;
+}
+
+.quotation-contact-label {
+  width: 68px;
+  flex: 0 0 68px;
+  font-weight: 500;
+  color: #000000;
+}
+
+.quotation-contact-sep {
+  width: 14px;
+  flex: 0 0 14px;
+  text-align: center;
+  color: #000000;
+}
+
+.quotation-contact-val {
+  font-weight: 500;
+  color: #000000;
+  letter-spacing: 0.01em;
+}
+
+/* Quotation Meta Row: Left Subject Line, Right Ref No & Date */
+.quotation-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 20px;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Page 1 Ref No & Date Row (Moved down by exactly one additional text line after E-Mail) */
+.quotation-page1-meta-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Page 2 Meta Row: Left Subject, Right Ref No & Date */
+.quotation-page2-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 22px;
+  margin-bottom: 22px;
+  position: relative;
+  z-index: 1;
+}
+
+.quotation-page2-subject {
+  font-size: 14px;
+  font-weight: 800;
+  color: #000000;
+}
+
+/* Ref No & Date Block (Lower Right) */
+.quotation-header-ref-block {
+  display: inline-flex;
+  flex-direction: column;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #000000;
+  white-space: nowrap;
+}
+
+.quotation-header-ref-no {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #000000;
+  text-align: left;
+}
+
+.quotation-header-ref-subrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 3px;
+  width: 100%;
+}
+
+.quotation-header-ref-code {
+  font-size: 13px;
+  font-weight: 700;
+  color: #000000;
+  text-align: left;
+}
+
+.quotation-header-ref-date {
+  font-size: 13px;
+  font-weight: 700;
+  color: #000000;
+  text-align: right;
+  margin-top: 0;
+}
+
+/* Customer Section (Left) */
+.quotation-customer-section {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #000000;
+  margin-bottom: 34px;
+  position: relative;
+  z-index: 1;
+  max-width: 72%;
+}
+
+.quotation-to-heading {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.quotation-customer-company {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #000000;
+}
+
+.quotation-customer-name {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.quotation-customer-line {
+  font-size: 13.5px;
+  color: #000000;
+}
+
+/* Subject Line (one additional text line of gap before Dear Sir) */
+.quotation-subject-line {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #000000;
+  margin: 0 0 18px 0;
+  line-height: 1.4;
+  position: relative;
+  z-index: 1;
+}
+
+.quotation-subject-line u {
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+/* Salutation & Introduction */
+.quotation-intro-section {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: #000000;
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 1;
+}
+
+.quotation-salutation {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.quotation-intro-paragraph {
+  text-align: justify;
+  line-height: 1.75;
+  margin: 0;
+}
+
+/* Signoff Section */
+.quotation-signoff-section {
+  font-size: 13.5px;
+  color: #000000;
+  margin-top: 55px;
+  position: relative;
+  z-index: 1;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.quotation-signoff-regards {
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.quotation-signoff-for {
+  margin-bottom: 10px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.quotation-seal-wrap {
+  margin-top: 12px;
+  width: 115px;
+  position: relative;
+}
+
+.quotation-sig-seal-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.quotation-sig-img {
+  max-height: 55px;
+  max-width: 145px;
+  object-fit: contain;
+  display: block;
+}
+
+.quotation-seal-img {
+  max-height: 95px;
+  max-width: 95px;
+  object-fit: contain;
+  display: block;
+}
+
+
+/* Quotation Items Table */
+.quotation-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  table-layout: fixed !important;
+  font-size: 12px !important;
+  color: #000000 !important;
+  margin-bottom: 8px !important;
+  position: relative;
+  z-index: 1;
+  border: 1.5px solid #9ca3af !important; /* Lighter grey table outer border */
+}
+
+.quotation-table th {
+  border: 1px solid #9ca3af !important; /* Lighter grey column & row dividers */
+  border-bottom: 1.5px solid #9ca3af !important;
+  padding: 6px 4px !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  letter-spacing: 0.01em !important;
+  color: #000000 !important;
+  background: #ffffff !important; /* Crisp white cell background */
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  box-sizing: border-box !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.quotation-table td {
+  border: 1px solid #9ca3af !important; /* Lighter grey column & row dividers */
+  padding: 6px 5px !important;
+  vertical-align: middle !important;
+  line-height: 1.35 !important;
+  color: #000000 !important;
+  font-size: 12px !important;
+  background: #ffffff !important; /* Crisp white cell background */
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.quotation-table td.quotation-qty-cell,
+.quotation-qty-cell {
+  text-align: center !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  padding: 6px 4px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.quotation-table td.quotation-sl-cell,
+.quotation-sl-cell {
+  text-align: center !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  padding: 6px 3px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+.quotation-table th.quotation-sl-th {
+  padding: 6px 1px !important;
+  text-align: center !important;
+}
+
+.quotation-table th.quotation-qty-th {
+  padding: 6px 2px !important;
+  text-align: center !important;
+}
+
+.quotation-table th.quotation-hsn-th {
+  padding: 6px 1px !important;
+  text-align: center !important;
+}
+
+.quotation-table td.quotation-hsn-cell,
+.quotation-hsn-cell {
+  text-align: center !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+  font-size: 12px !important;
+}
+
+.quotation-table .item-name {
+  font-weight: 700 !important;
+  color: #000000 !important;
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+.quotation-table .item-desc {
+  font-size: 11.5px !important;
+  color: #1e293b !important;
+  margin-top: 3px !important;
+  white-space: pre-wrap !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.35 !important;
+}
+
+.quotation-table .tax-rate-sub,
+.quotation-table .discount-rate-sub {
+  font-size: 10.5px !important;
+  color: #334155 !important;
+  font-weight: 600 !important;
+  margin-top: 2px !important;
+  line-height: 1.2 !important;
+}
+
+.quotation-table .quotation-empty-cell-dash {
+  display: inline-block;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.quotation-table td.quotation-numeric-cell,
+.quotation-table th.quotation-numeric-cell,
+.quotation-table td.quotation-amount-cell,
+.quotation-table td.quotation-discount-cell,
+.quotation-table td.quotation-tax-cell,
+.quotation-table td.quotation-price-cell {
+  text-align: center !important;
+  vertical-align: middle !important;
+  padding: 6px 4px !important;
+}
+
+.quotation-filler-row td {
+  height: 28px !important;
+  min-height: 28px !important;
+  line-height: 28px !important;
+  padding: 0 !important;
+  border: 1px solid #9ca3af !important;
+  background: #ffffff !important;
+}
+
+.quotation-total-row td {
+  border: 1px solid #9ca3af !important;
+  padding: 5px 6px !important;
+  background: #ffffff !important;
+}
+
+.quotation-total-row .quotation-total-blank {
+  border: 1px solid #9ca3af !important;
+  background: #ffffff !important;
+}
+
+.quotation-total-label {
+  text-align: right !important;
+  font-weight: 700 !important;
+  font-size: 12.5px !important;
+  white-space: nowrap !important;
+  border: 1px solid #9ca3af !important;
+  color: #000000 !important;
+}
+
+.quotation-total-val {
+  text-align: right !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  border: 1px solid #9ca3af !important;
+  white-space: nowrap !important;
+  color: #000000 !important;
+}
+
+.grand-total-row .quotation-total-label,
+.grand-total-row .quotation-total-val {
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  border-top: 1.5px solid #9ca3af !important;
+  border-bottom: 2px solid #9ca3af !important;
+}
+
+/* Reference-Style Totals Section continuing directly under item table */
+.quotation-total-ref-row td {
+  border: 1px solid #9ca3af !important;
+  padding: 6px 8px !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.quotation-total-ref-label-cell {
+  text-align: right !important;
+  font-weight: 700 !important;
+  font-size: 12.5px !important;
+  color: #000000 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase !important;
+  padding-right: 12px !important;
+  border: 1px solid #9ca3af !important;
+}
+
+.quotation-total-ref-val-cell {
+  text-align: center !important;
+  vertical-align: middle !important;
+  font-weight: 700 !important;
+  font-size: 12.5px !important;
+  color: #000000 !important;
+  white-space: nowrap !important;
+  padding: 6px 4px !important;
+  border: 1px solid #9ca3af !important;
+}
+
+.quotation-grand-total-ref-row td {
+  border-top: 1.5px solid #9ca3af !important;
+  border-bottom: 1.5px solid #9ca3af !important;
+  background: #ffffff !important;
+}
+
+.quotation-grand-total-ref-row .quotation-grand-total-label {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #000000 !important;
+}
+
+.quotation-grand-total-ref-row .quotation-grand-total-val {
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  color: #000000 !important;
+  padding: 6px 2px !important;
+}
+
+/* Number in Words inside table as last row */
+.quotation-words-ref-row td,
+.quotation-words-table-cell {
+  border: 1px solid #9ca3af !important;
+  border-top: 1.5px solid #9ca3af !important;
+  padding: 6px 8px !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  text-align: left !important;
+  vertical-align: middle !important;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+}
+
+.quotation-words-table-cell strong {
+  font-weight: 700 !important;
+  color: #000000 !important;
+}
+
+/* Deprecate standalone external Number in Words */
+.quotation-amount-words {
+  display: none !important;
+}
+
+.quotation-amount-words strong {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+/* General Terms & Conditions */
+.quotation-terms-section {
+  font-size: 12px !important;
+  color: #000000 !important;
+  line-height: 1.45 !important;
+  margin-bottom: 14px !important;
+  position: relative;
+  z-index: 1;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.quotation-terms-title {
+  font-weight: 800 !important;
+  margin-bottom: 4px !important;
+  font-size: 13.5px !important;
+  color: #000000 !important;
+}
+
+.quotation-terms-note {
+  font-weight: 700 !important;
+  margin-bottom: 4px !important;
+  font-size: 12.5px !important;
+  color: #000000 !important;
+}
+
+.quotation-terms-list {
+  margin: 0 !important;
+  padding-left: 20px !important;
+}
+
+.quotation-terms-list li {
+  margin-bottom: 3px !important;
+  font-size: 12px !important;
+  color: #000000 !important;
+}
+
+.quotation-signoff-section {
+  position: relative;
+  z-index: 1;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.quotation-signoff-regards {
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: #000000 !important;
+}
+
+.quotation-signoff-for {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #000000 !important;
+  margin-top: 3px !important;
+}
+
+.quotation-sig-seal-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.quotation-signoff-section.page2-signoff {
+  margin-top: 14px !important;
+}
+
+/* ==========================================================================
+   OFFICIAL PURCHASE ORDER DOCUMENT STYLES (A4 PRINT & PDF)
+   Strictly A4 Portrait (194mm safe printable width), high-contrast borders,
+   crisp typography, zero CRM leakage, matching official reference structure.
+   ========================================================================== */
+
+.doc-po-root {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 194mm;
+  margin: 0 auto;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  padding: 2mm 0;
+  position: relative;
+}
+
+.doc-po-root * {
+  box-sizing: border-box;
+}
+
+/* Background Watermark Logo for Purchase Order */
+.doc-po-root .doc-po-watermark-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 440px;
+  max-width: 62%;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.095;
+  mix-blend-mode: multiply;
+}
+
+.doc-po-root .doc-po-top-title,
+.doc-po-root .doc-po-header-box,
+.doc-po-root .doc-po-parties-box,
+.doc-po-root .doc-po-table-wrapper,
+.doc-po-root .doc-po-words-box,
+.doc-po-root .doc-po-terms-box,
+.doc-po-root .doc-po-signatures-box,
+.doc-po-root .doc-po-computer-notice {
+  position: relative;
+  z-index: 1;
+}
+
+@media print {
+  .doc-po-root .doc-po-watermark-overlay {
+    opacity: 0.10 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* 1. Top Document Title */
+.doc-po-top-title {
+  text-align: center;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0f172a;
+  margin: 0 0 5px 0;
+  padding: 0;
+}
+
+/* 2. Top Header Box (Left: Company Info | Right: Metadata Table) */
+.doc-po-header-box {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  border: 1px solid #111827;
+  margin-bottom: -1px; /* Collapses with parties box */
+  align-items: stretch;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Company Left Block */
+.doc-po-company-pane {
+  padding: 6px 10px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border-right: 1px solid #111827;
+  box-sizing: border-box;
+}
+
+.doc-po-logo-wrap {
+  flex: 0 0 auto;
+}
+
+.doc-po-logo-img {
+  max-width: 90px;
+  max-height: 46px;
+  object-fit: contain;
+  display: block;
+}
+
+.doc-po-company-details {
+  flex: 1 1 auto;
+  font-size: 12px;
+  line-height: 1.3;
+  color: #1e293b;
+}
+
+.doc-po-company-name {
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.doc-po-company-address {
+  margin-bottom: 2px;
+  color: #334155;
+  line-height: 1.28;
+}
+
+.doc-po-city-pin {
+  white-space: nowrap !important;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.doc-po-company-line {
+  font-size: 12px;
+  color: #334155;
+  margin-bottom: 1px;
+}
+
+.doc-po-company-line strong {
+  color: #0f172a;
+}
+
+/* Metadata Right Pane */
+.doc-po-meta-pane {
+  border-left: none;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.doc-po-meta-table {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  table-layout: fixed;
+}
+
+.doc-po-meta-table td {
+  padding: 3.5px 6px;
+  border-bottom: 1px solid #111827;
+  vertical-align: middle;
+  box-sizing: border-box;
+  line-height: 1.25;
+}
+
+.doc-po-meta-table tr:last-child td {
+  border-bottom: none;
+}
+
+.doc-po-meta-label {
+  width: 44%;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.doc-po-meta-val {
+  width: 56%;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.doc-po-meta-val.bold {
+  font-weight: 800;
+}
+
+/* 3. Parties Box (Vendor / Supplier | Shipping Address) */
+.doc-po-parties-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border: 1px solid #111827;
+  margin-bottom: -1px; /* Collapses with item table */
+  align-items: stretch;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.doc-po-party-pane {
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.34;
+  box-sizing: border-box;
+  text-align: left !important;
+  vertical-align: top !important;
+  width: 100% !important;
+}
+
+.doc-po-party-pane.border-right {
+  border-right: 1px solid #111827;
+}
+
+.doc-po-party-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 2px;
+  text-align: left !important;
+}
+
+.doc-po-party-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+  text-align: left !important;
+}
+
+.doc-po-party-line {
+  color: #334155;
+  margin-bottom: 1px;
+  text-align: left !important;
+  word-break: break-word;
+  white-space: normal;
+}
+
+.doc-po-party-gstin {
+  margin-top: 3px;
+  font-weight: 600;
+  color: #0f172a;
+  text-align: left !important;
+}
+
+/* 4. Main Item Table (100% Usable Width, Fixed Geometry) */
+.doc-po-table-wrapper {
+  width: 100%;
+  border: 1px solid #111827;
+  margin-bottom: -1px;
+}
+
+.doc-po-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+}
+
+.doc-po-table thead {
+  display: table-header-group;
+}
+
+.doc-po-table th {
+  background: #f8fafc;
+  border-bottom: 1px solid #111827;
+  border-right: 1px solid #94a3b8;
+  padding: 4px 3px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #1e293b;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.doc-po-table th:last-child {
+  border-right: none;
+}
+
+.doc-po-table td {
+  padding: 4.5px 6px;
+  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #cbd5e1;
+  vertical-align: top;
+  color: #0f172a;
+  box-sizing: border-box;
+}
+
+.doc-po-table td:last-child {
+  border-right: none;
+  padding-right: 8px !important;
+}
+
+.doc-po-table tbody tr {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.doc-po-item-name {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 12.5px;
+  line-height: 1.25;
+}
+
+.doc-po-item-code {
+  color: #0f172a !important;
+  font-weight: 600;
+  font-size: 11.5px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  margin-top: 1px;
+}
+
+.doc-po-item-desc {
+  font-size: 11.5px;
+  color: #475569;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+
+.doc-po-item-serials {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #0f172a;
+  font-weight: 500;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.3;
+}
+
+/* Summary Rows in Item Table */
+.doc-po-summary-row td {
+  background: #ffffff;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.doc-po-summary-label {
+  font-weight: 700;
+  color: #1e293b;
+  text-align: right;
+  letter-spacing: 0.02em;
+}
+
+.doc-po-summary-val {
+  font-weight: 700;
+  color: #0f172a;
+  text-align: right;
+  white-space: nowrap !important;
+}
+
+.doc-po-total-row td {
+  background: #f8fafc;
+  border-top: 1px solid #111827;
+  font-size: 13px;
+  padding: 5px 8px;
+}
+
+.doc-po-total-label {
+  font-weight: 800;
+  color: #0f172a;
+  text-align: right;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.doc-po-total-val {
+  font-weight: 800;
+  color: #0f172a;
+  text-align: right;
+  font-size: 13.5px;
+  white-space: nowrap !important;
+}
+
+/* 5. Amount in Words Box */
+.doc-po-words-box {
+  border: 1px solid #111827;
+  padding: 4.5px 10px;
+  font-size: 12px;
+  margin-bottom: -1px;
+  background: #ffffff;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.doc-po-words-title {
+  color: #475569;
+  font-size: 11.5px;
+  margin-bottom: 1px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.doc-po-words-text {
+  font-weight: 700;
+  font-style: italic;
+  color: #0f172a;
+}
+
+/* 6. Terms & Conditions Box */
+.doc-po-terms-box {
+  border: 1px solid #111827;
+  padding: 6px 10px;
+  font-size: 11.5px;
+  margin-bottom: -1px;
+  background: #ffffff;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.doc-po-terms-title {
+  font-weight: 700;
+  font-size: 12px;
+  color: #0f172a;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 2px;
+}
+
+.doc-po-terms-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.doc-po-term-item {
+  font-size: 11.5px;
+  color: #334155;
+  line-height: 1.3;
+}
+
+.doc-po-term-item strong {
+  color: #0f172a;
+}
+
+.doc-po-terms-notes {
+  margin-top: 3px;
+  color: #334155;
+  line-height: 1.35;
+}
+
+/* 7. Bottom Section (Signatures) */
+.doc-po-signatures-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border: 1px solid #111827;
+  margin-bottom: 4px;
+  align-items: stretch;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.doc-po-sig-pane {
+  padding: 6px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 90px;
+  box-sizing: border-box;
+}
+
+.doc-po-sig-pane.border-right {
+  border-right: 1px solid #111827;
+}
+
+.doc-po-sig-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.doc-po-sig-center {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 2px 0;
+}
+
+.doc-po-sig-line {
+  border-top: 1px solid #94a3b8;
+  margin: 4px 0 2px 0;
+}
+
+.doc-po-sig-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: center;
+}
+
+/* 8. Computer Generated Notice Footer & Unified Bottom Footer Bar (All Documents & PDFs) */
+.doc-po-computer-notice {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #000000;
+  margin-top: 6px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.doc-unified-footer-bar,
+.printable-delivery-challan .dc-footer-notice.doc-unified-footer-bar,
+.printable-sales-invoice .doc-inv-computer-notice.doc-unified-footer-bar,
+.printable-proforma-invoice .doc-inv-computer-notice.doc-unified-footer-bar,
+.doc-po-root .doc-po-computer-notice.doc-unified-footer-bar,
+.doc-quotation-root .doc-quotation-footer-notice.doc-unified-footer-bar {
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin-top: 6px !important;
+  padding: 0 2px !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  color: #000000 !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.doc-quotation-root .doc-quotation-footer-notice.doc-unified-footer-bar {
+  margin-top: auto !important;
+  padding-top: 8px !important;
+}
+
+.doc-unified-footer-bar .doc-footer-spacer {
+  display: block !important;
+  min-width: 1px !important;
+}
+
+.doc-unified-footer-bar .doc-footer-center-text {
+  text-align: center !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #000000 !important;
+  white-space: nowrap !important;
+}
+
+.doc-unified-footer-bar .doc-footer-page-num {
+  text-align: right !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #000000 !important;
+  white-space: nowrap !important;
+}
+
+
+

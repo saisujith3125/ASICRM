@@ -1,0 +1,328 @@
+/* Serial Number Dropdown Trigger & Popover Styles */
+/* Matches the Quotation Items popover aesthetic from media_1791540872306 */
+
+.serial-dropdown-cell {
+  position: relative !important;
+  overflow: visible !important;
+  vertical-align: top !important;
+  padding: 8px 6px !important;
+}
+
+.serial-dropdown-wrapper {
+  position: relative;
+  width: 100%;
+  display: block;
+}
+
+/* Trigger Button */
+.serial-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.2;
+  box-sizing: border-box;
+  transition: all 0.15s ease-in-out;
+  outline: none;
+}
+
+.serial-dropdown-trigger:hover,
+.serial-dropdown-trigger:focus-visible {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.serial-dropdown-trigger.active {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+}
+
+.serial-dropdown-trigger.active .serial-dropdown-arrow,
+.serial-dropdown-trigger.active .serial-trigger-badge {
+  color: #ffffff !important;
+}
+
+/* Status variants */
+.serial-dropdown-trigger.status-complete {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.serial-dropdown-trigger.status-complete:hover {
+  background: #dcfce7;
+  border-color: #4ade80;
+  color: #14532d;
+}
+
+.serial-dropdown-trigger.status-mismatch {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+
+.serial-dropdown-trigger.status-mismatch:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #78350f;
+}
+
+.serial-dropdown-trigger.status-empty {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #64748b;
+}
+
+.serial-dropdown-arrow {
+  font-size: 10.5px;
+  color: #64748b;
+  margin-left: 6px;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+/* Popover Card */
+.serial-dropdown-popover {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  z-index: 1000 !important;
+  width: 300px;
+  max-width: 340px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.22), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+  padding: 10px 12px;
+  text-align: left;
+  box-sizing: border-box;
+  animation: serialPopoverFadeIn 0.15s ease-out;
+}
+
+.serial-dropdown-popover.placement-top {
+  top: auto;
+  bottom: calc(100% + 5px);
+  animation: serialPopoverFadeInBottom 0.15s ease-out;
+}
+
+@keyframes serialPopoverFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes serialPopoverFadeInBottom {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Popover Header */
+.serial-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.serial-dropdown-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  line-height: 1;
+  color: #94a3b8;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.serial-dropdown-close:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+/* Popover Serial List */
+.serial-dropdown-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.serial-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 5px;
+  font-size: 11.5px;
+  line-height: 1.3;
+}
+
+.serial-dropdown-item:hover {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+.serial-item-idx {
+  font-weight: 700;
+  color: #2563eb;
+  font-size: 10.5px;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.serial-item-code {
+  font-family: Consolas, Monaco, "Courier New", monospace;
+  font-weight: 600;
+  color: #1e293b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+}
+
+.serial-item-del {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 14px;
+  line-height: 1;
+  border-radius: 3px;
+  margin-left: 6px;
+  flex-shrink: 0;
+}
+
+.serial-item-del:hover {
+  color: #ef4444;
+  background: #fee2e2;
+}
+
+/* Quick Add Row inside Popover */
+.serial-quick-add {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.serial-quick-input {
+  flex: 1;
+  height: 28px;
+  font-size: 11px;
+  font-family: Consolas, Monaco, "Courier New", monospace;
+  padding: 2px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.serial-quick-input:focus {
+  border-color: #2563eb;
+}
+
+.serial-quick-add-btn {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #2563eb;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.serial-quick-add-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Popover Footer Action Toolbar */
+.serial-dropdown-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.serial-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+}
+
+.serial-action-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.serial-action-btn.primary {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.serial-action-btn.primary:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+.serial-action-btn.danger {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #e11d48;
+}
+
+.serial-action-btn.danger:hover {
+  background: #ffe4e6;
+  color: #be123c;
+}

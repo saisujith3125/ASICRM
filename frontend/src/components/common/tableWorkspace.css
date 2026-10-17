@@ -1,0 +1,737 @@
+/* ==========================================================================
+   ASICRM ENTERPRISE TABLE WORKSPACE ARCHITECTURE
+   Unified Reusable Table Frame, Viewport, Header, Body, and Footer
+   ========================================================================== */
+
+:root {
+  --crm-table-min-height: auto;
+  --crm-table-max-height: clamp(380px, 60vh, 720px);
+  --crm-table-header-bg: #f8fafc;
+  --crm-table-header-border: #cbd5e1;
+  --crm-table-header-color: #475569;
+  --crm-table-border: #cbd5e1;
+  --crm-table-row-hover: #f8fafc;
+}
+
+/* 1. Main Table Workspace Frame */
+.crm-table-workspace {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: auto !important;
+  min-height: auto !important;
+  background: #ffffff !important;
+  border: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  margin-bottom: 20px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* 2. Table Toolbar */
+.crm-table-toolbar {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  padding: 12px 16px !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+.crm-table-toolbar-left {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  flex: 1 1 auto !important;
+}
+
+.crm-table-toolbar-right {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Search Box Inside Toolbar */
+.crm-table-search-box {
+  position: relative !important;
+  min-width: 260px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.crm-table-search-icon {
+  position: absolute !important;
+  left: 10px !important;
+  color: #94a3b8 !important;
+  pointer-events: none !important;
+}
+
+.crm-table-search-input {
+  width: 100% !important;
+  height: 32px !important;
+  padding: 6px 30px 6px 32px !important;
+  font-size: 12.5px !important;
+  color: #0f172a !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.crm-table-search-input:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15) !important;
+}
+
+.crm-table-search-clear {
+  position: absolute !important;
+  right: 8px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: transparent !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  padding: 2px 4px !important;
+  line-height: 1 !important;
+}
+
+.crm-table-search-clear:hover {
+  color: #0f172a !important;
+}
+
+/* 3. Table Viewport (Standard Full-Width Data Region) */
+.crm-table-viewport {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  background: #ffffff !important;
+  position: relative !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #cbd5e1 transparent !important;
+}
+
+.crm-table-viewport::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.crm-table-viewport::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+  border-radius: 3px !important;
+}
+
+.crm-table-viewport::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+/* 4. Master Enterprise Table */
+.crm-master-table,
+.settings-table,
+.crm-data-table,
+.dc-table,
+.crm-table-viewport table {
+  width: 100% !important;
+  max-width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+  text-align: left !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  box-sizing: border-box !important;
+  height: auto !important;
+}
+
+.crm-master-table tbody,
+.settings-table tbody,
+.crm-data-table tbody,
+.dc-table tbody,
+.crm-table-viewport table tbody {
+  height: auto !important;
+}
+
+/* 5. Sticky Header with Subtle Light Border Grid */
+.crm-master-table thead th,
+.settings-table thead th,
+.crm-data-table thead th,
+.dc-table thead th,
+.crm-table-viewport table thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 5 !important;
+  background: #f8fafc !important;
+  color: #475569 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  padding: 10px 12px !important;
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  box-shadow: 0 1px 0 var(--crm-table-border, #cbd5e1) !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  user-select: none !important;
+  box-sizing: border-box !important;
+}
+
+.crm-master-table thead th:last-child,
+.settings-table thead th:last-child,
+.crm-data-table thead th:last-child,
+.dc-table thead th:last-child,
+.crm-table-viewport table thead th:last-child {
+  border-right: none !important;
+}
+
+/* 6. Body Rows and Cells with Subtle Column & Row Gridlines */
+.crm-master-table tbody td,
+.settings-table tbody td,
+.crm-data-table tbody td,
+.dc-table tbody td,
+.crm-table-viewport table tbody td {
+  padding: 9px 12px !important;
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  color: #334155 !important;
+  vertical-align: middle !important;
+  font-size: 14px !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+  transition: background-color 0.12s ease !important;
+}
+
+.crm-master-table tbody tr,
+.settings-table tbody tr,
+.crm-data-table tbody tr,
+.dc-table tbody tr,
+.crm-table-viewport table tbody tr {
+  min-height: 42px !important;
+  box-sizing: border-box !important;
+}
+
+.crm-master-table tbody tr:hover td,
+.settings-table tbody tr:hover td,
+.crm-data-table tbody tr:hover td,
+.dc-table tbody tr:hover td,
+.crm-table-viewport table tbody tr:hover td {
+  background-color: #f8fafc !important;
+}
+
+.crm-master-table tbody td:last-child,
+.settings-table tbody td:last-child,
+.crm-data-table tbody td:last-child,
+.dc-table tbody td:last-child,
+.crm-table-viewport table tbody td:last-child {
+  border-right: none !important;
+}
+
+.crm-master-table tbody tr:last-child td,
+.settings-table tbody tr:last-child td,
+.crm-data-table tbody tr:last-child td,
+.dc-table tbody tr:last-child td,
+.crm-table-viewport table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* 7. Column Content Types & Overflow Architecture */
+.crm-master-table .cell-wrap,
+.crm-table-viewport table .cell-wrap {
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  white-space: normal !important;
+}
+
+.crm-master-table .cell-mono-wrap,
+.crm-table-viewport table .cell-mono-wrap {
+  overflow-wrap: break-word !important;
+  word-break: break-all !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+.crm-master-table .cell-truncate,
+.crm-table-viewport table .cell-truncate {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+}
+
+.crm-master-table .cell-nowrap,
+.crm-table-viewport table .cell-nowrap {
+  white-space: nowrap !important;
+}
+
+/* Proportional Column Layout Helpers */
+.col-id-compact {
+  width: 110px !important;
+  white-space: nowrap !important;
+}
+
+.col-date-compact {
+  width: 115px !important;
+  white-space: nowrap !important;
+}
+
+.col-status-compact {
+  width: 120px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+.col-count-compact {
+  width: 80px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+.col-amount-compact {
+  width: 125px !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+
+.col-actions-compact {
+  width: 120px !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  padding-right: 12px !important;
+}
+
+/* 8. Action Area Standardization */
+.crm-master-table td.actions-col,
+.crm-master-table th.actions-col,
+.settings-table td.actions-col,
+.settings-table th.actions-col,
+.crm-data-table td.actions-col,
+.crm-data-table th.actions-col,
+.dc-table td.actions-col,
+.dc-table th.actions-col,
+.crm-table-viewport table td.actions-col,
+.crm-table-viewport table th.actions-col,
+.order-col-actions,
+.dc-col-actions,
+.enquiry-actions-header,
+.enquiry-actions-cell {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  text-align: right !important;
+}
+
+.crm-table-actions,
+.settings-row-actions,
+.order-actions-group,
+.dc-actions,
+.proforma-actions-group,
+.quotation-row-actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 5px !important;
+  white-space: nowrap !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.crm-table-action-btn,
+.settings-row-action,
+.tbl-action-btn,
+.order-btn,
+.dc-btn-action,
+.enquiry-action-btn,
+.customer-action-btn,
+.proforma-table-action-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 0 8px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  transition: all 0.15s ease !important;
+}
+
+.crm-table-action-btn:hover,
+.settings-row-action:hover,
+.tbl-action-btn:hover,
+.order-btn:hover,
+.dc-btn-action:hover,
+.enquiry-action-btn:hover,
+.customer-action-btn:hover,
+.proforma-table-action-btn:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+.crm-table-action-btn.primary,
+.settings-row-action.primary,
+.tbl-action-btn.primary {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+
+.crm-table-action-btn.primary:hover,
+.settings-row-action.primary:hover,
+.tbl-action-btn.primary:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+.crm-table-action-btn.danger,
+.settings-row-action.danger,
+.tbl-action-btn.danger,
+.enquiry-action-btn.danger,
+.customer-action-btn.danger {
+  color: #dc2626 !important;
+  border-color: #fecaca !important;
+}
+
+.crm-table-action-btn.danger:hover,
+.settings-row-action.danger:hover,
+.tbl-action-btn.danger:hover,
+.enquiry-action-btn.danger:hover,
+.customer-action-btn.danger:hover {
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+}
+
+/* 9. Table Footer (Record Count & Pagination) */
+.crm-table-footer {
+  margin-top: 0 !important;
+  padding: 10px 16px !important;
+  border-top: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background: #f8fafc !important;
+  color: #64748b !important;
+  font-size: 13.5px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  border-radius: 0 0 8px 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.crm-table-footer-info {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  color: #64748b !important;
+}
+
+.crm-table-footer-info strong {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+.crm-table-footer-controls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.crm-table-pagination {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  flex-wrap: wrap !important;
+}
+
+.crm-pagination-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  padding: 0 8px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  user-select: none !important;
+}
+
+.crm-pagination-btn:hover:not(:disabled) {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+.crm-pagination-btn.active {
+  background: var(--primary-blue, #1657ff) !important;
+  color: #ffffff !important;
+  border-color: var(--primary-blue, #1657ff) !important;
+  font-weight: 700 !important;
+}
+
+.crm-pagination-btn:disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  background: #f8fafc !important;
+}
+
+.crm-pagination-ellipsis {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 20px !important;
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+}
+
+.crm-pagination-text {
+  font-size: 12px !important;
+  color: #64748b !important;
+}
+
+/* 10. Table Placeholder Rows Deprecated - No fake rows rendered */
+.crm-table-placeholder-row {
+  display: none !important;
+}
+
+/* 11. Empty & Loading States */
+.crm-table-empty-row td,
+.crm-table-loading-row td {
+  padding: 60px 20px !important;
+  min-height: 380px !important;
+  text-align: center !important;
+  background: #ffffff !important;
+  border-bottom: none !important;
+}
+
+.crm-table-empty-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  color: #64748b !important;
+}
+
+.crm-table-empty-icon {
+  margin-bottom: 4px !important;
+  color: #94a3b8 !important;
+}
+
+.crm-table-empty-title {
+  margin: 0 !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #1e293b !important;
+}
+
+.crm-table-empty-desc {
+  margin: 0 !important;
+  font-size: 13px !important;
+  color: #64748b !important;
+  max-width: 420px !important;
+}
+
+.crm-table-loading-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  color: #64748b !important;
+  font-size: 13px !important;
+}
+
+/* 11. Legacy Table Shell Bridges: Auto-elevates existing tables */
+.stocks-content-card:has(.settings-table-shell),
+.stocks-content-card.stocks-master-page,
+.stocks-content-card.customer-master-page,
+.stocks-content-card.enquiry-master-page,
+.stocks-content-card.quotation-master-page,
+.stocks-content-card.orders-master-page,
+.dc-table-card,
+.dc-overview-card,
+.settings-table-shell {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  background: #ffffff !important;
+  border: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  margin-bottom: 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* Prevent double-border nesting when settings-table-shell is inside crm-table-workspace or stocks-content-card */
+.crm-table-workspace .settings-table-shell,
+.stocks-content-card .settings-table-shell,
+.dc-table-card .settings-table-shell {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin-bottom: 0 !important;
+}
+
+.crm-table-scroll-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  flex: 0 0 auto !important;
+  height: auto !important;
+  max-height: none !important;
+  position: relative !important;
+}
+
+.crm-table-scroll-wrap .crm-data-table thead th,
+.crm-table-scroll-wrap .settings-table thead th,
+.crm-table-scroll-wrap .crm-master-table thead th,
+.crm-table-scroll-wrap .dc-table thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 5 !important;
+  background: #f8fafc !important;
+  box-shadow: 0 1px 0 #cbd5e1 !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+}
+
+/* 12. Responsive Adjustments */
+@media (max-width: 1024px) {
+  .crm-table-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .crm-table-toolbar-left,
+  .crm-table-toolbar-right {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .crm-table-search-box {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .crm-table-viewport,
+  .crm-table-scroll-wrap {
+    min-height: auto !important;
+    max-height: none !important; /* Mobile prefers document flow */
+    overflow-x: auto !important;
+  }
+
+  .crm-master-table,
+  .crm-table-viewport table,
+  .crm-table-scroll-wrap table {
+    min-width: 700px !important; /* Preserves minimum column width on small mobile screens */
+  }
+
+  .crm-table-footer {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+}
+
+/* ==========================================================================
+   13. GLOBAL VIEWPORT & 100% FULL-WIDTH ENFORCEMENT
+   Eliminates artificial max-width constraints (1180px, 1380px, 1520px)
+   across all widescreen monitors (1366px, 1440px, 1600px, 1920px, 2560px).
+   ========================================================================== */
+.crm-content-area,
+.dc-page-container,
+.customer-detail-modern,
+.crm-customer-detail-page,
+.settings-content-viewport,
+.crm-main-workspace,
+.stocks-page-container,
+.crm-orders-page-container,
+.settings-module-container {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.settings-workspace-layout {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* ==========================================================================
+   14. SETTINGS MODULE TABLE ALIGNMENT
+   ========================================================================== */
+.settings-table-wrapper,
+.settings-table-shell,
+.settings-table-scroll {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+.settings-table {
+  width: 100% !important;
+  max-width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+}
+
+.settings-table thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 5 !important;
+  background: var(--crm-table-header-bg, #f8fafc) !important;
+  box-shadow: 0 1px 0 var(--crm-table-header-border, #cbd5e1) !important;
+}
+
+.settings-table th,
+.settings-table td {
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+}
+

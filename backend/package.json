@@ -1,0 +1,26 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:otp": "node scripts/verify-otp-flow.js",
+    "test:sms": "node scripts/verify-sms-provider.js",
+    "test:auth-sms": "node scripts/verify-auth-sms-flow.js",
+    "test:real-sms": "node scripts/send-real-sms-test.js"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongoose": "^9.11.2"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.12.0"
+  }
+}

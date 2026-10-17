@@ -1,0 +1,1294 @@
+{
+  "users": [
+    {
+      "id": "USR-001",
+      "name": "Super Admin",
+      "employeeId": "SA-001",
+      "email": "superadmin@asicrm.local",
+      "mobile": "9999999990",
+      "role": "SUPER_ADMIN",
+      "status": "Active",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-002",
+      "name": "Admin User",
+      "employeeId": "ADM-001",
+      "email": "admin@asicrm.local",
+      "mobile": "9999999991",
+      "role": "ADMIN",
+      "status": "Active",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-003",
+      "name": "John Doe",
+      "employeeId": "EMP-001",
+      "email": "john@asicrm.local",
+      "mobile": "9344158558",
+      "role": "SUPER_ADMIN",
+      "status": "Active",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-004",
+      "name": "Rajesh Kumar",
+      "employeeId": "EMP-002",
+      "email": "rajesh@asicrm.local",
+      "mobile": "9876543211",
+      "role": "EMPLOYEE",
+      "status": "Active",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-005",
+      "name": "Sarah Jenkins",
+      "employeeId": "EMP-003",
+      "email": "sarah@asicrm.local",
+      "mobile": "9700112234",
+      "role": "EMPLOYEE",
+      "status": "Active",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-006",
+      "name": "Gokul",
+      "employeeId": "EMP-004",
+      "email": "gokulraja67@gmail.com",
+      "mobile": "9000000001",
+      "role": "EMPLOYEE",
+      "status": "Active",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-007",
+      "name": "Vijay",
+      "employeeId": "EMP-005",
+      "email": "trisha65@gmail.com",
+      "mobile": "9000000002",
+      "role": "ADMIN",
+      "status": "Active",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-008",
+      "name": "m sai sujith",
+      "employeeId": "iubg",
+      "email": "saisujithm1@gmail.com",
+      "mobile": "7564653647",
+      "role": "UIGIU",
+      "status": "Active",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-009",
+      "name": "Inactive Test User",
+      "employeeId": "",
+      "email": "inactive_1788185068594@test.com",
+      "mobile": "9157514269",
+      "role": "EMPLOYEE",
+      "status": "Inactive",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-010",
+      "name": "Test Quotation Specialist",
+      "employeeId": "",
+      "email": "spec_1788185100846@test.com",
+      "mobile": "9633871249",
+      "role": "EMPLOYEE",
+      "status": "Active",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-011",
+      "name": "Inactive Test User",
+      "employeeId": "",
+      "email": "inactive_1788185164063@test.com",
+      "mobile": "9528189381",
+      "role": "EMPLOYEE",
+      "status": "Inactive",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-012",
+      "name": "Test Quotation Specialist",
+      "employeeId": "",
+      "email": "spec_1788185196288@test.com",
+      "mobile": "9693519125",
+      "role": "EMPLOYEE",
+      "status": "Active",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-013",
+      "name": "vishal",
+      "employeeId": "",
+      "email": "saisujithm4561@gmail.com",
+      "mobile": "7654312222",
+      "role": "MANAGER",
+      "status": "Active",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-014",
+      "name": "VIKRAM",
+      "employeeId": "",
+      "email": "saisujithm342151@gmail.com",
+      "mobile": "8608403204",
+      "role": "CCTV_SPECIALIST",
+      "status": "Active",
+      "devOtp": "1234"
+    },
+    {
+      "id": "USR-015",
+      "name": "A.K Ganesh",
+      "employeeId": "ASI-123",
+      "email": "ganesh123@gamil.com",
+      "mobile": "8976568432",
+      "role": "EMPLOYEE",
+      "status": "Active",
+      "devOtp": "1234"
+    }
+  ],
+  "roles": [
+    {
+      "id": "ROLE-001",
+      "key": "SUPER_ADMIN",
+      "name": "Super Admin",
+      "description": "Full system control"
+    },
+    {
+      "id": "ROLE-002",
+      "key": "ADMIN",
+      "name": "Admin",
+      "description": "Administrative and CRM control"
+    },
+    {
+      "id": "ROLE-003",
+      "key": "EMPLOYEE",
+      "name": "Employee",
+      "description": "Operational CRM access within assigned resources"
+    },
+    {
+      "id": "ROLE-004",
+      "key": "UIGIU",
+      "name": "uigiu",
+      "description": "hyvlvibg"
+    },
+    {
+      "id": "ROLE-005",
+      "key": "QUOTATION_SPECIALIST_1788185100803",
+      "name": "Quotation Specialist 1788185100803",
+      "description": "Commercial quotation handler"
+    },
+    {
+      "id": "ROLE-006",
+      "key": "QUOTATION_SPECIALIST_1788185196254",
+      "name": "Quotation Specialist 1788185196254",
+      "description": "Commercial quotation handler"
+    },
+    {
+      "id": "ROLE-007",
+      "key": "MANAGER",
+      "name": "manager",
+      "description": "to manage"
+    },
+    {
+      "id": "ROLE-008",
+      "key": "CCTV_SPECIALIST",
+      "name": "CCTV SPECIALIST",
+      "description": "CCTV ANALYSIS"
+    }
+  ],
+  "permissions": {
+    "SUPER_ADMIN": {},
+    "ADMIN": {
+      "Enquiries": [
+        "View",
+        "Edit",
+        "Close"
+      ],
+      "Customers": [
+        "View",
+        "Create",
+        "Edit",
+        "Delete",
+        "View History",
+        "Manage Branches"
+      ],
+      "Quotations": [
+        "View",
+        "Create",
+        "Edit",
+        "Download",
+        "Approve",
+        "Reject",
+        "Convert to Order"
+      ],
+      "Orders & Deals": [
+        "View",
+        "Create",
+        "Edit",
+        "Delete",
+        "Close"
+      ],
+      "User Administration": [
+        "View Users",
+        "Create Users",
+        "Edit Users",
+        "Disable Users",
+        "Manage Roles",
+        "Manage Permissions"
+      ],
+      "Stocks": [
+        "View",
+        "Create",
+        "Edit",
+        "Delete"
+      ],
+      "Delivery Challans": [
+        "View",
+        "Create",
+        "Edit",
+        "Dispatch",
+        "Deliver",
+        "Return",
+        "Delete"
+      ],
+      "Purchase Orders": [
+        "View",
+        "Create",
+        "Edit",
+        "Receive Goods",
+        "Download",
+        "Approve",
+        "Delete"
+      ]
+    },
+    "EMPLOYEE": {
+      "Enquiries": [
+        "View",
+        "Create",
+        "Follow Up"
+      ],
+      "Customers": [
+        "View",
+        "View History"
+      ],
+      "Quotations": [
+        "View",
+        "Download"
+      ],
+      "Orders & Deals": [
+        "View"
+      ],
+      "Delivery Challans": [
+        "View",
+        "Create"
+      ],
+      "Purchase Orders": [
+        "View"
+      ],
+      "Stocks": [
+        "View"
+      ],
+      "User Administration": []
+    },
+    "UIGIU": {
+      "Enquiries": [
+        "View",
+        "Create"
+      ],
+      "Customers": [
+        "View"
+      ],
+      "Quotations": [
+        "View"
+      ],
+      "Orders & Deals": [],
+      "Delivery Challans": [],
+      "Purchase Orders": [],
+      "User Administration": [],
+      "Stocks": []
+    },
+    "QUOTATION_SPECIALIST_1788185100803": {
+      "Enquiries": [
+        "View"
+      ],
+      "Customers": [
+        "View"
+      ],
+      "Quotations": [
+        "View",
+        "Create",
+        "Edit"
+      ],
+      "Stocks": [],
+      "Orders & Deals": [],
+      "Delivery Challans": [],
+      "Purchase Orders": [],
+      "User Administration": []
+    },
+    "QUOTATION_SPECIALIST_1788185196254": {
+      "Enquiries": [
+        "View"
+      ],
+      "Customers": [
+        "View"
+      ],
+      "Quotations": [
+        "View",
+        "Create",
+        "Edit"
+      ],
+      "Stocks": [],
+      "Orders & Deals": [],
+      "Delivery Challans": [],
+      "Purchase Orders": [],
+      "User Administration": []
+    },
+    "MANAGER": {
+      "Enquiries": [
+        "View",
+        "Create"
+      ],
+      "Quotations": [
+        "View"
+      ],
+      "Customers": [],
+      "Orders & Deals": [],
+      "Delivery Challans": [],
+      "Purchase Orders": [],
+      "User Administration": [],
+      "Stocks": []
+    },
+    "CCTV_SPECIALIST": {
+      "Enquiries": [
+        "View"
+      ],
+      "Customers": [
+        "View"
+      ],
+      "Quotations": [
+        "View"
+      ],
+      "Orders & Deals": [
+        "View"
+      ],
+      "Delivery Challans": [],
+      "Purchase Orders": [],
+      "User Administration": [],
+      "Stocks": []
+    }
+  },
+  "companySettings": {
+    "companyName": "Active System Integration",
+    "siteShortName": "ASI",
+    "legalName": "Active System Integration",
+    "iso": "ISO 9001:2015 & ISO 27001 Certified",
+    "address": "Plot No. 10A, Perumal Kovil Street, Sivabootham, Vanagaram, Chennai - 600095",
+    "street": "Plot No. 10A, Perumal Kovil Street",
+    "street2": "Sivabootham, Vanagaram",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "country": "India",
+    "zipCode": "600095",
+    "phone": "09994126666",
+    "mobile": "98943 26666, 91500 26666",
+    "email": "admin@asi.ind.in",
+    "website": "https://asiind.com/",
+    "gstin": "33AZPPS7068A1Z4",
+    "gstRegistrationType": "Registered",
+    "financialYearRef": "ASI/26-27",
+    "theme": "ASI Blue (Default)",
+    "defaultLanguage": "English(US)",
+    "defaultCurrency": "Rs",
+    "termsAndConditions": "Request Payment by Demand Draft / AC Payee Only If any clarification in the above details please inform within seven days. We declare that this invoice shows the actual price of the goods described and all the particulars mentioned are true and correct.",
+    "quotationTerms": "Note : Prices quoted are valid for 7 days.",
+    "logoUrl": "data:image/jpeg;base64,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EREREREREREREReVT5h3d8V6ryqfMO7viiKqLzTPVCrVEXmmeqFWiIiIiIiIiIiIiIiIiIiIiKI9qWzvwRl1PYoPIOX1kDB9HpkaOjpHNy9OI4s15uFguMVztk5iniPc4c7SOcHoXURAIwRkFQ1tM2bm2Ok1BYIM0biXVEDB5k+k0ej1c3ZyU7jXCMSUiGs0oEWO04DVp12m28SN2ul7FIujdZW/WFv8PARFVRACopyeLD0jpaeYrYVy5Z7xcLDcIrnbJzFPEeB5nDnaRzg9C6A0ZrS3awoPCwkRVkQHjFOTxaekdLT0+1SPBuMmVxglJsgRx4PHEc+I7xlcAtjREU/RERERERERERERERERERERERERERERERERERERERERERERERERERERERec88NLC+oqZWRRRtLnvecNaBykleEhoudEX2aaKnifPPI2OONpc97jgNA5STzBQXtG2hy6mndarW9zLXE7l5DUOH3x/B6B3nmxVtF2jS6lldabS98drjd5R5HVBHOehvQO88wGr6d07ctT3OO2W2LLncXvP0Y2c7nHo+KpTF+Lotai/NFIuWE2JGrzwH2ff01L10tpe4arujLdQt3WjyppiPJiZ0nr6Bzroiw2K36ctkVqtsW5FGMkn6T3c7nHnJXhpjTNt0rbGW63syfpSyuHlSv9I/UOZZdTjB+E4eHoHpY1jHcMzwH1R+Z3nlZEREU0RERERERERERERERERERERF5VPmHd3xXqvKp8w7u+KIqovNM9UKtUReaZ6oVaIiIiIiIiIiIiIiIiIiIiIi+Oa1wLXAEEYIPOF9REUNbR9mT7aZb/AKegLqQ5fPTNHGHpc0ej1c3ZyR/arrX2WuiuVtqHQ1EJy1zfeCOcHnC6k5eBUUbQ9lmfC3zS9Px4vno2D2ujH932dCp7F2CIku81SjAi2ZaNQddplvcNN3AFtuh9fW/V9MIX7tPcYm5lgzwd+EzpHVyj3na1ypS1VVQVTKqkmkgnhdvMew4c0hTXoHahS38R2q+PZT3Hg1j/AKLKg9XQ7q5+boXWwhjuHUQ2RqR2YugdoHdeDvI7s8kUgIiKy0REREREREREREREREREREREREREREREREREREREREREREREWK1FqW06XoTXXWoDAciONvF8ruho5/gOdYZiYhSsJ0aO4Na3Mk5AIr2vr6O10ktfcKhk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",
+    "masterLogoSize": 180,
+    "quotationLogoSize": 152,
+    "dcLogoSize": 116,
+    "logoSize": 180,
+    "signatureUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAARElEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4GwwOAABhS62vwAAAABJRU5ErkJggg==",
+    "sealUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAPElEQVR4nO3BAQ0AAADCoPdPbQ8HFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4M3V4AAEa7Bv1AAAAAElFTkSuQmCC",
+    "bankName": "HDFC BANK",
+    "accountName": "ACTIVE SYSTEM INTEGRATION",
+    "accountNumber": "50200028741215",
+    "ifscCode": "HDFC0000024",
+    "branch": "ANNA NAGAR, CHENNAI",
+    "proformaNote": "Kindly verify item model/specifications before release of PO/payment.",
+    "paymentTerms": "100% ADVANCE PAYMENT",
+    "deliveryTerms": "EX-STOCK / 1-2 WEEKS",
+    "validityTerms": "15 DAYS FROM INVOICE DATE",
+    "locations": [
+      {
+        "id": "LOC-001",
+        "code": "CHN-HO",
+        "name": "Chennai Head Office",
+        "address": "Plot No. 10A, Perumal Kovil Street, Sivabootham, Vanagaram",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "pincode": "600095",
+        "isPrimary": true,
+        "status": "Active"
+      },
+      {
+        "id": "LOC-002",
+        "code": "CBE-BR",
+        "name": "Coimbatore Branch Office",
+        "address": "142, Cross Cut Road, Gandhipuram",
+        "city": "Coimbatore",
+        "state": "Tamil Nadu",
+        "pincode": "641012",
+        "isPrimary": false,
+        "status": "Active"
+      },
+      {
+        "id": "LOC-003",
+        "code": "BLR-HUB",
+        "name": "Bengaluru Tech Hub",
+        "address": "88, 5th Main, 4th Block, Rajajinagar",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "pincode": "560010",
+        "isPrimary": false,
+        "status": "Active"
+      }
+    ],
+    "branches": [
+      {
+        "id": "BR-001",
+        "code": "CHN-01",
+        "name": "Chennai Central",
+        "locationId": "LOC-001",
+        "manager": "Super Admin",
+        "phone": "09994126666",
+        "email": "chennai@asi.ind.in",
+        "status": "Active"
+      },
+      {
+        "id": "BR-002",
+        "code": "CBE-01",
+        "name": "Coimbatore South",
+        "locationId": "LOC-002",
+        "manager": "Rajesh Kumar",
+        "phone": "9876543211",
+        "email": "cbe@asi.ind.in",
+        "status": "Active"
+      },
+      {
+        "id": "BR-003",
+        "code": "BLR-01",
+        "name": "Bengaluru West",
+        "locationId": "LOC-003",
+        "manager": "Sarah Jenkins",
+        "phone": "9700112234",
+        "email": "bangalore@asi.ind.in",
+        "status": "Active"
+      }
+    ],
+    "warehouses": [
+      {
+        "id": "WH-001",
+        "code": "WH-CHN-01",
+        "name": "Main Central Hub",
+        "location": "Vanagaram, Chennai",
+        "capacity": "10,000 sq ft",
+        "manager": "Vijay",
+        "isDefault": true,
+        "status": "Active",
+        "layout": {
+          "floors": [
+            {
+              "id": "FL-01",
+              "name": "Floor 1 (Ground Floor)",
+              "code": "FL-01",
+              "racks": [
+                {
+                  "id": "RK-A",
+                  "name": "Rack A (CCTV & Surveillance)",
+                  "code": "RK-A",
+                  "shelves": [
+                    {
+                      "id": "SH-01",
+                      "name": "Shelf 1 (Bottom Tier)",
+                      "code": "SH-01",
+                      "boxes": [
+                        {
+                          "id": "BX-A1-01",
+                          "name": "Box A1-01 (Bullet Cameras)",
+                          "code": "BX-01",
+                          "desc": "Standard 2MP/5MP bullet cameras"
+                        },
+                        {
+                          "id": "BX-A1-02",
+                          "name": "Box A1-02 (Dome Cameras)",
+                          "code": "BX-02",
+                          "desc": "Indoor/Outdoor dome cameras"
+                        },
+                        {
+                          "id": "BX-A1-03",
+                          "name": "Box A1-03 (PTZ Accessories)",
+                          "code": "BX-03",
+                          "desc": "Mounts, adaptors & power supplies"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SH-02",
+                      "name": "Shelf 2 (Mid Level Tier)",
+                      "code": "SH-02",
+                      "boxes": [
+                        {
+                          "id": "BX-A2-01",
+                          "name": "Box A2-01 (IP Network Cameras)",
+                          "code": "BX-04",
+                          "desc": "High-definition POE cameras"
+                        },
+                        {
+                          "id": "BX-A2-02",
+                          "name": "Box A2-02 (Junction Boxes & Connectors)",
+                          "code": "BX-05",
+                          "desc": "Waterproof connectors and fittings"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SH-03",
+                      "name": "Shelf 3 (Upper Tier)",
+                      "code": "SH-03",
+                      "boxes": [
+                        {
+                          "id": "BX-A3-01",
+                          "name": "Box A3-01 (Sensors & Specialized Lenses)",
+                          "code": "BX-06",
+                          "desc": "Varifocal lenses and sensors"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "RK-B",
+                  "name": "Rack B (Storage & Recorders)",
+                  "code": "RK-B",
+                  "shelves": [
+                    {
+                      "id": "SH-01",
+                      "name": "Shelf 1",
+                      "code": "SH-01",
+                      "boxes": [
+                        {
+                          "id": "BX-B1-01",
+                          "name": "Box B1-01 (4CH / 8CH DVRs)",
+                          "code": "BX-07",
+                          "desc": "Compact analog HD recorders"
+                        },
+                        {
+                          "id": "BX-B1-02",
+                          "name": "Box B1-02 (16CH / 32CH NVRs)",
+                          "code": "BX-08",
+                          "desc": "Network video recorder chassis"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SH-02",
+                      "name": "Shelf 2",
+                      "code": "SH-02",
+                      "boxes": [
+                        {
+                          "id": "BX-B2-01",
+                          "name": "Box B2-01 (Surveillance HDDs 1TB-4TB)",
+                          "code": "BX-09",
+                          "desc": "WD Purple / Seagate Skyhawk drives"
+                        },
+                        {
+                          "id": "BX-B2-02",
+                          "name": "Box B2-02 (Enterprise HDDs 6TB-10TB)",
+                          "code": "BX-10",
+                          "desc": "High-capacity RAID enterprise drives"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "FL-02",
+              "name": "Floor 2 (High-Value Storage)",
+              "code": "FL-02",
+              "racks": [
+                {
+                  "id": "RK-C",
+                  "name": "Rack C (Biometrics & Access Control)",
+                  "code": "RK-C",
+                  "shelves": [
+                    {
+                      "id": "SH-01",
+                      "name": "Shelf 1",
+                      "code": "SH-01",
+                      "boxes": [
+                        {
+                          "id": "BX-C1-01",
+                          "name": "Box C1-01 (Fingerprint & Facial Terminals)",
+                          "code": "BX-11",
+                          "desc": "Time attendance & biometric scanners"
+                        },
+                        {
+                          "id": "BX-C1-02",
+                          "name": "Box C1-02 (EM Locks & Exit Switches)",
+                          "code": "BX-12",
+                          "desc": "Magnetic locks, brackets, power supplies"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SH-02",
+                      "name": "Shelf 2",
+                      "code": "SH-02",
+                      "boxes": [
+                        {
+                          "id": "BX-C2-01",
+                          "name": "Box C2-01 (RFID Cards & Keyfobs)",
+                          "code": "BX-13",
+                          "desc": "Smart cards, tokens & tags"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "RK-D",
+                  "name": "Rack D (Networking & Switches)",
+                  "code": "RK-D",
+                  "shelves": [
+                    {
+                      "id": "SH-01",
+                      "name": "Shelf 1",
+                      "code": "SH-01",
+                      "boxes": [
+                        {
+                          "id": "BX-D1-01",
+                          "name": "Box D1-01 (4-Port / 8-Port POE Switches)",
+                          "code": "BX-14",
+                          "desc": "Standard network switches"
+                        },
+                        {
+                          "id": "BX-D1-02",
+                          "name": "Box D1-02 (16-Port / 24-Port Managed Switches)",
+                          "code": "BX-15",
+                          "desc": "Gigabit rackmount switches"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "WH-002",
+        "code": "WH-CHN-02",
+        "name": "North Chennai Transit Godown",
+        "location": "Ambattur Industrial Estate",
+        "capacity": "5,000 sq ft",
+        "manager": "Gokul",
+        "isDefault": false,
+        "status": "Active",
+        "layout": {
+          "floors": [
+            {
+              "id": "FL-01",
+              "name": "Floor 1 (Ground Floor)",
+              "code": "FL-01",
+              "racks": [
+                {
+                  "id": "RK-A",
+                  "name": "Rack A (CCTV & Surveillance)",
+                  "code": "RK-A",
+                  "shelves": [
+                    {
+                      "id": "SH-01",
+                      "name": "Shelf 1 (Bottom Tier)",
+                      "code": "SH-01",
+                      "boxes": [
+                        {
+                          "id": "BX-A1-01",
+                          "name": "Box A1-01 (Bullet Cameras)",
+                          "code": "BX-01",
+                          "desc": "Standard 2MP/5MP bullet cameras"
+                        },
+                        {
+                          "id": "BX-A1-02",
+                          "name": "Box A1-02 (Dome Cameras)",
+                          "code": "BX-02",
+                          "desc": "Indoor/Outdoor dome cameras"
+                        },
+                        {
+                          "id": "BX-A1-03",
+                          "name": "Box A1-03 (PTZ Accessories)",
+                          "code": "BX-03",
+                          "desc": "Mounts, adaptors & power supplies"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SH-02",
+                      "name": "Shelf 2 (Mid Level Tier)",
+                      "code": "SH-02",
+                      "boxes": [
+                        {
+                          "id": "BX-A2-01",
+                          "name": "Box A2-01 (IP Network Cameras)",
+                          "code": "BX-04",
+                          "desc": "High-definition POE cameras"
+                        },
+                        {
+                          "id": "BX-A2-02",
+                          "name": "Box A2-02 (Junction Boxes & Connectors)",
+                          "code": "BX-05",
+                          "desc": "Waterproof connectors and fittings"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SH-03",
+                      "name": "Shelf 3 (Upper Tier)",
+                      "code": "SH-03",
+                      "boxes": [
+                        {
+                          "id": "BX-A3-01",
+                          "name": "Box A3-01 (Sensors & Specialized Lenses)",
+                          "code": "BX-06",
+                          "desc": "Varifocal lenses and sensors"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "RK-B",
+                  "name": "Rack B (Storage & Recorders)",
+                  "code": "RK-B",
+                  "shelves": [
+                    {
+                      "id": "SH-01",
+                      "name": "Shelf 1",
+                      "code": "SH-01",
+                      "boxes": [
+                        {
+                          "id": "BX-B1-01",
+                          "name": "Box B1-01 (4CH / 8CH DVRs)",
+                          "code": "BX-07",
+                          "desc": "Compact analog HD recorders"
+                        },
+                        {
+                          "id": "BX-B1-02",
+                          "name": "Box B1-02 (16CH / 32CH NVRs)",
+                          "code": "BX-08",
+                          "desc": "Network video recorder chassis"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SH-02",
+                      "name": "Shelf 2",
+                      "code": "SH-02",
+                      "boxes": [
+                        {
+                          "id": "BX-B2-01",
+                          "name": "Box B2-01 (Surveillance HDDs 1TB-4TB)",
+                          "code": "BX-09",
+                          "desc": "WD Purple / Seagate Skyhawk drives"
+                        },
+                        {
+                          "id": "BX-B2-02",
+                          "name": "Box B2-02 (Enterprise HDDs 6TB-10TB)",
+                          "code": "BX-10",
+                          "desc": "High-capacity RAID enterprise drives"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "FL-02",
+              "name": "Floor 2 (High-Value Storage)",
+              "code": "FL-02",
+              "racks": [
+                {
+                  "id": "RK-C",
+                  "name": "Rack C (Biometrics & Access Control)",
+                  "code": "RK-C",
+                  "shelves": [
+                    {
+                      "id": "SH-01",
+                      "name": "Shelf 1",
+                      "code": "SH-01",
+                      "boxes": [
+                        {
+                          "id": "BX-C1-01",
+                          "name": "Box C1-01 (Fingerprint & Facial Terminals)",
+                          "code": "BX-11",
+                          "desc": "Time attendance & biometric scanners"
+                        },
+                        {
+                          "id": "BX-C1-02",
+                          "name": "Box C1-02 (EM Locks & Exit Switches)",
+                          "code": "BX-12",
+                          "desc": "Magnetic locks, brackets, power supplies"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SH-02",
+                      "name": "Shelf 2",
+                      "code": "SH-02",
+                      "boxes": [
+                        {
+                          "id": "BX-C2-01",
+                          "name": "Box C2-01 (RFID Cards & Keyfobs)",
+                          "code": "BX-13",
+                          "desc": "Smart cards, tokens & tags"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "RK-D",
+                  "name": "Rack D (Networking & Switches)",
+                  "code": "RK-D",
+                  "shelves": [
+                    {
+                      "id": "SH-01",
+                      "name": "Shelf 1",
+                      "code": "SH-01",
+                      "boxes": [
+                        {
+                          "id": "BX-D1-01",
+                          "name": "Box D1-01 (4-Port / 8-Port POE Switches)",
+                          "code": "BX-14",
+                          "desc": "Standard network switches"
+                        },
+                        {
+                          "id": "BX-D1-02",
+                          "name": "Box D1-02 (16-Port / 24-Port Managed Switches)",
+                          "code": "BX-15",
+                          "desc": "Gigabit rackmount switches"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "WH-003",
+        "code": "WH-CBE-01",
+        "name": "Coimbatore Logistics Depot",
+        "location": "Peelamedu, Coimbatore",
+        "capacity": "4,500 sq ft",
+        "manager": "Rajesh Kumar",
+        "isDefault": false,
+        "status": "Active",
+        "layout": {
+          "floors": [
+            {
+              "id": "FL-01",
+              "name": "Floor 1 (Ground Floor)",
+              "code": "FL-01",
+              "racks": [
+                {
+                  "id": "RK-A",
+                  "name": "Rack A (CCTV & Surveillance)",
+                  "code": "RK-A",
+                  "shelves": [
+                    {
+                      "id": "SH-01",
+                      "name": "Shelf 1 (Bottom Tier)",
+                      "code": "SH-01",
+                      "boxes": [
+                        {
+                          "id": "BX-A1-01",
+                          "name": "Box A1-01 (Bullet Cameras)",
+                          "code": "BX-01",
+                          "desc": "Standard 2MP/5MP bullet cameras"
+                        },
+                        {
+                          "id": "BX-A1-02",
+                          "name": "Box A1-02 (Dome Cameras)",
+                          "code": "BX-02",
+                          "desc": "Indoor/Outdoor dome cameras"
+                        },
+                        {
+                          "id": "BX-A1-03",
+                          "name": "Box A1-03 (PTZ Accessories)",
+                          "code": "BX-03",
+                          "desc": "Mounts, adaptors & power supplies"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SH-02",
+                      "name": "Shelf 2 (Mid Level Tier)",
+                      "code": "SH-02",
+                      "boxes": [
+                        {
+                          "id": "BX-A2-01",
+                          "name": "Box A2-01 (IP Network Cameras)",
+                          "code": "BX-04",
+                          "desc": "High-definition POE cameras"
+                        },
+                        {
+                          "id": "BX-A2-02",
+                          "name": "Box A2-02 (Junction Boxes & Connectors)",
+                          "code": "BX-05",
+                          "desc": "Waterproof connectors and fittings"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SH-03",
+                      "name": "Shelf 3 (Upper Tier)",
+                      "code": "SH-03",
+                      "boxes": [
+                        {
+                          "id": "BX-A3-01",
+                          "name": "Box A3-01 (Sensors & Specialized Lenses)",
+                          "code": "BX-06",
+                          "desc": "Varifocal lenses and sensors"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "RK-B",
+                  "name": "Rack B (Storage & Recorders)",
+                  "code": "RK-B",
+                  "shelves": [
+                    {
+                      "id": "SH-01",
+                      "name": "Shelf 1",
+                      "code": "SH-01",
+                      "boxes": [
+                        {
+                          "id": "BX-B1-01",
+                          "name": "Box B1-01 (4CH / 8CH DVRs)",
+                          "code": "BX-07",
+                          "desc": "Compact analog HD recorders"
+                        },
+                        {
+                          "id": "BX-B1-02",
+                          "name": "Box B1-02 (16CH / 32CH NVRs)",
+                          "code": "BX-08",
+                          "desc": "Network video recorder chassis"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SH-02",
+                      "name": "Shelf 2",
+                      "code": "SH-02",
+                      "boxes": [
+                        {
+                          "id": "BX-B2-01",
+                          "name": "Box B2-01 (Surveillance HDDs 1TB-4TB)",
+                          "code": "BX-09",
+                          "desc": "WD Purple / Seagate Skyhawk drives"
+                        },
+                        {
+                          "id": "BX-B2-02",
+                          "name": "Box B2-02 (Enterprise HDDs 6TB-10TB)",
+                          "code": "BX-10",
+                          "desc": "High-capacity RAID enterprise drives"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "FL-02",
+              "name": "Floor 2 (High-Value Storage)",
+              "code": "FL-02",
+              "racks": [
+                {
+                  "id": "RK-C",
+                  "name": "Rack C (Biometrics & Access Control)",
+                  "code": "RK-C",
+                  "shelves": [
+                    {
+                      "id": "SH-01",
+                      "name": "Shelf 1",
+                      "code": "SH-01",
+                      "boxes": [
+                        {
+                          "id": "BX-C1-01",
+                          "name": "Box C1-01 (Fingerprint & Facial Terminals)",
+                          "code": "BX-11",
+                          "desc": "Time attendance & biometric scanners"
+                        },
+                        {
+                          "id": "BX-C1-02",
+                          "name": "Box C1-02 (EM Locks & Exit Switches)",
+                          "code": "BX-12",
+                          "desc": "Magnetic locks, brackets, power supplies"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SH-02",
+                      "name": "Shelf 2",
+                      "code": "SH-02",
+                      "boxes": [
+                        {
+                          "id": "BX-C2-01",
+                          "name": "Box C2-01 (RFID Cards & Keyfobs)",
+                          "code": "BX-13",
+                          "desc": "Smart cards, tokens & tags"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "RK-D",
+                  "name": "Rack D (Networking & Switches)",
+                  "code": "RK-D",
+                  "shelves": [
+                    {
+                      "id": "SH-01",
+                      "name": "Shelf 1",
+                      "code": "SH-01",
+                      "boxes": [
+                        {
+                          "id": "BX-D1-01",
+                          "name": "Box D1-01 (4-Port / 8-Port POE Switches)",
+                          "code": "BX-14",
+                          "desc": "Standard network switches"
+                        },
+                        {
+                          "id": "BX-D1-02",
+                          "name": "Box D1-02 (16-Port / 24-Port Managed Switches)",
+                          "code": "BX-15",
+                          "desc": "Gigabit rackmount switches"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "invoiceSetup": {
+      "prefix": "INV/",
+      "suffix": "/26-27",
+      "startingNumber": 1001,
+      "nextNumber": 1042,
+      "paddingDigits": 4,
+      "headerTitle": "TAX INVOICE",
+      "showLogo": true,
+      "showSeal": true,
+      "showSignature": true,
+      "showBankDetails": true,
+      "showQrCode": true,
+      "defaultNotes": "Request Payment by Demand Draft / AC Payee Only. If any clarification in the above details please inform within seven days.",
+      "defaultTerms": "1. Payment due within agreed credit terms from invoice date.\n2. Interest @ 18% p.a. will be charged on overdue payments.\n3. Goods once sold will not be accepted back without prior RMA approval.\n4. All disputes are subject to Chennai jurisdiction only."
+    },
+    "quotationSetup": {
+      "prefix": "QTN/",
+      "suffix": "/26-27",
+      "startingNumber": 101,
+      "nextNumber": 135,
+      "paddingDigits": 3,
+      "validityDays": 7,
+      "headerTitle": "QUOTATION",
+      "showLogo": true,
+      "showSeal": true,
+      "showSignature": true,
+      "showBankDetails": true,
+      "logoSize": 170,
+      "defaultNotes": "Note: Prices quoted are valid for 7 days. Taxes extra as applicable.",
+      "defaultTerms": "1. Prices are valid for 7 days from quote date.\n2. Delivery: Ex-stock / 1-2 weeks upon receipt of confirmed purchase order.\n3. Payment: 100% advance or as agreed in commercial proposal.\n4. Warranty: Standard manufacturer warranty applies."
+    },
+    "dcSetup": {
+      "prefix": "DC/",
+      "suffix": "/26-27",
+      "startingNumber": 1,
+      "nextNumber": 29,
+      "paddingDigits": 3,
+      "headerTitle": "DELIVERY CHALLAN",
+      "showLogo": true,
+      "logoSize": 116,
+      "showSeal": true,
+      "showSignature": true,
+      "defaultNotes": "Goods dispatched for delivery / installation. Received the above goods in good order and condition.",
+      "returnableTerms": "Returnable DC must be returned within 15 days of dispatch in undamaged original condition."
+    },
+    "pdfSettings": {
+      "pageSize": "A4",
+      "orientation": "Portrait",
+      "marginTop": 10,
+      "marginBottom": 10,
+      "marginLeft": 10,
+      "marginRight": 10,
+      "primaryColor": "#2563eb",
+      "fontFamily": "Inter, system-ui, sans-serif",
+      "showPageNumbers": true,
+      "printDraftWatermark": false
+    },
+    "emailSetup": {
+      "smtpHost": "smtp.gmail.com",
+      "smtpPort": 587,
+      "encryption": "TLS",
+      "senderName": "Active System Integration",
+      "senderEmail": "admin@asi.ind.in",
+      "replyToEmail": "support@asi.ind.in",
+      "authRequired": true,
+      "username": "admin@asi.ind.in",
+      "status": "Configured"
+    },
+    "smsSetup": {
+      "provider": "Fast2SMS",
+      "senderId": "ASICRM",
+      "apiKey": "••••••••••••••••",
+      "dltEntityId": "11015248900000",
+      "status": "Active",
+      "enableOrderAlerts": true,
+      "enableDispatchAlerts": true
+    },
+    "paymentMethods": [
+      {
+        "id": "PM-001",
+        "code": "BANK",
+        "name": "Bank Transfer (NEFT / RTGS / IMPS)",
+        "type": "Bank",
+        "isDefault": true,
+        "status": "Active",
+        "details": "INDUSIND BANK / HDFC BANK - A/C 50200028741215 - IFSC HDFC0000024"
+      },
+      {
+        "id": "PM-002",
+        "code": "CHEQUE",
+        "name": "Cheque / Demand Draft",
+        "type": "Offline",
+        "isDefault": false,
+        "status": "Active",
+        "details": "Payable at Chennai in favor of ACTIVE SYSTEM INTEGRATION"
+      },
+      {
+        "id": "PM-003",
+        "code": "UPI",
+        "name": "UPI / QR Code",
+        "type": "Digital",
+        "isDefault": false,
+        "status": "Active",
+        "details": "asi@hdfcbank"
+      },
+      {
+        "id": "PM-004",
+        "code": "CASH",
+        "name": "Cash",
+        "type": "Cash",
+        "isDefault": false,
+        "status": "Active",
+        "details": "Direct cash receipt on counter"
+      },
+      {
+        "id": "PM-005",
+        "code": "CARD",
+        "name": "Credit / Debit Card (POS)",
+        "type": "POS",
+        "isDefault": false,
+        "status": "Active",
+        "details": "Merchant POS Terminal"
+      }
+    ],
+    "currency": {
+      "baseCurrency": "INR",
+      "symbol": "₹",
+      "code": "INR",
+      "name": "Indian Rupee (INR)",
+      "decimalPlaces": 2,
+      "format": "en-IN"
+    },
+    "taxSetup": {
+      "gstin": "33AZPPS7068A1Z4",
+      "stateCode": "33",
+      "stateName": "Tamil Nadu",
+      "defaultGstRate": 18,
+      "rates": [
+        0,
+        5,
+        12,
+        18,
+        28
+      ],
+      "enableCompositeScheme": false,
+      "enableRcm": true,
+      "ewayBillThreshold": 50000
+    },
+    "discountSetup": {
+      "maxDiscountPercent": 25,
+      "approvalRequiredAbove": 15,
+      "allowLineItemDiscount": true,
+      "allowGlobalDiscount": true,
+      "defaultDiscountType": "Percentage"
+    },
+    "defaultProductUnit": "Nos",
+    "productUnits": [
+      {
+        "id": "Nos",
+        "name": "Nos",
+        "code": "NOS",
+        "description": "Numbers / Units count",
+        "status": "Active"
+      },
+      {
+        "id": "Box",
+        "name": "Box",
+        "code": "BOX",
+        "description": "Carton / Box pack",
+        "status": "Active"
+      },
+      {
+        "id": "Set",
+        "name": "Set",
+        "code": "SET",
+        "description": "Complete set of accessories",
+        "status": "Active"
+      },
+      {
+        "id": "Meter",
+        "name": "Meter",
+        "code": "MTR",
+        "description": "Length measurement in meters",
+        "status": "Active"
+      },
+      {
+        "id": "Roll",
+        "name": "Roll",
+        "code": "ROL",
+        "description": "Continuous roll packaging (Cables / Wires)",
+        "status": "Active"
+      }
+    ]
+  }
+}

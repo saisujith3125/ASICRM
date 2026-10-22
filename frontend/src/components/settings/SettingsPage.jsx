@@ -31,6 +31,14 @@ function authHeaders(user) {
   };
 }
 
+async function parseJsonSafely(res) {
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 export default function SettingsPage({
   user,
   initialSection = 'company-profile',
@@ -113,9 +121,9 @@ export default function SettingsPage({
       const res = await apiFetch(apiUrl('/api/settings'), {
         headers: authHeaders(user)
       });
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.message || 'Failed to load settings from server.');
+      const json = await parseJsonSafely(res);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.message || `Failed to load settings from server (${res.status}).`);
       }
 
       const d = json.data || {};
@@ -158,9 +166,9 @@ export default function SettingsPage({
         headers: authHeaders(user),
         body: JSON.stringify(dataToSave)
       });
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.message || 'Failed to save company settings.');
+      const json = await parseJsonSafely(res);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.message || `Failed to save company settings (${res.status}).`);
       }
 
       const saved = json.data || dataToSave;
@@ -273,12 +281,12 @@ export default function SettingsPage({
         headers: authHeaders(user),
         body: JSON.stringify(draftUser)
       });
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.message || 'Failed to save user.');
+      const json = await parseJsonSafely(res);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.message || (res.status === 403 ? 'Permission denied: Super Admin accounts can only be edited by a Super Admin.' : `Failed to save user (${res.status}).`));
       }
       showToast(isEdit ? 'User updated successfully.' : 'User created successfully.');
-      window.dispatchEvent(new CustomEvent('crm-user-updated', { detail: json.data }));
+      window.dispatchEvent(new CustomEvent('crm-user-updated', { detail: json?.data }));
       await loadSettings();
     } finally {
       setIsSaving(false);
@@ -296,9 +304,9 @@ export default function SettingsPage({
         headers: authHeaders(user),
         body: JSON.stringify(draftRole)
       });
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.message || 'Failed to save role.');
+      const json = await parseJsonSafely(res);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.message || `Failed to save role (${res.status}).`);
       }
       showToast(isEdit ? 'Role updated successfully.' : 'Role created successfully.');
       await loadSettings();
@@ -314,9 +322,9 @@ export default function SettingsPage({
         method: 'DELETE',
         headers: authHeaders(user)
       });
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.message || 'Failed to delete role.');
+      const json = await parseJsonSafely(res);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.message || `Failed to delete role (${res.status}).`);
       }
       showToast('Role deleted successfully.');
       await loadSettings();
@@ -334,9 +342,9 @@ export default function SettingsPage({
         headers: authHeaders(user),
         body: JSON.stringify({ permissions: matrix })
       });
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.message || 'Failed to update permissions.');
+      const json = await parseJsonSafely(res);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.message || `Failed to update permissions (${res.status}).`);
       }
       showToast(`Permissions updated for role ${roleKey}.`);
       setPermissions((prev) => ({ ...prev, [roleKey]: matrix }));

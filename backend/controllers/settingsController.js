@@ -408,8 +408,8 @@ function updateUser(req, res) {
 
   const existingRole = roleKeyOf({ key: existing.role });
   const currentId = String(req.headers['x-user-id'] || '');
-  if (existingRole === PROTECTED_ROLE && (currentId !== existing.id || !isSuperAdmin(req))) {
-    return res.status(403).json({ success: false, message: 'The protected Super Admin can only be edited by the Super Admin account.' });
+  if (existingRole === PROTECTED_ROLE && !isSuperAdmin(req)) {
+    return res.status(403).json({ success: false, message: 'Only Super Admin can edit the Super Admin account.' });
   }
   if (nextRole === PROTECTED_ROLE && !isSuperAdmin(req)) {
     return res.status(403).json({ success: false, message: 'Only Super Admin can assign the Super Admin role.' });

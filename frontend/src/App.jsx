@@ -131,21 +131,42 @@ export default function App() {
       }
     }
   }, [activeTab, stockProductInfo]);
+  // Default test / check account: Super Admin (USR-001)
+  const DEFAULT_CHECK_USER = {
+    id: 'USR-001',
+    name: 'Super Admin',
+    employeeId: 'SA-001',
+    email: 'superadmin@asicrm.local',
+    mobile: '9999999990',
+    role: 'SUPER_ADMIN',
+    status: 'Active',
+    permissions: {}
+  };
+
   // Authentication state (persisted in localStorage)
   const [user, setUser] = useState(() => {
     try {
       const saved = localStorage.getItem('asicrm_user')
-      return saved ? JSON.parse(saved) : null
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // If previous session was John Doe, migrate to default Super Admin check account
+        if (parsed?.name === 'John Doe' || parsed?.email === 'john@asicrm.local') {
+          localStorage.setItem('asicrm_user', JSON.stringify(DEFAULT_CHECK_USER));
+          return DEFAULT_CHECK_USER;
+        }
+        return parsed;
+      }
+      return null;
     } catch {
-      return null
+      return null;
     }
   })
 
   // Navigation steps: 'mobile' | 'otp'
   const [step, setStep] = useState('mobile')
   
-  // Mobile form state
-  const [mobile, setMobile] = useState('')
+  // Mobile form state: default to Super Admin (+91 9999999990) for testing/checking
+  const [mobile, setMobile] = useState('9999999990')
   
   // OTP form state (4 individual digits; backend generates a fresh random OTP when real SMS mode is enabled)
   const [otpDigits, setOtpDigits] = useState(['', '', '', ''])
@@ -275,7 +296,10 @@ export default function App() {
 
       if (response.ok && data.success) {
         setStep('otp')
-        setOtpDigits(['', '', '', ''])
+        const defaultDigits = (mobile === '9999999990' || data.devOtp === '1234')
+          ? ['1', '2', '3', '4']
+          : ['', '', '', ''];
+        setOtpDigits(defaultDigits)
         setSuccessMsg(data.message || `OTP sent to +91 ${mobile}`)
         startResendCooldown(data.resendCooldownSeconds || 90)
         
@@ -384,7 +408,7 @@ export default function App() {
     setUser(null)
     setPreselectedCustForEnq(null)
     setStep('mobile')
-    setMobile('')
+    setMobile('9999999990')
     setOtpDigits(['', '', '', ''])
     setResendRemainingSeconds(0)
     setCooldownsByMobile({})
@@ -752,9 +776,29 @@ export default function App() {
 
               <form onSubmit={handleSendOtp} className="login-form">
                 <div className="form-group">
-                  <label htmlFor="mobileInput" className="input-label">
-                    Mobile Number
-                  </label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label htmlFor="mobileInput" className="input-label" style={{ margin: 0 }}>
+                      Mobile Number
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobile('9999999990');
+                        setErrorMsg('');
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#2563eb',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        padding: 0
+                      }}
+                    >
+                      Default: Super Admin
+                    </button>
+                  </div>
                   <div className="phone-input-group">
                     {/* Country code prefix */}
                     <div className="country-code-pill" aria-label="India Country Code">
@@ -871,9 +915,16 @@ export default function App() {
 
               <form onSubmit={handleVerifyOtp} className="login-form">
                 <div className="form-group">
-                  <label className="input-label centered">
-                    Enter 4-Digit Code
-                  </label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label className="input-label centered" style={{ margin: 0 }}>
+                      Enter 4-Digit Code
+                    </label>
+                    {mobile === '9999999990' && (
+                      <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 600, background: '#f0fdf4', padding: '2px 8px', borderRadius: '4px' }}>
+                        Default OTP: 1234
+                      </span>
+                    )}
+                  </div>
                   
                   {/* 4-box OTP Input Group */}
                   <div className="otp-boxes-container" onPaste={handleOtpPaste}>

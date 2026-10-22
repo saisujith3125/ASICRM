@@ -25,6 +25,19 @@ const RECENT_OTP_HISTORY_SIZE = 100; // Avoid reissuing a recently used/generate
 // even when NODE_ENV=development, so the real SMS login path behaves like production.
 const DEV_SHARED_OTP = String(process.env.DEV_SHARED_OTP || '1234');
 
+// Default checking account: Super Admin (SA-001 / +91 9999999990 / OTP 1234)
+const DEFAULT_CHECK_MOBILE = '9999999990';
+const DEFAULT_CHECK_OTP = '1234';
+const DEFAULT_SUPER_ADMIN_USER = {
+  id: 'USR-001',
+  name: 'Super Admin',
+  employeeId: 'SA-001',
+  email: 'superadmin@asicrm.local',
+  mobile: '9999999990',
+  role: 'SUPER_ADMIN',
+  status: 'Active'
+};
+
 function readAccessData() {
   try {
     return JSON.parse(fs.readFileSync(ACCESS_FILE, 'utf8'));
@@ -35,7 +48,11 @@ function readAccessData() {
 
 function findUserByMobile(mobile) {
   const data = readAccessData();
-  return { data, user: (data.users || []).find((item) => String(item.mobile || '') === mobile) };
+  let user = (data.users || []).find((item) => String(item.mobile || '') === mobile);
+  if (!user && mobile === DEFAULT_CHECK_MOBILE) {
+    user = DEFAULT_SUPER_ADMIN_USER;
+  }
+  return { data, user };
 }
 
 function roleDetails(data, roleKey) {
@@ -63,6 +80,11 @@ function getRecentOtps(mobile) {
 }
 
 function generateOtp(mobile) {
+  // Always return the default check OTP for 9999999990
+  if (mobile === DEFAULT_CHECK_MOBILE) {
+    return DEFAULT_CHECK_OTP;
+  }
+
   // Keep the shared OTP only for local development when real SMS delivery is disabled.
   if (!SMS_PROVIDER_ENABLED && process.env.NODE_ENV !== 'production') {
     return DEV_SHARED_OTP;
@@ -115,6 +137,25 @@ const sendOtp = async (req, res) => {
     const { user } = findUserByMobile(mobile);
     if (!user || user.status !== 'Active') {
       return res.status(403).json({ success: false, message: 'No active ASICRM user is registered for this mobile number.' });
+    }
+
+    // Default checking account: Super Admin (+91 9999999990) -> Always OTP 1234, no cooldown, no external SMS call
+    if (mobile === DEFAULT_CHECK_MOBILE) {
+      otpStore.set(mobile, {
+        otp: DEFAULT_CHECK_OTP,
+        userId: user.id,
+        createdAt: Date.now(),
+        expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+        attempts: 0
+      });
+      cooldownStore.delete(mobile);
+      rateLimitStore.delete(mobile);
+      return res.json({
+        success: true,
+        message: 'OTP sent successfully. (Default Check OTP: 1234)',
+        devOtp: DEFAULT_CHECK_OTP,
+        resendCooldownSeconds: 0
+      });
     }
 
     const now = Date.now();
@@ -198,6 +239,20 @@ const verifyOtp = (req, res) => {
     const otp = String(req.body?.otp || '').trim();
     if (!/^\d{10}$/.test(mobile) || !/^\d{4}$/.test(otp)) {
       return res.status(400).json({ success: false, message: 'Mobile number and 4-digit OTP are required.' });
+    }
+
+    // Default checking account: Super Admin (+91 9999999990) with OTP 1234 always verifies directly
+    if (mobile === DEFAULT_CHECK_MOBILE && otp === DEFAULT_CHECK_OTP) {
+      otpStore.delete(mobile);
+      const { data, user } = findUserByMobile(mobile);
+      if (user && user.status === 'Active') {
+        return res.json({
+          success: true,
+          message: 'Login successful.',
+          mobile,
+          user: publicUser(data, user)
+        });
+      }
     }
 
     const record = otpStore.get(mobile);

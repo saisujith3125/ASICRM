@@ -5,7 +5,7 @@ const http = require('http');
 
 const accessPath = path.join(__dirname, '..', 'data', 'access-control.json');
 const data = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
-const activeUsers = data.users.filter((u) => u.status === 'Active');
+const activeUsers = data.users.filter((u) => u.status === 'Active' && u.mobile !== '9999999990');
 assert(activeUsers.length >= 2, 'Need at least two active users for isolation test.');
 
 function clearModule(rel) {

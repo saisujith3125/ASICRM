@@ -7,6 +7,7 @@ import html2pdf from 'html2pdf.js';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import PrintableSalesInvoice from './PrintableSalesInvoice';
+export { html2pdf };
 
 /**
  * Generate and download PDF from an existing mounted DOM element
@@ -91,7 +92,29 @@ export async function downloadPdfFromElement(element, filename = 'Document.pdf')
 
   printableElement.classList.add('is-exporting-pdf');
   try {
-    await html2pdf().set(opt).from(printableElement).save();
+    const isInvoice = printableElement.classList?.contains('printable-sales-invoice') ||
+                      Boolean(printableElement.querySelector?.('.printable-sales-invoice')) ||
+                      filename.toLowerCase().includes('inv');
+
+    const invoicePages = isInvoice
+      ? Array.from(printableElement.querySelectorAll('.printable-sales-invoice .doc-paged-page, .doc-paged-page'))
+      : [];
+    const expectedInvoicePages = invoicePages.length;
+
+    const worker = html2pdf().set(opt).from(printableElement);
+
+    if (isInvoice && expectedInvoicePages > 0) {
+      const pdf = await worker.toPdf().get('pdf');
+      let totalPages = pdf.internal.getNumberOfPages();
+      while (totalPages > expectedInvoicePages) {
+        pdf.deletePage(totalPages);
+        totalPages = pdf.internal.getNumberOfPages();
+      }
+      await worker.save();
+    } else {
+      await worker.save();
+    }
+
     return true;
   } catch (err) {
     console.error('PDF generation failed:', err);

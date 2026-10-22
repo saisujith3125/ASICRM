@@ -3899,11 +3899,37 @@
 /* 30mm Protected Left-Side Binding Margin for PDF Export */
 .is-exporting-pdf .printable-delivery-challan .doc-paged-page,
 .printable-delivery-challan.is-exporting-pdf .doc-paged-page,
-.is-exporting-pdf .printable-sales-invoice .doc-paged-page,
-.printable-sales-invoice.is-exporting-pdf .doc-paged-page,
 .is-exporting-pdf .printable-proforma-invoice .doc-paged-page,
 .printable-proforma-invoice.is-exporting-pdf .doc-paged-page {
   padding: 8mm 8mm 8mm 30mm !important;
+}
+
+/* Sales Invoice STRICT A4 Page Fit & Anti-Overflow Rules (Prevents Subpixel Ghost 2nd Page) */
+.is-exporting-pdf .printable-sales-invoice .doc-paged-page,
+.printable-sales-invoice.is-exporting-pdf .doc-paged-page {
+  width: 210mm !important;
+  max-width: 210mm !important;
+  height: 296mm !important;
+  min-height: 296mm !important;
+  max-height: 296mm !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 8mm 8mm 8mm 30mm !important;
+  box-sizing: border-box !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+  page-break-after: always !important;
+  break-after: page !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+
+.is-exporting-pdf .printable-sales-invoice .doc-paged-page:last-child,
+.printable-sales-invoice.is-exporting-pdf .doc-paged-page:last-child {
+  page-break-after: avoid !important;
+  break-after: avoid !important;
 }
 
 /* Purchase Order STRICT EXCEPTION for PDF Export: Keep 8mm symmetric margins */

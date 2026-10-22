@@ -7,7 +7,7 @@ import html2pdf from 'html2pdf.js';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import PrintableSalesInvoice from './PrintableSalesInvoice';
-export { html2pdf };
+export { html2pdf, createRoot, React };
 
 /**
  * Generate and download PDF from an existing mounted DOM element
@@ -92,21 +92,23 @@ export async function downloadPdfFromElement(element, filename = 'Document.pdf')
 
   printableElement.classList.add('is-exporting-pdf');
   try {
-    const isInvoice = printableElement.classList?.contains('printable-sales-invoice') ||
-                      Boolean(printableElement.querySelector?.('.printable-sales-invoice')) ||
-                      filename.toLowerCase().includes('inv');
-
-    const invoicePages = isInvoice
-      ? Array.from(printableElement.querySelectorAll('.printable-sales-invoice .doc-paged-page, .doc-paged-page'))
-      : [];
-    const expectedInvoicePages = invoicePages.length;
+    // Universal Anti-Ghost-Page Detection across ALL documents
+    // Finds all discrete page elements rendered in the DOM for Quotations, Invoices, DCs, Proformas, POs, etc.
+    const pagedElements = Array.from(
+      printableElement.querySelectorAll(
+        '.doc-paged-page, .doc-quotation-page, .quotation-page, [data-page-num]'
+      )
+    );
+    const expectedPages = pagedElements.length;
 
     const worker = html2pdf().set(opt).from(printableElement);
 
-    if (isInvoice && expectedInvoicePages > 0) {
+    if (expectedPages > 0) {
       const pdf = await worker.toPdf().get('pdf');
       let totalPages = pdf.internal.getNumberOfPages();
-      while (totalPages > expectedInvoicePages) {
+      // Anti-ghost-page rule: Never allow sub-pixel rounding or 1px canvas overflow
+      // to create trailing blank pages beyond what is genuinely rendered in the DOM.
+      while (totalPages > expectedPages) {
         pdf.deletePage(totalPages);
         totalPages = pdf.internal.getNumberOfPages();
       }

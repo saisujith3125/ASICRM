@@ -31,16 +31,34 @@ const app = express();
 // Initialize MongoDB Atlas connection
 connectDB();
 
-app.use(cors());
+const allowedOrigins = [
+  'https://crm.asiind.com',
+  'https://asiind.com',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith('.asiind.com')) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
+
 app.use(express.json({ limit: '10mb' }));
 
 app.get("/", (req, res) => {
-    res.send("ASICRM Backend Running");
+    res.send("ASICRM Backend Running at https://crmapi.asiind.com");
 });
 
 app.get("/api/test", (req, res) => {
     res.json({
-        message: "Frontend connected to backend successfully"
+        message: "Frontend connected to backend successfully",
+        apiUrl: process.env.PUBLIC_API_URL || "https://crmapi.asiind.com"
     });
 });
 
@@ -59,7 +77,8 @@ const port = Number(process.env.PORT) || 5000;
 const host = process.env.HOST || '0.0.0.0';
 
 const server = app.listen(port, host, () => {
-    console.log(`Server running on http://127.0.0.1:${port}`);
+    const publicApi = process.env.PUBLIC_API_URL || 'https://crmapi.asiind.com';
+    console.log(`Server running on port ${port} (Public API: ${publicApi})`);
     const sms = getSmsConfigSummary();
     console.log(`[CONFIG] SMS_PROVIDER configured: ${sms.SMS_PROVIDER_configured}`);
     console.log(`[CONFIG] SMS_API_KEY configured: ${sms.SMS_API_KEY_configured}`);

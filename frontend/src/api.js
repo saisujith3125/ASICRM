@@ -1,6 +1,6 @@
-// Prefer IPv4 loopback. `localhost` can resolve to ::1 while Vite/Express
-// bind on different stacks, which shows up in the UI as a port-5000 outage.
-export const API_BASE = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000').replace(/\/$/, '');
+// Production API URL: https://crmapi.asiind.com
+// Can be overridden via VITE_API_URL in frontend/.env
+export const API_BASE = (import.meta.env.VITE_API_URL || 'https://crmapi.asiind.com').replace(/\/$/, '');
 
 export const apiUrl = (path = '') => {
   const normalised = path.startsWith('/') ? path : `/${path}`;

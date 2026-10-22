@@ -10,9 +10,8 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/api': {
-        target: 'https://crmapi.asiind.com',
-        changeOrigin: true,
-        secure: false
+        target: 'http://127.0.0.1:5000',
+        changeOrigin: true
       }
     }
   }

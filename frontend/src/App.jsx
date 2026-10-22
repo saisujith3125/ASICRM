@@ -137,7 +137,7 @@ export default function App() {
     name: 'Super Admin',
     employeeId: 'SA-001',
     email: 'superadmin@asicrm.local',
-    mobile: '9999999990',
+    mobile: '9994126686',
     role: 'SUPER_ADMIN',
     status: 'Active',
     permissions: {}
@@ -285,8 +285,8 @@ export default function App() {
     setErrorMsg('')
     setSuccessMsg('')
 
-    // Default checking account: Super Admin (+91 9999999990)
-    if (mobile === '9999999990') {
+    // Default checking account: Super Admin (+91 9999999990 / +91 9994126686)
+    if (mobile === '9999999990' || mobile === '9994126686') {
       try {
         await fetch(`${BACKEND_API_URL}/send-otp`, {
           method: 'POST',
@@ -402,8 +402,8 @@ export default function App() {
     setErrorMsg('')
     setSuccessMsg('')
 
-    // Default checking account: Super Admin (+91 9999999990) with OTP 1234
-    const isDefaultCheck = mobile === '9999999990' && fullOtp === '1234'
+    // Default checking account: Super Admin with OTP 1234
+    const isDefaultCheck = (mobile === '9999999990' || mobile === '9994126686') && fullOtp === '1234'
 
     try {
       const response = await fetch(`${BACKEND_API_URL}/verify-otp`, {

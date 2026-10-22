@@ -680,8 +680,8 @@ export default function WarehousesSection({ data, onChange, onSave, isSaving }) 
 
       {/* CREATE / EDIT MODAL */}
       {modalMode && (
-        <div className="settings-modal-overlay" onClick={() => setModalMode(null)}>
-          <div className="settings-modal-card" onClick={(e) => e.stopPropagation()}>
+        <div className="settings-modal-overlay">
+          <div className="settings-modal-card">
             <div className="settings-modal-header">
               <h3 className="settings-modal-title">
                 {modalMode === 'create' ? 'Add New Storage Warehouse' : 'Edit Fulfillment Warehouse'}
@@ -800,10 +800,9 @@ export default function WarehousesSection({ data, onChange, onSave, isSaving }) 
 
       {/* STORAGE LAYOUT & BINS MODAL (Floor -> Rack -> Shelf -> Box) */}
       {layoutWh && (
-        <div className="settings-modal-overlay" onClick={() => setLayoutWh(null)}>
+        <div className="settings-modal-overlay">
           <div
             className="settings-modal-card"
-            onClick={(e) => e.stopPropagation()}
             style={{ maxWidth: '820px', width: '95%' }}
           >
             <div className="settings-modal-header" style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0' }}>

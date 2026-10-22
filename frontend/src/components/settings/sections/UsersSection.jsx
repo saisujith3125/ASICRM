@@ -235,8 +235,8 @@ export default function UsersSection({
 
       {/* CREATE / EDIT USER MODAL */}
       {modalMode && (
-        <div className="settings-modal-overlay" onClick={() => setModalMode(null)}>
-          <div className="settings-modal-card" onClick={(e) => e.stopPropagation()}>
+        <div className="settings-modal-overlay">
+          <div className="settings-modal-card">
             <div className="settings-modal-header">
               <h3 className="settings-modal-title">
                 {modalMode === 'create' ? 'Add New User Account' : 'Edit User Account'}

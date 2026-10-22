@@ -198,8 +198,8 @@ export default function EmailSetupSection({ data, onChange, onSave, isSaving }) 
 
       {/* TEST EMAIL MODAL */}
       {testModalOpen && (
-        <div className="settings-modal-overlay" onClick={() => setTestModalOpen(false)}>
-          <div className="settings-modal-card" onClick={(e) => e.stopPropagation()}>
+        <div className="settings-modal-overlay">
+          <div className="settings-modal-card">
             <div className="settings-modal-header">
               <h3 className="settings-modal-title">Send Diagnostic Test Email</h3>
               <button

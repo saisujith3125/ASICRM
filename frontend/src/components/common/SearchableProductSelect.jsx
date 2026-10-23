@@ -36,7 +36,8 @@ export default function SearchableProductSelect({
   formatLabel = null,
   loading = false,
   onAddProduct = null,
-  onDuplicateAttempt = null
+  onDuplicateAttempt = null,
+  isDealerCustomer = false
 }) {
   const items = useMemo(() => ((Array.isArray(products) && products.length > 0) ? products : (Array.isArray(rawItems) ? rawItems : [])), [products, rawItems]);
   const selectedId = rawSelectedId || value || '';
@@ -526,7 +527,12 @@ export default function SearchableProductSelect({
                 const stockQty = Number(item.stock !== undefined ? item.stock : (item.availableQty !== undefined ? item.availableQty : 0));
                 const mrp = Number(item.mrp || 0);
                 const dealerPrice = Number(item.dealerPrice || item.price || item.unitPrice || 0);
-                const price = mrp > 0 ? mrp : dealerPrice;
+                const effectivePrice = isDealerCustomer
+                  ? (dealerPrice > 0 ? dealerPrice : mrp)
+                  : (mrp > 0 ? mrp : dealerPrice);
+                const priceLabel = isDealerCustomer
+                  ? (dealerPrice > 0 ? `Dealer ₹${dealerPrice.toLocaleString('en-IN')}` : (mrp > 0 ? `MRP ₹${mrp.toLocaleString('en-IN')}` : ''))
+                  : (mrp > 0 ? `MRP ₹${mrp.toLocaleString('en-IN')}` : (dealerPrice > 0 ? `₹${dealerPrice.toLocaleString('en-IN')}` : ''));
 
                 return (
                   <li
@@ -574,9 +580,13 @@ export default function SearchableProductSelect({
                           >
                             {stockQty > 0 ? `${stockQty} in stock` : 'Out of stock'}
                           </span>
-                          {price > 0 && (
-                            <span className="sps-price-tag" title={mrp > 0 && dealerPrice > 0 ? `MRP: ₹${mrp.toLocaleString('en-IN')} | Dealer: ₹${dealerPrice.toLocaleString('en-IN')}` : undefined}>
-                              {mrp > 0 ? `MRP ₹${mrp.toLocaleString('en-IN')}` : `₹${price.toLocaleString('en-IN')}`}
+                          {effectivePrice > 0 && (
+                            <span
+                              className={`sps-price-tag ${isDealerCustomer ? 'sps-dealer-price-tag' : ''}`}
+                              style={isDealerCustomer ? { background: '#ecfdf5', color: '#047857', borderColor: '#a7f3d0', fontWeight: 600 } : {}}
+                              title={mrp > 0 && dealerPrice > 0 ? `Dealer: ₹${dealerPrice.toLocaleString('en-IN')} | MRP: ₹${mrp.toLocaleString('en-IN')}` : undefined}
+                            >
+                              {priceLabel}
                             </span>
                           )}
                         </div>

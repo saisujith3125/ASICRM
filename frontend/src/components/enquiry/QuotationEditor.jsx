@@ -131,6 +131,17 @@ export default function QuotationEditor({
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
+  // Dealer Customer Detection helper
+  const isCustomerDealer = (cust) => {
+    if (!cust) return false;
+    const cType = String(cust.customerType || cust.type || '').trim().toLowerCase();
+    return cType === 'dealer';
+  };
+
+  const isDealerCustomer = useMemo(() => {
+    return isCustomerDealer(selectedCustomer);
+  }, [selectedCustomer]);
+
   // Enquiry Context
   const [enquiry, setEnquiry] = useState(null);
   const [selectedEnquiryId, setSelectedEnquiryId] = useState(propEnquiryId || '');
@@ -466,7 +477,8 @@ export default function QuotationEditor({
               name: quote.customerName || 'Customer',
               company: quote.customerCompany || '',
               mobile: quote.customerMobile || '',
-              email: quote.customerEmail || ''
+              email: quote.customerEmail || '',
+              customerType: quote.customerType || quote.customer?.customerType || ''
             };
             setSelectedCustomer(cust);
 
@@ -521,7 +533,8 @@ export default function QuotationEditor({
               name: enqRecord.customerName,
               company: enqRecord.customerCompany || '',
               mobile: enqRecord.customerMobile || '',
-              email: enqRecord.customerEmail || ''
+              email: enqRecord.customerEmail || '',
+              customerType: enqRecord.customerType || enqRecord.customer?.customerType || ''
             };
             setSelectedCustomer(cust);
 
@@ -674,7 +687,9 @@ export default function QuotationEditor({
               const defaultQty = 1;
               const masterMrp = Number(newProd.mrp || 0);
               const masterDealerPrice = Number(newProd.dealerPrice || newProd.price || newProd.unitPrice || newProd.sellingPrice || newProd.cost || 0);
-              const masterPrice = masterMrp > 0 ? masterMrp : masterDealerPrice;
+              const masterPrice = isDealerCustomer
+                ? (masterDealerPrice > 0 ? masterDealerPrice : (masterMrp > 0 ? masterMrp : 0))
+                : (masterMrp > 0 ? masterMrp : (masterDealerPrice > 0 ? masterDealerPrice : 0));
               const minPrice = masterDealerPrice > 0 ? masterDealerPrice : (masterMrp > 0 ? masterMrp : 0);
               const gst = Number(newProd.gstRate !== undefined ? newProd.gstRate : (newProd.gst !== undefined ? newProd.gst : 18));
               const desc = newProd.description ? String(newProd.description) : '';
@@ -806,6 +821,9 @@ export default function QuotationEditor({
 
   // Handle customer selection in direct mode
   const handleSelectCustomer = (id, customer) => {
+    const wasDealer = isCustomerDealer(selectedCustomer);
+    const isNowDealer = isCustomerDealer(customer);
+
     setSelectedCustomerId(id || '');
     setSelectedCustomer(customer || null);
     const branches = Array.isArray(customer?.branches) ? customer.branches : [];
@@ -818,11 +836,55 @@ export default function QuotationEditor({
     }
     setSelectedEnquiryId('');
     setError('');
+
+    if (wasDealer !== isNowDealer) {
+      setLineItems((prev) => {
+        return prev.map((item) => {
+          if (!item.productId || item.isInstallationCharge) return item;
+          const prod = stockProducts.find(
+            (p) => (p.id && String(p.id) === String(item.productId)) ||
+                   (p.productId && String(p.productId) === String(item.productId)) ||
+                   (p.code && String(p.code).trim().toUpperCase() === String(item.productCode || item.productId).trim().toUpperCase())
+          );
+          const mMrp = prod ? Number(prod.mrp || 0) : Number(item.mrp || 0);
+          const mDealer = prod ? Number(prod.dealerPrice || prod.price || prod.unitPrice || prod.sellingPrice || prod.cost || 0) : Number(item.dealerPrice || 0);
+          const minPrice = mDealer > 0 ? mDealer : (mMrp > 0 ? mMrp : 0);
+
+          let nextUnitPrice = item.unitPrice;
+          if (isNowDealer) {
+            if (mDealer > 0 && (Number(item.unitPrice) === mMrp || !item.unitPrice || Number(item.unitPrice) === 0)) {
+              nextUnitPrice = mDealer;
+            }
+          } else {
+            if (mMrp > 0 && (Number(item.unitPrice) === mDealer || !item.unitPrice || Number(item.unitPrice) === 0)) {
+              nextUnitPrice = mMrp;
+            }
+          }
+
+          return {
+            ...calculateLineItem({
+              ...item,
+              unitPrice: nextUnitPrice,
+              minPrice,
+              mrp: mMrp,
+              dealerPrice: mDealer
+            }, { showDiscount }),
+            unitPrice: nextUnitPrice,
+            minPrice,
+            mrp: mMrp,
+            dealerPrice: mDealer
+          };
+        });
+      });
+    }
   };
 
   // Handle new customer created via modal in direct mode
   const handleCustomerCreated = (newCust) => {
     if (newCust && newCust.id) {
+      const wasDealer = isCustomerDealer(selectedCustomer);
+      const isNowDealer = isCustomerDealer(newCust);
+
       setSelectedCustomerId(newCust.id);
       setSelectedCustomer(newCust);
       const branches = Array.isArray(newCust?.branches) ? newCust.branches : [];
@@ -834,6 +896,47 @@ export default function QuotationEditor({
       setSelectedEnquiryId('');
       setCustomersList((prev) => [newCust, ...prev.filter((c) => c.id !== newCust.id)]);
       setIsCustomerModalOpen(false);
+
+      if (wasDealer !== isNowDealer) {
+        setLineItems((prev) => {
+          return prev.map((item) => {
+            if (!item.productId || item.isInstallationCharge) return item;
+            const prod = stockProducts.find(
+              (p) => (p.id && String(p.id) === String(item.productId)) ||
+                     (p.productId && String(p.productId) === String(item.productId)) ||
+                     (p.code && String(p.code).trim().toUpperCase() === String(item.productCode || item.productId).trim().toUpperCase())
+            );
+            const mMrp = prod ? Number(prod.mrp || 0) : Number(item.mrp || 0);
+            const mDealer = prod ? Number(prod.dealerPrice || prod.price || prod.unitPrice || prod.sellingPrice || prod.cost || 0) : Number(item.dealerPrice || 0);
+            const minPrice = mDealer > 0 ? mDealer : (mMrp > 0 ? mMrp : 0);
+
+            let nextUnitPrice = item.unitPrice;
+            if (isNowDealer) {
+              if (mDealer > 0 && (Number(item.unitPrice) === mMrp || !item.unitPrice || Number(item.unitPrice) === 0)) {
+                nextUnitPrice = mDealer;
+              }
+            } else {
+              if (mMrp > 0 && (Number(item.unitPrice) === mDealer || !item.unitPrice || Number(item.unitPrice) === 0)) {
+                nextUnitPrice = mMrp;
+              }
+            }
+
+            return {
+              ...calculateLineItem({
+                ...item,
+                unitPrice: nextUnitPrice,
+                minPrice,
+                mrp: mMrp,
+                dealerPrice: mDealer
+              }, { showDiscount }),
+              unitPrice: nextUnitPrice,
+              minPrice,
+              mrp: mMrp,
+              dealerPrice: mDealer
+            };
+          });
+        });
+      }
     }
   };
 
@@ -1130,8 +1233,10 @@ export default function QuotationEditor({
       const currentItem = prev[rowIndex];
       const masterMrp = Number(resolvedItem.mrp || 0);
       const masterDealerPrice = Number(resolvedItem.dealerPrice || resolvedItem.price || resolvedItem.unitPrice || resolvedItem.sellingPrice || resolvedItem.cost || 0);
-      // Default price MUST be MRP if available, with Dealer Price as minimum floor
-      const unitPrice = masterMrp > 0 ? masterMrp : (masterDealerPrice > 0 ? masterDealerPrice : 0);
+      // Default price: for Dealer customers default to Dealer Price; for others default to MRP
+      const unitPrice = isDealerCustomer
+        ? (masterDealerPrice > 0 ? masterDealerPrice : (masterMrp > 0 ? masterMrp : 0))
+        : (masterMrp > 0 ? masterMrp : (masterDealerPrice > 0 ? masterDealerPrice : 0));
       const minPrice = masterDealerPrice > 0 ? masterDealerPrice : (masterMrp > 0 ? masterMrp : 0);
       const gst = Number(resolvedItem.gstRate !== undefined ? resolvedItem.gstRate : (resolvedItem.gst !== undefined ? resolvedItem.gst : 18));
       const discount = Number(currentItem?.discount || 0);
@@ -1347,7 +1452,9 @@ export default function QuotationEditor({
     const qtyError = '';
     const masterMrp = Number(prod.mrp || 0);
     const masterDealerPrice = Number(prod.dealerPrice || prod.price || prod.unitPrice || prod.sellingPrice || prod.cost || 0);
-    const price = masterMrp > 0 ? masterMrp : masterDealerPrice;
+    const price = isDealerCustomer
+      ? (masterDealerPrice > 0 ? masterDealerPrice : (masterMrp > 0 ? masterMrp : 0))
+      : (masterMrp > 0 ? masterMrp : (masterDealerPrice > 0 ? masterDealerPrice : 0));
     const minPrice = masterDealerPrice > 0 ? masterDealerPrice : (masterMrp > 0 ? masterMrp : 0);
     const gst = Number(prod.gstRate !== undefined ? prod.gstRate : (prod.gst !== undefined ? prod.gst : 18));
     const desc = prod.description ? String(prod.description) : '';
@@ -1896,6 +2003,22 @@ export default function QuotationEditor({
                           </span>
                         )}
                       </span>
+                      {isDealerCustomer && (
+                        <span style={{
+                          backgroundColor: '#d1fae5',
+                          color: '#065f46',
+                          border: '1px solid #6ee7b7',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.04em',
+                          marginLeft: '6px'
+                        }}>
+                          Dealer Customer
+                        </span>
+                      )}
                     </div>
 
                     {selectedEnquiryId && (
@@ -1983,6 +2106,41 @@ export default function QuotationEditor({
                     </button>
                   )}
                 </div>
+
+                {selectedCustomer && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', fontSize: '12px' }}>
+                    {isDealerCustomer ? (
+                      <span style={{
+                        backgroundColor: '#d1fae5',
+                        color: '#065f46',
+                        border: '1px solid #6ee7b7',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        padding: '2.5px 10px',
+                        borderRadius: '12px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        <Check size={12} strokeWidth={2.5} /> Dealer Customer (Auto-defaults to Dealer Price)
+                      </span>
+                    ) : selectedCustomer.customerType ? (
+                      <span style={{
+                        backgroundColor: '#f1f5f9',
+                        color: '#475569',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        padding: '2px 8px',
+                        borderRadius: '12px'
+                      }}>
+                        Customer Type: {selectedCustomer.customerType}
+                      </span>
+                    ) : null}
+                  </div>
+                )}
 
                 {/* Conditional Branch and Link Enquiry controls (ONLY when applicable) */}
                 {selectedCustomer && (hasMultipleBranches || customerEnquiries.length > 0) && (
@@ -2152,6 +2310,7 @@ export default function QuotationEditor({
                                 items={stockProducts}
                                 selectedId={item.productId}
                                 selectedName={item.productName}
+                                isDealerCustomer={isDealerCustomer}
                                 onChange={(id, selectedItem) => handleProductSelect(item.rowId, id, selectedItem)}
                                 onAddProduct={() => handleOpenAddProductModal(item.rowId)}
                                 onDuplicateAttempt={() => {
@@ -2298,14 +2457,27 @@ export default function QuotationEditor({
                                     value={item.unitPrice ?? ''}
                                     onChange={(e) => handlePriceChange(item.rowId, e.target.value)}
                                     placeholder="0.00"
-                                    title={mrpPrice > 0 ? `MRP: ₹${mrpPrice.toLocaleString('en-IN')} | Min Dealer Price: ₹${floorPrice.toLocaleString('en-IN')}` : undefined}
+                                    title={
+                                      isDealerCustomer
+                                        ? `Dealer Price: ₹${floorPrice.toLocaleString('en-IN')}${mrpPrice > 0 ? ` | MRP: ₹${mrpPrice.toLocaleString('en-IN')}` : ''}`
+                                        : (mrpPrice > 0 ? `MRP: ₹${mrpPrice.toLocaleString('en-IN')} | Min Dealer Price: ₹${floorPrice.toLocaleString('en-IN')}` : undefined)
+                                    }
                                   />
                                 </div>
                                 {hasProduct && (mrpPrice > 0 || floorPrice > 0) && (
                                   <div className="quotation-price-hint-text" style={{ fontSize: '10.5px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap' }}>
-                                    {mrpPrice > 0 ? `MRP ₹${mrpPrice.toLocaleString('en-IN')}` : ''}
-                                    {mrpPrice > 0 && floorPrice > 0 ? ' • ' : ''}
-                                    {floorPrice > 0 ? `Min ₹${floorPrice.toLocaleString('en-IN')}` : ''}
+                                    {isDealerCustomer ? (
+                                      <>
+                                        <span style={{ color: '#047857', fontWeight: 700 }}>Dealer ₹{Number(floorPrice).toLocaleString('en-IN')}</span>
+                                        {mrpPrice > 0 && <span style={{ color: '#94a3b8' }}> • MRP ₹{Number(mrpPrice).toLocaleString('en-IN')}</span>}
+                                      </>
+                                    ) : (
+                                      <>
+                                        {mrpPrice > 0 ? `MRP ₹${Number(mrpPrice).toLocaleString('en-IN')}` : ''}
+                                        {mrpPrice > 0 && floorPrice > 0 ? ' • ' : ''}
+                                        {floorPrice > 0 ? `Min ₹${Number(floorPrice).toLocaleString('en-IN')}` : ''}
+                                      </>
+                                    )}
                                   </div>
                                 )}
                                 {hasMinPriceError && (

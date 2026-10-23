@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Eye, FileText, Check, X, Zap, Plus, Trash2, RefreshCw } from 'lucide-react';
 import { apiFetch, apiUrl } from '../../api';
 import { navigate } from '../../router';
 import DocumentPreviewModal from '../documents/DocumentPreviewModal';
@@ -347,8 +348,9 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
             ))}
           </div>
 
-          <button type="button" className="crm-btn-secondary compact quotation-refresh-btn" onClick={load} disabled={loading} aria-label="Refresh quotations">
-            Refresh
+          <button type="button" className="crm-btn-secondary compact quotation-refresh-btn" onClick={load} disabled={loading} aria-label="Refresh quotations" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+            <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+            <span>Refresh</span>
           </button>
 
           {can('Create') && (
@@ -357,8 +359,10 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
               className="crm-btn-primary compact quotation-create-btn"
               onClick={() => navigate('/quotations/new')}
               title="Create new quotation"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
             >
-              + Create Quotation
+              <Plus size={14} strokeWidth={2.5} />
+              <span>Create Quotation</span>
             </button>
           )}
         </div>
@@ -368,14 +372,14 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
         <div className="crm-table-scroll-wrap stocks-table-natural-wrap crm-table-viewport">
           <table className="settings-table quotation-settings-table quotation-register-table">
             <colgroup>
-              <col style={{ width: '10%' }} />
+              <col style={{ width: '9%' }} />
               <col style={{ width: '18%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '7%' }} />
-              <col style={{ width: '11%' }} />
+              <col style={{ width: '8%' }} />
               <col style={{ width: '8%' }} />
               <col style={{ width: '11%' }} />
-              <col style={{ width: '25%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '27%' }} />
             </colgroup>
             <thead>
               <tr>
@@ -528,7 +532,8 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                             onClick={() => onOpenQuotation(quote.enquiryId, quote.quotationId)}
                             title="View / Edit quotation details"
                           >
-                            View
+                            <Eye size={13} />
+                            <span>View</span>
                           </button>
                           {/* Official Quotation PDF - Strictly ONLY available for ACCEPTED or CONVERTED */}
                           {(isAccepted || isConverted) && (
@@ -540,7 +545,8 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                               disabled={pdfLoadingQuoteId === quote.quotationId}
                               title="View & Download Official Quotation PDF"
                             >
-                              {pdfLoadingQuoteId === quote.quotationId ? '...' : 'PDF'}
+                              <FileText size={13} />
+                              <span>{pdfLoadingQuoteId === quote.quotationId ? '...' : 'PDF'}</span>
                             </button>
                           )}
 
@@ -555,7 +561,8 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                                   onClick={() => updateStatus(quote.quotationId, 'ACCEPTED')}
                                   title="Mark Customer Accepted"
                                 >
-                                  ✓ Accept
+                                  <Check size={13} strokeWidth={2.5} />
+                                  <span>Accept</span>
                                 </button>
                               )}
                               {can('Reject') && (
@@ -573,7 +580,8 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                                   }}
                                   title="Reject quotation"
                                 >
-                                  Reject
+                                  <X size={13} strokeWidth={2.5} />
+                                  <span>Reject</span>
                                 </button>
                               )}
                             </>
@@ -589,7 +597,8 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                               disabled={converting === quote.quotationId}
                               title="Convert to Sales Order"
                             >
-                              {converting === quote.quotationId ? 'Converting...' : '⚡ Convert'}
+                              <Zap size={13} />
+                              <span>{converting === quote.quotationId ? 'Converting...' : 'Convert'}</span>
                             </button>
                           )}
 
@@ -604,13 +613,15 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                               }}
                               title="Generate Proforma Invoice from this Quotation"
                             >
-                              + PI
+                              <Plus size={13} strokeWidth={2.5} />
+                              <span>PI</span>
                             </button>
                           )}
 
                           {can('Delete') && (
                             <button type="button" className="tbl-action-btn danger" onClick={() => deleteQuote(quote)} title="Delete quotation">
-                              Delete
+                              <Trash2 size={13} />
+                              <span>Delete</span>
                             </button>
                           )}
 

@@ -11439,18 +11439,17 @@ button.stocks-kpi-card { cursor:pointer; }
 .quotation-directory-page .quotation-list-card .crm-data-table{table-layout:fixed;font-size:11.5px}
 .quotation-directory-page .quotation-list-card .crm-data-table th{padding:8px 10px;font-size:9.5px;white-space:nowrap}
 .quotation-directory-page .quotation-list-card .crm-data-table td{padding:8px 10px;line-height:1.25;vertical-align:middle}
-.quotation-directory-page .quotation-register-table th:nth-child(1),.quotation-directory-page .quotation-register-table td:nth-child(1){width:11%}
-.quotation-directory-page .quotation-register-table th:nth-child(2),.quotation-directory-page .quotation-register-table td:nth-child(2){width:16%}
-.quotation-directory-page .quotation-register-table th:nth-child(3),.quotation-directory-page .quotation-register-table td:nth-child(3){width:11%}
-.quotation-directory-page .quotation-register-table th:nth-child(4),.quotation-directory-page .quotation-register-table td:nth-child(4){width:18%}
-.quotation-directory-page .quotation-register-table th:nth-child(5),.quotation-directory-page .quotation-register-table td:nth-child(5){width:12%}
-.quotation-directory-page .quotation-register-table th:nth-child(6),.quotation-directory-page .quotation-register-table td:nth-child(6){width:10%}
-.quotation-directory-page .quotation-register-table th:nth-child(7),.quotation-directory-page .quotation-register-table td:nth-child(7){width:11%}
-.quotation-directory-page .quotation-register-table th:nth-child(8),.quotation-directory-page .quotation-register-table td:nth-child(8){width:11%}
+.quotation-directory-page .quotation-register-table th:nth-child(1),.quotation-directory-page .quotation-register-table td:nth-child(1){width:9%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(2),.quotation-directory-page .quotation-register-table td:nth-child(2){width:18%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(3),.quotation-directory-page .quotation-register-table td:nth-child(3){width:8%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(4),.quotation-directory-page .quotation-register-table td:nth-child(4){width:8%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(5),.quotation-directory-page .quotation-register-table td:nth-child(5){width:11%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(6),.quotation-directory-page .quotation-register-table td:nth-child(6){width:9%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(7),.quotation-directory-page .quotation-register-table td:nth-child(7){width:10%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(8),.quotation-directory-page .quotation-register-table td:nth-child(8){width:27%!important}
 .quotation-directory-page .quotation-register-table td:nth-child(2) .customer-table-link{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.quotation-directory-page .quotation-row-actions{gap:4px!important;justify-content:flex-start;align-items:center!important}
-.quotation-directory-page .quotation-list-card .tbl-action-btn{height:26px;min-height:26px;padding:0 7px;font-size:10px;line-height:1}
-.quotation-directory-page .order-link-note{font-size:10px}
+.quotation-directory-page .quotation-row-actions{gap:6px!important;justify-content:flex-end!important;align-items:center!important}
+.quotation-directory-page .order-link-note{font-size:11px}
 @media (max-width:900px){
   .quotation-directory-page .quotation-workspace-bar{align-items:flex-start}
   .quotation-directory-page .quotation-workspace-controls{width:100%}
@@ -26673,14 +26672,15 @@ td.serial-dropdown-cell {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
+  gap: 5px !important;
   width: auto !important;
-  min-width: 38px !important;
-  height: 26px !important;
-  min-height: 26px !important;
-  padding: 0 7px !important;
+  min-width: 42px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 9px !important;
   font-size: 11.5px !important;
   font-weight: 600 !important;
-  border-radius: 5px !important;
+  border-radius: 6px !important;
   border: 1px solid #cbd5e1 !important;
   background: #ffffff !important;
   color: #334155 !important;
@@ -26690,13 +26690,15 @@ td.serial-dropdown-cell {
   cursor: pointer !important;
   transition: all 0.15s ease !important;
   text-decoration: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
 }
 
 .crm-quotation-page-container .tbl-action-btn:hover,
 .crm-quotation-page-container .quotation-action-btn:hover {
-  background: #f1f5f9 !important;
+  background: #f8fafc !important;
   border-color: #94a3b8 !important;
   color: #0f172a !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
 }
 
 .crm-quotation-page-container .tbl-action-btn.danger {
@@ -28474,6 +28476,201 @@ td.serial-dropdown-cell {
 @keyframes fadeInAlert {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   ENTERPRISE HIGH-RESOLUTION & BIG-SCREEN ADAPTIVE STYLING (1440px+ & 1920px+)
+   Provides top-tier SaaS look and feel (Stripe/Linear/HubSpot grade):
+   - Proportionate button heights, clean padding, and crisp vector SVG alignment
+   - Spacious yet compact search bars, filters, and action controls
+   - Balanced table columns without awkward whitespace or cramped labels
+   ========================================================================== */
+
+@media (min-width: 1400px) {
+  /* Quotations, Enquiries, Customers & Orders Action Buttons */
+  .crm-quotation-page-container .tbl-action-btn,
+  .crm-quotation-page-container .quotation-action-btn,
+  .crm-enquiry-page-container .enquiry-action-btn,
+  .crm-customer-page-container .customer-action-btn,
+  .crm-orders-page-container .tbl-action-btn,
+  .crm-orders-page-container .order-btn,
+  .crm-orders-page-container .proforma-table-action-btn,
+  .quotation-directory-page .quotation-row-actions .tbl-action-btn {
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 11px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    gap: 5px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .crm-quotation-page-container .quotation-row-actions,
+  .quotation-directory-page .quotation-row-actions,
+  .crm-enquiry-page-container .settings-row-actions,
+  .crm-customer-page-container .settings-row-actions {
+    gap: 6px !important;
+  }
+
+  /* Workspace Controls: Search & Filter Toolbars */
+  .quotation-workspace-controls {
+    gap: 10px !important;
+  }
+
+  .quotation-workspace-search {
+    width: 320px !important;
+    min-width: 260px !important;
+    height: 38px !important;
+  }
+
+  .quotation-workspace-search input {
+    font-size: 13px !important;
+    height: 36px !important;
+  }
+
+  .quotation-status-filter .crm-btn-secondary,
+  .quotation-refresh-btn {
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 12px !important;
+    padding: 0 14px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+  }
+
+  .quotation-create-btn {
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 12.5px !important;
+    padding: 0 18px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+  }
+
+  /* Table Header & Rows */
+  .quotation-register-table th {
+    font-size: 11px !important;
+    height: 40px !important;
+    padding: 8px 12px !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  .quotation-register-table td {
+    font-size: 13px !important;
+    padding: 8px 12px !important;
+  }
+
+  .quotation-items-trigger {
+    height: 28px !important;
+    font-size: 12px !important;
+    padding: 0 10px !important;
+    border-radius: 6px !important;
+  }
+
+  .status-badge {
+    font-size: 11.5px !important;
+    padding: 3.5px 9px !important;
+    border-radius: 6px !important;
+  }
+}
+
+@media (min-width: 1680px) {
+  /* 1080p Full-Screen & 1440p / 4K Displays */
+  .crm-quotation-page-container .tbl-action-btn,
+  .crm-quotation-page-container .quotation-action-btn,
+  .crm-enquiry-page-container .enquiry-action-btn,
+  .crm-customer-page-container .customer-action-btn,
+  .crm-orders-page-container .tbl-action-btn,
+  .crm-orders-page-container .order-btn,
+  .crm-orders-page-container .proforma-table-action-btn,
+  .quotation-directory-page .quotation-row-actions .tbl-action-btn {
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 13px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    border-radius: 7px !important;
+    gap: 6px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  }
+
+  .crm-quotation-page-container .quotation-row-actions,
+  .quotation-directory-page .quotation-row-actions,
+  .crm-enquiry-page-container .settings-row-actions,
+  .crm-customer-page-container .settings-row-actions {
+    gap: 7px !important;
+  }
+
+  /* Workspace Controls: Search & Filter Toolbars */
+  .quotation-workspace-controls {
+    gap: 12px !important;
+  }
+
+  .quotation-workspace-search {
+    width: 360px !important;
+    min-width: 300px !important;
+    height: 40px !important;
+  }
+
+  .quotation-workspace-search input {
+    font-size: 13.5px !important;
+    height: 38px !important;
+  }
+
+  .quotation-status-filter {
+    gap: 7px !important;
+  }
+
+  .quotation-status-filter .crm-btn-secondary,
+  .quotation-refresh-btn {
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 12.5px !important;
+    padding: 0 16px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+  }
+
+  .quotation-create-btn {
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 13px !important;
+    padding: 0 20px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+  }
+
+  /* Table Header & Rows */
+  .quotation-register-table th {
+    font-size: 11.5px !important;
+    height: 42px !important;
+    padding: 10px 14px !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  .quotation-register-table td {
+    font-size: 13.5px !important;
+    padding: 10px 14px !important;
+  }
+
+  .quotation-items-trigger {
+    height: 30px !important;
+    font-size: 12.5px !important;
+    padding: 0 12px !important;
+    border-radius: 6px !important;
+  }
+
+  .status-badge {
+    font-size: 12px !important;
+    padding: 4px 10px !important;
+    border-radius: 6px !important;
+  }
+
+  .order-link-note {
+    font-size: 12px !important;
+    padding: 4px 10px !important;
+  }
 }
 
 

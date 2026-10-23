@@ -10892,12 +10892,12 @@ button.stocks-kpi-card { cursor:pointer; }
 }
 .customer-detail-table th,
 .customer-detail-table td {
-  padding: 12px 15px !important;
+  padding: 8px 12px;
 }
 .customer-detail-table th {
-  background: #f8fafc !important;
+  background: #f8fafc;
 }
-.customer-detail-table tbody tr { height: 54px; }
+.customer-detail-table tbody tr { height: auto; }
 
 .customer-pager {
   min-height: 52px;
@@ -11047,9 +11047,9 @@ button.stocks-kpi-card { cursor:pointer; }
   margin: 0 auto;
 }
 
-.customer-detail-modern .customer-detail-table th:nth-child(1) { width: 28%; }
-.customer-detail-modern .customer-detail-table th:nth-child(2) { width: 22%; }
-.customer-detail-modern .customer-detail-table th:nth-child(3) { width: 34%; }
+.customer-detail-modern .customer-requirements-table th:nth-child(1) { width: 50px; text-align: center; }
+.customer-detail-modern .customer-requirements-table th:nth-child(2) { width: auto; text-align: left; }
+.customer-detail-modern .customer-requirements-table th:nth-child(3) { width: 90px; text-align: center; }
 
 .customer-detail-modern .customer-requirement-modern-row {
   min-height: 58px;
@@ -18033,10 +18033,14 @@ td.serial-dropdown-cell {
   max-height: none !important;
 }
 
-.customer-detail-modern .customer-detail-table th:nth-child(1) { width: 28% !important; }
-.customer-detail-modern .customer-detail-table th:nth-child(2) { width: 22% !important; }
-.customer-detail-modern .customer-detail-table th:nth-child(3) { width: 34% !important; }
-.customer-detail-modern .customer-detail-table th.actions-col { width: 16% !important; }
+.customer-detail-modern .customer-requirements-table th:nth-child(1),
+.customer-detail-modern .customer-requirements-table td:nth-child(1) { width: 50px !important; text-align: center !important; }
+.customer-detail-modern .customer-requirements-table th:nth-child(2),
+.customer-detail-modern .customer-requirements-table td:nth-child(2) { width: auto !important; text-align: left !important; }
+.customer-detail-modern .customer-requirements-table th:nth-child(3),
+.customer-detail-modern .customer-requirements-table td:nth-child(3) { width: 90px !important; text-align: center !important; }
+.customer-detail-modern .customer-requirements-table th.actions-col,
+.customer-detail-modern .customer-requirements-table td.actions-col { width: 90px !important; text-align: center !important; }
 
 .customer-detail-modern .customer-pager {
   flex: 0 0 auto !important;
@@ -28430,87 +28434,249 @@ td.serial-dropdown-cell {
   box-shadow: none !important;
 }
 
-/* Explicit Column Width Overrides for Customer Document Tables */
+/* ==========================================================================
+   CUSTOMER DETAIL ENTERPRISE TABLE WORKSPACE & GRID SYSTEM
+   Matches the pristine enterprise look of Quotations, Invoices & Delivery Challans:
+   - Full crisp grid borders (1px solid #cbd5e1) on all sides and between all cells
+   - Card framing with 8px border-radius, background, and soft subtle shadow
+   - Clean, standardized table headers (38px height, #f8fafc bg, bold uppercase)
+   - Consistent data cell heights (44px) and middle vertical alignment
+   - Proper column widths and alignments for every tab
+   - SaaS standard button sizing and crisp vector alignment
+   - Docked pagination footer bar matching enterprise standards
+   ========================================================================== */
+
+/* 1. Master Table Card Enclosure */
+.customer-detail-modern .customer-master-card,
+.customer-detail-modern .customer-compact-table-wrap {
+  border: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  margin-top: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.customer-detail-modern .customer-master-card .crm-table-scroll-wrap,
+.customer-detail-modern .customer-compact-table-wrap .crm-table-scroll-wrap {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  width: 100% !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+
+/* 2. Table Element */
+.customer-detail-modern table.customer-detail-table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  margin: 0 !important;
+  background: #ffffff !important;
+}
+
+/* 3. Header Cells: Crisp Grid Borders, Consistent Background & Typographic Hierarchy */
+.customer-detail-modern table.customer-detail-table thead th {
+  height: 38px !important;
+  min-height: 38px !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  padding: 8px 12px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+}
+
+.customer-detail-modern table.customer-detail-table thead th:last-child {
+  border-right: none !important;
+}
+
+/* 4. Data Cells: Crisp Grid Borders, Balanced Padding & Professional Alignment */
+.customer-detail-modern table.customer-detail-table tbody td {
+  height: 44px !important;
+  min-height: 44px !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  padding: 6px 12px !important;
+  font-size: 12.5px !important;
+  line-height: 1.35 !important;
+  vertical-align: middle !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+
+.customer-detail-modern table.customer-detail-table tbody td:last-child {
+  border-right: none !important;
+}
+
+.customer-detail-modern table.customer-detail-table tbody tr:hover td {
+  background-color: #f8fafc !important;
+}
+
+.customer-detail-modern table.customer-detail-table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* Empty State Handling */
+.customer-detail-modern table.customer-detail-table tbody tr.empty-row td {
+  border-right: none !important;
+  border-bottom: none !important;
+  padding: 32px 16px !important;
+  background: #ffffff !important;
+  text-align: center !important;
+}
+
+/* 5. Bottom Pagination & Footer Bar */
+.customer-detail-modern .crm-table-footer,
+.customer-detail-modern .customer-pager {
+  flex: 0 0 auto !important;
+  margin-top: auto !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  border-top: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  background: #ffffff !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  box-sizing: border-box !important;
+  font-size: 12px !important;
+  color: #64748b !important;
+}
+
+.customer-detail-modern .customer-pager.single-page {
+  justify-content: flex-start !important;
+}
+
+/* 6. Explicit Column Widths and Alignments for Each Customer Table */
+
+/* All Documents Table */
 .customer-detail-modern .customer-all-docs-table th:nth-child(1),
 .customer-detail-modern .customer-all-docs-table td:nth-child(1) { width: 5% !important; text-align: center !important; }
 .customer-detail-modern .customer-all-docs-table th:nth-child(2),
 .customer-detail-modern .customer-all-docs-table td:nth-child(2) { width: 14% !important; text-align: center !important; }
 .customer-detail-modern .customer-all-docs-table th:nth-child(3),
-.customer-detail-modern .customer-all-docs-table td:nth-child(3) { width: 15% !important; }
+.customer-detail-modern .customer-all-docs-table td:nth-child(3) { width: 15% !important; text-align: left !important; }
 .customer-detail-modern .customer-all-docs-table th:nth-child(4),
-.customer-detail-modern .customer-all-docs-table td:nth-child(4) { width: 12% !important; }
+.customer-detail-modern .customer-all-docs-table td:nth-child(4) { width: 12% !important; text-align: left !important; }
 .customer-detail-modern .customer-all-docs-table th:nth-child(5),
-.customer-detail-modern .customer-all-docs-table td:nth-child(5) { width: 25% !important; }
+.customer-detail-modern .customer-all-docs-table td:nth-child(5) { width: 26% !important; text-align: left !important; }
 .customer-detail-modern .customer-all-docs-table th:nth-child(6),
 .customer-detail-modern .customer-all-docs-table td:nth-child(6) { width: 14% !important; text-align: right !important; }
 .customer-detail-modern .customer-all-docs-table th:nth-child(7),
-.customer-detail-modern .customer-all-docs-table td:nth-child(7) { width: 15% !important; text-align: center !important; }
+.customer-detail-modern .customer-all-docs-table td:nth-child(7) { width: 14% !important; text-align: center !important; }
 
+/* Quotations Table */
 .customer-detail-modern .customer-quotations-table th:nth-child(1),
 .customer-detail-modern .customer-quotations-table td:nth-child(1) { width: 5% !important; text-align: center !important; }
 .customer-detail-modern .customer-quotations-table th:nth-child(2),
-.customer-detail-modern .customer-quotations-table td:nth-child(2) { width: 18% !important; }
+.customer-detail-modern .customer-quotations-table td:nth-child(2) { width: 16% !important; text-align: left !important; }
 .customer-detail-modern .customer-quotations-table th:nth-child(3),
-.customer-detail-modern .customer-quotations-table td:nth-child(3) { width: 12% !important; }
+.customer-detail-modern .customer-quotations-table td:nth-child(3) { width: 12% !important; text-align: left !important; }
 .customer-detail-modern .customer-quotations-table th:nth-child(4),
-.customer-detail-modern .customer-quotations-table td:nth-child(4) { width: 28% !important; }
+.customer-detail-modern .customer-quotations-table td:nth-child(4) { width: 30% !important; text-align: left !important; }
 .customer-detail-modern .customer-quotations-table th:nth-child(5),
 .customer-detail-modern .customer-quotations-table td:nth-child(5) { width: 15% !important; text-align: right !important; }
 .customer-detail-modern .customer-quotations-table th:nth-child(6),
 .customer-detail-modern .customer-quotations-table td:nth-child(6) { width: 22% !important; text-align: center !important; }
 
+/* Delivery Challans Table */
 .customer-detail-modern .customer-challans-table th:nth-child(1),
 .customer-detail-modern .customer-challans-table td:nth-child(1) { width: 4% !important; text-align: center !important; }
 .customer-detail-modern .customer-challans-table th:nth-child(2),
-.customer-detail-modern .customer-challans-table td:nth-child(2) { width: 14% !important; }
+.customer-detail-modern .customer-challans-table td:nth-child(2) { width: 14% !important; text-align: left !important; }
 .customer-detail-modern .customer-challans-table th:nth-child(3),
-.customer-detail-modern .customer-challans-table td:nth-child(3) { width: 11% !important; }
+.customer-detail-modern .customer-challans-table td:nth-child(3) { width: 11% !important; text-align: left !important; }
 .customer-detail-modern .customer-challans-table th:nth-child(4),
-.customer-detail-modern .customer-challans-table td:nth-child(4) { width: 12% !important; }
+.customer-detail-modern .customer-challans-table td:nth-child(4) { width: 11% !important; text-align: left !important; }
 .customer-detail-modern .customer-challans-table th:nth-child(5),
-.customer-detail-modern .customer-challans-table td:nth-child(5) { width: 24% !important; }
+.customer-detail-modern .customer-challans-table td:nth-child(5) { width: 25% !important; text-align: left !important; }
 .customer-detail-modern .customer-challans-table th:nth-child(6),
-.customer-detail-modern .customer-challans-table td:nth-child(6) { width: 11% !important; text-align: center !important; }
+.customer-detail-modern .customer-challans-table td:nth-child(6) { width: 10% !important; text-align: center !important; }
 .customer-detail-modern .customer-challans-table th:nth-child(7),
-.customer-detail-modern .customer-challans-table td:nth-child(7) { width: 24% !important; text-align: center !important; }
+.customer-detail-modern .customer-challans-table td:nth-child(7) { width: 25% !important; text-align: center !important; }
 
+/* Invoices Table */
 .customer-detail-modern .customer-invoices-table th:nth-child(1),
 .customer-detail-modern .customer-invoices-table td:nth-child(1) { width: 5% !important; text-align: center !important; }
 .customer-detail-modern .customer-invoices-table th:nth-child(2),
-.customer-detail-modern .customer-invoices-table td:nth-child(2) { width: 18% !important; }
+.customer-detail-modern .customer-invoices-table td:nth-child(2) { width: 16% !important; text-align: left !important; }
 .customer-detail-modern .customer-invoices-table th:nth-child(3),
-.customer-detail-modern .customer-invoices-table td:nth-child(3) { width: 14% !important; }
+.customer-detail-modern .customer-invoices-table td:nth-child(3) { width: 13% !important; text-align: left !important; }
 .customer-detail-modern .customer-invoices-table th:nth-child(4),
-.customer-detail-modern .customer-invoices-table td:nth-child(4) { width: 18% !important; }
+.customer-detail-modern .customer-invoices-table td:nth-child(4) { width: 16% !important; text-align: left !important; }
 .customer-detail-modern .customer-invoices-table th:nth-child(5),
-.customer-detail-modern .customer-invoices-table td:nth-child(5) { width: 18% !important; text-align: right !important; }
+.customer-detail-modern .customer-invoices-table td:nth-child(5) { width: 16% !important; text-align: right !important; }
 .customer-detail-modern .customer-invoices-table th:nth-child(6),
-.customer-detail-modern .customer-invoices-table td:nth-child(6) { width: 27% !important; text-align: center !important; }
+.customer-detail-modern .customer-invoices-table td:nth-child(6) { width: 24% !important; text-align: center !important; }
 
-.customer-detail-modern .customer-enquiries-table th:nth-child(1),
-.customer-detail-modern .customer-enquiries-table td:nth-child(1) { width: 25% !important; }
-.customer-detail-modern .customer-enquiries-table th:nth-child(2),
-.customer-detail-modern .customer-enquiries-table td:nth-child(2) { width: 20% !important; text-align: center !important; }
-.customer-detail-modern .customer-enquiries-table th:nth-child(3),
-.customer-detail-modern .customer-enquiries-table td:nth-child(3) { width: 35% !important; text-align: center !important; }
-.customer-detail-modern .customer-enquiries-table th:nth-child(4),
-.customer-detail-modern .customer-enquiries-table td:nth-child(4) { width: 20% !important; text-align: center !important; }
-
-/* Unbilled Delivery Challans Table in Customer Profile */
+/* Unbilled Delivery Challans Table */
 .customer-detail-modern .customer-unbilled-challans-table th:nth-child(1),
 .customer-detail-modern .customer-unbilled-challans-table td:nth-child(1) { width: 5% !important; text-align: center !important; }
 .customer-detail-modern .customer-unbilled-challans-table th:nth-child(2),
-.customer-detail-modern .customer-unbilled-challans-table td:nth-child(2) { width: 16% !important; }
+.customer-detail-modern .customer-unbilled-challans-table td:nth-child(2) { width: 16% !important; text-align: left !important; }
 .customer-detail-modern .customer-unbilled-challans-table th:nth-child(3),
-.customer-detail-modern .customer-unbilled-challans-table td:nth-child(3) { width: 12% !important; }
+.customer-detail-modern .customer-unbilled-challans-table td:nth-child(3) { width: 13% !important; text-align: left !important; }
 .customer-detail-modern .customer-unbilled-challans-table th:nth-child(4),
-.customer-detail-modern .customer-unbilled-challans-table td:nth-child(4) { width: 26% !important; }
+.customer-detail-modern .customer-unbilled-challans-table td:nth-child(4) { width: 25% !important; text-align: left !important; }
 .customer-detail-modern .customer-unbilled-challans-table th:nth-child(5),
-.customer-detail-modern .customer-unbilled-challans-table td:nth-child(5) { width: 10% !important; text-align: center !important; }
+.customer-detail-modern .customer-unbilled-challans-table td:nth-child(5) { width: 9% !important; text-align: center !important; }
 .customer-detail-modern .customer-unbilled-challans-table th:nth-child(6),
-.customer-detail-modern .customer-unbilled-challans-table td:nth-child(6) { width: 13% !important; text-align: center !important; }
+.customer-detail-modern .customer-unbilled-challans-table td:nth-child(6) { width: 14% !important; text-align: center !important; }
 .customer-detail-modern .customer-unbilled-challans-table th:nth-child(7),
 .customer-detail-modern .customer-unbilled-challans-table td:nth-child(7) { width: 18% !important; text-align: center !important; }
+
+/* Enquiries History Table */
+.customer-detail-modern .customer-enquiries-table th:nth-child(1),
+.customer-detail-modern .customer-enquiries-table td:nth-child(1) { width: 28% !important; text-align: left !important; }
+.customer-detail-modern .customer-enquiries-table th:nth-child(2),
+.customer-detail-modern .customer-enquiries-table td:nth-child(2) { width: 20% !important; text-align: center !important; }
+.customer-detail-modern .customer-enquiries-table th:nth-child(3),
+.customer-detail-modern .customer-enquiries-table td:nth-child(3) { width: 32% !important; text-align: center !important; }
+.customer-detail-modern .customer-enquiries-table th:nth-child(4),
+.customer-detail-modern .customer-enquiries-table td:nth-child(4) { width: 20% !important; text-align: center !important; }
+
+/* Branches Table */
+.customer-detail-modern .customer-branches-table th:nth-child(1),
+.customer-detail-modern .customer-branches-table td:nth-child(1) { width: 5% !important; text-align: center !important; }
+.customer-detail-modern .customer-branches-table th:nth-child(2),
+.customer-detail-modern .customer-branches-table td:nth-child(2) { width: 28% !important; text-align: left !important; }
+.customer-detail-modern .customer-branches-table th:nth-child(3),
+.customer-detail-modern .customer-branches-table td:nth-child(3) { width: 18% !important; text-align: left !important; }
+.customer-detail-modern .customer-branches-table th:nth-child(4),
+.customer-detail-modern .customer-branches-table td:nth-child(4) { width: 16% !important; text-align: left !important; }
+.customer-detail-modern .customer-branches-table th:nth-child(5),
+.customer-detail-modern .customer-branches-table td:nth-child(5) { width: 21% !important; text-align: left !important; }
+.customer-detail-modern .customer-branches-table th:nth-child(6),
+.customer-detail-modern .customer-branches-table td:nth-child(6) { width: 12% !important; text-align: center !important; }
+
+/* Requirements Table */
+.customer-detail-modern .customer-requirements-table th:nth-child(1),
+.customer-detail-modern .customer-requirements-table td:nth-child(1) { width: 50px !important; text-align: center !important; }
+.customer-detail-modern .customer-requirements-table th:nth-child(2),
+.customer-detail-modern .customer-requirements-table td:nth-child(2) { width: auto !important; text-align: left !important; }
+.customer-detail-modern .customer-requirements-table th:nth-child(3),
+.customer-detail-modern .customer-requirements-table td:nth-child(3) { width: 90px !important; text-align: center !important; }
+.customer-detail-modern .customer-requirements-table th.actions-col,
+.customer-detail-modern .customer-requirements-table td.actions-col { width: 90px !important; text-align: center !important; }
 
 /* Invoicing Unbilled DC alert styling */
 .customer-unbilled-dc-alert-box {

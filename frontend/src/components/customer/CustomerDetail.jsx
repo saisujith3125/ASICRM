@@ -1010,14 +1010,14 @@ export default function CustomerDetail({
               </form>
             )}
 
-            <div className="crm-table-container customer-compact-table-wrap">
-              <div className="crm-table-scroll-wrap">
-                <table className="crm-data-table customer-detail-table">
+            <div className="settings-table-shell stocks-table-shell customer-master-card customer-compact-table-wrap">
+              <div className="crm-table-scroll-wrap stocks-table-natural-wrap">
+                <table className="settings-table customer-detail-table customer-requirements-table">
                 <thead>
                   <tr>
-                    <th className="col-priority-low" style={{ width: '45px' }}>#</th>
-                    <th className="col-priority-high">Requirement</th>
-                    <th className="actions-col col-priority-high" style={{ width: '80px' }}>Actions</th>
+                    <th className="col-priority-low" style={{ width: '50px', textAlign: 'center' }}>#</th>
+                    <th className="col-priority-high" style={{ textAlign: 'left' }}>Requirement</th>
+                    <th className="actions-col col-priority-high" style={{ width: '90px', textAlign: 'center' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1264,17 +1264,25 @@ export default function CustomerDetail({
               </form>
             )}
 
-            <div className="crm-table-container customer-compact-table-wrap">
-              <div className="crm-table-scroll-wrap">
-                <table className="crm-data-table customer-detail-table customer-branches-table">
+            <div className="settings-table-shell stocks-table-shell customer-master-card customer-compact-table-wrap">
+              <div className="crm-table-scroll-wrap stocks-table-natural-wrap">
+                <table className="settings-table customer-detail-table customer-branches-table">
+                <colgroup>
+                  <col style={{ width: '5%' }} />
+                  <col style={{ width: '28%' }} />
+                  <col style={{ width: '18%' }} />
+                  <col style={{ width: '16%' }} />
+                  <col style={{ width: '21%' }} />
+                  <col style={{ width: '12%' }} />
+                </colgroup>
                 <thead>
                   <tr>
-                    <th className="th-idx">#</th>
-                    <th className="th-branch">BRANCH</th>
-                    <th className="th-contact">CONTACT</th>
-                    <th className="th-phone">PHONE</th>
-                    <th className="th-email">EMAIL</th>
-                    <th className="th-actions">ACTIONS</th>
+                    <th className="th-idx" style={{ width: '5%', textAlign: 'center' }}>#</th>
+                    <th className="th-branch" style={{ width: '28%', textAlign: 'left' }}>BRANCH</th>
+                    <th className="th-contact" style={{ width: '18%', textAlign: 'left' }}>CONTACT</th>
+                    <th className="th-phone" style={{ width: '16%', textAlign: 'left' }}>PHONE</th>
+                    <th className="th-email" style={{ width: '21%', textAlign: 'left' }}>EMAIL</th>
+                    <th className="th-actions" style={{ width: '12%', textAlign: 'center' }}>ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1431,17 +1439,17 @@ export default function CustomerDetail({
               <div className="crm-table-scroll-wrap stocks-table-natural-wrap">
                 <table className="settings-table customer-detail-table customer-enquiries-table">
                   <colgroup>
-                    <col style={{ width: '25%' }} />
+                    <col style={{ width: '28%' }} />
                     <col style={{ width: '20%' }} />
-                    <col style={{ width: '35%' }} />
+                    <col style={{ width: '32%' }} />
                     <col style={{ width: '20%' }} />
                   </colgroup>
                   <thead>
                     <tr>
-                      <th className="col-priority-high">ENQUIRY ID</th>
-                      <th className="col-priority-med" style={{ textAlign: 'center' }}>PRIORITY</th>
-                      <th className="col-priority-high" style={{ textAlign: 'center' }}>STATUS</th>
-                      <th className="actions-col col-priority-high" style={{ textAlign: 'center' }}>ACTIONS</th>
+                      <th className="col-priority-high" style={{ width: '28%', textAlign: 'left' }}>ENQUIRY ID</th>
+                      <th className="col-priority-med" style={{ width: '20%', textAlign: 'center' }}>PRIORITY</th>
+                      <th className="col-priority-high" style={{ width: '32%', textAlign: 'center' }}>STATUS</th>
+                      <th className="actions-col col-priority-high" style={{ width: '20%', textAlign: 'center' }}>ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1564,19 +1572,19 @@ export default function CustomerDetail({
                     <col style={{ width: '14%' }} />
                     <col style={{ width: '15%' }} />
                     <col style={{ width: '12%' }} />
-                    <col style={{ width: '25%' }} />
+                    <col style={{ width: '26%' }} />
                     <col style={{ width: '14%' }} />
-                    <col style={{ width: '15%' }} />
+                    <col style={{ width: '14%' }} />
                   </colgroup>
                   <thead>
                     <tr>
                       <th style={{ width: '5%', textAlign: 'center' }}>#</th>
                       <th style={{ width: '14%', textAlign: 'center' }}>DOCUMENT TYPE</th>
-                      <th style={{ width: '15%' }}>DOCUMENT NO</th>
-                      <th style={{ width: '12%' }}>DATE</th>
-                      <th style={{ width: '25%' }}>DETAILS / SUMMARY</th>
+                      <th style={{ width: '15%', textAlign: 'left' }}>DOCUMENT NO</th>
+                      <th style={{ width: '12%', textAlign: 'left' }}>DATE</th>
+                      <th style={{ width: '26%', textAlign: 'left' }}>DETAILS / SUMMARY</th>
                       <th style={{ width: '14%', textAlign: 'right' }}>AMOUNT / VALUE</th>
-                      <th style={{ width: '15%', textAlign: 'center' }}>ACTION</th>
+                      <th style={{ width: '14%', textAlign: 'center' }}>ACTION</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1721,18 +1729,18 @@ export default function CustomerDetail({
                 <table className="settings-table customer-detail-table customer-quotations-table">
                   <colgroup>
                     <col style={{ width: '5%' }} />
-                    <col style={{ width: '18%' }} />
+                    <col style={{ width: '16%' }} />
                     <col style={{ width: '12%' }} />
-                    <col style={{ width: '28%' }} />
+                    <col style={{ width: '30%' }} />
                     <col style={{ width: '15%' }} />
                     <col style={{ width: '22%' }} />
                   </colgroup>
                   <thead>
                     <tr>
                       <th style={{ width: '5%', textAlign: 'center' }}>#</th>
-                      <th style={{ width: '18%' }}>QUOTATION NO</th>
-                      <th style={{ width: '12%' }}>DATE</th>
-                      <th style={{ width: '28%' }}>ITEMS SUMMARY</th>
+                      <th style={{ width: '16%', textAlign: 'left' }}>QUOTATION NO</th>
+                      <th style={{ width: '12%', textAlign: 'left' }}>DATE</th>
+                      <th style={{ width: '30%', textAlign: 'left' }}>ITEMS SUMMARY</th>
                       <th style={{ width: '15%', textAlign: 'right' }}>TOTAL AMOUNT</th>
                       <th style={{ width: '22%', textAlign: 'center' }}>STATUS & ACTION</th>
                     </tr>
@@ -1887,20 +1895,20 @@ export default function CustomerDetail({
                     <col style={{ width: '4%' }} />
                     <col style={{ width: '14%' }} />
                     <col style={{ width: '11%' }} />
-                    <col style={{ width: '12%' }} />
-                    <col style={{ width: '24%' }} />
                     <col style={{ width: '11%' }} />
-                    <col style={{ width: '24%' }} />
+                    <col style={{ width: '25%' }} />
+                    <col style={{ width: '10%' }} />
+                    <col style={{ width: '25%' }} />
                   </colgroup>
                   <thead>
                     <tr>
                       <th style={{ width: '4%', textAlign: 'center' }}>#</th>
-                      <th style={{ width: '14%' }}>CHALLAN NO</th>
-                      <th style={{ width: '11%' }}>DATE</th>
-                      <th style={{ width: '12%' }}>PURPOSE</th>
-                      <th style={{ width: '24%' }}>ITEMS DELIVERED</th>
-                      <th style={{ width: '11%', textAlign: 'center' }}>FULFILLMENT</th>
-                      <th style={{ width: '24%', textAlign: 'center' }}>STATUS & ACTION</th>
+                      <th style={{ width: '14%', textAlign: 'left' }}>CHALLAN NO</th>
+                      <th style={{ width: '11%', textAlign: 'left' }}>DATE</th>
+                      <th style={{ width: '11%', textAlign: 'left' }}>PURPOSE</th>
+                      <th style={{ width: '25%', textAlign: 'left' }}>ITEMS DELIVERED</th>
+                      <th style={{ width: '10%', textAlign: 'center' }}>FULFILLMENT</th>
+                      <th style={{ width: '25%', textAlign: 'center' }}>STATUS & ACTION</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2125,20 +2133,20 @@ export default function CustomerDetail({
                     <colgroup>
                       <col style={{ width: '5%' }} />
                       <col style={{ width: '16%' }} />
-                      <col style={{ width: '12%' }} />
-                      <col style={{ width: '26%' }} />
-                      <col style={{ width: '10%' }} />
                       <col style={{ width: '13%' }} />
+                      <col style={{ width: '25%' }} />
+                      <col style={{ width: '9%' }} />
+                      <col style={{ width: '14%' }} />
                       <col style={{ width: '18%' }} />
                     </colgroup>
                     <thead>
                       <tr>
                         <th style={{ width: '5%', textAlign: 'center' }}>#</th>
-                        <th style={{ width: '16%' }}>CHALLAN NO</th>
-                        <th style={{ width: '12%' }}>DISPATCH DATE</th>
-                        <th style={{ width: '26%' }}>ITEMS DISPATCHED</th>
-                        <th style={{ width: '10%', textAlign: 'center' }}>UNITS</th>
-                        <th style={{ width: '13%', textAlign: 'center' }}>INVOICE STATUS</th>
+                        <th style={{ width: '16%', textAlign: 'left' }}>CHALLAN NO</th>
+                        <th style={{ width: '13%', textAlign: 'left' }}>DISPATCH DATE</th>
+                        <th style={{ width: '25%', textAlign: 'left' }}>ITEMS DISPATCHED</th>
+                        <th style={{ width: '9%', textAlign: 'center' }}>UNITS</th>
+                        <th style={{ width: '14%', textAlign: 'center' }}>INVOICE STATUS</th>
                         <th style={{ width: '18%', textAlign: 'center' }}>ACTION</th>
                       </tr>
                     </thead>
@@ -2246,20 +2254,20 @@ export default function CustomerDetail({
                 <table className="settings-table customer-detail-table customer-invoices-table">
                   <colgroup>
                     <col style={{ width: '5%' }} />
-                    <col style={{ width: '18%' }} />
-                    <col style={{ width: '14%' }} />
-                    <col style={{ width: '18%' }} />
-                    <col style={{ width: '18%' }} />
-                    <col style={{ width: '27%' }} />
+                    <col style={{ width: '16%' }} />
+                    <col style={{ width: '13%' }} />
+                    <col style={{ width: '16%' }} />
+                    <col style={{ width: '16%' }} />
+                    <col style={{ width: '24%' }} />
                   </colgroup>
                   <thead>
                     <tr>
                       <th style={{ width: '5%', textAlign: 'center' }}>#</th>
-                      <th style={{ width: '18%' }}>INVOICE NO</th>
-                      <th style={{ width: '14%' }}>DATE</th>
-                      <th style={{ width: '18%' }}>ORDER REF</th>
-                      <th style={{ width: '18%', textAlign: 'right' }}>TOTAL AMOUNT</th>
-                      <th style={{ width: '27%', textAlign: 'center' }}>STATUS & ACTION</th>
+                      <th style={{ width: '16%', textAlign: 'left' }}>INVOICE NO</th>
+                      <th style={{ width: '13%', textAlign: 'left' }}>DATE</th>
+                      <th style={{ width: '16%', textAlign: 'left' }}>ORDER REF</th>
+                      <th style={{ width: '16%', textAlign: 'right' }}>TOTAL AMOUNT</th>
+                      <th style={{ width: '24%', textAlign: 'center' }}>STATUS & ACTION</th>
                     </tr>
                   </thead>
                   <tbody>

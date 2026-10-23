@@ -19624,7 +19624,7 @@ td.serial-dropdown-cell {
 }
 
 .quotation-item-row.row-low-stock {
-  background: #fff1f2 !important;
+  background: transparent !important;
 }
 
 /* Column Dimensions & Isolation: Standard (Discount OFF) */
@@ -19808,16 +19808,12 @@ td.serial-dropdown-cell {
   border: 1px solid #a7f3d0 !important;
 }
 
-.quotation-stock-badge.low-stock {
-  background: #fff1f2 !important;
-  color: #e11d48 !important;
-  border: 1px solid #fecdd3 !important;
-}
-
+.quotation-stock-badge.low-stock,
+.quotation-stock-badge.neutral-stock,
 .quotation-stock-badge.out-of-stock {
-  background: #fee2e2 !important;
-  color: #991b1b !important;
-  border: 1px solid #fca5a5 !important;
+  background: #f8fafc !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
 }
 
 /* Qty Input */

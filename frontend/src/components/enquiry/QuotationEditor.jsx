@@ -2119,7 +2119,6 @@ export default function QuotationEditor({
                   {lineItems.map((item) => {
                     const isInstall = Boolean(item.isInstallationCharge || item.productName === INSTALLATION_CHARGE_NAME);
                     const hasProduct = Boolean(item.productId);
-                    const isLowStock = !isInstall && hasProduct && item.stock <= 0;
                     const floorPrice = !isInstall ? getProductConfiguredFloorPrice(item, stockProducts) : 0;
                     const mrpPrice = !isInstall ? getProductConfiguredMrp(item, stockProducts) : 0;
                     const hasMinPriceError = !isInstall && isPriceBelowConfigured(item, stockProducts);
@@ -2130,7 +2129,7 @@ export default function QuotationEditor({
                       .map((it) => it.productId);
 
                     return (
-                      <tr key={item.rowId} className={`quotation-item-row ${isLowStock ? 'row-low-stock' : ''} ${isInstall ? 'row-installation-charge' : ''}`}>
+                      <tr key={item.rowId} className={`quotation-item-row ${isInstall ? 'row-installation-charge' : ''}`}>
                         {/* Product */}
                         <td className="quotation-col-product">
                           {isInstall ? (
@@ -2223,14 +2222,14 @@ export default function QuotationEditor({
                               <span className="quotation-empty-cell-dash">—</span>
                             ) : hasProduct ? (
                               <span
-                                className={`quotation-stock-badge ${item.stock > 0 ? 'in-stock' : 'out-of-stock'}`}
+                                className={`quotation-stock-badge ${item.stock > 0 ? 'in-stock' : 'neutral-stock'}`}
                                 title={
                                   item.availableStock !== undefined && item.availableStock !== item.stock
                                     ? `Master Stock: ${item.stock} (${item.availableStock} available)`
-                                    : `Warehouse Stock: ${item.stock}`
+                                    : `Warehouse Stock: ${item.stock ?? 0}`
                                 }
                               >
-                                {item.stock}
+                                {item.stock ?? 0}
                               </span>
                             ) : (
                               <span className="quotation-empty-cell-dash">—</span>

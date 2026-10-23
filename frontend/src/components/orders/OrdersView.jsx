@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Plus, Eye, FileText, Download } from 'lucide-react';
 import { apiFetch, apiUrl } from '../../api';
 import { hasPermission } from '../../utils/permissions';
 import { navigate } from '../../router';
@@ -826,7 +827,7 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
               <p>Loading orders...</p>
             </div>
           ) : (
-            <div className="settings-table-shell" style={{ border: 'none', borderRadius: 0, boxShadow: 'none', marginBottom: 0 }}>
+            <div className="settings-table-shell orders-table-shell">
               <div className="crm-table-viewport crm-table-scroll-wrap">
                 <table className="crm-master-table crm-data-table settings-table orders-settings-table orders-data-table">
                 <colgroup>
@@ -1204,8 +1205,8 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
             </div>
           ) : invoiceTabFilter === 'UNBILLED' ? (
             /* UNBILLED DELIVERY CHALLANS REGISTER TABLE */
-            <div className="settings-table-shell" style={{ border: 'none', borderRadius: 0, boxShadow: 'none', marginBottom: 0 }}>
-              <div style={{ padding: '12px 16px', background: '#fffbeb', borderBottom: '1px solid #fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+            <div className="settings-table-shell unbilled-dc-table-shell">
+              <div className="unbilled-dc-banner" style={{ padding: '10px 16px', background: '#fffbeb', borderBottom: '1px solid #fde68a', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontSize: '18px' }}>⚠️</span>
                   <div>
@@ -1228,27 +1229,27 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
               <div className="crm-table-viewport crm-table-scroll-wrap">
                 <table className="crm-master-table crm-data-table settings-table unbilled-dc-settings-table">
                   <colgroup>
-                    <col style={{ width: '5%' }} />
-                    <col style={{ width: '12%' }} />
+                    <col style={{ width: '3.5%' }} />
                     <col style={{ width: '10%' }} />
-                    <col style={{ width: '22%' }} />
+                    <col style={{ width: '9%' }} />
+                    <col style={{ width: '17%' }} />
                     <col style={{ width: '12%' }} />
-                    <col style={{ width: '20%' }} />
-                    <col style={{ width: '6%' }} />
-                    <col style={{ width: '10%' }} />
-                    <col style={{ width: '13%' }} />
+                    <col style={{ width: '16%' }} />
+                    <col style={{ width: '5.5%' }} />
+                    <col style={{ width: '7.5%' }} />
+                    <col style={{ width: '19.5%' }} />
                   </colgroup>
                   <thead>
                     <tr>
-                      <th style={{ width: '5%', textAlign: 'center' }}>#</th>
-                      <th style={{ width: '12%', textAlign: 'left' }}>CHALLAN ID</th>
-                      <th style={{ width: '10%', textAlign: 'center' }}>DC DATE</th>
-                      <th style={{ width: '22%', textAlign: 'left' }}>CUSTOMER / COMPANY</th>
+                      <th style={{ width: '3.5%', textAlign: 'center' }}>#</th>
+                      <th style={{ width: '10%', textAlign: 'left' }}>CHALLAN ID</th>
+                      <th style={{ width: '9%', textAlign: 'center' }}>DC DATE</th>
+                      <th style={{ width: '17%', textAlign: 'left' }}>CUSTOMER / COMPANY</th>
                       <th style={{ width: '12%', textAlign: 'center' }}>SALES ORDER / REF</th>
-                      <th style={{ width: '20%', textAlign: 'left' }}>ITEMS DISPATCHED</th>
-                      <th style={{ width: '6%', textAlign: 'center' }}>UNITS</th>
-                      <th style={{ width: '10%', textAlign: 'center' }}>INVOICE STATUS</th>
-                      <th style={{ width: '13%', textAlign: 'right' }}>ACTIONS</th>
+                      <th style={{ width: '16%', textAlign: 'left' }}>ITEMS DISPATCHED</th>
+                      <th style={{ width: '5.5%', textAlign: 'center' }}>UNITS</th>
+                      <th style={{ width: '7.5%', textAlign: 'center' }}>STATUS</th>
+                      <th style={{ width: '19.5%', textAlign: 'right' }}>ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1334,34 +1335,24 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
                                 </span>
                               </td>
                               <td style={{ textAlign: 'right' }}>
-                                <div className="table-action-btn-group" style={{ justifyContent: 'flex-end', gap: '6px' }}>
+                                <div className="table-action-btn-group unbilled-dc-actions" style={{ justifyContent: 'flex-end', gap: '6px' }}>
                                   <button
                                     type="button"
                                     onClick={() => setInvModalData({ order: null, challan: dc })}
-                                    className="tbl-action-btn"
+                                    className="tbl-action-btn primary btn-unbilled-generate-invoice"
                                     title="Create Sales Invoice against this Delivery Challan"
-                                    style={{
-                                      background: '#2563eb',
-                                      color: '#ffffff',
-                                      borderColor: '#1d4ed8',
-                                      fontWeight: 600,
-                                      fontSize: '11px',
-                                      padding: '4px 10px',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: '4px'
-                                    }}
                                   >
-                                    <span>+ Generate Invoice</span>
+                                    <Plus size={13} strokeWidth={2.5} />
+                                    <span>Generate Invoice</span>
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => setViewDocData({ type: 'DC', data: dc })}
-                                    className="tbl-action-btn"
+                                    className="tbl-action-btn btn-unbilled-view"
                                     title="View Delivery Challan"
-                                    style={{ padding: '4px 8px', fontSize: '11px' }}
                                   >
-                                    View
+                                    <Eye size={13} strokeWidth={2} />
+                                    <span>View</span>
                                   </button>
                                 </div>
                               </td>
@@ -1370,15 +1361,15 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
                         })}
                         {unbilledFillerCount > 0 && Array.from({ length: unbilledFillerCount }).map((_, fIdx) => (
                           <tr key={`filler-unbilled-${fIdx}`} className="table-filler-row" aria-hidden="true">
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
+                            <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                            <td style={{ textAlign: 'left' }}>&nbsp;</td>
+                            <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                            <td style={{ textAlign: 'left' }}>&nbsp;</td>
+                            <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                            <td style={{ textAlign: 'left' }}>&nbsp;</td>
+                            <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                            <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                            <td style={{ textAlign: 'right' }}>&nbsp;</td>
                           </tr>
                         ))}
                       </>
@@ -1398,7 +1389,7 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
               />
             </div>
           ) : (
-            <div className="settings-table-shell" style={{ border: 'none', borderRadius: 0, boxShadow: 'none', marginBottom: 0 }}>
+            <div className="settings-table-shell invoices-table-shell">
               {invoiceTabFilter === 'PENDING' && (
                 <div style={{ padding: '10px 16px', background: '#fffbeb', borderBottom: '1px solid #fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1531,9 +1522,10 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
                               }}
                               className="tbl-action-btn"
                               title="View / Print Sales Invoice"
-                              style={{ padding: '4px 8px', fontSize: '11px' }}
+                              style={{ padding: '4px 8px', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                             >
-                              View
+                              <Eye size={12} strokeWidth={2} />
+                              <span>View</span>
                             </button>
                             <div className="invoice-download-btn-wrap" style={{ position: 'relative', display: 'inline-block' }}>
                               <button
@@ -1710,7 +1702,7 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
               <p>Loading proforma invoices...</p>
             </div>
           ) : (
-            <div className="settings-table-shell proforma-table-shell" style={{ border: 'none', borderRadius: 0, boxShadow: 'none', marginBottom: 0 }}>
+            <div className="settings-table-shell proforma-table-shell">
               <div className="crm-table-viewport crm-table-scroll-wrap proforma-table-scroll-wrap">
                 <table className="crm-master-table crm-data-table settings-table proforma-management-table">
                   <colgroup>

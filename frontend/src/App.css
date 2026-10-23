@@ -28822,6 +28822,400 @@ td.serial-dropdown-cell {
   color: #dc2626 !important;
 }
 
+/* ==========================================================================
+   INVOICES & ORDERS MODULE ENTERPRISE TABLE OVERRIDES
+   Guarantees full crisp grid lines (vertical & horizontal borders),
+   exact header-to-cell alignments, polished SaaS primary/secondary action buttons,
+   and robust container card framing across big screens and standard desktops.
+   ========================================================================== */
+
+/* Outer Table Card Framing & Clean Shell Enclosure */
+.crm-orders-page-container .orders-master-page,
+.invoices-master-page,
+.crm-orders-page-container .settings-table-shell {
+  border: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden !important;
+}
+
+.crm-orders-page-container .orders-master-page {
+  border-radius: 8px !important;
+}
+
+/* Subnav toolbar in Invoices */
+.crm-orders-page-container .invoices-subnav-toolbar {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background: #f8fafc !important;
+}
+
+/* Revenue Alert Banner in Unbilled DCs */
+.unbilled-dc-banner {
+  border-bottom: 1px solid #fde68a !important;
+  background: #fffbeb !important;
+}
+
+/* --------------------------------------------------------------------------
+   1. UNBILLED DELIVERY CHALLANS REGISTER TABLE (.unbilled-dc-settings-table)
+   Columns: # (4%), CHALLAN ID (11%), DC DATE (10%), CUSTOMER / COMPANY (22%),
+            SALES ORDER / REF (11%), ITEMS DISPATCHED (20%), UNITS (6%),
+            INVOICE STATUS (10%), ACTIONS (16%)
+   -------------------------------------------------------------------------- */
+.unbilled-dc-settings-table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+}
+
+/* Unbilled Header & Cell Base Grid Lines */
+.unbilled-dc-settings-table thead th {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+  padding: 8px 6px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+  height: 38px !important;
+}
+
+.unbilled-dc-settings-table thead th:last-child {
+  border-right: none !important;
+}
+
+.unbilled-dc-settings-table tbody td {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  padding: 6px 8px !important;
+  font-size: 12.5px !important;
+  line-height: 1.3 !important;
+  vertical-align: middle !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+
+.unbilled-dc-settings-table tbody td:last-child {
+  border-right: none !important;
+}
+
+/* Filler Rows */
+.unbilled-dc-settings-table tbody tr.table-filler-row td {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background: #ffffff !important;
+  height: 44px !important;
+  box-sizing: border-box !important;
+}
+
+.unbilled-dc-settings-table tbody tr.table-filler-row td:last-child {
+  border-right: none !important;
+}
+
+/* Unbilled Column Widths & Alignments */
+.unbilled-dc-settings-table th:nth-child(1), .unbilled-dc-settings-table td:nth-child(1) { width: 3.5% !important; text-align: center !important; }
+.unbilled-dc-settings-table th:nth-child(2), .unbilled-dc-settings-table td:nth-child(2) { width: 10% !important; text-align: left !important; }
+.unbilled-dc-settings-table th:nth-child(3), .unbilled-dc-settings-table td:nth-child(3) { width: 9% !important; text-align: center !important; }
+.unbilled-dc-settings-table th:nth-child(4), .unbilled-dc-settings-table td:nth-child(4) { width: 17% !important; text-align: left !important; }
+.unbilled-dc-settings-table th:nth-child(5), .unbilled-dc-settings-table td:nth-child(5) { width: 12% !important; text-align: center !important; }
+.unbilled-dc-settings-table th:nth-child(6), .unbilled-dc-settings-table td:nth-child(6) { width: 16% !important; text-align: left !important; }
+.unbilled-dc-settings-table th:nth-child(7), .unbilled-dc-settings-table td:nth-child(7) { width: 5.5% !important; text-align: center !important; }
+.unbilled-dc-settings-table th:nth-child(8), .unbilled-dc-settings-table td:nth-child(8) { width: 7.5% !important; text-align: center !important; }
+.unbilled-dc-settings-table th:nth-child(9), .unbilled-dc-settings-table td:nth-child(9) { width: 19.5% !important; text-align: right !important; }
+
+/* Unbilled Action Buttons */
+.unbilled-dc-settings-table .table-action-btn-group {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 5px !important;
+  width: 100% !important;
+}
+
+.unbilled-dc-settings-table .tbl-action-btn.btn-unbilled-generate-invoice,
+.crm-orders-page-container .unbilled-dc-settings-table .tbl-action-btn.primary {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: 1px solid #1d4ed8 !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 0 8px !important;
+  border-radius: 5px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2) !important;
+  cursor: pointer !important;
+}
+
+.unbilled-dc-settings-table .tbl-action-btn.btn-unbilled-generate-invoice:hover,
+.crm-orders-page-container .unbilled-dc-settings-table .tbl-action-btn.primary:hover {
+  background: #1d4ed8 !important;
+  border-color: #1e40af !important;
+  color: #ffffff !important;
+}
+
+.unbilled-dc-settings-table .tbl-action-btn.btn-unbilled-view,
+.crm-orders-page-container .unbilled-dc-settings-table .tbl-action-btn:not(.primary) {
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 0 7px !important;
+  border-radius: 5px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+}
+
+.unbilled-dc-settings-table .tbl-action-btn.btn-unbilled-view:hover,
+.crm-orders-page-container .unbilled-dc-settings-table .tbl-action-btn:not(.primary):hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+/* --------------------------------------------------------------------------
+   2. SALES INVOICES TABLE (.invoices-settings-table / .invoices-data-table)
+   Columns: INVOICE ID (9%), SALES ORDER (10%), DELIVERY REF (9%), CUSTOMER / COMPANY (18%),
+            INV DATE (8%), SUBTOTAL (8%), GST (6%), GRAND TOTAL (9%), STATUS (10%), ACTIONS (13%)
+   -------------------------------------------------------------------------- */
+.invoices-settings-table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+}
+
+.invoices-settings-table thead th {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  padding: 8px 10px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+  height: 38px !important;
+}
+
+.invoices-settings-table thead th:last-child {
+  border-right: none !important;
+}
+
+.invoices-settings-table tbody td {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  padding: 6px 10px !important;
+  font-size: 12.5px !important;
+  line-height: 1.3 !important;
+  vertical-align: middle !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+
+.invoices-settings-table tbody td:last-child {
+  border-right: none !important;
+}
+
+.invoices-settings-table tbody tr.table-filler-row td {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background: #ffffff !important;
+  height: 44px !important;
+  box-sizing: border-box !important;
+}
+
+.invoices-settings-table tbody tr.table-filler-row td:last-child {
+  border-right: none !important;
+}
+
+/* Invoices Column Widths & Alignments */
+.invoices-settings-table th:nth-child(1), .invoices-settings-table td:nth-child(1) { width: 9% !important; text-align: left !important; }
+.invoices-settings-table th:nth-child(2), .invoices-settings-table td:nth-child(2) { width: 10% !important; text-align: center !important; }
+.invoices-settings-table th:nth-child(3), .invoices-settings-table td:nth-child(3) { width: 9% !important; text-align: center !important; }
+.invoices-settings-table th:nth-child(4), .invoices-settings-table td:nth-child(4) { width: 18% !important; text-align: left !important; }
+.invoices-settings-table th:nth-child(5), .invoices-settings-table td:nth-child(5) { width: 8% !important; text-align: center !important; }
+.invoices-settings-table th:nth-child(6), .invoices-settings-table td:nth-child(6) { width: 8% !important; text-align: right !important; }
+.invoices-settings-table th:nth-child(7), .invoices-settings-table td:nth-child(7) { width: 6% !important; text-align: right !important; }
+.invoices-settings-table th:nth-child(8), .invoices-settings-table td:nth-child(8) { width: 9% !important; text-align: right !important; }
+.invoices-settings-table th:nth-child(9), .invoices-settings-table td:nth-child(9) { width: 10% !important; text-align: center !important; }
+.invoices-settings-table th:nth-child(10), .invoices-settings-table td:nth-child(10) { width: 13% !important; text-align: right !important; }
+
+/* Invoices Action Buttons */
+.invoices-settings-table .table-action-btn-group {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 5px !important;
+  width: 100% !important;
+}
+
+.invoices-settings-table .tbl-action-btn {
+  height: 27px !important;
+  min-height: 27px !important;
+  padding: 0 9px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  border-radius: 5px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.invoices-settings-table .tbl-action-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. SALES ORDERS TABLE (.orders-settings-table / .orders-data-table)
+   Columns: Customer (22%), ENQ No (10%), QUOT No (10%), Amount (12%),
+            Items (8%), Status (14%), Actions (24%)
+   -------------------------------------------------------------------------- */
+.orders-settings-table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+}
+
+.orders-settings-table thead th {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  padding: 8px 10px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+  height: 38px !important;
+}
+
+.orders-settings-table thead th:last-child {
+  border-right: none !important;
+}
+
+.orders-settings-table tbody td {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  padding: 6px 10px !important;
+  font-size: 12.5px !important;
+  line-height: 1.3 !important;
+  vertical-align: middle !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+
+.orders-settings-table tbody td:last-child {
+  border-right: none !important;
+}
+
+.orders-settings-table tbody tr.table-filler-row td {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background: #ffffff !important;
+  height: 44px !important;
+  box-sizing: border-box !important;
+}
+
+.orders-settings-table tbody tr.table-filler-row td:last-child {
+  border-right: none !important;
+}
+
+.orders-settings-table th:nth-child(1), .orders-settings-table td:nth-child(1) { width: 22% !important; text-align: left !important; }
+.orders-settings-table th:nth-child(2), .orders-settings-table td:nth-child(2) { width: 10% !important; text-align: center !important; }
+.orders-settings-table th:nth-child(3), .orders-settings-table td:nth-child(3) { width: 10% !important; text-align: center !important; }
+.orders-settings-table th:nth-child(4), .orders-settings-table td:nth-child(4) { width: 12% !important; text-align: right !important; }
+.orders-settings-table th:nth-child(5), .orders-settings-table td:nth-child(5) { width: 8% !important; text-align: center !important; }
+.orders-settings-table th:nth-child(6), .orders-settings-table td:nth-child(6) { width: 14% !important; text-align: center !important; }
+.orders-settings-table th:nth-child(7), .orders-settings-table td:nth-child(7) { width: 24% !important; text-align: right !important; }
+
+/* --------------------------------------------------------------------------
+   4. PROFORMA MANAGEMENT TABLE (.proforma-management-table)
+   Columns: Proforma No (13%), Date (10%), Customer (23%), Items (8%),
+            Amount (12%), Status (12%), Actions (22%)
+   -------------------------------------------------------------------------- */
+.proforma-management-table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+}
+
+.proforma-management-table thead th {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  padding: 8px 10px !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+  height: 38px !important;
+}
+
+.proforma-management-table thead th:last-child {
+  border-right: none !important;
+}
+
+.proforma-management-table tbody td {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  padding: 6px 10px !important;
+  font-size: 12.5px !important;
+  line-height: 1.3 !important;
+  vertical-align: middle !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+
+.proforma-management-table tbody td:last-child {
+  border-right: none !important;
+}
+
+.proforma-management-table tbody tr.table-filler-row td {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background: #ffffff !important;
+  height: 44px !important;
+  box-sizing: border-box !important;
+}
+
+.proforma-management-table tbody tr.table-filler-row td:last-child {
+  border-right: none !important;
+}
+
+.proforma-management-table th:nth-child(1), .proforma-management-table td:nth-child(1) { width: 13% !important; text-align: left !important; }
+.proforma-management-table th:nth-child(2), .proforma-management-table td:nth-child(2) { width: 10% !important; text-align: center !important; }
+.proforma-management-table th:nth-child(3), .proforma-management-table td:nth-child(3) { width: 23% !important; text-align: left !important; }
+.proforma-management-table th:nth-child(4), .proforma-management-table td:nth-child(4) { width: 8% !important; text-align: center !important; }
+.proforma-management-table th:nth-child(5), .proforma-management-table td:nth-child(5) { width: 12% !important; text-align: right !important; }
+.proforma-management-table th:nth-child(6), .proforma-management-table td:nth-child(6) { width: 12% !important; text-align: center !important; }
+.proforma-management-table th:nth-child(7), .proforma-management-table td:nth-child(7) { width: 22% !important; text-align: right !important; }
+
 
 
 

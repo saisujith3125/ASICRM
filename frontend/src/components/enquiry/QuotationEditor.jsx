@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { ArrowLeft, Plus, Check, Trash2, Calendar, FileText, Building2, Phone, Mail, MapPin, ExternalLink, ShieldCheck, CheckCircle, Search, Printer, Zap, XCircle } from 'lucide-react';
-import { apiFetch, apiUrl } from '../../api';
+import { apiFetch, apiUrl, safeJson } from '../../api';
 import { navigate } from '../../router';
 import { hasPermission } from '../../utils/permissions';
 import SearchableProductSelect from '../common/SearchableProductSelect';
@@ -385,7 +385,7 @@ export default function QuotationEditor({
 
         let loadedCustomers = [];
         if (customersRes && customersRes.ok) {
-          const cData = await customersRes.json();
+          const cData = await safeJson(customersRes);
           if (cData.success && Array.isArray(cData.data)) {
             loadedCustomers = cData.data;
             if (mounted) setCustomersList(loadedCustomers);
@@ -394,7 +394,7 @@ export default function QuotationEditor({
 
         let loadedStockProducts = [];
         if (stocksRes && stocksRes.ok) {
-          const sData = await stocksRes.json();
+          const sData = await safeJson(stocksRes);
           if (sData.success) {
             const list = Array.isArray(sData.data) ? sData.data : (sData.data?.products || []);
             loadedStockProducts = list;
@@ -404,7 +404,7 @@ export default function QuotationEditor({
 
         let loadedEnquiries = [];
         if (enquiriesRes && enquiriesRes.ok) {
-          const eData = await enquiriesRes.json();
+          const eData = await safeJson(enquiriesRes);
           if (eData.success && Array.isArray(eData.data)) {
             loadedEnquiries = eData.data;
             if (mounted) setAllEnquiries(loadedEnquiries);
@@ -416,7 +416,7 @@ export default function QuotationEditor({
         try {
           const compRes = await apiFetch(apiUrl('/api/settings/company'), { headers: authHeaders(user) }).catch(() => null);
           if (compRes && compRes.ok) {
-            const compData = await compRes.json();
+            const compData = await safeJson(compRes);
             if (compData.success && compData.data?.quotationSetup) {
               masterQuotationSetup = compData.data.quotationSetup;
             }
@@ -440,7 +440,7 @@ export default function QuotationEditor({
           const qRes = await apiFetch(apiUrl(`/api/enquiries/quotation/${encodeURIComponent(propQuotationId)}`), {
             headers: authHeaders(user)
           });
-          const qData = await qRes.json();
+          const qData = await safeJson(qRes);
           if (!qRes.ok || !qData.success || !qData.data) {
             throw new Error(qData.message || `Failed to load quotation ${propQuotationId}.`);
           }
@@ -492,7 +492,7 @@ export default function QuotationEditor({
           const enqRes = await apiFetch(apiUrl(`/api/enquiries/${encodeURIComponent(propEnquiryId)}`), {
             headers: authHeaders(user)
           });
-          const enqData = await enqRes.json();
+          const enqData = await safeJson(enqRes);
           if (!enqRes.ok || !enqData.success || !enqData.data) {
             throw new Error(enqData.message || `Failed to load enquiry ${propEnquiryId}.`);
           }
@@ -521,7 +521,7 @@ export default function QuotationEditor({
             // Fetch sequential preview quotation ID
             const idRes = await apiFetch(apiUrl('/api/enquiries/quotations/next-id'), { headers: authHeaders(user) }).catch(() => null);
             if (idRes && idRes.ok) {
-              const idData = await idRes.json();
+              const idData = await safeJson(idRes);
               if (idData.success && idData.nextQuotationId) {
                 setQuotationNumber(idData.nextQuotationId);
               }
@@ -567,7 +567,7 @@ export default function QuotationEditor({
           }
           const idRes = await apiFetch(apiUrl('/api/enquiries/quotations/next-id'), { headers: authHeaders(user) }).catch(() => null);
           if (idRes && idRes.ok) {
-            const idData = await idRes.json();
+            const idData = await safeJson(idRes);
             if (idData.success && idData.nextQuotationId && mounted) {
               setQuotationNumber(idData.nextQuotationId);
             }
@@ -651,7 +651,7 @@ export default function QuotationEditor({
               try {
                 const freshRes = await apiFetch(apiUrl('/api/stocks'), { headers: authHeaders(user) });
                 if (freshRes && freshRes.ok) {
-                  const fData = await freshRes.json();
+                  const fData = await safeJson(freshRes);
                   const freshList = Array.isArray(fData.data) ? fData.data : (fData.data?.products || []);
                   currentStockList = freshList;
                   setStockProducts(freshList);
@@ -1581,7 +1581,7 @@ export default function QuotationEditor({
         headers: authHeaders(user),
         body: JSON.stringify({ status: 'ACCEPTED' })
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (!res.ok || !data.success) {
         throw new Error(data.message || 'Failed to accept quotation.');
       }
@@ -1613,7 +1613,7 @@ export default function QuotationEditor({
         headers: authHeaders(user),
         body: JSON.stringify({ status: 'REJECTED', remarks: reason.trim() })
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (!res.ok || !data.success) {
         throw new Error(data.message || 'Failed to reject quotation.');
       }
@@ -1644,7 +1644,7 @@ export default function QuotationEditor({
         headers: authHeaders(user),
         body: JSON.stringify({})
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (!res.ok || !data.success) {
         throw new Error(data.message || 'Failed to convert quotation to order.');
       }
@@ -1842,9 +1842,28 @@ export default function QuotationEditor({
         });
       }
 
-      const data = await res.json();
+      const data = await safeJson(res);
       if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Failed to save quotation.');
+        let errMsg = data.message || data.error;
+        if (!errMsg || errMsg.toLowerCase().includes('bad request') || errMsg.toLowerCase().includes('invalid request')) {
+          // Check if any product quantity exceeds known available stock
+          const stockExceededItem = validItems.find((it) => {
+            if (it.isInstallationCharge || it.productName === INSTALLATION_CHARGE_NAME) return false;
+            const prod = stockProducts.find((p) => (p.id && p.id === it.productId) || (p.code && p.code === it.productCode));
+            const avail = prod ? Number(prod.availableStock !== undefined ? prod.availableStock : (prod.stock || 0)) : null;
+            return avail !== null && avail >= 0 && Number(it.quantity) > avail;
+          });
+          if (stockExceededItem) {
+            const prod = stockProducts.find((p) => (p.id && p.id === stockExceededItem.productId) || (p.code && p.code === stockExceededItem.productCode));
+            const avail = prod ? Number(prod.availableStock !== undefined ? prod.availableStock : (prod.stock || 0)) : 0;
+            errMsg = `Cannot save quotation: Requested quantity (${stockExceededItem.quantity}) for "${stockExceededItem.productName}" exceeds current stock (${avail}).`;
+          } else {
+            errMsg = (data.message && !data.message.toLowerCase().includes('bad request'))
+              ? data.message
+              : 'Failed to save quotation. The server rejected the request parameters. Please verify your entries.';
+          }
+        }
+        throw new Error(errMsg);
       }
 
       const savedQuote = data.data;

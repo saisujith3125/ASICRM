@@ -372,14 +372,14 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
         <div className="crm-table-scroll-wrap stocks-table-natural-wrap crm-table-viewport">
           <table className="settings-table quotation-settings-table quotation-register-table">
             <colgroup>
-              <col style={{ width: '9%' }} />
-              <col style={{ width: '18%' }} />
-              <col style={{ width: '8%' }} />
-              <col style={{ width: '8%' }} />
-              <col style={{ width: '11%' }} />
-              <col style={{ width: '9%' }} />
               <col style={{ width: '10%' }} />
-              <col style={{ width: '27%' }} />
+              <col style={{ width: '21%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '11%' }} />
+              <col style={{ width: '21%' }} />
             </colgroup>
             <thead>
               <tr>
@@ -523,7 +523,27 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                         <strong>{`₹${Number(quote.grandTotal || quote.amount || 0).toLocaleString('en-IN')}`}</strong>
                       </td>
                       <td data-label="UPDATED" className="col-priority-low cell-nowrap" style={{ textAlign: 'center' }}>{formatDate(quote.updatedAt || quote.createdAt)}</td>
-                      <td data-label="STATUS" className="col-priority-high cell-nowrap" style={{ textAlign: 'center' }}>{getStatusBadge(quote.status, quote.orderId)}</td>
+                      <td data-label="STATUS" className="col-priority-high cell-nowrap" style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                          {getStatusBadge(quote.status, quote.orderId)}
+                          {isConverted && quote.orderId && (
+                            <a
+                              href={`/orders/${encodeURIComponent(quote.orderId)}`}
+                              onClick={(e) => {
+                                if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
+                                  e.preventDefault();
+                                  navigate(`/orders/${encodeURIComponent(quote.orderId)}`);
+                                }
+                              }}
+                              className="order-link-pill"
+                              title={`View linked Order ${quote.orderId}`}
+                            >
+                              <span>→</span>
+                              <span>{quote.orderId}</span>
+                            </a>
+                          )}
+                        </div>
+                      </td>
                       <td data-label="ACTIONS" className="actions-col col-priority-high" style={{ textAlign: 'right' }}>
                         <div className="quotation-row-actions settings-row-actions">
                           <button
@@ -568,7 +588,8 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                               {can('Reject') && (
                                 <button
                                   type="button"
-                                  className="tbl-action-btn danger"
+                                  className="tbl-action-btn"
+                                  style={{ background: '#fff1f2', color: '#e11d48', borderColor: '#fecdd3' }}
                                   onClick={() => {
                                     const reason = window.prompt('Reason for rejecting this quotation:');
                                     if (reason === null) return;
@@ -619,16 +640,15 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                           )}
 
                           {can('Delete') && (
-                            <button type="button" className="tbl-action-btn danger" onClick={() => deleteQuote(quote)} title="Delete quotation">
+                            <button
+                              type="button"
+                              className="tbl-action-btn delete-icon-btn"
+                              onClick={() => deleteQuote(quote)}
+                              title="Delete quotation"
+                              aria-label="Delete quotation"
+                            >
                               <Trash2 size={13} />
-                              <span>Delete</span>
                             </button>
-                          )}
-
-                          {isConverted && quote.orderId && (
-                            <span className="order-link-note" style={{ color: '#16a34a', fontWeight: 'bold' }}>
-                              Linked: {quote.orderId}
-                            </span>
                           )}
                         </div>
                       </td>

@@ -11439,17 +11439,69 @@ button.stocks-kpi-card { cursor:pointer; }
 .quotation-directory-page .quotation-list-card .crm-data-table{table-layout:fixed;font-size:11.5px}
 .quotation-directory-page .quotation-list-card .crm-data-table th{padding:8px 10px;font-size:9.5px;white-space:nowrap}
 .quotation-directory-page .quotation-list-card .crm-data-table td{padding:8px 10px;line-height:1.25;vertical-align:middle}
-.quotation-directory-page .quotation-register-table th:nth-child(1),.quotation-directory-page .quotation-register-table td:nth-child(1){width:9%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(2),.quotation-directory-page .quotation-register-table td:nth-child(2){width:18%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(3),.quotation-directory-page .quotation-register-table td:nth-child(3){width:8%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(1),.quotation-directory-page .quotation-register-table td:nth-child(1){width:10%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(2),.quotation-directory-page .quotation-register-table td:nth-child(2){width:21%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(3),.quotation-directory-page .quotation-register-table td:nth-child(3){width:9%!important}
 .quotation-directory-page .quotation-register-table th:nth-child(4),.quotation-directory-page .quotation-register-table td:nth-child(4){width:8%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(5),.quotation-directory-page .quotation-register-table td:nth-child(5){width:11%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(6),.quotation-directory-page .quotation-register-table td:nth-child(6){width:9%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(7),.quotation-directory-page .quotation-register-table td:nth-child(7){width:10%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(8),.quotation-directory-page .quotation-register-table td:nth-child(8){width:27%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(5),.quotation-directory-page .quotation-register-table td:nth-child(5){width:10%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(6),.quotation-directory-page .quotation-register-table td:nth-child(6){width:10%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(7),.quotation-directory-page .quotation-register-table td:nth-child(7){width:11%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(8),.quotation-directory-page .quotation-register-table td:nth-child(8){width:21%!important}
 .quotation-directory-page .quotation-register-table td:nth-child(2) .customer-table-link{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.quotation-directory-page .quotation-row-actions{gap:6px!important;justify-content:flex-end!important;align-items:center!important}
+.quotation-directory-page .quotation-row-actions{gap:5px!important;justify-content:flex-end!important;align-items:center!important;flex-wrap:nowrap!important}
 .quotation-directory-page .order-link-note{font-size:11px}
+.quotation-directory-page .quotation-register-table th,
+.quotation-directory-page .quotation-register-table td {
+  border-right: none !important;
+}
+.quotation-directory-page .quotation-register-table tbody tr.table-filler-row td {
+  border-right: none !important;
+  border-bottom: 1px solid #f8fafc !important;
+}
+.crm-quotation-page-container .tbl-action-btn.delete-icon-btn,
+.quotation-directory-page .tbl-action-btn.delete-icon-btn {
+  width: 27px !important;
+  min-width: 27px !important;
+  max-width: 27px !important;
+  height: 27px !important;
+  min-height: 27px !important;
+  padding: 0 !important;
+  border-radius: 7px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #94a3b8 !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.crm-quotation-page-container .tbl-action-btn.delete-icon-btn:hover,
+.quotation-directory-page .tbl-action-btn.delete-icon-btn:hover {
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+  color: #dc2626 !important;
+}
+.quotation-directory-page .order-link-pill {
+  font-size: 10px;
+  font-weight: 600;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1.2;
+  transition: all 0.15s ease;
+}
+.quotation-directory-page .order-link-pill:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
 @media (max-width:900px){
   .quotation-directory-page .quotation-workspace-bar{align-items:flex-start}
   .quotation-directory-page .quotation-workspace-controls{width:100%}
@@ -11618,9 +11670,9 @@ button.stocks-kpi-card { cursor:pointer; }
 .quotation-directory-page .quotation-row-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 4px;
-  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+  flex-wrap: nowrap;
   min-width: 0;
 }
 
@@ -28672,6 +28724,91 @@ td.serial-dropdown-cell {
     padding: 4px 10px !important;
   }
 }
+
+/* ==========================================================================
+   QUOTATIONS REGISTER DESKTOP & BIG-SCREEN ENTERPRISE TABLE OVERRIDES
+   Guarantees no vertical spreadsheet cage borders, robust action button sizing,
+   and clean alignment across 1080p, 1440p, 4K, and laptops.
+   ========================================================================== */
+.quotation-directory-page table.quotation-register-table th,
+.quotation-directory-page table.quotation-register-table td {
+  border-right: none !important;
+}
+
+.quotation-directory-page table.quotation-register-table td {
+  padding: 8px 8px !important;
+  font-size: 12px !important;
+}
+
+.quotation-directory-page table.quotation-register-table thead th {
+  border-bottom: 1px solid #e2e8f0 !important;
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+  padding: 8px 10px !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.quotation-directory-page table.quotation-register-table tbody tr:not(.table-filler-row) td {
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.quotation-directory-page table.quotation-register-table tbody tr.table-filler-row td {
+  border-right: none !important;
+  border-bottom: 1px solid #f8fafc !important;
+  background: transparent !important;
+}
+
+.quotation-directory-page .quotation-row-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 5px !important;
+  flex-wrap: nowrap !important;
+  width: 100% !important;
+}
+
+.quotation-directory-page .quotation-row-actions .tbl-action-btn,
+.crm-quotation-page-container .quotation-directory-page .quotation-row-actions .tbl-action-btn {
+  height: 27px !important;
+  min-height: 27px !important;
+  padding: 0 8px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  gap: 4px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.quotation-directory-page .quotation-row-actions .tbl-action-btn.delete-icon-btn,
+.crm-quotation-page-container .quotation-directory-page .quotation-row-actions .tbl-action-btn.delete-icon-btn {
+  width: 27px !important;
+  min-width: 27px !important;
+  max-width: 27px !important;
+  height: 27px !important;
+  min-height: 27px !important;
+  padding: 0 !important;
+  border-radius: 6px !important;
+  color: #94a3b8 !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.quotation-directory-page .quotation-row-actions .tbl-action-btn.delete-icon-btn:hover,
+.crm-quotation-page-container .quotation-directory-page .quotation-row-actions .tbl-action-btn.delete-icon-btn:hover {
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+  color: #dc2626 !important;
+}
+
 
 
 

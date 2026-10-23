@@ -69,7 +69,7 @@ export default function EnquiryList({ user, onSelectEnquiry, onCreateEnquiry: _o
       }
     } catch (err) {
       console.error('Error fetching enquiries:', err);
-      setError((prev) => (enquiries.length === 0 ? 'Unable to load enquiries. Please check backend server on port 5000.' : ''));
+      setError((prev) => (enquiries.length === 0 ? 'Unable to load enquiries. Please check backend server connection.' : ''));
     } finally {
       setLoading(false);
     }

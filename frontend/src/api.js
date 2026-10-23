@@ -7,6 +7,29 @@ export const apiUrl = (path = '') => {
   return `${API_BASE}${normalised}`;
 };
 
+/**
+ * Safely parse JSON responses from fetch.
+ * Prevents syntax error crashes (e.g. "<!DOCTYPE html> is not valid JSON")
+ * when reverse proxies (Nginx/IIS/Cloudflare) return HTML 4xx/5xx error pages.
+ */
+export const safeJson = async (res) => {
+  try {
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      return {
+        success: false,
+        message: text || `HTTP ${res.status}: ${res.statusText || 'Unexpected error'}`
+      };
+    }
+  } catch (err) {
+    return {
+      success: false,
+      message: err.message || 'Network response error'
+    };
+  }
+};
 
 /**
  * Authenticated API wrapper for protected CRM endpoints.

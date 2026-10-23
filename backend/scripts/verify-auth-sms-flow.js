@@ -5,7 +5,7 @@ const path = require('path');
 
 const accessPath = path.join(__dirname, '..', 'data', 'access-control.json');
 const access = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
-const active = access.users.find((u) => u.status === 'Active' && u.mobile !== '9999999990');
+const active = access.users.find((u) => u.status === 'Active' && u.mobile !== '9999999990' && u.mobile !== '9994126686');
 assert(active, 'Need an active user.');
 
 function clearModule(rel) {

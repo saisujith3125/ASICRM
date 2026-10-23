@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo, useId } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, X, Check, Package } from 'lucide-react';
+import { ChevronDown, X, Check, Package, Plus } from 'lucide-react';
 import './searchableProductSelect.css';
 
 /**
@@ -442,7 +442,7 @@ export default function SearchableProductSelect({
             aria-label="Product options"
           >
             {filteredItems.length === 0 ? (
-              <li className="sps-empty-item" role="status">
+              <li className="sps-empty-item" role="status" style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px' }}>
                 {loading ? (
                   <>
                     <span className="crm-loading-spinner inline-spinner" style={{ width: 14, height: 14 }} />
@@ -454,10 +454,55 @@ export default function SearchableProductSelect({
                     <span>No products available in Product Master</span>
                   </>
                 ) : searchQuery.trim() ? (
-                  <>
-                    <Package size={16} className="sps-empty-icon" />
-                    <span>No products found matching &ldquo;{searchQuery.trim()}&rdquo;</span>
-                  </>
+                  <div style={{ padding: '4px', textAlign: 'left', width: '100%' }}>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>
+                      No stock products match &ldquo;{searchQuery.trim()}&rdquo;
+                    </div>
+                    <button
+                      type="button"
+                      className="sps-add-custom-btn"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const trimmed = searchQuery.trim();
+                        handleSelect({
+                          id: 'custom_' + Date.now(),
+                          productId: 'custom_' + Date.now(),
+                          code: 'CUSTOM',
+                          productCode: 'CUSTOM',
+                          name: trimmed,
+                          productName: trimmed,
+                          unit: 'Nos',
+                          quantity: 1,
+                          unitPrice: 0,
+                          minPrice: 0,
+                          mrp: 0,
+                          dealerPrice: 0,
+                          stock: 0,
+                          availableStock: 0,
+                          isCustom: true
+                        });
+                      }}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        background: '#eff6ff',
+                        color: '#1d4ed8',
+                        border: '1px solid #bfdbfe',
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        width: '100%',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <Plus size={14} />
+                      <span>Use &ldquo;{searchQuery.trim()}&rdquo; directly in Quotation</span>
+                    </button>
+                  </div>
                 ) : (
                   <>
                     <Package size={16} className="sps-empty-icon" />

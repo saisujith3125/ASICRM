@@ -281,13 +281,10 @@ export default function QuotationEditor({
       const qty = Number(it.quantity !== undefined ? it.quantity : 1);
 
       let qtyError = '';
-      let hasHistoricalStockWarning = false;
-      if (masterStock <= 0) {
-        qtyError = 'Product is out of stock.';
-      } else if (qty > masterStock) {
-        qtyError = `Maximum available quantity is ${masterStock}.`;
-        hasHistoricalStockWarning = true;
+      if (isNaN(qty) || qty <= 0) {
+        qtyError = 'Quantity must be at least 1.';
       }
+      const hasHistoricalStockWarning = false;
 
       const masterMinPrice = getProductConfiguredFloorPrice(it, currentStockList);
       const savedUnitPrice = it.unitPrice !== undefined ? it.unitPrice : (it.price !== undefined ? it.price : masterMinPrice);
@@ -1055,7 +1052,7 @@ export default function QuotationEditor({
   }, [lineItems, remarks, termsAndConditions, headerTitle, validUntilDate, selectedCustomerId, selectedCustomer, selectedEnquiryId, mode, propEnquiryId, propQuotationId, quotationNumber, loading, isConverted, showDiscount, roundOffTotal, showStock]);
 
   // Line item manipulation
-  const handleProductSelect = (rowId, productId) => {
+  const handleProductSelect = (rowId, productId, selectedItem = null) => {
     if (!productId) {
       setLineItems((prev) => {
         const updated = prev.map((item) => {
@@ -1085,21 +1082,26 @@ export default function QuotationEditor({
       return;
     }
 
-    const prod = stockProducts.find(
-      (p) => (p.id || p.productId) === productId || (p.code || p.productCode) === productId
-    );
-    if (!prod) return;
+    const isCustom = selectedItem?.isCustom || String(productId).startsWith('custom_') || String(productId).startsWith('direct_');
+    const prod = isCustom
+      ? selectedItem
+      : stockProducts.find(
+          (p) => (p.id || p.productId) === productId || (p.code || p.productCode) === productId
+        );
 
-    const canonicalId = prod.id || prod.productId || prod.code;
+    const resolvedItem = prod || selectedItem;
+    if (!resolvedItem) return;
+
+    const canonicalId = resolvedItem.id || resolvedItem.productId || resolvedItem.code || productId;
 
     // Duplicate-product prevention: reject re-adding already-added products
     const isDuplicate = lineItems.some(
       (it) => it.rowId !== rowId && (
         it.productId === canonicalId ||
-        it.productId === prod.id ||
-        it.productId === prod.productId ||
-        it.productId === prod.code ||
-        (it.productCode && prod.code && it.productCode === prod.code)
+        (resolvedItem.id && it.productId === resolvedItem.id) ||
+        (resolvedItem.productId && it.productId === resolvedItem.productId) ||
+        (resolvedItem.code && it.productCode === resolvedItem.code) ||
+        (resolvedItem.productCode && it.productCode === resolvedItem.productCode)
       )
     );
 
@@ -1111,11 +1113,11 @@ export default function QuotationEditor({
       return;
     }
 
-    const maxStock = getProductAvailableStock(prod);
-    const masterStock = Number(
-      prod.stock !== undefined
-        ? prod.stock
-        : (prod.totalStock !== undefined ? prod.totalStock : maxStock)
+    const maxStock = isCustom ? 0 : getProductAvailableStock(resolvedItem);
+    const masterStock = isCustom ? 0 : Number(
+      resolvedItem.stock !== undefined
+        ? resolvedItem.stock
+        : (resolvedItem.totalStock !== undefined ? resolvedItem.totalStock : maxStock)
     );
     // Directly allow entering quantity in quotation - default to 1 (not 0, not blocked by stock)
     const defaultQty = 1;
@@ -1126,41 +1128,42 @@ export default function QuotationEditor({
       if (rowIndex === -1) return prev;
 
       const currentItem = prev[rowIndex];
-      const masterMrp = Number(prod.mrp || 0);
-      const masterDealerPrice = Number(prod.dealerPrice || prod.price || prod.unitPrice || prod.sellingPrice || prod.cost || 0);
+      const masterMrp = Number(resolvedItem.mrp || 0);
+      const masterDealerPrice = Number(resolvedItem.dealerPrice || resolvedItem.price || resolvedItem.unitPrice || resolvedItem.sellingPrice || resolvedItem.cost || 0);
       // Default price MUST be MRP if available, with Dealer Price as minimum floor
-      const unitPrice = masterMrp > 0 ? masterMrp : masterDealerPrice;
+      const unitPrice = masterMrp > 0 ? masterMrp : (masterDealerPrice > 0 ? masterDealerPrice : 0);
       const minPrice = masterDealerPrice > 0 ? masterDealerPrice : (masterMrp > 0 ? masterMrp : 0);
-      const gst = Number(prod.gstRate !== undefined ? prod.gstRate : (prod.gst !== undefined ? prod.gst : 18));
+      const gst = Number(resolvedItem.gstRate !== undefined ? resolvedItem.gstRate : (resolvedItem.gst !== undefined ? resolvedItem.gst : 18));
       const discount = Number(currentItem?.discount || 0);
-      const desc = prod.description ? String(prod.description) : '';
+      const desc = resolvedItem.description ? String(resolvedItem.description) : '';
 
       const updatedRow = {
         ...currentItem,
-        productId: prod.id || prod.productId || prod.code,
-        productCode: prod.code || prod.productCode || '',
-        productName: prod.name || prod.productName || '',
+        productId: canonicalId,
+        productCode: resolvedItem.code || resolvedItem.productCode || (isCustom ? 'CUSTOM' : ''),
+        productName: resolvedItem.name || resolvedItem.productName || '',
         description: desc,
         stock: masterStock,
-        availableStock: Number(prod.availableStock !== undefined ? prod.availableStock : masterStock),
-        unit: (prod.unit && prod.unit !== 'Piece') ? prod.unit : 'Nos',
+        availableStock: Number(resolvedItem.availableStock !== undefined ? resolvedItem.availableStock : masterStock),
+        unit: (resolvedItem.unit && resolvedItem.unit !== 'Piece') ? resolvedItem.unit : 'Nos',
         quantity: defaultQty,
         unitPrice,
         minPrice,
         mrp: masterMrp,
         dealerPrice: masterDealerPrice,
         gst,
-        isIGSTApplicable: Boolean(prod.isIGSTApplicable),
+        isIGSTApplicable: Boolean(resolvedItem.isIGSTApplicable),
         discount,
-        hsnSac: prod.hsnSac || prod.hsnCode || prod.hsn || '',
+        hsnSac: resolvedItem.hsnSac || resolvedItem.hsnCode || resolvedItem.hsn || '',
         qtyError: '',
-        hasHistoricalStockWarning: false
+        hasHistoricalStockWarning: false,
+        isCustom: Boolean(isCustom)
       };
 
       const calculated = calculateLineItem(updatedRow, { showDiscount });
 
       const copy = [...prev];
-      copy[rowIndex] = { ...calculated, isIGSTApplicable: Boolean(prod.isIGSTApplicable), stock: masterStock, availableStock: Number(prod.availableStock !== undefined ? prod.availableStock : masterStock), qtyError, hasHistoricalStockWarning: false };
+      copy[rowIndex] = { ...calculated, isIGSTApplicable: Boolean(resolvedItem.isIGSTApplicable), stock: masterStock, availableStock: Number(resolvedItem.availableStock !== undefined ? resolvedItem.availableStock : masterStock), qtyError: '', hasHistoricalStockWarning: false };
 
       return ensureTrailingBlankRow(copy);
     });
@@ -1673,30 +1676,6 @@ export default function QuotationEditor({
     isSubmittingRef.current = true;
     setSaving(true);
 
-    // Revalidate against fresh authoritative stock right before submit (Section 9)
-    try {
-      const freshStocksRes = await apiFetch(apiUrl('/api/stocks'), { headers: authHeaders(user) }).catch(() => null);
-      if (freshStocksRes && freshStocksRes.ok) {
-        const sData = await freshStocksRes.json();
-        const freshList = Array.isArray(sData.data) ? sData.data : (sData.data?.products || []);
-        for (const it of validItems) {
-          if (it.isInstallationCharge || it.productName === INSTALLATION_CHARGE_NAME) continue;
-          const prod = freshList.find(p => (p.id || p.productId) === it.productId || (p.code || p.productCode) === it.productCode);
-          if (prod) {
-            const freshMax = getProductAvailableStock(prod);
-            if (it.quantity > freshMax) {
-              setError(`Cannot save quotation. ${it.productName} requires ${it.quantity} units, but only ${freshMax} are currently available.`);
-              isSubmittingRef.current = false;
-              setSaving(false);
-              return;
-            }
-          }
-        }
-      }
-    } catch (e) {
-      console.warn('Real-time stock precheck error:', e);
-    }
-
     try {
       const effectiveStatus = (isSaved && quotationStatus && quotationStatus !== 'READY_FOR_QUOTATION' && quotationStatus !== 'AWAITING_CUSTOMER')
         ? quotationStatus
@@ -2174,7 +2153,7 @@ export default function QuotationEditor({
                                 items={stockProducts}
                                 selectedId={item.productId}
                                 selectedName={item.productName}
-                                onChange={(id) => handleProductSelect(item.rowId, id)}
+                                onChange={(id, selectedItem) => handleProductSelect(item.rowId, id, selectedItem)}
                                 onAddProduct={() => handleOpenAddProductModal(item.rowId)}
                                 onDuplicateAttempt={() => {
                                   setError('Product already added to this quotation.');
@@ -2277,9 +2256,6 @@ export default function QuotationEditor({
                               />
                               {hasProduct && item.qtyError && (
                                 <div className="quotation-qty-error-msg">{item.qtyError}</div>
-                              )}
-                              {hasProduct && item.hasHistoricalStockWarning && !item.qtyError && (
-                                <div className="quotation-qty-warning-msg">Stock changed since creation</div>
                               )}
                             </div>
                           ) : (

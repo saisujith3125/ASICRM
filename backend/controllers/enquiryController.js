@@ -1129,33 +1129,30 @@ function parseQuotationLineItems(items, amount, item, options = {}) {
         (productCode && p.code === productCode)
       );
 
-      if (!prod) {
-        return { error: `Product ${productId || productCode || line?.productName || ''} no longer exists in the Stocks master.` };
+      const itemName = String(line?.productName || prod?.name || line?.name || '').trim();
+      if (!prod && !itemName) {
+        return { error: `Product ${productId || productCode || ''} is missing a name.` };
       }
 
       const qty = Number(line.quantity || 0);
       const unitPrice = Number(line.unitPrice || 0);
-      const minPrice = Number(prod.dealerPrice || prod.price || prod.unitPrice || 0);
-      const gstPct = Number(prod.gst !== undefined ? prod.gst : (line.gst || 18));
+      const minPrice = prod ? Number(prod.dealerPrice || prod.price || prod.unitPrice || 0) : Number(line.minPrice || 0);
+      const gstPct = Number(prod?.gst !== undefined ? prod.gst : (line.gst !== undefined ? line.gst : 18));
       const discountPct = showDiscount
         ? Math.max(0, Math.min(100, Number(line.discount !== undefined ? line.discount : (line.discountPercent || 0))))
         : 0;
 
-      // Authoritative available stock calculation
-      const availStock = Number(prod.availableStock !== undefined ? prod.availableStock : (prod.stock || 0));
-      const isSerialized = Boolean(prod.serialized);
-      const activeSerialsCount = Array.isArray(prod.serialNumbers) ? prod.serialNumbers.length : 0;
-      const maxAllowed = isSerialized ? Math.max(0, Math.min(availStock, activeSerialsCount)) : Math.max(0, availStock);
+      const availStock = prod ? Number(prod.availableStock !== undefined ? prod.availableStock : (prod.stock || 0)) : 0;
 
       if (!Number.isInteger(qty) || qty <= 0) {
-        return { error: `Quantity for ${prod.name} must be a positive whole number.` };
+        return { error: `Quantity for "${itemName}" must be a positive whole number.` };
       }
 
       if (!Number.isFinite(unitPrice) || unitPrice < 0) {
-        return { error: `Selling price for ${prod.name} must be greater than or equal to zero.` };
+        return { error: `Selling price for "${itemName}" must be greater than or equal to zero.` };
       }
       if (minPrice > 0 && unitPrice < minPrice) {
-        return { error: `Quotation price for ${prod.name} cannot be lower than the dealer price (₹${Number(minPrice).toLocaleString('en-IN')}).` };
+        return { error: `Quotation price for "${itemName}" cannot be lower than the dealer price (₹${Number(minPrice).toLocaleString('en-IN')}).` };
       }
 
       const lineSubtotal = Math.round(qty * unitPrice * 100) / 100;
@@ -1170,29 +1167,29 @@ function parseQuotationLineItems(items, amount, item, options = {}) {
       gstTotal += lineTax;
 
       // Authoritative quotation description: quotation user's description if provided, otherwise Product Master description
-      const description = String(line.description !== undefined ? line.description : (prod.description || '')).trim();
+      const description = String(line.description !== undefined ? line.description : (prod?.description || '')).trim();
 
       const stockBrands = getStockBrands();
-      const brandObj = stockBrands.find((b) => b.id === (prod.brandId || line.brandId));
-      const brandName = (line.brandName || line.brand || prod.brand || prod.brandName || brandObj?.name || '').trim();
+      const brandObj = stockBrands.find((b) => b.id === (prod?.brandId || line.brandId));
+      const brandName = (line.brandName || line.brand || prod?.brand || prod?.brandName || brandObj?.name || '').trim();
 
       parsedItems.push({
-        productId: prod.id,
-        productCode: prod.code,
-        productName: prod.name,
+        productId: prod ? prod.id : (productId || `custom_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`),
+        productCode: prod ? prod.code : (productCode || 'CUSTOM'),
+        productName: itemName,
         description,
-        hsnSac: line.hsnSac || prod.hsnSac || prod.hsnCode || '',
-        brandId: prod.brandId || '',
+        hsnSac: line.hsnSac || prod?.hsnSac || prod?.hsnCode || '',
+        brandId: prod?.brandId || '',
         brandName: brandName || '',
         brand: brandName || '',
-        categoryId: prod.categoryId || '',
-        subcategoryId: prod.subcategoryId || null,
-        unit: (prod.unit && prod.unit !== 'Piece') ? prod.unit : 'Nos',
+        categoryId: prod?.categoryId || '',
+        subcategoryId: prod?.subcategoryId || null,
+        unit: (line.unit && line.unit !== 'Piece') ? line.unit : ((prod?.unit && prod.unit !== 'Piece') ? prod.unit : 'Nos'),
         quantity: qty,
         unitPrice,
         minPrice,
-        mrp: Number(prod.mrp || 0),
-        dealerPrice: Number(prod.dealerPrice || minPrice || 0),
+        mrp: Number(prod?.mrp || line.mrp || unitPrice),
+        dealerPrice: Number(prod?.dealerPrice || minPrice || 0),
         stock: availStock,
         availableStock: availStock,
         discount: discountPct,
@@ -1200,7 +1197,7 @@ function parseQuotationLineItems(items, amount, item, options = {}) {
         discountAmount,
         taxableAmount,
         gst: gstPct,
-        isIGSTApplicable: Boolean(line.isIGSTApplicable !== undefined ? line.isIGSTApplicable : prod.isIGSTApplicable),
+        isIGSTApplicable: Boolean(line.isIGSTApplicable !== undefined ? line.isIGSTApplicable : prod?.isIGSTApplicable),
         lineSubtotal,
         lineTax,
         lineTotal

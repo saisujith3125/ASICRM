@@ -148,13 +148,7 @@ export default function App() {
     try {
       const saved = localStorage.getItem('asicrm_user')
       if (saved) {
-        const parsed = JSON.parse(saved);
-        // If previous session was John Doe, migrate to default Super Admin check account
-        if (parsed?.name === 'John Doe' || parsed?.email === 'john@asicrm.local') {
-          localStorage.setItem('asicrm_user', JSON.stringify(DEFAULT_CHECK_USER));
-          return DEFAULT_CHECK_USER;
-        }
-        return parsed;
+        return JSON.parse(saved);
       }
       return null;
     } catch {

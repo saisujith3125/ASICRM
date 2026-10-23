@@ -1,13 +1,31 @@
 import React, { useState, useMemo } from 'react';
+import {
+  ShieldCheck,
+  Crown,
+  ArrowRightLeft,
+  Trash2,
+  UserCheck,
+  Users,
+  AlertTriangle,
+  CheckCircle2,
+  X,
+  Search,
+  LogOut,
+  UserX,
+  HelpCircle
+} from 'lucide-react';
 import { filterRecordsBySearch } from '../../../utils/searchHelper';
 
 const emptyUser = { name: '', employeeId: '', email: '', mobile: '', role: '', status: 'Active' };
 
 export default function UsersSection({
-  users,
-  roles,
+  users = [],
+  roles = [],
   currentUser,
   onSaveUser,
+  onDeleteUser,
+  onTransferSuperAdmin,
+  showToast,
   isSaving,
   error
 }) {
@@ -17,8 +35,26 @@ export default function UsersSection({
   const [draft, setDraft] = useState(emptyUser);
   const [modalError, setModalError] = useState('');
 
+  // Special WhatsApp-style action modals
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [transferTargetId, setTransferTargetId] = useState('');
+  const [transferSelfAction, setTransferSelfAction] = useState('demote_admin'); // 'demote_admin' | 'demote_employee' | 'deactivate' | 'leave'
+  const [transferError, setTransferError] = useState('');
+
+  const [promoteConfirmUser, setPromoteConfirmUser] = useState(null);
+  const [dismissConfirmUser, setDismissConfirmUser] = useState(null);
+  const [deleteConfirmUser, setDeleteConfirmUser] = useState(null);
+
   const isSuperAdmin = String(currentUser?.role || '').toUpperCase() === 'SUPER_ADMIN';
 
+  // Count active Super Admins
+  const activeSuperAdmins = useMemo(() => {
+    return users.filter(
+      (u) => String(u.role || '').toUpperCase() === 'SUPER_ADMIN' && u.status === 'Active'
+    );
+  }, [users]);
+
+  // Role options available in modals
   const roleOptions = useMemo(() => {
     return isSuperAdmin ? roles : roles.filter((r) => r.key !== 'SUPER_ADMIN');
   }, [roles, isSuperAdmin]);
@@ -26,6 +62,13 @@ export default function UsersSection({
   const roleNameMap = useMemo(() => {
     return Object.fromEntries(roles.map((r) => [r.key, r.name]));
   }, [roles]);
+
+  // Candidates for Super Admin transfer (active users who are NOT the current user)
+  const transferCandidates = useMemo(() => {
+    return users.filter(
+      (u) => u.id !== currentUser?.id && u.status === 'Active'
+    );
+  }, [users, currentUser]);
 
   const filtered = useMemo(() => {
     let list = users;
@@ -76,14 +119,94 @@ export default function UsersSection({
     }
   };
 
+  // Quick Promote to Super Admin handler
+  const handleExecuteQuickPromote = async () => {
+    if (!promoteConfirmUser) return;
+    try {
+      await onSaveUser({ ...promoteConfirmUser, role: 'SUPER_ADMIN' }, true);
+      setPromoteConfirmUser(null);
+      if (showToast) showToast(`${promoteConfirmUser.name} is now a Super Admin.`);
+    } catch (err) {
+      alert(err.message || 'Failed to promote user to Super Admin.');
+    }
+  };
+
+  // Quick Dismiss as Super Admin handler
+  const handleExecuteQuickDismiss = async (newRole = 'ADMIN') => {
+    if (!dismissConfirmUser) return;
+    try {
+      await onSaveUser({ ...dismissConfirmUser, role: newRole }, true);
+      setDismissConfirmUser(null);
+      if (showToast) showToast(`${dismissConfirmUser.name} is now an ${newRole === 'ADMIN' ? 'Admin' : 'Employee'}.`);
+    } catch (err) {
+      alert(err.message || 'Failed to dismiss Super Admin.');
+    }
+  };
+
+  // Transfer Super Admin handler
+  const handleExecuteTransfer = async () => {
+    if (!transferTargetId) {
+      setTransferError('Please select a team member to transfer Super Admin privileges to.');
+      return;
+    }
+    setTransferError('');
+    try {
+      if (onTransferSuperAdmin) {
+        await onTransferSuperAdmin(transferTargetId, transferSelfAction);
+        setTransferModalOpen(false);
+      }
+    } catch (err) {
+      setTransferError(err.message || 'Failed to transfer Super Admin privileges.');
+    }
+  };
+
+  // Delete User handler
+  const handleExecuteDeleteUser = async () => {
+    if (!deleteConfirmUser) return;
+    try {
+      if (onDeleteUser) {
+        await onDeleteUser(deleteConfirmUser.id);
+        setDeleteConfirmUser(null);
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to delete user.');
+    }
+  };
+
   return (
     <div className="settings-section-container">
+      {/* SECTION HEADER */}
       <div className="settings-section-head">
         <div className="settings-section-title-wrap">
           <h2>Users &amp; Personnel Accounts</h2>
           <p>Create user logins, assign employee identification numbers, and delegate operational access roles.</p>
         </div>
-        <div className="settings-section-actions">
+        <div className="settings-section-actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {isSuperAdmin && (
+            <button
+              type="button"
+              className="settings-btn settings-btn-secondary"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                borderColor: '#0284c7',
+                color: '#0369a1',
+                fontWeight: 600
+              }}
+              onClick={() => {
+                setTransferTargetId(transferCandidates[0]?.id || '');
+                setTransferSelfAction('demote_admin');
+                setTransferError('');
+                setTransferModalOpen(true);
+              }}
+              title="Transfer Super Admin privileges to another member, like WhatsApp Group Admin"
+            >
+              <ArrowRightLeft size={15} />
+              <span>Transfer Super Admin</span>
+            </button>
+          )}
+
           <button
             type="button"
             className="settings-btn settings-btn-primary"
@@ -94,27 +217,123 @@ export default function UsersSection({
         </div>
       </div>
 
+      {/* WHATSAPP-STYLE GOVERNANCE CALLOUT CARD */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '14px 18px',
+          background: 'linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%)',
+          border: '1px solid #bbf7d0',
+          borderRadius: '10px',
+          marginBottom: '20px',
+          fontSize: '13px',
+          color: '#166534',
+          flexWrap: 'wrap',
+          gap: '12px',
+          boxShadow: '0 2px 6px rgba(16, 185, 129, 0.05)'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '280px', flex: '1 1 500px' }}>
+          <div
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '8px',
+              background: '#10b981',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}
+          >
+            <ShieldCheck size={20} />
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>WhatsApp-Style Admin Governance</span>
+              <span style={{ fontSize: '11px', background: '#dcfce7', color: '#15803d', padding: '1px 7px', borderRadius: '12px', fontWeight: 600 }}>Active</span>
+            </div>
+            <div style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.4 }}>
+              Super Admins can promote any member to Super Admin, demote admins, or transfer ownership and leave. At least one active Super Admin is always maintained for system safety.
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span
+            style={{
+              padding: '4px 10px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: '16px',
+              fontWeight: 600,
+              fontSize: '12px',
+              color: '#0f172a',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <Crown size={14} style={{ color: '#eab308' }} />
+            <span>{activeSuperAdmins.length} Active Super Admin{activeSuperAdmins.length === 1 ? '' : 's'}</span>
+          </span>
+          <span
+            style={{
+              padding: '4px 10px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: '16px',
+              fontWeight: 500,
+              fontSize: '12px',
+              color: '#475569'
+            }}
+          >
+            👥 {users.length} Total Members
+          </span>
+        </div>
+      </div>
+
+      {/* USERS TABLE WRAPPER */}
       <div className="settings-table-wrapper">
         <div className="settings-table-toolbar">
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <div className="settings-table-search" style={{ position: 'relative' }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
+              <Search
+                size={15}
+                style={{
+                  position: 'absolute',
+                  left: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#94a3b8'
+                }}
+              />
               <input
                 type="text"
                 placeholder="Search by name, email, employee ID, phone..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                style={{ paddingRight: search ? '28px' : undefined }}
+                style={{ paddingLeft: '32px', paddingRight: search ? '28px' : undefined }}
               />
               {search && (
                 <button
                   type="button"
                   onClick={() => setSearch('')}
                   title="Clear search"
-                  style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: '13px' }}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#94a3b8',
+                    fontSize: '13px'
+                  }}
                 >
                   ✕
                 </button>
@@ -140,12 +359,12 @@ export default function UsersSection({
         <div className="settings-table-scroll">
           <table className="settings-table">
             <colgroup>
-              <col style={{ width: '28%' }} />
-              <col style={{ width: '13%' }} />
-              <col style={{ width: '17%' }} />
-              <col style={{ width: '17%' }} />
-              <col style={{ width: '11%' }} />
-              <col style={{ width: '14%' }} />
+              <col style={{ width: '27%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '18%' }} />
+              <col style={{ width: '15%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '18%' }} />
             </colgroup>
             <thead>
               <tr>
@@ -167,61 +386,198 @@ export default function UsersSection({
               ) : (
                 filtered.map((u) => {
                   const roleLabel = roleNameMap[u.role] || u.role;
-                  const isUserSuperAdmin = u.role === 'SUPER_ADMIN';
+                  const isUserSuperAdmin = String(u.role || '').toUpperCase() === 'SUPER_ADMIN';
+                  const isSelf = u.id === currentUser?.id;
 
                   return (
                     <tr key={u.id}>
+                      {/* USER DETAILS */}
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <div style={{
-                            width: '32px',
-                            height: '32px',
-                            minWidth: '32px',
-                            borderRadius: '50%',
-                            background: isUserSuperAdmin ? '#eff6ff' : '#f1f5f9',
-                            color: isUserSuperAdmin ? '#2563eb' : '#475569',
-                            display: 'grid',
-                            placeItems: 'center',
-                            fontWeight: 700,
-                            fontSize: '12px'
-                          }}>
+                          <div
+                            style={{
+                              width: '34px',
+                              height: '34px',
+                              minWidth: '34px',
+                              borderRadius: '50%',
+                              background: isUserSuperAdmin ? '#fef3c7' : '#f1f5f9',
+                              color: isUserSuperAdmin ? '#b45309' : '#475569',
+                              border: isUserSuperAdmin ? '1px solid #fde047' : '1px solid #e2e8f0',
+                              display: 'grid',
+                              placeItems: 'center',
+                              fontWeight: 700,
+                              fontSize: '12px',
+                              position: 'relative'
+                            }}
+                          >
                             {u.name.slice(0, 2).toUpperCase()}
+                            {isUserSuperAdmin && (
+                              <Crown
+                                size={11}
+                                style={{
+                                  position: 'absolute',
+                                  top: '-5px',
+                                  right: '-4px',
+                                  color: '#eab308',
+                                  fill: '#fde047'
+                                }}
+                              />
+                            )}
                           </div>
                           <div style={{ minWidth: 0, overflow: 'hidden' }}>
-                            <strong style={{ display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{u.name}</strong>
-                            <div style={{ fontSize: '12px', color: '#64748b', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{u.email}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <strong
+                                style={{
+                                  display: 'block',
+                                  textOverflow: 'ellipsis',
+                                  overflow: 'hidden',
+                                  whiteSpace: 'nowrap',
+                                  color: '#0f172a'
+                                }}
+                              >
+                                {u.name}
+                              </strong>
+                              {isSelf && (
+                                <span
+                                  style={{
+                                    fontSize: '10.5px',
+                                    fontWeight: 700,
+                                    padding: '1px 6px',
+                                    background: '#e0f2fe',
+                                    color: '#0369a1',
+                                    borderRadius: '10px'
+                                  }}
+                                  title="This is your active account"
+                                >
+                                  You
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#64748b', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                              {u.email}
+                            </div>
                           </div>
                         </div>
                       </td>
+
+                      {/* EMPLOYEE ID */}
                       <td>
                         <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#334155' }}>
                           {u.employeeId || '—'}
                         </span>
                       </td>
+
+                      {/* ASSIGNED ROLE */}
                       <td>
-                        <span className={`settings-pill-badge ${isUserSuperAdmin ? 'primary' : ''}`}>
-                          {roleLabel}
-                        </span>
+                        {isUserSuperAdmin ? (
+                          <span
+                            className="settings-pill-badge"
+                            style={{
+                              background: '#eff6ff',
+                              color: '#1d4ed8',
+                              border: '1px solid #bfdbfe',
+                              fontWeight: 700,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <Crown size={12} style={{ color: '#eab308' }} />
+                            <span>SUPER ADMIN</span>
+                          </span>
+                        ) : (
+                          <span className="settings-pill-badge">
+                            {roleLabel}
+                          </span>
+                        )}
                       </td>
+
+                      {/* MOBILE */}
                       <td>
                         <span style={{ fontFamily: 'monospace', fontSize: '12px' }}>
                           +91 {u.mobile}
                         </span>
                       </td>
+
+                      {/* STATUS */}
                       <td style={{ textAlign: 'center' }}>
                         <span className={`settings-pill-badge ${u.status === 'Active' ? 'active' : 'inactive'}`}>
                           {u.status}
                         </span>
                       </td>
+
+                      {/* ACTIONS */}
                       <td style={{ textAlign: 'right' }}>
-                        <div className="settings-table-actions-group">
+                        <div className="settings-table-actions-group" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-end' }}>
+                          {/* ✏️ Edit Button */}
                           <button
                             type="button"
                             className="settings-btn settings-btn-secondary"
                             onClick={() => handleOpenEdit(u)}
+                            style={{ padding: '6px 10px', fontSize: '12px' }}
                           >
                             Edit
                           </button>
+
+                          {/* 👑 Super Admin Quick Management (WhatsApp-Style) */}
+                          {isSuperAdmin && (
+                            <>
+                              {!isUserSuperAdmin && u.status === 'Active' && (
+                                <button
+                                  type="button"
+                                  className="settings-btn settings-btn-secondary"
+                                  style={{
+                                    padding: '6px 9px',
+                                    fontSize: '11.5px',
+                                    color: '#059669',
+                                    borderColor: '#a7f3d0',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '3px'
+                                  }}
+                                  onClick={() => setPromoteConfirmUser(u)}
+                                  title="Promote this member to Super Admin (like WhatsApp Make Group Admin)"
+                                >
+                                  <Crown size={12} style={{ color: '#10b981' }} />
+                                  <span>Make Admin</span>
+                                </button>
+                              )}
+
+                              {isUserSuperAdmin && !isSelf && activeSuperAdmins.length > 1 && (
+                                <button
+                                  type="button"
+                                  className="settings-btn settings-btn-secondary"
+                                  style={{
+                                    padding: '6px 9px',
+                                    fontSize: '11.5px',
+                                    color: '#b45309',
+                                    borderColor: '#fde047'
+                                  }}
+                                  onClick={() => setDismissConfirmUser(u)}
+                                  title="Dismiss this member from Super Admin role (like WhatsApp Dismiss as Admin)"
+                                >
+                                  Dismiss
+                                </button>
+                              )}
+
+                              {/* 🗑️ Delete User Button */}
+                              {!(isUserSuperAdmin && activeSuperAdmins.length <= 1) && (
+                                <button
+                                  type="button"
+                                  className="settings-btn settings-btn-secondary"
+                                  style={{
+                                    padding: '6px 8px',
+                                    color: '#ef4444',
+                                    borderColor: '#fca5a5'
+                                  }}
+                                  onClick={() => setDeleteConfirmUser(u)}
+                                  title={isSelf ? 'Leave organization (delete account)' : 'Remove user from organization'}
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              )}
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -233,26 +589,39 @@ export default function UsersSection({
         </div>
       </div>
 
-      {/* CREATE / EDIT USER MODAL */}
+      {/* ========================================================
+          MODAL 1: CREATE / EDIT USER MODAL
+          ======================================================== */}
       {modalMode && (
         <div className="settings-modal-overlay">
-          <div className="settings-modal-card">
+          <div className="settings-modal-card" style={{ maxWidth: '540px' }}>
             <div className="settings-modal-header">
               <h3 className="settings-modal-title">
-                {modalMode === 'create' ? 'Add New User Account' : 'Edit User Account'}
+                {modalMode === 'edit' ? `Edit User: ${draft.name}` : 'Create New Personnel Account'}
               </h3>
               <button
                 type="button"
-                className="settings-modal-close-btn"
+                className="settings-modal-close"
                 onClick={() => setModalMode(null)}
               >
-                ✕
+                &times;
               </button>
             </div>
+
             <form onSubmit={handleSubmit}>
               <div className="settings-modal-body">
                 {modalError && (
-                  <div style={{ padding: '10px 14px', background: '#fee2e2', border: '1px solid #fecaca', borderRadius: '8px', color: '#b91c1c', fontSize: '13px' }}>
+                  <div
+                    style={{
+                      padding: '10px 14px',
+                      background: '#fef2f2',
+                      border: '1px solid #fecaca',
+                      borderRadius: '6px',
+                      color: '#b91c1c',
+                      fontSize: '13px',
+                      marginBottom: '16px'
+                    }}
+                  >
                     {modalError}
                   </div>
                 )}
@@ -267,11 +636,21 @@ export default function UsersSection({
                     value={draft.name}
                     onChange={(e) => setDraft({ ...draft, name: e.target.value })}
                     required
-                    placeholder="e.g. Rajesh Kumar"
+                    placeholder="e.g. Ramesh Kumar"
                   />
                 </div>
 
                 <div className="settings-grid-2">
+                  <div className="settings-field-group">
+                    <label className="settings-field-label">Employee ID</label>
+                    <input
+                      type="text"
+                      className="settings-input"
+                      value={draft.employeeId}
+                      onChange={(e) => setDraft({ ...draft, employeeId: e.target.value })}
+                      placeholder="EMP-001"
+                    />
+                  </div>
                   <div className="settings-field-group">
                     <label className="settings-field-label">
                       Email Address <span className="settings-required">*</span>
@@ -282,17 +661,7 @@ export default function UsersSection({
                       value={draft.email}
                       onChange={(e) => setDraft({ ...draft, email: e.target.value })}
                       required
-                      placeholder="rajesh@asicrm.local"
-                    />
-                  </div>
-                  <div className="settings-field-group">
-                    <label className="settings-field-label">Employee ID</label>
-                    <input
-                      type="text"
-                      className="settings-input"
-                      value={draft.employeeId}
-                      onChange={(e) => setDraft({ ...draft, employeeId: e.target.value })}
-                      placeholder="EMP-004"
+                      placeholder="user@asicrm.local"
                     />
                   </div>
                 </div>
@@ -300,7 +669,7 @@ export default function UsersSection({
                 <div className="settings-grid-2">
                   <div className="settings-field-group">
                     <label className="settings-field-label">
-                      Mobile Number (10 Digits) <span className="settings-required">*</span>
+                      Mobile Number <span className="settings-required">*</span>
                     </label>
                     <input
                       type="tel"
@@ -322,11 +691,35 @@ export default function UsersSection({
                       required
                     >
                       {roleOptions.map((r) => (
-                        <option key={r.key} value={r.key}>{r.name}</option>
+                        <option key={r.key} value={r.key}>
+                          {r.key === 'SUPER_ADMIN' ? '👑 Super Admin' : r.name}
+                        </option>
                       ))}
                     </select>
                   </div>
                 </div>
+
+                {draft.role === 'SUPER_ADMIN' && (
+                  <div
+                    style={{
+                      padding: '8px 12px',
+                      background: '#fefce8',
+                      border: '1px solid #fef08a',
+                      borderRadius: '6px',
+                      color: '#854d0e',
+                      fontSize: '12px',
+                      marginBottom: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <Crown size={14} style={{ color: '#eab308' }} />
+                    <span>
+                      <strong>Super Admin:</strong> Full unrestricted access to all company data, databases, and user administration.
+                    </span>
+                  </div>
+                )}
 
                 <div className="settings-field-group">
                   <label className="settings-field-label">Account Status</label>
@@ -358,6 +751,344 @@ export default function UsersSection({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL 2: WHATSAPP-STYLE TRANSFER SUPER ADMIN & STEP DOWN
+          ======================================================== */}
+      {transferModalOpen && (
+        <div className="settings-modal-overlay">
+          <div className="settings-modal-card" style={{ maxWidth: '520px' }}>
+            <div className="settings-modal-header" style={{ background: '#f0fdf4', borderBottom: '1px solid #bbf7d0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ArrowRightLeft size={18} />
+                </div>
+                <div>
+                  <h3 className="settings-modal-title" style={{ color: '#15803d', margin: 0 }}>
+                    Transfer Super Admin &amp; Step Down
+                  </h3>
+                  <span style={{ fontSize: '12px', color: '#166534' }}>
+                    Like WhatsApp Group Admin Ownership Transfer
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="settings-modal-close"
+                onClick={() => setTransferModalOpen(false)}
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="settings-modal-body" style={{ padding: '20px' }}>
+              {transferError && (
+                <div
+                  style={{
+                    padding: '10px 14px',
+                    background: '#fef2f2',
+                    border: '1px solid #fecaca',
+                    borderRadius: '6px',
+                    color: '#b91c1c',
+                    fontSize: '13px',
+                    marginBottom: '16px'
+                  }}
+                >
+                  {transferError}
+                </div>
+              )}
+
+              <p style={{ margin: '0 0 16px 0', fontSize: '13.5px', color: '#475569', lineHeight: 1.5 }}>
+                Assign another active team member as the new Super Admin. Once transferred, you can step down to another role or leave the organization safely.
+              </p>
+
+              {/* SELECT TARGET MEMBER */}
+              <div className="settings-field-group" style={{ marginBottom: '18px' }}>
+                <label className="settings-field-label">
+                  Select Member to Promote as Super Admin <span className="settings-required">*</span>
+                </label>
+                {transferCandidates.length === 0 ? (
+                  <div style={{ padding: '10px', background: '#f8fafc', borderRadius: '6px', color: '#64748b', fontSize: '13px' }}>
+                    No other active members available. Please create or invite a team member first.
+                  </div>
+                ) : (
+                  <select
+                    className="settings-select"
+                    value={transferTargetId}
+                    onChange={(e) => setTransferTargetId(e.target.value)}
+                    style={{ fontSize: '13.5px', fontWeight: 600 }}
+                  >
+                    {transferCandidates.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({roleNameMap[c.role] || c.role}) • {c.email}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              {/* WHAT TO DO WITH YOUR ACCOUNT */}
+              <div className="settings-field-group">
+                <label className="settings-field-label" style={{ marginBottom: '8px' }}>
+                  What would you like to do with your account after transfer?
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '10px',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      border: transferSelfAction === 'demote_admin' ? '1.5px solid #10b981' : '1px solid #e2e8f0',
+                      background: transferSelfAction === 'demote_admin' ? '#f0fdf4' : '#ffffff',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="selfAction"
+                      value="demote_admin"
+                      checked={transferSelfAction === 'demote_admin'}
+                      onChange={() => setTransferSelfAction('demote_admin')}
+                      style={{ marginTop: '2px' }}
+                    />
+                    <div>
+                      <strong style={{ fontSize: '13px', color: '#0f172a', display: 'block' }}>
+                        👑 Step down to Admin (Recommended)
+                      </strong>
+                      <span style={{ fontSize: '12px', color: '#64748b' }}>
+                        Remain active in ASICRM with full operational Admin management privileges.
+                      </span>
+                    </div>
+                  </label>
+
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '10px',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      border: transferSelfAction === 'demote_employee' ? '1.5px solid #10b981' : '1px solid #e2e8f0',
+                      background: transferSelfAction === 'demote_employee' ? '#f0fdf4' : '#ffffff',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="selfAction"
+                      value="demote_employee"
+                      checked={transferSelfAction === 'demote_employee'}
+                      onChange={() => setTransferSelfAction('demote_employee')}
+                      style={{ marginTop: '2px' }}
+                    />
+                    <div>
+                      <strong style={{ fontSize: '13px', color: '#0f172a', display: 'block' }}>
+                        👤 Step down to Employee
+                      </strong>
+                      <span style={{ fontSize: '12px', color: '#64748b' }}>
+                        Remain active in ASICRM with everyday sales &amp; operational permissions.
+                      </span>
+                    </div>
+                  </label>
+
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '10px',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      border: transferSelfAction === 'leave' ? '1.5px solid #ef4444' : '1px solid #e2e8f0',
+                      background: transferSelfAction === 'leave' ? '#fef2f2' : '#ffffff',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="selfAction"
+                      value="leave"
+                      checked={transferSelfAction === 'leave'}
+                      onChange={() => setTransferSelfAction('leave')}
+                      style={{ marginTop: '2px' }}
+                    />
+                    <div>
+                      <strong style={{ fontSize: '13px', color: '#dc2626', display: 'block' }}>
+                        🚪 Leave Organization (Delete Account / Log Out)
+                      </strong>
+                      <span style={{ fontSize: '12px', color: '#64748b' }}>
+                        Relinquish all privileges and leave the CRM group completely.
+                      </span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="settings-modal-footer" style={{ padding: '14px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button
+                type="button"
+                className="settings-btn settings-btn-secondary"
+                onClick={() => setTransferModalOpen(false)}
+                disabled={isSaving}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="settings-btn"
+                style={{
+                  background: '#10b981',
+                  color: '#ffffff',
+                  borderColor: '#059669',
+                  cursor: transferCandidates.length === 0 ? 'not-allowed' : 'pointer'
+                }}
+                onClick={handleExecuteTransfer}
+                disabled={transferCandidates.length === 0 || isSaving}
+              >
+                {isSaving ? 'Transferring...' : 'Confirm Transfer & Step Down'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL 3: QUICK PROMOTE CONFIRMATION
+          ======================================================== */}
+      {promoteConfirmUser && (
+        <div className="settings-modal-overlay">
+          <div className="settings-modal-card" style={{ maxWidth: '460px' }}>
+            <div className="settings-modal-header" style={{ background: '#fefce8', borderBottom: '1px solid #fef08a' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#fef08a', color: '#a16207', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Crown size={18} />
+                </div>
+                <h3 className="settings-modal-title" style={{ margin: 0, color: '#854d0e' }}>
+                  Promote to Super Admin
+                </h3>
+              </div>
+              <button type="button" className="settings-modal-close" onClick={() => setPromoteConfirmUser(null)}>
+                &times;
+              </button>
+            </div>
+            <div className="settings-modal-body" style={{ padding: '20px' }}>
+              <p style={{ margin: '0 0 12px 0', fontSize: '13.5px', color: '#1e293b' }}>
+                Are you sure you want to promote <strong>{promoteConfirmUser.name}</strong> to <strong>Super Admin</strong>?
+              </p>
+              <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '12.5px', color: '#475569' }}>
+                Just like WhatsApp Group Admins, multiple Super Admins can co-exist. They will have full access to manage all CRM modules, system settings, and personnel.
+              </div>
+            </div>
+            <div className="settings-modal-footer" style={{ padding: '14px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button type="button" className="settings-btn settings-btn-secondary" onClick={() => setPromoteConfirmUser(null)}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="settings-btn"
+                style={{ background: '#10b981', color: '#ffffff', borderColor: '#059669' }}
+                onClick={handleExecuteQuickPromote}
+              >
+                Promote to Super Admin
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL 4: QUICK DISMISS CONFIRMATION
+          ======================================================== */}
+      {dismissConfirmUser && (
+        <div className="settings-modal-overlay">
+          <div className="settings-modal-card" style={{ maxWidth: '460px' }}>
+            <div className="settings-modal-header" style={{ background: '#fffbeb', borderBottom: '1px solid #fef3c7' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <UserX size={18} />
+                </div>
+                <h3 className="settings-modal-title" style={{ margin: 0, color: '#92400e' }}>
+                  Dismiss as Super Admin
+                </h3>
+              </div>
+              <button type="button" className="settings-modal-close" onClick={() => setDismissConfirmUser(null)}>
+                &times;
+              </button>
+            </div>
+            <div className="settings-modal-body" style={{ padding: '20px' }}>
+              <p style={{ margin: '0 0 12px 0', fontSize: '13.5px', color: '#1e293b' }}>
+                Demote <strong>{dismissConfirmUser.name}</strong> from Super Admin to regular Admin?
+              </p>
+              <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '12.5px', color: '#475569' }}>
+                Their role will be changed to <strong>Admin</strong>. They will retain standard administrative CRM permissions but lose Super Admin rights.
+              </div>
+            </div>
+            <div className="settings-modal-footer" style={{ padding: '14px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button type="button" className="settings-btn settings-btn-secondary" onClick={() => setDismissConfirmUser(null)}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="settings-btn"
+                style={{ background: '#d97706', color: '#ffffff', borderColor: '#b45309' }}
+                onClick={() => handleExecuteQuickDismiss('ADMIN')}
+              >
+                Dismiss to Admin
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL 5: DELETE USER CONFIRMATION
+          ======================================================== */}
+      {deleteConfirmUser && (
+        <div className="settings-modal-overlay">
+          <div className="settings-modal-card" style={{ maxWidth: '460px' }}>
+            <div className="settings-modal-header" style={{ background: '#fef2f2', borderBottom: '1px solid #fecaca' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#fee2e2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Trash2 size={18} />
+                </div>
+                <h3 className="settings-modal-title" style={{ margin: 0, color: '#991b1b' }}>
+                  {deleteConfirmUser.id === currentUser?.id ? 'Leave Organization' : 'Remove User Account'}
+                </h3>
+              </div>
+              <button type="button" className="settings-modal-close" onClick={() => setDeleteConfirmUser(null)}>
+                &times;
+              </button>
+            </div>
+            <div className="settings-modal-body" style={{ padding: '20px' }}>
+              <p style={{ margin: '0 0 12px 0', fontSize: '13.5px', color: '#1e293b' }}>
+                {deleteConfirmUser.id === currentUser?.id ? (
+                  <>Are you sure you want to leave the organization and delete your account (<strong>{deleteConfirmUser.name}</strong>)?</>
+                ) : (
+                  <>Are you sure you want to permanently remove <strong>{deleteConfirmUser.name}</strong> ({deleteConfirmUser.email})?</>
+                )}
+              </p>
+              <div style={{ padding: '10px 12px', background: '#fef2f2', borderRadius: '6px', border: '1px solid #fecaca', fontSize: '12.5px', color: '#991b1b' }}>
+                This user account will be permanently removed from the system.
+              </div>
+            </div>
+            <div className="settings-modal-footer" style={{ padding: '14px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button type="button" className="settings-btn settings-btn-secondary" onClick={() => setDeleteConfirmUser(null)}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="settings-btn"
+                style={{ background: '#dc2626', color: '#ffffff', borderColor: '#b91c1c' }}
+                onClick={handleExecuteDeleteUser}
+              >
+                {deleteConfirmUser.id === currentUser?.id ? 'Confirm & Leave' : 'Delete User'}
+              </button>
+            </div>
           </div>
         </div>
       )}

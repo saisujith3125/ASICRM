@@ -289,6 +289,77 @@ export default function SettingsPage({
       showToast(isEdit ? 'User updated successfully.' : 'User created successfully.');
       window.dispatchEvent(new CustomEvent('crm-user-updated', { detail: json?.data }));
       await loadSettings();
+
+      // If user edited their own account
+      if (draftUser.id === user?.id) {
+        if (draftUser.status === 'Inactive') {
+          showToast('Your account was deactivated. Logging out...');
+          setTimeout(() => {
+            localStorage.removeItem('asicrm_user');
+            window.location.reload();
+          }, 1000);
+        } else if (json?.data) {
+          const updatedUser = { ...user, ...json.data };
+          localStorage.setItem('asicrm_user', JSON.stringify(updatedUser));
+        }
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    setIsSaving(true);
+    try {
+      const res = await apiFetch(apiUrl(`/api/settings/users/${userId}`), {
+        method: 'DELETE',
+        headers: authHeaders(user)
+      });
+      const json = await parseJsonSafely(res);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.message || `Failed to delete user (${res.status}).`);
+      }
+      showToast(json?.message || 'User deleted successfully.');
+      await loadSettings();
+
+      if (json?.selfDeleted) {
+        showToast('You have left the organization. Logging out...');
+        setTimeout(() => {
+          localStorage.removeItem('asicrm_user');
+          window.location.reload();
+        }, 1000);
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleTransferSuperAdmin = async (targetUserId, selfAction) => {
+    setIsSaving(true);
+    try {
+      const res = await apiFetch(apiUrl('/api/settings/users/transfer-super-admin'), {
+        method: 'POST',
+        headers: authHeaders(user),
+        body: JSON.stringify({ targetUserId, selfAction })
+      });
+      const json = await parseJsonSafely(res);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.message || `Failed to transfer Super Admin (${res.status}).`);
+      }
+      showToast(json?.message || 'Super Admin privileges transferred successfully.');
+      await loadSettings();
+
+      if (selfAction === 'leave' || selfAction === 'deactivate') {
+        showToast('You have stepped down and left. Logging out...');
+        setTimeout(() => {
+          localStorage.removeItem('asicrm_user');
+          window.location.reload();
+        }, 1200);
+      } else if (json?.data?.self) {
+        const updatedUser = { ...user, ...json.data.self };
+        localStorage.setItem('asicrm_user', JSON.stringify(updatedUser));
+        window.dispatchEvent(new CustomEvent('crm-user-updated', { detail: updatedUser }));
+      }
     } finally {
       setIsSaving(false);
     }
@@ -544,6 +615,9 @@ export default function SettingsPage({
             roles={roles}
             currentUser={user}
             onSaveUser={handleSaveUser}
+            onDeleteUser={handleDeleteUser}
+            onTransferSuperAdmin={handleTransferSuperAdmin}
+            showToast={showToast}
             isSaving={isSaving}
             error={error}
           />

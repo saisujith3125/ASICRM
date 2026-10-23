@@ -40,7 +40,7 @@ const DEFAULT_SUPER_ADMIN_USER = {
 
 function isDefaultCheckAccount(mobile, user) {
   if (mobile === '9999999990' || mobile === '9994126686') return true;
-  if (user && user.role === 'SUPER_ADMIN' && (user.id === 'USR-001' || user.email === 'superadmin@asicrm.local')) return true;
+  if (user && String(user.role || '').toUpperCase() === 'SUPER_ADMIN') return true;
   return false;
 }
 

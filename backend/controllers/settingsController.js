@@ -360,9 +360,6 @@ function createUser(req, res) {
   if (role === PROTECTED_ROLE && !isSuperAdmin(req)) {
     return res.status(403).json({ success: false, message: 'Only Super Admin can create a Super Admin.' });
   }
-  if (role === PROTECTED_ROLE && data.users.some((item) => roleKeyOf({ key: item.role }) === PROTECTED_ROLE)) {
-    return res.status(409).json({ success: false, message: 'A Super Admin account already exists.' });
-  }
   if (data.users.some((item) => String(item.email).toLowerCase() === email.toLowerCase())) {
     return res.status(409).json({ success: false, message: 'A user with this email already exists.' });
   }
@@ -414,9 +411,24 @@ function updateUser(req, res) {
   if (nextRole === PROTECTED_ROLE && !isSuperAdmin(req)) {
     return res.status(403).json({ success: false, message: 'Only Super Admin can assign the Super Admin role.' });
   }
-  if (nextRole === PROTECTED_ROLE && existingRole !== PROTECTED_ROLE && data.users.some((item) => roleKeyOf({ key: item.role }) === PROTECTED_ROLE)) {
-    return res.status(409).json({ success: false, message: 'A Super Admin account already exists.' });
+
+  // Safety rule: At least one active Super Admin must always exist in the organization
+  if (existingRole === PROTECTED_ROLE && existing.status === 'Active') {
+    if (nextRole !== PROTECTED_ROLE || nextStatus !== 'Active') {
+      const otherActiveSuperAdmins = data.users.filter((item) =>
+        item.id !== userId &&
+        roleKeyOf({ key: item.role }) === PROTECTED_ROLE &&
+        item.status === 'Active'
+      );
+      if (otherActiveSuperAdmins.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Cannot demote or deactivate the only active Super Admin. Please promote another user to Super Admin first, or use Transfer Super Admin.'
+        });
+      }
+    }
   }
+
   if (data.users.some((item) => item.id !== userId && String(item.mobile || '') === mobile)) {
     return res.status(409).json({ success: false, message: 'This mobile number is already assigned to another user.' });
   }
@@ -449,6 +461,126 @@ function updateUser(req, res) {
   data.users[index] = next;
   writeData(data);
   return res.json({ success: true, data: sanitizeUser(next) });
+}
+
+function transferSuperAdmin(req, res) {
+  if (!isSuperAdmin(req)) {
+    return res.status(403).json({ success: false, message: 'Only an active Super Admin can transfer Super Admin privileges.' });
+  }
+
+  const currentUserId = String(req.headers['x-user-id'] || '').trim();
+  const body = req.body || {};
+  const targetUserId = String(body.targetUserId || '').trim();
+  const selfAction = String(body.selfAction || 'demote_admin').toLowerCase(); // 'demote_admin' | 'demote_employee' | 'deactivate' | 'leave'
+
+  if (!targetUserId) {
+    return res.status(400).json({ success: false, message: 'Please select a member to transfer Super Admin privileges to.' });
+  }
+  if (targetUserId === currentUserId) {
+    return res.status(400).json({ success: false, message: 'You are already a Super Admin. Select another member to transfer privileges to.' });
+  }
+
+  const data = readData();
+  const targetIndex = data.users.findIndex((u) => u.id === targetUserId);
+  if (targetIndex < 0) {
+    return res.status(404).json({ success: false, message: 'Selected target user was not found.' });
+  }
+
+  const targetUser = data.users[targetIndex];
+  if (targetUser.status !== 'Active') {
+    return res.status(400).json({ success: false, message: 'Selected user is inactive. Only active members can receive Super Admin privileges.' });
+  }
+
+  const currentIndex = data.users.findIndex((u) => u.id === currentUserId);
+  if (currentIndex < 0) {
+    return res.status(404).json({ success: false, message: 'Current user not found.' });
+  }
+
+  // 1. Promote target user to Super Admin
+  targetUser.role = PROTECTED_ROLE;
+  targetUser.status = 'Active';
+  if (process.env.NODE_ENV !== 'production') {
+    targetUser.devOtp = DEV_SHARED_OTP;
+  }
+  data.users[targetIndex] = targetUser;
+
+  // 2. Perform selfAction on caller
+  let currentUser = data.users[currentIndex];
+  let selfMessage = '';
+
+  if (selfAction === 'demote_employee') {
+    currentUser.role = 'EMPLOYEE';
+    selfMessage = 'You have stepped down to Employee.';
+  } else if (selfAction === 'deactivate') {
+    currentUser.status = 'Inactive';
+    selfMessage = 'Your account has been deactivated.';
+  } else if (selfAction === 'leave') {
+    data.users.splice(currentIndex, 1);
+    currentUser = null;
+    selfMessage = 'You have left the organization.';
+  } else {
+    // Default: demote_admin
+    currentUser.role = 'ADMIN';
+    selfMessage = 'You have stepped down to Admin.';
+  }
+
+  if (currentUser && selfAction !== 'leave') {
+    data.users[currentIndex] = currentUser;
+  }
+
+  writeData(data);
+
+  return res.json({
+    success: true,
+    message: `Super Admin privileges successfully transferred to ${targetUser.name}. ${selfMessage}`,
+    data: {
+      transferredTo: sanitizeUser(targetUser),
+      self: currentUser ? sanitizeUser(currentUser) : null,
+      selfAction
+    }
+  });
+}
+
+function deleteUser(req, res) {
+  if (!isSuperAdmin(req) && !hasPermission(req, 'User Administration', 'Edit Users')) {
+    return res.status(403).json({ success: false, message: 'You do not have permission to delete users.' });
+  }
+
+  const userId = String(req.params.userId || '').trim();
+  const currentUserId = String(req.headers['x-user-id'] || '').trim();
+  const data = readData();
+  const index = data.users.findIndex((u) => u.id === userId);
+  if (index < 0) {
+    return res.status(404).json({ success: false, message: 'User not found.' });
+  }
+
+  const target = data.users[index];
+  const targetRole = roleKeyOf({ key: target.role });
+
+  // If deleting an active Super Admin, verify at least one other active Super Admin remains
+  if (targetRole === PROTECTED_ROLE && target.status === 'Active') {
+    const otherActiveSuperAdmins = data.users.filter((u) =>
+      u.id !== userId &&
+      roleKeyOf({ key: u.role }) === PROTECTED_ROLE &&
+      u.status === 'Active'
+    );
+    if (otherActiveSuperAdmins.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete the only active Super Admin. Please promote or transfer Super Admin to another member first.'
+      });
+    }
+  }
+
+  const deletedName = target.name;
+  data.users.splice(index, 1);
+  writeData(data);
+
+  return res.json({
+    success: true,
+    message: `User ${deletedName} deleted successfully.`,
+    selfDeleted: userId === currentUserId
+  });
 }
 
 function createRole(req, res) {
@@ -964,6 +1096,8 @@ module.exports = {
   getActiveEmployees,
   createUser,
   updateUser,
+  transferSuperAdmin,
+  deleteUser,
   createRole,
   updateRole,
   deleteRole,

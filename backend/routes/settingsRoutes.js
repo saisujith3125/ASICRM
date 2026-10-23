@@ -6,6 +6,8 @@ const {
   getActiveEmployees,
   createUser,
   updateUser,
+  transferSuperAdmin,
+  deleteUser,
   createRole,
   updateRole,
   deleteRole,
@@ -32,8 +34,10 @@ router.get('/company', getCompanySettings);
 router.put('/company', updateCompanySettings);
 router.put('/section/:sectionKey', updateSectionSettings);
 
+router.post('/users/transfer-super-admin', transferSuperAdmin);
 router.post('/users', createUser);
 router.put('/users/:userId', updateUser);
+router.delete('/users/:userId', deleteUser);
 
 router.post('/roles', createRole);
 router.put('/roles/:roleKey', updateRole);

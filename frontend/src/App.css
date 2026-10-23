@@ -11439,25 +11439,17 @@ button.stocks-kpi-card { cursor:pointer; }
 .quotation-directory-page .quotation-list-card .crm-data-table{table-layout:fixed;font-size:11.5px}
 .quotation-directory-page .quotation-list-card .crm-data-table th{padding:8px 10px;font-size:9.5px;white-space:nowrap}
 .quotation-directory-page .quotation-list-card .crm-data-table td{padding:8px 10px;line-height:1.25;vertical-align:middle}
-.quotation-directory-page .quotation-register-table th:nth-child(1),.quotation-directory-page .quotation-register-table td:nth-child(1){width:10%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(2),.quotation-directory-page .quotation-register-table td:nth-child(2){width:21%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(3),.quotation-directory-page .quotation-register-table td:nth-child(3){width:9%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(4),.quotation-directory-page .quotation-register-table td:nth-child(4){width:8%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(5),.quotation-directory-page .quotation-register-table td:nth-child(5){width:10%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(6),.quotation-directory-page .quotation-register-table td:nth-child(6){width:10%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(7),.quotation-directory-page .quotation-register-table td:nth-child(7){width:11%!important}
-.quotation-directory-page .quotation-register-table th:nth-child(8),.quotation-directory-page .quotation-register-table td:nth-child(8){width:21%!important}
+.quotation-directory-page .quotation-register-table th:nth-child(1),.quotation-directory-page .quotation-register-table td:nth-child(1){width:10%!important;text-align:left!important}
+.quotation-directory-page .quotation-register-table th:nth-child(2),.quotation-directory-page .quotation-register-table td:nth-child(2){width:20%!important;text-align:left!important}
+.quotation-directory-page .quotation-register-table th:nth-child(3),.quotation-directory-page .quotation-register-table td:nth-child(3){width:9%!important;text-align:left!important}
+.quotation-directory-page .quotation-register-table th:nth-child(4),.quotation-directory-page .quotation-register-table td:nth-child(4){width:8%!important;text-align:center!important}
+.quotation-directory-page .quotation-register-table th:nth-child(5),.quotation-directory-page .quotation-register-table td:nth-child(5){width:11%!important;text-align:right!important}
+.quotation-directory-page .quotation-register-table th:nth-child(6),.quotation-directory-page .quotation-register-table td:nth-child(6){width:9%!important;text-align:center!important}
+.quotation-directory-page .quotation-register-table th:nth-child(7),.quotation-directory-page .quotation-register-table td:nth-child(7){width:12%!important;text-align:center!important}
+.quotation-directory-page .quotation-register-table th:nth-child(8),.quotation-directory-page .quotation-register-table td:nth-child(8){width:21%!important;text-align:right!important}
 .quotation-directory-page .quotation-register-table td:nth-child(2) .customer-table-link{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .quotation-directory-page .quotation-row-actions{gap:5px!important;justify-content:flex-end!important;align-items:center!important;flex-wrap:nowrap!important}
 .quotation-directory-page .order-link-note{font-size:11px}
-.quotation-directory-page .quotation-register-table th,
-.quotation-directory-page .quotation-register-table td {
-  border-right: none !important;
-}
-.quotation-directory-page .quotation-register-table tbody tr.table-filler-row td {
-  border-right: none !important;
-  border-bottom: 1px solid #f8fafc !important;
-}
 .crm-quotation-page-container .tbl-action-btn.delete-icon-btn,
 .quotation-directory-page .tbl-action-btn.delete-icon-btn {
   width: 27px !important;
@@ -28727,60 +28719,81 @@ td.serial-dropdown-cell {
 
 /* ==========================================================================
    QUOTATIONS REGISTER DESKTOP & BIG-SCREEN ENTERPRISE TABLE OVERRIDES
-   Guarantees no vertical spreadsheet cage borders, robust action button sizing,
-   and clean alignment across 1080p, 1440p, 4K, and laptops.
+   Restores full enterprise grid lines (borders), clean column alignments,
+   and robust action button sizing across all display resolutions.
    ========================================================================== */
-.quotation-directory-page table.quotation-register-table th,
-.quotation-directory-page table.quotation-register-table td {
-  border-right: none !important;
+.quotation-directory-page .settings-table-shell,
+.quotation-directory-page .quotation-master-card {
+  border: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden !important;
 }
 
-.quotation-directory-page table.quotation-register-table td {
-  padding: 8px 8px !important;
-  font-size: 12px !important;
-}
-
+/* Header Cells: Crisp Grid Borders & Alignment */
 .quotation-directory-page table.quotation-register-table thead th {
-  border-bottom: 1px solid #e2e8f0 !important;
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
   background-color: #f8fafc !important;
   color: #475569 !important;
-  font-size: 10px !important;
+  font-size: 11px !important;
   font-weight: 700 !important;
-  letter-spacing: 0.05em !important;
+  letter-spacing: 0.04em !important;
   padding: 8px 10px !important;
   white-space: nowrap !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
+  vertical-align: middle !important;
 }
 
-.quotation-directory-page table.quotation-register-table tbody tr:not(.table-filler-row) td {
-  border-bottom: 1px solid #f1f5f9 !important;
-}
-
-.quotation-directory-page table.quotation-register-table tbody tr.table-filler-row td {
+.quotation-directory-page table.quotation-register-table thead th:last-child {
   border-right: none !important;
-  border-bottom: 1px solid #f8fafc !important;
-  background: transparent !important;
+}
+
+/* Data Cells: Crisp Grid Borders & Alignment */
+.quotation-directory-page table.quotation-register-table tbody td {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  padding: 6px 10px !important;
+  font-size: 12.5px !important;
+  line-height: 1.3 !important;
+  vertical-align: middle !important;
+  background: #ffffff !important;
+}
+
+.quotation-directory-page table.quotation-register-table tbody td:last-child {
+  border-right: none !important;
+}
+
+/* Filler Rows: Crisp Grid Borders Matching the Whole Application */
+.quotation-directory-page table.quotation-register-table tbody tr.table-filler-row td {
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background: #ffffff !important;
+  height: 44px !important;
+}
+
+.quotation-directory-page table.quotation-register-table tbody tr.table-filler-row td:last-child {
+  border-right: none !important;
 }
 
 .quotation-directory-page .quotation-row-actions {
   display: flex !important;
   align-items: center !important;
   justify-content: flex-end !important;
-  gap: 5px !important;
+  gap: 4px !important;
   flex-wrap: nowrap !important;
   width: 100% !important;
 }
 
 .quotation-directory-page .quotation-row-actions .tbl-action-btn,
 .crm-quotation-page-container .quotation-directory-page .quotation-row-actions .tbl-action-btn {
-  height: 27px !important;
-  min-height: 27px !important;
-  padding: 0 8px !important;
-  font-size: 11px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 0 6px !important;
+  font-size: 10.5px !important;
   font-weight: 600 !important;
-  border-radius: 6px !important;
-  gap: 4px !important;
+  border-radius: 5px !important;
+  gap: 3px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -28790,16 +28803,16 @@ td.serial-dropdown-cell {
 
 .quotation-directory-page .quotation-row-actions .tbl-action-btn.delete-icon-btn,
 .crm-quotation-page-container .quotation-directory-page .quotation-row-actions .tbl-action-btn.delete-icon-btn {
-  width: 27px !important;
-  min-width: 27px !important;
-  max-width: 27px !important;
-  height: 27px !important;
-  min-height: 27px !important;
+  width: 26px !important;
+  min-width: 26px !important;
+  max-width: 26px !important;
+  height: 26px !important;
+  min-height: 26px !important;
   padding: 0 !important;
-  border-radius: 6px !important;
+  border-radius: 5px !important;
   color: #94a3b8 !important;
   background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
 }
 
 .quotation-directory-page .quotation-row-actions .tbl-action-btn.delete-icon-btn:hover,

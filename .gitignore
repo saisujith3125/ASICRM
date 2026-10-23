@@ -27,6 +27,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Database Backups (Runtime generated backups)
+backend/data/backups/*.json
+!backend/data/backups/.gitkeep
+
 # Editor / OS files
 .vscode/
 .idea/

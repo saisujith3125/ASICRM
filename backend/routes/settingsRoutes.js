@@ -13,7 +13,15 @@ const {
   resolveUser,
   getCompanySettings,
   updateCompanySettings,
-  updateSectionSettings
+  updateSectionSettings,
+  getDatabaseStatsEndpoint,
+  getBackupsListEndpoint,
+  getBackupDetailsEndpoint,
+  createBackupEndpoint,
+  clearDatabaseEndpoint,
+  restoreBackupEndpoint,
+  deleteBackupEndpoint,
+  importBackupEndpoint
 } = require('../controllers/settingsController');
 
 router.get('/', getSettings);
@@ -32,5 +40,15 @@ router.put('/roles/:roleKey', updateRole);
 router.delete('/roles/:roleKey', deleteRole);
 
 router.put('/permissions/:roleKey', updatePermissions);
+
+// Database Backup, Clear, Restore, and Management endpoints
+router.get('/database/stats', getDatabaseStatsEndpoint);
+router.get('/database/backups', getBackupsListEndpoint);
+router.get('/database/backups/:id', getBackupDetailsEndpoint);
+router.post('/database/backup', createBackupEndpoint);
+router.post('/database/clear', clearDatabaseEndpoint);
+router.post('/database/restore/:id', restoreBackupEndpoint);
+router.delete('/database/backups/:id', deleteBackupEndpoint);
+router.post('/database/import', importBackupEndpoint);
 
 module.exports = router;

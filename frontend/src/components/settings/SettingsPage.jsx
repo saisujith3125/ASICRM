@@ -20,6 +20,7 @@ import UsersSection from './sections/UsersSection';
 import RolesSection from './sections/RolesSection';
 import PermissionsSection from './sections/PermissionsSection';
 import ProductUnitsSection from './sections/ProductUnitsSection';
+import DatabaseBackupSection from './sections/DatabaseBackupSection';
 
 import { apiFetch, apiUrl } from '../../api';
 import { DEFAULT_ASI_LOGO, notifyCompanyConfig, getCompanyConfig } from '../documents/companyConfig';
@@ -572,6 +573,14 @@ export default function SettingsPage({
           />
         );
 
+      case 'database-backup':
+        return (
+          <DatabaseBackupSection
+            user={user}
+            showToast={showToast}
+          />
+        );
+
       default:
         return (
           <CompanyProfileSection
@@ -594,7 +603,7 @@ export default function SettingsPage({
         onSelectSection={handleRequestSelectSection}
         hasUnsavedChanges={hasUnsavedChanges}
         onSaveActiveSection={
-          ['users', 'roles', 'permissions'].includes(activeSection)
+          ['users', 'roles', 'permissions', 'database-backup'].includes(activeSection)
             ? null
             : handleSaveCompanySettings
         }

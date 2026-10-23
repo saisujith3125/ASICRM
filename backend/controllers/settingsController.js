@@ -812,6 +812,153 @@ function getActiveEmployees(req, res) {
   }
 }
 
+const backupService = require('../services/backupService');
+
+function getDatabaseStatsEndpoint(req, res) {
+  try {
+    if (!requireSettingsAccess(req, res)) return;
+    const stats = backupService.getDatabaseStats();
+    const backups = backupService.listBackups();
+    return res.json({
+      success: true,
+      data: {
+        stats,
+        latestBackup: backups[0] || null,
+        totalBackupsCount: backups.length
+      }
+    });
+  } catch (err) {
+    console.error('Error fetching database stats:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to fetch database stats.' });
+  }
+}
+
+function getBackupsListEndpoint(req, res) {
+  try {
+    if (!requireSettingsAccess(req, res)) return;
+    const backups = backupService.listBackups();
+    return res.json({ success: true, data: backups });
+  } catch (err) {
+    console.error('Error listing backups:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to list backups.' });
+  }
+}
+
+function getBackupDetailsEndpoint(req, res) {
+  try {
+    if (!requireSettingsAccess(req, res)) return;
+    const { id } = req.params;
+    const backup = backupService.getBackupById(id);
+    if (!backup) {
+      return res.status(404).json({ success: false, message: `Backup snapshot ${id} not found.` });
+    }
+
+    if (req.query.download === 'true') {
+      res.setHeader('Content-Disposition', `attachment; filename="${id}.json"`);
+      res.setHeader('Content-Type', 'application/json');
+      return res.send(JSON.stringify(backup, null, 2));
+    }
+
+    return res.json({ success: true, data: backup });
+  } catch (err) {
+    console.error('Error getting backup details:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to retrieve backup details.' });
+  }
+}
+
+function createBackupEndpoint(req, res) {
+  try {
+    if (!requireSettingsAccess(req, res)) return;
+    const user = getCurrentUser(req);
+    const { title, note } = req.body || {};
+    const backup = backupService.createBackup({ title, type: 'MANUAL_BACKUP', user, note });
+    return res.json({
+      success: true,
+      message: `System backup "${backup.title}" created successfully.`,
+      data: backup
+    });
+  } catch (err) {
+    console.error('Error creating backup:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to create backup.' });
+  }
+}
+
+function clearDatabaseEndpoint(req, res) {
+  try {
+    if (!isSuperAdmin(req)) {
+      return res.status(403).json({ success: false, message: 'Only Super Administrators can clear the database.' });
+    }
+    const user = getCurrentUser(req);
+    const { options } = req.body || {};
+    const result = backupService.clearActiveDatabase({ user, options });
+    return res.json({
+      success: true,
+      message: result.message,
+      data: {
+        autoBackup: result.autoBackup,
+        clearedStats: result.clearedStats
+      }
+    });
+  } catch (err) {
+    console.error('Error clearing database:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to clear database.' });
+  }
+}
+
+function restoreBackupEndpoint(req, res) {
+  try {
+    if (!isSuperAdmin(req)) {
+      return res.status(403).json({ success: false, message: 'Only Super Administrators can restore the database.' });
+    }
+    const user = getCurrentUser(req);
+    const { id } = req.params;
+    const result = backupService.restoreBackup(id, { user });
+    return res.json({
+      success: true,
+      message: result.message,
+      data: {
+        restoredBackup: result.restoredBackup,
+        safetyBackup: result.safetyBackup
+      }
+    });
+  } catch (err) {
+    console.error('Error restoring backup:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to restore database.' });
+  }
+}
+
+function deleteBackupEndpoint(req, res) {
+  try {
+    if (!isSuperAdmin(req)) {
+      return res.status(403).json({ success: false, message: 'Only Super Administrators can delete backups.' });
+    }
+    const { id } = req.params;
+    const result = backupService.deleteBackup(id);
+    return res.json(result);
+  } catch (err) {
+    console.error('Error deleting backup:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to delete backup.' });
+  }
+}
+
+function importBackupEndpoint(req, res) {
+  try {
+    if (!isSuperAdmin(req)) {
+      return res.status(403).json({ success: false, message: 'Only Super Administrators can import backups.' });
+    }
+    const user = getCurrentUser(req);
+    const backup = backupService.importBackup(req.body, { user });
+    return res.json({
+      success: true,
+      message: `Backup "${backup.title}" imported successfully. You can now inspect or restore it.`,
+      data: backup
+    });
+  } catch (err) {
+    console.error('Error importing backup:', err);
+    return res.status(400).json({ success: false, message: err.message || 'Failed to import backup file.' });
+  }
+}
+
 module.exports = {
   getSettings,
   getActiveEmployees,
@@ -824,5 +971,13 @@ module.exports = {
   resolveUser,
   getCompanySettings,
   updateCompanySettings,
-  updateSectionSettings
+  updateSectionSettings,
+  getDatabaseStatsEndpoint,
+  getBackupsListEndpoint,
+  getBackupDetailsEndpoint,
+  createBackupEndpoint,
+  clearDatabaseEndpoint,
+  restoreBackupEndpoint,
+  deleteBackupEndpoint,
+  importBackupEndpoint
 };

@@ -72,7 +72,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options(/(.*)/, cors(corsOptions));
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
@@ -121,7 +121,7 @@ app.use("/api/purchase-orders", purchaseOrderRoutes);
 app.use("/api/goods-receipts", goodsReceiptRoutes);
 
 // Catch unhandled API requests with clean JSON (preventing HTML 404 pages)
-app.use("/api/*", (req, res) => {
+app.use("/api", (req, res) => {
   res.status(404).json({
     success: false,
     error: `API route not found: ${req.method} ${req.originalUrl}`
@@ -134,7 +134,7 @@ const frontendDistPath = path.resolve(__dirname, "..", "frontend", "dist");
 if (fs.existsSync(frontendDistPath)) {
   app.use(express.static(frontendDistPath));
 
-  app.get("*", (req, res, next) => {
+  app.get(/(.*)/, (req, res, next) => {
     if (req.path.startsWith("/api")) {
       return next();
     }

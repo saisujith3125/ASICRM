@@ -20,7 +20,8 @@ import {
   Image,
   Search,
   ArrowLeft,
-  Package
+  Package,
+  Database
 } from 'lucide-react';
 import { filterRecordsBySearch } from '../../utils/searchHelper';
 
@@ -78,6 +79,18 @@ export const SETTINGS_CATEGORIES = [
     label: 'BRANDING',
     items: [
       { id: 'branding', label: 'Company Logo & Brand', icon: Image, desc: 'Master logo, signature, official stamp' }
+    ]
+  },
+  {
+    id: 'system',
+    label: 'SYSTEM & DATA',
+    items: [
+      {
+        id: 'database-backup',
+        label: 'Clear & Restore Database',
+        icon: Database,
+        desc: 'Clear active database, auto-backups, and restore snapshots'
+      }
     ]
   }
 ];

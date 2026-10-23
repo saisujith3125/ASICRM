@@ -479,7 +479,9 @@ export default function SearchableProductSelect({
                 const itemCode = item.code || item.productCode || item.sku || '';
                 const category = item.categoryName || item.category || item.productType || '';
                 const stockQty = Number(item.stock !== undefined ? item.stock : (item.availableQty !== undefined ? item.availableQty : 0));
-                const price = Number(item.dealerPrice || item.price || item.unitPrice || 0);
+                const mrp = Number(item.mrp || 0);
+                const dealerPrice = Number(item.dealerPrice || item.price || item.unitPrice || 0);
+                const price = mrp > 0 ? mrp : dealerPrice;
 
                 return (
                   <li
@@ -528,8 +530,8 @@ export default function SearchableProductSelect({
                             {stockQty > 0 ? `${stockQty} in stock` : 'Out of stock'}
                           </span>
                           {price > 0 && (
-                            <span className="sps-price-tag">
-                              ₹{price.toLocaleString('en-IN')}
+                            <span className="sps-price-tag" title={mrp > 0 && dealerPrice > 0 ? `MRP: ₹${mrp.toLocaleString('en-IN')} | Dealer: ₹${dealerPrice.toLocaleString('en-IN')}` : undefined}>
+                              {mrp > 0 ? `MRP ₹${mrp.toLocaleString('en-IN')}` : `₹${price.toLocaleString('en-IN')}`}
                             </span>
                           )}
                         </div>

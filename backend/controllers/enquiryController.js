@@ -1151,30 +1151,11 @@ function parseQuotationLineItems(items, amount, item, options = {}) {
         return { error: `Quantity for ${prod.name} must be a positive whole number.` };
       }
 
-      if (maxAllowed <= 0) {
-        return {
-          error: `Cannot save quotation. ${prod.name} is out of stock (available: 0).`
-        };
-      }
-
-      if (qty > maxAllowed) {
-        return {
-          error: `Cannot save quotation. ${prod.name} requires ${qty} units, but only ${maxAllowed} are currently available.`
-        };
-      }
-
-      const currentAgg = (aggregatedQuantities.get(prod.id) || 0) + qty;
-      if (currentAgg > maxAllowed) {
-        return {
-          error: `Cannot save quotation. Total requested quantity for ${prod.name} (${currentAgg}) exceeds available stock (${maxAllowed}).`
-        };
-      }
-      aggregatedQuantities.set(prod.id, currentAgg);
       if (!Number.isFinite(unitPrice) || unitPrice < 0) {
         return { error: `Selling price for ${prod.name} must be greater than or equal to zero.` };
       }
       if (minPrice > 0 && unitPrice < minPrice) {
-        return { error: `Quotation price for ${prod.name} cannot be lower than the product's configured price (₹${Number(minPrice).toLocaleString('en-IN')}).` };
+        return { error: `Quotation price for ${prod.name} cannot be lower than the dealer price (₹${Number(minPrice).toLocaleString('en-IN')}).` };
       }
 
       const lineSubtotal = Math.round(qty * unitPrice * 100) / 100;
@@ -1210,6 +1191,10 @@ function parseQuotationLineItems(items, amount, item, options = {}) {
         quantity: qty,
         unitPrice,
         minPrice,
+        mrp: Number(prod.mrp || 0),
+        dealerPrice: Number(prod.dealerPrice || minPrice || 0),
+        stock: availStock,
+        availableStock: availStock,
         discount: discountPct,
         discountPercent: discountPct,
         discountAmount,

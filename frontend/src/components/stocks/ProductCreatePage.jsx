@@ -1024,7 +1024,7 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                 value={form.stock}
                 onChange={(v) => update('stock', v)}
                 placeholder="e.g. 0, 100"
-                helper={isExistingProduct ? "Current inventory count. Enter updated stock level to adjust inventory." : "Initial inventory count added to stock upon product creation."}
+                helper={isFromQuotation ? "Stock is optional for quotations. Inventory outward occurs during Delivery Challan & Invoice." : (isExistingProduct ? "Current inventory count. Enter updated stock level to adjust inventory." : "Initial inventory count added to stock upon product creation.")}
                 disabled={false}
               />
               <Field

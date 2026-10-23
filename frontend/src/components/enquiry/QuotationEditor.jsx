@@ -55,6 +55,16 @@ export function getProductConfiguredFloorPrice(item, stockProducts = []) {
   return Math.max(masterDealerPrice, masterCost, Number(item.minPrice || 0), Number(item.cost || 0));
 }
 
+export function getProductConfiguredMrp(item, stockProducts = []) {
+  if (!item) return 0;
+  const prod = Array.isArray(stockProducts) ? stockProducts.find(
+    (p) => (p.id && String(p.id) === String(item.productId)) ||
+           (p.productId && String(p.productId) === String(item.productId)) ||
+           (p.code && String(p.code).trim().toUpperCase() === String(item.productCode || item.productId).trim().toUpperCase())
+  ) : null;
+  return prod ? Number(prod.mrp || 0) : Number(item.mrp || 0);
+}
+
 export function isPriceBelowConfigured(item, stockProducts = []) {
   if (!item || !item.productId) return false;
   const minPrice = getProductConfiguredFloorPrice(item, stockProducts);
@@ -664,8 +674,11 @@ export default function QuotationEditor({
 
               const canonicalId = newProd.id || newProd.productId || newProd.code;
               const maxStock = getProductAvailableStock(newProd);
-              const defaultQty = maxStock > 0 ? 1 : 0;
-              const masterPrice = Number(newProd.dealerPrice || newProd.price || newProd.unitPrice || newProd.sellingPrice || newProd.cost || 0);
+              const defaultQty = 1;
+              const masterMrp = Number(newProd.mrp || 0);
+              const masterDealerPrice = Number(newProd.dealerPrice || newProd.price || newProd.unitPrice || newProd.sellingPrice || newProd.cost || 0);
+              const masterPrice = masterMrp > 0 ? masterMrp : masterDealerPrice;
+              const minPrice = masterDealerPrice > 0 ? masterDealerPrice : (masterMrp > 0 ? masterMrp : 0);
               const gst = Number(newProd.gstRate !== undefined ? newProd.gstRate : (newProd.gst !== undefined ? newProd.gst : 18));
               const desc = newProd.description ? String(newProd.description) : '';
 
@@ -695,12 +708,16 @@ export default function QuotationEditor({
                       unit: (newProd.unit && newProd.unit !== 'Piece') ? newProd.unit : ((copy[i].unit && copy[i].unit !== 'Piece') ? copy[i].unit : 'Nos'),
                       quantity: rowQty,
                       unitPrice: masterPrice,
-                      minPrice: masterPrice,
+                      minPrice: minPrice,
+                      mrp: masterMrp,
+                      dealerPrice: masterDealerPrice,
                       cost: Number(newProd.cost || 0),
                       gst,
                       isIGSTApplicable: Boolean(newProd.isIGSTApplicable)
                     }, { showDiscount });
-                    copy[i].minPrice = masterPrice;
+                    copy[i].minPrice = minPrice;
+                    copy[i].mrp = masterMrp;
+                    copy[i].dealerPrice = masterDealerPrice;
                     copy[i].stock = maxStock;
                     copy[i].availableStock = maxStock;
                     updatedAny = true;
@@ -719,13 +736,17 @@ export default function QuotationEditor({
                     unit: (newProd.unit && newProd.unit !== 'Piece') ? newProd.unit : 'Nos',
                     quantity: defaultQty,
                     unitPrice: masterPrice,
-                    minPrice: masterPrice,
+                    minPrice: minPrice,
+                    mrp: masterMrp,
+                    dealerPrice: masterDealerPrice,
                     cost: Number(newProd.cost || 0),
                     discount: 0,
                     gst,
                     isIGSTApplicable: Boolean(newProd.isIGSTApplicable)
                   }, { showDiscount });
-                  newRow.minPrice = masterPrice;
+                  newRow.minPrice = minPrice;
+                  newRow.mrp = masterMrp;
+                  newRow.dealerPrice = masterDealerPrice;
                   newRow.stock = maxStock;
                   newRow.availableStock = maxStock;
 
@@ -1096,17 +1117,20 @@ export default function QuotationEditor({
         ? prod.stock
         : (prod.totalStock !== undefined ? prod.totalStock : maxStock)
     );
-    const defaultQty = masterStock > 0 ? 1 : 0;
-    const qtyError = masterStock <= 0 ? 'Product is out of stock.' : '';
+    // Directly allow entering quantity in quotation - default to 1 (not 0, not blocked by stock)
+    const defaultQty = 1;
+    const qtyError = '';
 
     setLineItems((prev) => {
       const rowIndex = prev.findIndex((item) => item.rowId === rowId);
       if (rowIndex === -1) return prev;
 
       const currentItem = prev[rowIndex];
-      const masterPrice = Number(prod.dealerPrice || prod.price || prod.unitPrice || prod.sellingPrice || prod.mrp || 0);
-      const minPrice = masterPrice;
-      const unitPrice = masterPrice;
+      const masterMrp = Number(prod.mrp || 0);
+      const masterDealerPrice = Number(prod.dealerPrice || prod.price || prod.unitPrice || prod.sellingPrice || prod.cost || 0);
+      // Default price MUST be MRP if available, with Dealer Price as minimum floor
+      const unitPrice = masterMrp > 0 ? masterMrp : masterDealerPrice;
+      const minPrice = masterDealerPrice > 0 ? masterDealerPrice : (masterMrp > 0 ? masterMrp : 0);
       const gst = Number(prod.gstRate !== undefined ? prod.gstRate : (prod.gst !== undefined ? prod.gst : 18));
       const discount = Number(currentItem?.discount || 0);
       const desc = prod.description ? String(prod.description) : '';
@@ -1123,11 +1147,13 @@ export default function QuotationEditor({
         quantity: defaultQty,
         unitPrice,
         minPrice,
+        mrp: masterMrp,
+        dealerPrice: masterDealerPrice,
         gst,
         isIGSTApplicable: Boolean(prod.isIGSTApplicable),
         discount,
         hsnSac: prod.hsnSac || prod.hsnCode || prod.hsn || '',
-        qtyError,
+        qtyError: '',
         hasHistoricalStockWarning: false
       };
 
@@ -1158,25 +1184,19 @@ export default function QuotationEditor({
       return prev.map((item) => {
         if (item.rowId !== rowId) return item;
 
-        const maxStock = item.stock !== undefined ? item.stock : 0;
-
         // If empty / cleared while typing
         if (qtyVal === '' || qtyVal === null || qtyVal === undefined) {
           return {
             ...item,
             quantity: '',
-            qtyError: maxStock > 0 ? 'Please enter a valid quantity.' : 'Product is out of stock.'
+            qtyError: 'Please enter a valid quantity.'
           };
         }
 
         const parsedQty = parseInt(qtyVal, 10);
         let qtyError = '';
         if (isNaN(parsedQty) || parsedQty <= 0) {
-          qtyError = maxStock > 0 ? 'Quantity must be at least 1.' : 'Product is out of stock.';
-        } else if (maxStock <= 0) {
-          qtyError = 'Product is out of stock.';
-        } else if (parsedQty > maxStock) {
-          qtyError = `Maximum available quantity is ${maxStock}.`;
+          qtyError = 'Quantity must be at least 1.';
         }
 
         const calcQty = (!isNaN(parsedQty) && parsedQty > 0) ? parsedQty : 0;
@@ -1320,11 +1340,12 @@ export default function QuotationEditor({
     }
 
     const maxStock = getProductAvailableStock(prod);
-    const qty = maxStock > 0 ? 1 : 0;
-    const qtyError = maxStock <= 0 ? 'Product is out of stock.' : '';
-    const masterPrice = Number(prod.dealerPrice || prod.price || prod.unitPrice || prod.sellingPrice || prod.mrp || 0);
-    const minPrice = masterPrice;
-    const price = masterPrice;
+    const qty = 1;
+    const qtyError = '';
+    const masterMrp = Number(prod.mrp || 0);
+    const masterDealerPrice = Number(prod.dealerPrice || prod.price || prod.unitPrice || prod.sellingPrice || prod.cost || 0);
+    const price = masterMrp > 0 ? masterMrp : masterDealerPrice;
+    const minPrice = masterDealerPrice > 0 ? masterDealerPrice : (masterMrp > 0 ? masterMrp : 0);
     const gst = Number(prod.gstRate !== undefined ? prod.gstRate : (prod.gst !== undefined ? prod.gst : 18));
     const desc = prod.description ? String(prod.description) : '';
 
@@ -1341,6 +1362,8 @@ export default function QuotationEditor({
         quantity: qty,
         unitPrice: price,
         minPrice,
+        mrp: masterMrp,
+        dealerPrice: masterDealerPrice,
         discount: 0,
         gst,
         isIGSTApplicable: Boolean(prod.isIGSTApplicable)
@@ -1348,7 +1371,7 @@ export default function QuotationEditor({
       stock: maxStock,
       availableStock: maxStock,
       isIGSTApplicable: Boolean(prod.isIGSTApplicable),
-      qtyError
+      qtyError: ''
     };
 
     setLineItems((prev) => {
@@ -1562,18 +1585,9 @@ export default function QuotationEditor({
       }
       seenProductKeys.add(key);
 
-      const maxStock = it.stock !== undefined ? it.stock : 0;
       const numQty = Number(it.quantity);
       if (!it.quantity || isNaN(numQty) || numQty <= 0) {
         setError(`Please enter a valid quantity greater than zero for "${it.productName}".`);
-        return false;
-      }
-      if (maxStock <= 0) {
-        setError(`Cannot ${actionDesc} quotation. "${it.productName}" is out of stock (available: 0).`);
-        return false;
-      }
-      if (numQty > maxStock) {
-        setError(`Cannot ${actionDesc} quotation. "${it.productName}" requires ${it.quantity} units, but only ${maxStock} are currently available.`);
         return false;
       }
       if (it.qtyError) {
@@ -1587,32 +1601,28 @@ export default function QuotationEditor({
       const floorPrice = getProductConfiguredFloorPrice(it, stockProducts);
       if (floorPrice > 0 && Number(it.unitPrice) < floorPrice) {
         const fmtMin = Number(floorPrice % 1 === 0 ? floorPrice : floorPrice.toFixed(2)).toLocaleString('en-IN');
-        setError(`Cannot ${actionDesc} quotation. "${it.productName}" quotation price (₹${Number(it.unitPrice).toLocaleString('en-IN')}) must be equal or more than ₹${fmtMin}.`);
+        setError(`Cannot ${actionDesc} quotation. "${it.productName}" quotation price (₹${Number(it.unitPrice).toLocaleString('en-IN')}) cannot be below dealer price of ₹${fmtMin}.`);
         return false;
       }
-
-      const currentAgg = (aggregatedQuantities.get(key) || 0) + numQty;
-      if (currentAgg > maxStock) {
-        setError(`Cannot ${actionDesc} quotation. Total requested quantity for "${it.productName}" (${currentAgg}) exceeds available stock (${maxStock}).`);
-        return false;
-      }
-      aggregatedQuantities.set(key, currentAgg);
     }
     return true;
   };
 
-  const hasStockErrors = useMemo(() => {
+  const hasLineItemErrors = useMemo(() => {
     const validItems = lineItems.filter((it) => it.productId && it.productName && !it.isInstallationCharge && it.productName !== INSTALLATION_CHARGE_NAME);
     if (validItems.length === 0) return true;
     for (const it of validItems) {
-      const maxStock = it.stock !== undefined ? it.stock : 0;
       const q = Number(it.quantity);
-      if (!it.quantity || isNaN(q) || q <= 0 || q > maxStock || it.qtyError) {
+      if (!it.quantity || isNaN(q) || q <= 0 || it.qtyError) {
+        return true;
+      }
+      const price = Number(it.unitPrice);
+      if (isNaN(price) || price <= 0 || isPriceBelowConfigured(it, stockProducts)) {
         return true;
       }
     }
     return false;
-  }, [lineItems]);
+  }, [lineItems, stockProducts]);
 
   const handleOpenPdfClick = () => {
     if (!isSaved || !quotationNumber || quotationNumber === 'QT-......') {
@@ -2096,9 +2106,9 @@ export default function QuotationEditor({
               <button
                 type="button"
                 className="quick-add-link-btn"
-                onClick={() => handleOpenAddProductModal()}
+                onClick={handleAddRow}
                 style={{ fontSize: '12.5px', textDecoration: 'none' }}
-                title="Create a new product in master catalog and return to this quotation"
+                title="Add product row directly to this quotation"
               >
                 + Add Product
               </button>
@@ -2132,6 +2142,7 @@ export default function QuotationEditor({
                     const hasProduct = Boolean(item.productId);
                     const isLowStock = !isInstall && hasProduct && item.stock <= 0;
                     const floorPrice = !isInstall ? getProductConfiguredFloorPrice(item, stockProducts) : 0;
+                    const mrpPrice = !isInstall ? getProductConfiguredMrp(item, stockProducts) : 0;
                     const hasMinPriceError = !isInstall && isPriceBelowConfigured(item, stockProducts);
 
                     // Compute disabledIds for this row: all other selected product IDs
@@ -2186,7 +2197,7 @@ export default function QuotationEditor({
                                     type="button"
                                     className="quick-add-link-btn quotation-row-add-product-btn"
                                     onClick={() => handleAddProductToMaster(item.rowId)}
-                                    title="Add or clone product into Stock Master and return to this quotation"
+                                    title="Open Stock Master to register a brand new product catalog entry"
                                     style={{
                                       fontSize: '11px',
                                       fontWeight: 600,
@@ -2202,7 +2213,7 @@ export default function QuotationEditor({
                                       lineHeight: '1.2'
                                     }}
                                   >
-                                    + Add Product
+                                    + New in Stock Master
                                   </button>
                                 )}
                               </div>
@@ -2237,7 +2248,7 @@ export default function QuotationEditor({
                                 title={
                                   item.availableStock !== undefined && item.availableStock !== item.stock
                                     ? `Master Stock: ${item.stock} (${item.availableStock} available)`
-                                    : `Stock: ${item.stock}`
+                                    : `Warehouse Stock: ${item.stock}`
                                 }
                               >
                                 {item.stock}
@@ -2257,17 +2268,14 @@ export default function QuotationEditor({
                               <input
                                 type="number"
                                 className={`quotation-qty-input ${!hasProduct ? 'is-placeholder' : ''} ${item.qtyError ? 'input-error' : ''}`}
-                                min={item.stock > 0 ? "1" : "0"}
-                                max={item.stock || 0}
+                                min="1"
                                 value={item.quantity}
                                 onChange={(e) => handleQtyChange(item.rowId, e.target.value)}
-                                disabled={!hasProduct || item.stock <= 0}
-                                title={item.stock <= 0 ? "Product is out of stock" : (item.qtyError || undefined)}
+                                disabled={!hasProduct}
+                                title={item.qtyError || undefined}
+                                placeholder="1"
                               />
-                              {hasProduct && item.stock <= 0 && (
-                                <div className="quotation-qty-error-badge">OUT OF STOCK</div>
-                              )}
-                              {hasProduct && item.stock > 0 && item.qtyError && (
+                              {hasProduct && item.qtyError && (
                                 <div className="quotation-qty-error-msg">{item.qtyError}</div>
                               )}
                               {hasProduct && item.hasHistoricalStockWarning && !item.qtyError && (
@@ -2315,11 +2323,19 @@ export default function QuotationEditor({
                                     value={item.unitPrice ?? ''}
                                     onChange={(e) => handlePriceChange(item.rowId, e.target.value)}
                                     placeholder="0.00"
+                                    title={mrpPrice > 0 ? `MRP: ₹${mrpPrice.toLocaleString('en-IN')} | Min Dealer Price: ₹${floorPrice.toLocaleString('en-IN')}` : undefined}
                                   />
                                 </div>
+                                {hasProduct && (mrpPrice > 0 || floorPrice > 0) && (
+                                  <div className="quotation-price-hint-text" style={{ fontSize: '10.5px', color: '#64748b', marginTop: '2px', whiteSpace: 'nowrap' }}>
+                                    {mrpPrice > 0 ? `MRP ₹${mrpPrice.toLocaleString('en-IN')}` : ''}
+                                    {mrpPrice > 0 && floorPrice > 0 ? ' • ' : ''}
+                                    {floorPrice > 0 ? `Min ₹${floorPrice.toLocaleString('en-IN')}` : ''}
+                                  </div>
+                                )}
                                 {hasMinPriceError && (
                                   <div className="quotation-min-price-warning">
-                                    ⚠ The value should be equal or more than {Number(floorPrice % 1 === 0 ? floorPrice : floorPrice.toFixed(2)).toLocaleString('en-IN')}
+                                    ⚠ Cannot be below Dealer Price ₹{Number(floorPrice % 1 === 0 ? floorPrice : floorPrice.toFixed(2)).toLocaleString('en-IN')}
                                   </div>
                                 )}
                               </div>
@@ -2729,11 +2745,11 @@ export default function QuotationEditor({
                         alignItems: 'center',
                         gap: '6px',
                         borderRadius: '6px',
-                        cursor: hasStockErrors ? 'not-allowed' : 'pointer',
-                        opacity: hasStockErrors ? 0.6 : 1
+                        cursor: hasLineItemErrors ? 'not-allowed' : 'pointer',
+                        opacity: hasLineItemErrors ? 0.6 : 1
                       }}
                       onClick={handleOpenPdfClick}
-                      title={hasStockErrors ? 'Cannot generate PDF: delivery quantity exceeds available stock' : 'View & Download Official Quotation PDF'}
+                      title={hasLineItemErrors ? 'Resolve quantity or price errors before generating PDF' : 'View & Download Official Quotation PDF'}
                     >
                       <Printer size={15} />
                       <span>Quotation PDF</span>
@@ -2753,11 +2769,11 @@ export default function QuotationEditor({
                         alignItems: 'center',
                         gap: '6px',
                         borderRadius: '6px',
-                        cursor: hasStockErrors ? 'not-allowed' : 'pointer',
-                        opacity: hasStockErrors ? 0.6 : 1
+                        cursor: hasLineItemErrors ? 'not-allowed' : 'pointer',
+                        opacity: hasLineItemErrors ? 0.6 : 1
                       }}
                       onClick={handleGenerateProformaClick}
-                      title={hasStockErrors ? 'Cannot generate proforma: delivery quantity exceeds available stock' : 'Generate Proforma Invoice from this Quotation'}
+                      title={hasLineItemErrors ? 'Resolve quantity or price errors before generating Proforma' : 'Generate Proforma Invoice from this Quotation'}
                     >
                       <FileText size={15} />
                       <span>Proforma</span>
@@ -2793,11 +2809,11 @@ export default function QuotationEditor({
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '6px',
-                    cursor: hasStockErrors ? 'not-allowed' : 'pointer',
-                    opacity: hasStockErrors ? 0.6 : 1
+                    cursor: hasLineItemErrors ? 'not-allowed' : 'pointer',
+                    opacity: hasLineItemErrors ? 0.6 : 1
                   }}
                   onClick={handleOpenPdfClick}
-                  title={hasStockErrors ? 'Cannot generate PDF: delivery quantity exceeds available stock' : 'View & Download Official Quotation PDF'}
+                  title={hasLineItemErrors ? 'Resolve quantity or price errors before generating PDF' : 'View & Download Official Quotation PDF'}
                 >
                   <Printer size={15} />
                   <span>Quotation PDF</span>
@@ -2816,11 +2832,11 @@ export default function QuotationEditor({
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '6px',
-                    cursor: hasStockErrors ? 'not-allowed' : 'pointer',
-                    opacity: hasStockErrors ? 0.6 : 1
+                    cursor: hasLineItemErrors ? 'not-allowed' : 'pointer',
+                    opacity: hasLineItemErrors ? 0.6 : 1
                   }}
                   onClick={handleGenerateProformaClick}
-                  title={hasStockErrors ? 'Cannot generate proforma: delivery quantity exceeds available stock' : 'Generate Proforma Invoice from this Quotation'}
+                  title={hasLineItemErrors ? 'Resolve quantity or price errors before generating Proforma' : 'Generate Proforma Invoice from this Quotation'}
                 >
                   <FileText size={15} />
                   <span>Generate Proforma</span>
@@ -2832,12 +2848,12 @@ export default function QuotationEditor({
                   type="button"
                   className="quotation-save-btn crm-btn-primary"
                   onClick={handleSaveAndIssue}
-                  disabled={saving || hasStockErrors}
+                  disabled={saving || hasLineItemErrors}
                   style={{
-                    cursor: (saving || hasStockErrors) ? 'not-allowed' : 'pointer',
-                    opacity: hasStockErrors ? 0.6 : 1
+                    cursor: (saving || hasLineItemErrors) ? 'not-allowed' : 'pointer',
+                    opacity: hasLineItemErrors ? 0.6 : 1
                   }}
-                  title={hasStockErrors ? 'Resolve quantity and stock errors before saving' : undefined}
+                  title={hasLineItemErrors ? 'Resolve quantity or price errors before saving' : undefined}
                 >
                   <Check size={16} />
                   <span>{saving ? 'Saving...' : 'SAVE / UPDATE QUOTATION'}</span>

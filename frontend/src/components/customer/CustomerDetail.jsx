@@ -9,7 +9,7 @@ import PrintableDeliveryChallan from '../documents/PrintableDeliveryChallan';
 import PrintableSalesInvoice from '../documents/PrintableSalesInvoice';
 import { getQuotationFilename, getDcFilename, getInvoiceFilename } from '../documents/DocumentPdfService';
 import { formatDate } from '../../utils/dateUtils';
-import { useTablePagination, TableFooter } from '../common/TableWorkspace';
+import { TableWorkspace, TableViewport, useTablePagination, TableFooter } from '../common/TableWorkspace';
 
 
 
@@ -1010,9 +1010,9 @@ export default function CustomerDetail({
               </form>
             )}
 
-            <div className="settings-table-shell stocks-table-shell customer-master-card customer-compact-table-wrap">
-              <div className="crm-table-scroll-wrap stocks-table-natural-wrap">
-                <table className="settings-table customer-detail-table customer-requirements-table">
+            <TableWorkspace className="customer-master-card customer-compact-table-wrap">
+              <TableViewport className="stocks-table-natural-wrap">
+                <table className="crm-master-table settings-table customer-detail-table customer-requirements-table">
                 <thead>
                   <tr>
                     <th className="col-priority-low" style={{ width: '50px', textAlign: 'center' }}>#</th>
@@ -1092,11 +1092,14 @@ export default function CustomerDetail({
                   )}
                 </tbody>
               </table>
-              </div>
-              <CustomerPager
-                label={`${requirements.length} ${requirements.length === 1 ? 'requirement' : 'requirements'}`}
+              </TableViewport>
+              <TableFooter
+                count={requirements.length}
+                total={requirements.length}
+                recordLabel="requirements"
+                singularLabel="requirement"
               />
-            </div>
+            </TableWorkspace>
           </section>
         )}
 
@@ -1264,9 +1267,9 @@ export default function CustomerDetail({
               </form>
             )}
 
-            <div className="settings-table-shell stocks-table-shell customer-master-card customer-compact-table-wrap">
-              <div className="crm-table-scroll-wrap stocks-table-natural-wrap">
-                <table className="settings-table customer-detail-table customer-branches-table">
+            <TableWorkspace className="customer-master-card customer-compact-table-wrap">
+              <TableViewport className="stocks-table-natural-wrap">
+                <table className="crm-master-table settings-table customer-detail-table customer-branches-table">
                 <colgroup>
                   <col style={{ width: '5%' }} />
                   <col style={{ width: '28%' }} />
@@ -1377,9 +1380,14 @@ export default function CustomerDetail({
                   )}
                 </tbody>
               </table>
-              </div>
-              <CustomerPager label={`${branches.length} ${branches.length === 1 ? 'branch' : 'branches'}`} />
-            </div>
+              </TableViewport>
+              <TableFooter
+                count={branches.length}
+                total={branches.length}
+                recordLabel="branches"
+                singularLabel="branch"
+              />
+            </TableWorkspace>
           </section>
         )}
 
@@ -1435,9 +1443,9 @@ export default function CustomerDetail({
               )}
             </div>
 
-            <div className="settings-table-shell stocks-table-shell customer-master-card">
-              <div className="crm-table-scroll-wrap stocks-table-natural-wrap">
-                <table className="settings-table customer-detail-table customer-enquiries-table">
+            <TableWorkspace className="customer-master-card">
+              <TableViewport className="stocks-table-natural-wrap">
+                <table className="crm-master-table settings-table customer-detail-table customer-enquiries-table">
                   <colgroup>
                     <col style={{ width: '28%' }} />
                     <col style={{ width: '20%' }} />
@@ -1496,9 +1504,19 @@ export default function CustomerDetail({
                         </tr>
                       ))
                     )}
+                    {enquiryPagination.currentItems.length > 0 && enquiryPagination.currentItems.length < enquiryPagination.pageSize && (
+                      Array.from({ length: enquiryPagination.pageSize - enquiryPagination.currentItems.length }).map((_, fIdx) => (
+                        <tr key={`filler-enq-${fIdx}`} className="table-data-row table-filler-row" aria-hidden="true">
+                          <td>&nbsp;</td>
+                          <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                          <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                          <td className="actions-col" style={{ textAlign: 'center' }}>&nbsp;</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
-              </div>
+              </TableViewport>
               <TableFooter
                 showingStart={enquiryPagination.showingStart}
                 showingEnd={enquiryPagination.showingEnd}
@@ -1509,7 +1527,7 @@ export default function CustomerDetail({
                 totalPages={enquiryPagination.totalPages}
                 onPageChange={enquiryPagination.goToPage}
               />
-            </div>
+            </TableWorkspace>
           </section>
         )}
 
@@ -1564,9 +1582,9 @@ export default function CustomerDetail({
               )}
             </div>
 
-            <div className="settings-table-shell stocks-table-shell customer-master-card">
-              <div className="crm-table-scroll-wrap stocks-table-natural-wrap">
-                <table className="settings-table customer-detail-table customer-all-docs-table">
+            <TableWorkspace className="customer-master-card">
+              <TableViewport className="stocks-table-natural-wrap">
+                <table className="crm-master-table settings-table customer-detail-table customer-all-docs-table">
                   <colgroup>
                     <col style={{ width: '5%' }} />
                     <col style={{ width: '14%' }} />
@@ -1658,9 +1676,22 @@ export default function CustomerDetail({
                         );
                       })
                     )}
+                    {docPagination.currentItems.length > 0 && docPagination.currentItems.length < docPagination.pageSize && (
+                      Array.from({ length: docPagination.pageSize - docPagination.currentItems.length }).map((_, fIdx) => (
+                        <tr key={`filler-docs-${fIdx}`} className="table-data-row table-filler-row" aria-hidden="true">
+                          <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                          <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td style={{ textAlign: 'right' }}>&nbsp;</td>
+                          <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
-              </div>
+              </TableViewport>
               <TableFooter
                 showingStart={docPagination.showingStart}
                 showingEnd={docPagination.showingEnd}
@@ -1671,7 +1702,7 @@ export default function CustomerDetail({
                 totalPages={docPagination.totalPages}
                 onPageChange={docPagination.goToPage}
               />
-            </div>
+            </TableWorkspace>
           </section>
         )}
 
@@ -1724,9 +1755,9 @@ export default function CustomerDetail({
               )}
             </div>
 
-            <div className="settings-table-shell stocks-table-shell customer-master-card">
-              <div className="crm-table-scroll-wrap stocks-table-natural-wrap">
-                <table className="settings-table customer-detail-table customer-quotations-table">
+            <TableWorkspace className="customer-master-card">
+              <TableViewport className="stocks-table-natural-wrap">
+                <table className="crm-master-table settings-table customer-detail-table customer-quotations-table">
                   <colgroup>
                     <col style={{ width: '5%' }} />
                     <col style={{ width: '16%' }} />
@@ -1820,9 +1851,21 @@ export default function CustomerDetail({
                         );
                       })
                     )}
+                    {quotationPagination.currentItems.length > 0 && quotationPagination.currentItems.length < quotationPagination.pageSize && (
+                      Array.from({ length: quotationPagination.pageSize - quotationPagination.currentItems.length }).map((_, fIdx) => (
+                        <tr key={`filler-quote-${fIdx}`} className="table-data-row table-filler-row" aria-hidden="true">
+                          <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td style={{ textAlign: 'right' }}>&nbsp;</td>
+                          <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
-              </div>
+              </TableViewport>
               <TableFooter
                 showingStart={quotationPagination.showingStart}
                 showingEnd={quotationPagination.showingEnd}
@@ -1833,7 +1876,7 @@ export default function CustomerDetail({
                 totalPages={quotationPagination.totalPages}
                 onPageChange={quotationPagination.goToPage}
               />
-            </div>
+            </TableWorkspace>
           </section>
         )}
 
@@ -1888,9 +1931,9 @@ export default function CustomerDetail({
               )}
             </div>
 
-            <div className="settings-table-shell stocks-table-shell customer-master-card">
-              <div className="crm-table-scroll-wrap stocks-table-natural-wrap">
-                <table className="settings-table customer-detail-table customer-challans-table">
+            <TableWorkspace className="customer-master-card">
+              <TableViewport className="stocks-table-natural-wrap">
+                <table className="crm-master-table settings-table customer-detail-table customer-challans-table">
                   <colgroup>
                     <col style={{ width: '4%' }} />
                     <col style={{ width: '14%' }} />
@@ -2035,9 +2078,22 @@ export default function CustomerDetail({
                         );
                       })
                     )}
+                    {dcPagination.currentItems.length > 0 && dcPagination.currentItems.length < dcPagination.pageSize && (
+                      Array.from({ length: dcPagination.pageSize - dcPagination.currentItems.length }).map((_, fIdx) => (
+                        <tr key={`filler-dc-${fIdx}`} className="table-data-row table-filler-row" aria-hidden="true">
+                          <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                          <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
-              </div>
+              </TableViewport>
               <TableFooter
                 showingStart={dcPagination.showingStart}
                 showingEnd={dcPagination.showingEnd}
@@ -2048,7 +2104,7 @@ export default function CustomerDetail({
                 totalPages={dcPagination.totalPages}
                 onPageChange={dcPagination.goToPage}
               />
-            </div>
+            </TableWorkspace>
           </section>
         )}
 
@@ -2127,9 +2183,9 @@ export default function CustomerDetail({
             )}
 
             {invoiceFilter === 'UNBILLED_DCS' ? (
-              <div className="settings-table-shell stocks-table-shell customer-master-card">
-                <div className="crm-table-scroll-wrap stocks-table-natural-wrap">
-                  <table className="settings-table customer-detail-table customer-unbilled-challans-table">
+              <TableWorkspace className="customer-master-card">
+                <TableViewport className="stocks-table-natural-wrap">
+                  <table className="crm-master-table settings-table customer-detail-table customer-unbilled-challans-table">
                     <colgroup>
                       <col style={{ width: '5%' }} />
                       <col style={{ width: '16%' }} />
@@ -2234,9 +2290,22 @@ export default function CustomerDetail({
                           );
                         })
                       )}
+                      {customerUnbilledPagination.currentItems.length > 0 && customerUnbilledPagination.currentItems.length < customerUnbilledPagination.pageSize && (
+                        Array.from({ length: customerUnbilledPagination.pageSize - customerUnbilledPagination.currentItems.length }).map((_, fIdx) => (
+                          <tr key={`filler-unbilled-${fIdx}`} className="table-data-row table-filler-row" aria-hidden="true">
+                            <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                            <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                            <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
-                </div>
+                </TableViewport>
                 <TableFooter
                   showingStart={customerUnbilledPagination.showingStart}
                   showingEnd={customerUnbilledPagination.showingEnd}
@@ -2247,11 +2316,11 @@ export default function CustomerDetail({
                   totalPages={customerUnbilledPagination.totalPages}
                   onPageChange={customerUnbilledPagination.goToPage}
                 />
-              </div>
+              </TableWorkspace>
             ) : (
-            <div className="settings-table-shell stocks-table-shell customer-master-card">
-              <div className="crm-table-scroll-wrap stocks-table-natural-wrap">
-                <table className="settings-table customer-detail-table customer-invoices-table">
+            <TableWorkspace className="customer-master-card">
+              <TableViewport className="stocks-table-natural-wrap">
+                <table className="crm-master-table settings-table customer-detail-table customer-invoices-table">
                   <colgroup>
                     <col style={{ width: '5%' }} />
                     <col style={{ width: '16%' }} />
@@ -2341,9 +2410,21 @@ export default function CustomerDetail({
                         );
                       })
                     )}
+                    {invoicePagination.currentItems.length > 0 && invoicePagination.currentItems.length < invoicePagination.pageSize && (
+                      Array.from({ length: invoicePagination.pageSize - invoicePagination.currentItems.length }).map((_, fIdx) => (
+                        <tr key={`filler-inv-${fIdx}`} className="table-data-row table-filler-row" aria-hidden="true">
+                          <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td style={{ textAlign: 'right' }}>&nbsp;</td>
+                          <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
-              </div>
+              </TableViewport>
               <TableFooter
                 showingStart={invoicePagination.showingStart}
                 showingEnd={invoicePagination.showingEnd}
@@ -2354,7 +2435,7 @@ export default function CustomerDetail({
                 totalPages={invoicePagination.totalPages}
                 onPageChange={invoicePagination.goToPage}
               />
-            </div>
+            </TableWorkspace>
           )}
         </section>
       )}

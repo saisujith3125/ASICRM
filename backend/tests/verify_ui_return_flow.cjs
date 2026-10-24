@@ -23,7 +23,7 @@ async function run() {
   for (let i = 0; i < 30; i++) {
     await new Promise((r) => setTimeout(r, 400));
     try {
-      const listRes = await fetch(`http://127.0.0.1:${PORT}/json/list`);
+      const listRes = await fetch(`http://localhost:${PORT}/json/list`);
       if (listRes.ok) {
         tabs = await listRes.json();
         if (tabs && tabs.length > 0) break;

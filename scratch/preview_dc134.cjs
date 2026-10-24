@@ -17,7 +17,7 @@ async function run() {
     'about:blank'
   ]);
   await new Promise((r) => setTimeout(r, 2000));
-  const tabs = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
+  const tabs = await (await fetch(`http://localhost:${port}/json/list`)).json();
   const ws = new WebSocket(tabs[0].webSocketDebuggerUrl);
   await new Promise((r) => (ws.onopen = r));
   let id = 1;

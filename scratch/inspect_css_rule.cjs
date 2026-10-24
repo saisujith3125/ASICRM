@@ -17,7 +17,7 @@ async function inspect() {
   ]);
 
   await new Promise(r => setTimeout(r, 2000));
-  const list = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
+  const list = await (await fetch(`http://localhost:${port}/json/list`)).json();
   const ws = new WebSocket(list[0].webSocketDebuggerUrl);
   await new Promise(r => ws.onopen = r);
 

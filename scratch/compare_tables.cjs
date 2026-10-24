@@ -16,7 +16,7 @@ const chrome = spawn(CHROME_PATH, [
 
 async function run() {
   await new Promise(r => setTimeout(r, 1200));
-  const res = await fetch(`http://127.0.0.1:${PORT}/json/list`);
+  const res = await fetch(`http://localhost:${PORT}/json/list`);
   const tabs = await res.json();
   const pageTab = tabs.find(t => t.type === 'page' && !t.url.startsWith('chrome-extension')) || tabs.find(t => t.type === 'page') || tabs[0];
   const ws = new WebSocket(pageTab.webSocketDebuggerUrl);

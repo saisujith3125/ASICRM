@@ -1,15 +1,8 @@
 // Production API URL: https://crmapi.asiind.com
-// Development API URL: http://127.0.0.1:5000
 export const API_BASE = (() => {
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && envUrl.trim().length > 0) {
     return envUrl.trim().replace(/\/$/, '');
-  }
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    if (host === 'localhost' || host === '127.0.0.1') {
-      return 'http://127.0.0.1:5000';
-    }
   }
   return 'https://crmapi.asiind.com';
 })();

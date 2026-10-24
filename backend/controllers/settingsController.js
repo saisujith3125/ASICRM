@@ -258,6 +258,12 @@ function readData() {
 
 function writeData(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+  try {
+    const { syncSettingsToMongo } = require('../services/mongoSyncService');
+    syncSettingsToMongo(data.companySettings);
+  } catch (err) {
+    // Non-blocking fallback
+  }
 }
 
 function roleKeyOf(role) {

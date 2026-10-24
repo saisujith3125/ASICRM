@@ -258,7 +258,15 @@ function readData() {
     return fallback;
   }
 }
-function writeData(data) { fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8'); }
+function writeData(data) {
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+  try {
+    const { syncStockToMongo } = require('../services/mongoSyncService');
+    syncStockToMongo(data.products, data.inventoryTransactions);
+  } catch (err) {
+    // Non-blocking fallback
+  }
+}
 function allowed(req, res, action) {
   return requirePermission(req, res, 'Stocks', action);
 }

@@ -110,11 +110,27 @@ export default function SerialNumberSetupSection({ user, showToast }) {
     const pad = Math.max(1, parseInt(form.paddingDigits, 10) || 3);
     const n = num !== null ? num : (parseInt(form.nextNumber, 10) || 1);
     const yr = year || data?.currentCalendarYear || new Date().getFullYear();
+    const fyStart = yr;
+    const fyEnd = fyStart + 1;
+    const shortFY = `${String(fyStart).slice(-2)}-${String(fyEnd).slice(-2)}`;
+    const longFY = `${fyStart}-${fyEnd}`;
+    const midFY = `${fyStart}-${String(fyEnd).slice(-2)}`;
     const formatted = String(n).padStart(pad, '0');
-    const suffix = (form.suffix || '')
-      .replace('{YYYY}', String(yr))
-      .replace('{YY}', String(yr).slice(-2));
-    return `${form.prefix || ''}${formatted}${suffix}`;
+
+    const replaceTokens = (str) => {
+      if (!str) return '';
+      return str
+        .replace(/\{FY\}/g, shortFY)
+        .replace(/\{FINANCIAL_YEAR\}/g, shortFY)
+        .replace(/\{FY_LONG\}/g, longFY)
+        .replace(/\{FY_LABEL\}/g, midFY)
+        .replace(/\{YYYY\}/g, String(yr))
+        .replace(/\{YY\}/g, String(yr).slice(-2));
+    };
+
+    const prefix = replaceTokens(form.prefix || '');
+    const suffix = replaceTokens(form.suffix || '');
+    return `${prefix}${formatted}${suffix}`;
   };
 
   const handleSaveEdit = async (e) => {
@@ -193,7 +209,24 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                 }}
               >
                 <Calendar size={12} style={{ color: '#2563eb' }} />
-                <span>Calendar Year: {currentYear} (Active)</span>
+                <span>Calendar Year: {currentYear}</span>
+              </span>
+              <span
+                style={{
+                  padding: '3px 9px',
+                  background: '#fdf4ff',
+                  border: '1px solid #f0abfc',
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  fontSize: '11.5px',
+                  color: '#a21caf',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                <Calendar size={12} style={{ color: '#c026d3' }} />
+                <span>Financial Year: {data?.currentFinancialYear || '2026-27'} ({data?.currentFinancialYearShort || '26-27'})</span>
               </span>
               <span
                 style={{
@@ -210,12 +243,12 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                 }}
               >
                 <Hash size={12} style={{ color: '#16a34a' }} />
-                <span>Standard 001 Sequence</span>
+                <span>Sequential Engine</span>
               </span>
             </div>
           </div>
           <p>
-            Standardize auto-numbering to clean 3-digit serials (<code>001</code>) across all modules. Transaction documents automatically restart at <code>001</code> each Calendar Year (Jan 1 – Dec 31) with past years archived in the database.
+            Standardize auto-numbering and document sequences across all modules. Transaction documents automatically sequence with configurable Calendar Year or Financial Year reset policies (e.g. <code>ASI/26-27/QT0001</code>).
           </p>
         </div>
 
@@ -617,7 +650,7 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                       placeholder="/{YYYY}"
                     />
                     <span style={{ fontSize: '11px', color: '#64748b' }}>
-                      Use <code>{'{YYYY}'}</code> for 2026, or leave blank
+                      Tokens: <code>{'{FY}'}</code> (e.g. 26-27), <code>{'{YYYY}'}</code>, <code>{'{YY}'}</code>, or blank
                     </span>
                   </div>
 
@@ -632,7 +665,7 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                       required
                     />
                     <span style={{ fontSize: '11px', color: '#64748b' }}>
-                      Counter for the active year
+                      Counter for the active period
                     </span>
                   </div>
                 </div>
@@ -644,6 +677,7 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                     value={editForm.resetPolicy}
                     onChange={(e) => setEditForm({ ...editForm, resetPolicy: e.target.value })}
                   >
+                    <option value="FINANCIAL_YEAR">Financial Year (Resets to 001 every Apr 1 with DB archive, e.g. 26-27)</option>
                     <option value="CALENDAR_YEAR">Calendar Year (Resets to 001 every Jan 1 with DB archive)</option>
                     <option value="CONTINUOUS">Continuous Lifetime (Never resets, e.g. Customers, Stocks)</option>
                   </select>

@@ -1,5 +1,5 @@
 // Currency, date, and numbers formatting helpers for printable documents
-import { formatDate, formatDateTime, formatTime } from '../../utils/dateUtils';
+import { formatDate, formatDateTime, formatTime } from '../../utils/dateUtils.js';
 export { formatDate, formatDateTime, formatTime };
 
 export function formatINR(amount) {
@@ -24,6 +24,148 @@ export function formatPlainNumber(amount) {
 export function formatDocDate(d) {
   if (!d || d === '—' || d === '-') return '';
   return formatDate(d, '');
+}
+
+/**
+ * Format proposal date to YYYY/MM/DD (e.g. 2026/10/24) matching official proposal reference
+ */
+export function formatProposalDate(d) {
+  if (!d || d === '—' || d === '-') return '';
+  try {
+    if (typeof d === 'string') {
+      const trimmed = d.trim();
+      const isoMatch = trimmed.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+      if (isoMatch) {
+        const y = isoMatch[1];
+        const m = String(isoMatch[2]).padStart(2, '0');
+        const day = String(isoMatch[3]).padStart(2, '0');
+        return `${y}/${m}/${day}`;
+      }
+      const ddmmyyyy = trimmed.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+      if (ddmmyyyy) {
+        const day = String(ddmmyyyy[1]).padStart(2, '0');
+        const m = String(ddmmyyyy[2]).padStart(2, '0');
+        const y = ddmmyyyy[3];
+        return `${y}/${m}/${day}`;
+      }
+    }
+    const dt = new Date(d);
+    if (isNaN(dt.getTime())) return String(d);
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth() + 1).padStart(2, '0');
+    const day = String(dt.getDate()).padStart(2, '0');
+    return `${y}/${m}/${day}`;
+  } catch (_) {
+    return String(d || '');
+  }
+}
+
+export const formatQuotationDate = formatProposalDate;
+
+/**
+ * Format Indian financial year tokens (April 1 to March 31)
+ */
+export function getIndianFinancialYearTokens(rawDate = new Date()) {
+  try {
+    let year = null;
+    let month = null;
+
+    if (rawDate instanceof Date && !isNaN(rawDate.getTime())) {
+      year = rawDate.getFullYear();
+      month = rawDate.getMonth() + 1;
+    } else if (typeof rawDate === 'string') {
+      const trimmed = rawDate.trim();
+      const isoMatch = trimmed.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+      if (isoMatch) {
+        year = parseInt(isoMatch[1], 10);
+        month = parseInt(isoMatch[2], 10);
+      } else {
+        const ddmmyyyy = trimmed.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+        if (ddmmyyyy) {
+          month = parseInt(ddmmyyyy[2], 10);
+          year = parseInt(ddmmyyyy[3], 10);
+        } else {
+          const dt = new Date(trimmed);
+          if (!isNaN(dt.getTime())) {
+            year = dt.getFullYear();
+            month = dt.getMonth() + 1;
+          }
+        }
+      }
+    }
+
+    if (!year || !month) {
+      const now = new Date();
+      year = now.getFullYear();
+      month = now.getMonth() + 1;
+    }
+
+    const startYear = month >= 4 ? year : year - 1;
+    const endYear = startYear + 1;
+    const shortFY = `${String(startYear).slice(-2)}-${String(endYear).slice(-2)}`;
+    const longFY = `${startYear}-${endYear}`;
+    const midFY = `${startYear}-${String(endYear).slice(-2)}`;
+    return { shortFY, longFY, midFY, startYear, endYear };
+  } catch (_) {
+    return { shortFY: '26-27', longFY: '2026-2027', midFY: '2026-27', startYear: 2026, endYear: 2027 };
+  }
+}
+
+/**
+ * Format customer-facing proposal number: ASI/{FINANCIAL_YEAR}/QT{SEQUENCE}
+ * Examples: ASI/26-27/QT0001, ASI/26-27/QT0002, ASI/26-27/QT0007
+ */
+export function formatProposalNumber(quote = {}) {
+  if (typeof quote === 'string') {
+    quote = { quotationId: quote };
+  }
+  if (quote.proposalNumber && String(quote.proposalNumber).trim()) {
+    return String(quote.proposalNumber).trim();
+  }
+  if (quote.proposalNo && String(quote.proposalNo).trim()) {
+    return String(quote.proposalNo).trim();
+  }
+
+  const raw = String(
+    quote.quotationNumber ||
+    quote.quotationId ||
+    quote.quoteNumber ||
+    quote.id ||
+    ''
+  ).trim();
+
+  if (!raw) return 'ASI/26-27/QT0001';
+
+  if (/^ASI\/\d{2}-\d{2}\/QT\d+/i.test(raw)) {
+    return raw;
+  }
+
+  const rawDate = quote.createdAt || quote.quotationDate || quote.date || new Date();
+  const fyTokens = getIndianFinancialYearTokens(rawDate);
+  const fyCode = fyTokens.shortFY;
+
+  let seqNumber = null;
+  const matchSlash = raw.match(/QTN\/0*(\d+)/i);
+  if (matchSlash) {
+    seqNumber = parseInt(matchSlash[1], 10);
+  } else {
+    const matchDash = raw.match(/QT-?0*(\d+)/i);
+    if (matchDash) {
+      seqNumber = parseInt(matchDash[1], 10);
+    } else {
+      const matchAny = raw.match(/\d+/);
+      if (matchAny) {
+        seqNumber = parseInt(matchAny[0], 10);
+      }
+    }
+  }
+
+  if (seqNumber !== null && !isNaN(seqNumber)) {
+    const padded = String(seqNumber).padStart(4, '0');
+    return `ASI/${fyCode}/QT${padded}`;
+  }
+
+  return raw;
 }
 
 /**

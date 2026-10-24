@@ -1261,11 +1261,11 @@
   box-sizing: border-box;
 }
 
-/* Background Watermark Logo (for Invoice, Proforma, DC & Quotation, centered on ~172mm printable width: 30mm + 86mm = 116mm) */
+/* Background Watermark Logo (for Invoice, Proforma, DC & Quotation, centered on 172mm printable width: 20mm + 86mm = 106mm) */
 .doc-inv-watermark-overlay {
   position: absolute;
   top: 50%;
-  left: 116mm;
+  left: 106mm;
   transform: translate(-50%, -50%);
   width: 440px;
   max-width: 60%;
@@ -3608,7 +3608,7 @@
   width: 100%;
   max-width: 210mm;
   min-height: 297mm;
-  padding: 10mm 10mm 10mm 30mm; /* Strict 30mm (3cm) protected left-side binding margin */
+  padding: 10mm 18mm 10mm 20mm !important; /* Exactly 20mm (2cm) Left Binding Margin, 18mm (1.8cm) Right Margin */
   background: #ffffff;
   box-sizing: border-box;
   overflow: visible;
@@ -3682,7 +3682,7 @@
     min-height: 297mm !important;
     height: auto !important;
     max-height: none !important;
-    padding: 10mm 10mm 10mm 30mm !important; /* Strict 30mm (3cm) protected left-side binding margin for print */
+    padding: 10mm 18mm 10mm 20mm !important; /* Exactly 20mm (2cm) Left Binding Margin, 18mm (1.8cm) Right Margin */
     box-shadow: none !important;
     margin: 0 !important;
     box-sizing: border-box !important;
@@ -3735,7 +3735,7 @@
   overflow: hidden !important;
   box-shadow: none !important;
   margin: 0 !important;
-  padding: 10mm 10mm 10mm 30mm !important; /* Strict 30mm (3cm) protected left-side binding margin for PDF */
+  padding: 10mm 18mm 10mm 20mm !important; /* Exactly 20mm (2cm) Left Binding Margin, 18mm (1.8cm) Right Margin */
   box-sizing: border-box !important;
   page-break-inside: avoid !important;
   break-inside: avoid !important;
@@ -3766,7 +3766,7 @@
   width: 100%;
   max-width: 210mm;
   min-height: 297mm;
-  padding: 8mm 8mm 8mm 8mm;
+  padding: 8mm 18mm 8mm 20mm !important; /* Exactly 20mm (2cm) Left Binding Margin, 18mm (1.8cm) Right Margin */
   background: #ffffff;
   box-sizing: border-box;
   display: flex;
@@ -3774,16 +3774,12 @@
   justify-content: space-between;
 }
 
-/* 30mm (3cm) Protected Left-Side Binding Margin for Delivery Challan, Sales Invoice, and Proforma Invoice */
+/* Standard Physical Margins (20mm Left, 18mm Right) across ALL business documents */
 .printable-delivery-challan .doc-paged-page,
 .printable-sales-invoice .doc-paged-page,
-.printable-proforma-invoice .doc-paged-page {
-  padding: 8mm 8mm 8mm 30mm !important;
-}
-
-/* Purchase Order STRICT EXCEPTION: Preserve 100% original 8mm symmetric margins */
+.printable-proforma-invoice .doc-paged-page,
 .doc-po-root .doc-paged-page {
-  padding: 8mm 8mm 8mm 8mm !important;
+  padding: 8mm 18mm 8mm 20mm !important;
 }
 
 .doc-paged-page-body {
@@ -3842,7 +3838,7 @@
     min-height: 297mm !important;
     height: auto !important;
     max-height: none !important;
-    padding: 8mm 8mm 8mm 8mm !important;
+    padding: 8mm 18mm 8mm 20mm !important; /* Exactly 20mm Left, 18mm Right */
     box-shadow: none !important;
     margin: 0 !important;
     box-sizing: border-box !important;
@@ -3852,15 +3848,12 @@
     flex-direction: column !important;
     justify-content: space-between !important;
   }
-  /* 30mm Protected Left-Side Binding Margin for Print */
+  /* Standard Margins for Print across DC, Sales Invoice, Proforma, and PO */
   .printable-delivery-challan .doc-paged-page,
   .printable-sales-invoice .doc-paged-page,
-  .printable-proforma-invoice .doc-paged-page {
-    padding: 8mm 8mm 8mm 30mm !important;
-  }
-  /* Purchase Order STRICT EXCEPTION for Print: Keep 8mm symmetric margins */
+  .printable-proforma-invoice .doc-paged-page,
   .doc-po-root .doc-paged-page {
-    padding: 8mm 8mm 8mm 8mm !important;
+    padding: 8mm 18mm 8mm 20mm !important;
   }
   .doc-paged-page:last-child {
     page-break-after: avoid !important;
@@ -3910,7 +3903,7 @@
   overflow: hidden !important;
   box-shadow: none !important;
   margin: 0 !important;
-  padding: 8mm 8mm 8mm 8mm !important;
+  padding: 8mm 18mm 8mm 20mm !important; /* Exactly 20mm Left, 18mm Right */
   box-sizing: border-box !important;
   page-break-inside: avoid !important;
   break-inside: avoid !important;
@@ -3927,20 +3920,16 @@
   break-after: avoid !important;
 }
 
-/* 30mm Protected Left-Side Binding Margin for PDF Export (DC, Sales Invoice, Proforma Invoice) */
+/* Standard Margins for PDF Export across DC, Sales Invoice, Proforma, and PO */
 .is-exporting-pdf .printable-delivery-challan .doc-paged-page,
 .printable-delivery-challan.is-exporting-pdf .doc-paged-page,
 .is-exporting-pdf .printable-sales-invoice .doc-paged-page,
 .printable-sales-invoice.is-exporting-pdf .doc-paged-page,
 .is-exporting-pdf .printable-proforma-invoice .doc-paged-page,
-.printable-proforma-invoice.is-exporting-pdf .doc-paged-page {
-  padding: 8mm 8mm 8mm 30mm !important;
-}
-
-/* Purchase Order STRICT EXCEPTION for PDF Export: Keep 8mm symmetric margins */
+.printable-proforma-invoice.is-exporting-pdf .doc-paged-page,
 .is-exporting-pdf .doc-po-root .doc-paged-page,
 .doc-po-root.is-exporting-pdf .doc-paged-page {
-  padding: 8mm 8mm 8mm 8mm !important;
+  padding: 8mm 18mm 8mm 20mm !important;
 }
 
 /* Ensure Watermark is Crisp & Visible in PDF Export across all documents */
@@ -4073,11 +4062,11 @@
   color: #000000;
 }
 
-/* Watermark (Centered on 170mm content area: 30mm + 85mm = 115mm) */
+/* Watermark (Centered on 172mm content area: 20mm + 86mm = 106mm) */
 .quotation-watermark {
   position: absolute;
   top: 50%;
-  left: 115mm;
+  left: 106mm;
   transform: translate(-50%, -50%);
   width: 440px;
   max-width: 60%;
@@ -4250,10 +4239,38 @@
 .quotation-header-ref-block {
   display: inline-flex;
   flex-direction: column;
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 13.5px;
+  line-height: 1.45;
   color: #000000;
   white-space: nowrap;
+}
+
+.quotation-header-ref-row {
+  display: flex;
+  align-items: baseline;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #000000;
+}
+
+.quotation-ref-label {
+  width: 85px;
+  flex: 0 0 85px;
+  font-weight: 700;
+  color: #000000;
+}
+
+.quotation-ref-sep {
+  width: 14px;
+  flex: 0 0 14px;
+  text-align: center;
+  font-weight: 700;
+  color: #000000;
+}
+
+.quotation-ref-val {
+  font-weight: 700;
+  color: #000000;
 }
 
 .quotation-header-ref-no {
@@ -4280,7 +4297,7 @@
 }
 
 .quotation-header-ref-date {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #000000;
   text-align: right;
@@ -4745,7 +4762,7 @@
 .doc-po-root {
   box-sizing: border-box;
   width: 100%;
-  max-width: 194mm;
+  max-width: 210mm;
   margin: 0 auto;
   background: #ffffff;
   color: #0f172a;
@@ -4754,7 +4771,7 @@
   line-height: 1.4;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
-  padding: 2mm 0;
+  padding: 0;
   position: relative;
 }
 
@@ -4762,11 +4779,11 @@
   box-sizing: border-box;
 }
 
-/* Background Watermark Logo for Purchase Order */
+/* Background Watermark Logo for Purchase Order (Centered on 172mm printable content area: 20mm + 86mm = 106mm) */
 .doc-po-root .doc-po-watermark-overlay {
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 106mm;
   transform: translate(-50%, -50%);
   width: 440px;
   max-width: 62%;

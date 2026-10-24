@@ -32,7 +32,7 @@ export function AsiWatermark({ logoUrl, comp }) {
 }
 
 /**
- * Format quotation date to DD/MM/YYYY matching physical ASI quotation reference (e.g. 03/10/2026)
+ * Format quotation/proposal date to YYYY/MM/DD matching physical ASI reference (e.g. 2026/10/24)
  */
 export function formatQuotationDate(d) {
   if (!d || d === '—' || d === '-') return '';
@@ -44,14 +44,14 @@ export function formatQuotationDate(d) {
         const y = isoMatch[1];
         const m = String(isoMatch[2]).padStart(2, '0');
         const day = String(isoMatch[3]).padStart(2, '0');
-        return `${day}/${m}/${y}`;
+        return `${y}/${m}/${day}`;
       }
       const ddmmyyyy = trimmed.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
       if (ddmmyyyy) {
         const day = String(ddmmyyyy[1]).padStart(2, '0');
         const m = String(ddmmyyyy[2]).padStart(2, '0');
         const y = ddmmyyyy[3];
-        return `${day}/${m}/${y}`;
+        return `${y}/${m}/${day}`;
       }
     }
     const dt = new Date(d);
@@ -59,16 +59,16 @@ export function formatQuotationDate(d) {
     const y = dt.getFullYear();
     const m = String(dt.getMonth() + 1).padStart(2, '0');
     const day = String(dt.getDate()).padStart(2, '0');
-    return `${day}/${m}/${y}`;
+    return `${y}/${m}/${day}`;
   } catch (_) {
     return String(d || '');
   }
 }
 
 /**
- * Format Indian financial year code, e.g. "ASI_26_27"
+ * Format Indian financial year tokens (April 1 to March 31)
  */
-export function getIndianFinancialYearCode(rawDate) {
+export function getIndianFinancialYearTokens(rawDate = new Date()) {
   try {
     let year = null;
     let month = null;
@@ -105,12 +105,86 @@ export function getIndianFinancialYearCode(rawDate) {
 
     const startYear = month >= 4 ? year : year - 1;
     const endYear = startYear + 1;
-    const startStr = String(startYear).slice(-2);
-    const endStr = String(endYear).slice(-2);
-    return `ASI_${startStr}_${endStr}`;
+    const shortFY = `${String(startYear).slice(-2)}-${String(endYear).slice(-2)}`;
+    const longFY = `${startYear}-${endYear}`;
+    const midFY = `${startYear}-${String(endYear).slice(-2)}`;
+    return { shortFY, longFY, midFY, startYear, endYear };
   } catch (_) {
-    return 'ASI_26_27';
+    return { shortFY: '26-27', longFY: '2026-2027', midFY: '2026-27', startYear: 2026, endYear: 2027 };
   }
+}
+
+/**
+ * Format Indian financial year code, e.g. "ASI_26_27"
+ */
+export function getIndianFinancialYearCode(rawDate) {
+  const tokens = getIndianFinancialYearTokens(rawDate);
+  const startStr = String(tokens.startYear).slice(-2);
+  const endStr = String(tokens.endYear).slice(-2);
+  return `ASI_${startStr}_${endStr}`;
+}
+
+/**
+ * Format customer-facing proposal number: ASI/{FINANCIAL_YEAR}/QT{SEQUENCE}
+ * Examples: ASI/26-27/QT0001, ASI/26-27/QT0002, ASI/26-27/QT0007
+ * Preserves historical document references and database foreign keys.
+ */
+export function formatProposalNumber(quote = {}) {
+  if (typeof quote === 'string') {
+    quote = { quotationId: quote };
+  }
+  if (quote.proposalNumber && String(quote.proposalNumber).trim()) {
+    return String(quote.proposalNumber).trim();
+  }
+  if (quote.proposalNo && String(quote.proposalNo).trim()) {
+    return String(quote.proposalNo).trim();
+  }
+
+  const raw = String(
+    quote.quotationNumber ||
+    quote.quotationId ||
+    quote.quoteNumber ||
+    quote.id ||
+    ''
+  ).trim();
+
+  if (!raw) return 'ASI/26-27/QT0001';
+
+  // If already in ASI/xx-yy/QTxxxx format, preserve as-is
+  if (/^ASI\/\d{2}-\d{2}\/QT\d+/i.test(raw)) {
+    return raw;
+  }
+
+  const rawDate = quote.createdAt || quote.quotationDate || quote.date || new Date();
+  const fyTokens = getIndianFinancialYearTokens(rawDate);
+  const fyCode = fyTokens.shortFY;
+
+  // Extract sequence number from internal quotationId formats:
+  // e.g. "QTN/001/2026" -> 1
+  // e.g. "QT-000007" -> 7
+  // e.g. "QT0007" -> 7
+  let seqNumber = null;
+  const matchSlash = raw.match(/QTN\/0*(\d+)/i);
+  if (matchSlash) {
+    seqNumber = parseInt(matchSlash[1], 10);
+  } else {
+    const matchDash = raw.match(/QT-?0*(\d+)/i);
+    if (matchDash) {
+      seqNumber = parseInt(matchDash[1], 10);
+    } else {
+      const matchAny = raw.match(/\d+/);
+      if (matchAny) {
+        seqNumber = parseInt(matchAny[0], 10);
+      }
+    }
+  }
+
+  if (seqNumber !== null && !isNaN(seqNumber)) {
+    const padded = String(seqNumber).padStart(4, '0');
+    return `ASI/${fyCode}/QT${padded}`;
+  }
+
+  return raw;
 }
 
 /**
@@ -205,13 +279,7 @@ export function normalizeQuotationDocument(quote = {}, customSettings = {}) {
   const comp = getMergedCompanySettings(customSettings || quote.companyDetails || {});
 
   // 1. Proposal / Quotation Reference & Date
-  const quotationNumber = (
-    quote.quotationId ||
-    quote.quotationNumber ||
-    quote.quoteNumber ||
-    quote.id ||
-    'QT-PENDING'
-  ).trim();
+  const quotationNumber = formatProposalNumber(quote);
 
   const rawDate = quote.createdAt || quote.quotationDate || quote.date || new Date();
   const quotationDate = formatQuotationDate(rawDate);
@@ -263,30 +331,29 @@ export function normalizeQuotationDocument(quote = {}, customSettings = {}) {
   }
 
   // 3. Subject Line (SUB : ...)
+  // Per requirement: If neither subject nor requirement is given, DO NOT auto-generate "Proposal for [Product Name]"
+  // and DO NOT use "Proposal for Commercial Offer". Leave it completely blank ("").
   const isPricingNote = (s) => !s || /prices\s+quoted\s+are\s+valid|taxes\s+extra/i.test(String(s));
-  let rawSubject = quote.subject;
-  const firstPhysicalItem = (quote.items || quote.products || []).find(
-    (it) => it && !it.isInstallationCharge && !String(it.productName || it.name || '').trim().toLowerCase().includes('installation testing & commissioning')
-  );
-  const defaultSubjectProductName = firstPhysicalItem?.productName || firstPhysicalItem?.name || quote.items?.[0]?.productName || quote.item || '';
+  let candidateSubject = quote.subject;
 
-  if (isPricingNote(rawSubject)) {
-    rawSubject = (
+  if (isPricingNote(candidateSubject)) {
+    candidateSubject = (
       (!isPricingNote(quote.requirement) ? quote.requirement : '') ||
       quote.title ||
       quote.enquiryTitle ||
-      (defaultSubjectProductName ? `Proposal for ${defaultSubjectProductName}` : '') ||
-      'Proposal for Commercial Offer'
+      ''
     );
   }
-  rawSubject = String(rawSubject || 'Proposal for Commercial Offer');
 
-  // Strip leading count tags like "1x " or "2x " if present, and any repeated "SUB :" or "Note :" prefixes
-  let cleanSubject = rawSubject.replace(/^\d+\s*[xX*]\s*/, '').trim();
-  cleanSubject = cleanSubject.replace(/^(?:SUB\s*[:\-]\s*)+/i, '').trim();
-  cleanSubject = cleanSubject.replace(/^(?:Note\s*[:\-]\s*)+/i, '').trim();
-  if (!cleanSubject || isPricingNote(cleanSubject)) {
-    cleanSubject = defaultSubjectProductName ? `Proposal for ${defaultSubjectProductName}` : 'Proposal for Commercial Offer';
+  let cleanSubject = '';
+  if (candidateSubject && !isPricingNote(candidateSubject)) {
+    let s = String(candidateSubject).trim();
+    s = s.replace(/^\d+\s*[xX*]\s*/, '').trim();
+    s = s.replace(/^(?:SUB\s*[:\-]\s*)+/i, '').trim();
+    s = s.replace(/^(?:Note\s*[:\-]\s*)+/i, '').trim();
+    if (s && !isPricingNote(s)) {
+      cleanSubject = s;
+    }
   }
 
   // 4. Line Items Mapping & Discount
@@ -580,12 +647,15 @@ export function QuotationPage1Cover({ model, totalPages = 2 }) {
       {/* Proposal Reference & Date (Right aligned below header) */}
       <div className="quotation-page1-meta-row">
         <div className="quotation-header-ref-block">
-          <div className="quotation-header-ref-no">
-            Proposal # : {model.quotationNumber}
+          <div className="quotation-header-ref-row">
+            <span className="quotation-ref-label">Proposal #</span>
+            <span className="quotation-ref-sep">:</span>
+            <span className="quotation-ref-val">{model.quotationNumber}</span>
           </div>
-          <div className="quotation-header-ref-subrow">
-            <span className="quotation-header-ref-code">{model.quotationRefCode}</span>
-            <span className="quotation-header-ref-date">{model.quotationDate}</span>
+          <div className="quotation-header-ref-row">
+            <span className="quotation-ref-label">Date</span>
+            <span className="quotation-ref-sep">:</span>
+            <span className="quotation-ref-val">{model.quotationDate}</span>
           </div>
         </div>
       </div>
@@ -614,10 +684,12 @@ export function QuotationPage1Cover({ model, totalPages = 2 }) {
         )}
       </div>
 
-      {/* Subject Line */}
-      <div className="quotation-subject-line">
-        <u><strong>SUB : {model.cleanSubject}</strong></u>
-      </div>
+      {/* Subject Line (Omitted if blank) */}
+      {model.cleanSubject ? (
+        <div className="quotation-subject-line">
+          <u><strong>SUB : {model.cleanSubject}</strong></u>
+        </div>
+      ) : null}
 
       {/* Salutation & Introductory Proposal Body */}
       <div className="quotation-intro-section">
@@ -668,18 +740,23 @@ export function QuotationPage2Header({ model }) {
       {/* Top Company Letterhead Header with Address and Contacts */}
       <QuotationHeader model={model} />
 
-      {/* Meta Row: Left SUB, Right Ref No & Date */}
+      {/* Meta Row: Left SUB, Right Proposal # & Date */}
       <div className="quotation-page2-meta-row">
-        <div className="quotation-page2-subject">
-          <u><strong>SUB : {model.cleanSubject}</strong></u>
-        </div>
-        <div className="quotation-header-ref-block">
-          <div className="quotation-header-ref-no">
-            Ref No : {model.quotationNumber}
+        {model.cleanSubject ? (
+          <div className="quotation-page2-subject">
+            <u><strong>SUB : {model.cleanSubject}</strong></u>
           </div>
-          <div className="quotation-header-ref-subrow">
-            <span className="quotation-header-ref-code">{model.quotationRefCode}</span>
-            <span className="quotation-header-ref-date">{model.quotationDate}</span>
+        ) : <div />}
+        <div className="quotation-header-ref-block">
+          <div className="quotation-header-ref-row">
+            <span className="quotation-ref-label">Proposal #</span>
+            <span className="quotation-ref-sep">:</span>
+            <span className="quotation-ref-val">{model.quotationNumber}</span>
+          </div>
+          <div className="quotation-header-ref-row">
+            <span className="quotation-ref-label">Date</span>
+            <span className="quotation-ref-sep">:</span>
+            <span className="quotation-ref-val">{model.quotationDate}</span>
           </div>
         </div>
       </div>
@@ -717,10 +794,10 @@ export function QuotationContinuationHeader({ model, pageNumber = 3, totalPages 
           </span>
         </div>
 
-        {/* Right: Ref No, Date & Page X of Y Indicator */}
+        {/* Right: Proposal #, Date & Page X of Y Indicator */}
         <div className="quotation-continuation-compact-meta">
           <div className="quotation-header-ref-no">
-            Ref No : {model.quotationNumber}
+            Proposal # : {model.quotationNumber}
           </div>
           <div className="quotation-header-ref-date">
             {model.quotationDate}
@@ -732,9 +809,11 @@ export function QuotationContinuationHeader({ model, pageNumber = 3, totalPages 
       </div>
 
       {/* Continuation Subject Line */}
-      <div className="quotation-continuation-compact-sub">
-        <u><strong>SUB : {model.cleanSubject} (Contd.)</strong></u>
-      </div>
+      {model.cleanSubject ? (
+        <div className="quotation-continuation-compact-sub">
+          <u><strong>SUB : {model.cleanSubject} (Contd.)</strong></u>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -801,6 +880,12 @@ export function paginateQuotation(model) {
     showTerms: false,
     showSignoff: false
   });
+
+  // If there are no items, single-page proposal letter is complete
+  if (items.length === 0) {
+    pages[0].isLastPage = true;
+    return pages;
+  }
 
   // PAGE 2: Base item table page
   // Check if ALL items + complete bottom section fit on Page 2:
@@ -1223,7 +1308,7 @@ export default function PrintableQuotation({ data, customSettings }) {
                 This is a Computer Generated Quotation
               </span>
               <span className="doc-footer-page-num">
-                {totalPages > 1 ? `Page ${page.pageNumber} of ${totalPages}` : 'Page 1'}
+                {totalPages > 1 ? `Page ${page.pageNumber} of ${totalPages}` : 'Page 1 of 1'}
               </span>
             </div>
           </div>

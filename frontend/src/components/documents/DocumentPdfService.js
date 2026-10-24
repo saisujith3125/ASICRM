@@ -247,16 +247,24 @@ export function getIndianFinancialYearShort(dateInput) {
 }
 
 /**
- * Normalizes quotation number for filename by removing internal separators/hyphens
- * e.g., "QT-000101" -> "QT000101"
+ * Normalizes quotation number for filename by extracting the standard QT sequence code
+ * e.g., "ASI/26-27/QT0007" -> "QT0007", "QT-000101" -> "QT000101", "QTN/001/2026" -> "QT0001"
  */
 export function normalizeQuotationNumberForFilename(quotationNumber) {
   if (!quotationNumber) return 'QT000000';
   let s = String(quotationNumber).trim();
-  // Strip leading ASI_ or ASI- if present
-  s = s.replace(/^ASI[-_]/i, '');
-  // Remove internal hyphens, underscores, spaces
-  s = s.replace(/[-_\s]/g, '');
+  const qtMatch = s.match(/QT\d+/i);
+  if (qtMatch) {
+    return qtMatch[0].toUpperCase();
+  }
+  const qtnMatch = s.match(/QTN\/0*(\d+)/i);
+  if (qtnMatch) {
+    return `QT${String(parseInt(qtnMatch[1], 10)).padStart(4, '0')}`;
+  }
+  // Strip leading ASI_ or ASI- or ASI/ if present
+  s = s.replace(/^ASI[-_/]/i, '');
+  // Remove internal hyphens, underscores, slashes, spaces
+  s = s.replace(/[-_/\s]/g, '');
   if (/^\d+$/.test(s)) {
     s = `QT${s}`;
   }

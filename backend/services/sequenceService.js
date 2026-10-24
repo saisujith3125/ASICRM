@@ -34,14 +34,15 @@ const DEFAULT_CONFIG = {
     quotations: {
       key: 'quotations',
       name: 'Quotations',
-      prefix: 'QTN/',
-      suffix: '/{YYYY}',
-      paddingDigits: 3,
+      prefix: 'ASI/{FY}/QT',
+      suffix: '',
+      paddingDigits: 4,
       startingNumber: 1,
       nextNumber: 1,
-      resetPolicy: 'CALENDAR_YEAR',
+      resetPolicy: 'FINANCIAL_YEAR',
       activeYear: new Date().getFullYear(),
-      description: 'Commercial sales quotation document series'
+      financialYearLabel: '2026-27',
+      description: 'Commercial sales quotation and proposal document series'
     },
     purchaseOrders: {
       key: 'purchaseOrders',
@@ -96,16 +97,50 @@ const DEFAULT_CONFIG = {
 };
 
 /**
- * Format a number using the module's rule
+ * Indian Financial Year Calculation (April 1 to March 31)
  */
-function formatSerial(rule, number, year) {
-  const activeYear = year || rule.activeYear || new Date().getFullYear();
+function getIndianFinancialYearTokens(dateOrYear = new Date()) {
+  let startYear;
+  if (typeof dateOrYear === 'number') {
+    startYear = dateOrYear;
+  } else {
+    const d = new Date(dateOrYear);
+    const yr = !isNaN(d.getTime()) ? d.getFullYear() : new Date().getFullYear();
+    const mo = !isNaN(d.getTime()) ? d.getMonth() + 1 : new Date().getMonth() + 1;
+    startYear = mo >= 4 ? yr : yr - 1;
+  }
+  const endYear = startYear + 1;
+  const shortFY = `${String(startYear).slice(-2)}-${String(endYear).slice(-2)}`; // e.g. "26-27"
+  const longFY = `${startYear}-${endYear}`; // e.g. "2026-2027"
+  const midFY = `${startYear}-${String(endYear).slice(-2)}`; // e.g. "2026-27"
+  return { shortFY, longFY, midFY, startYear, endYear };
+}
+
+/**
+ * Format a number using the module's rule, supporting Financial Year and Calendar Year tokens.
+ */
+function formatSerial(rule, number, yearOrDate) {
+  const activeYear = (typeof yearOrDate === 'number')
+    ? yearOrDate
+    : (rule.activeYear || new Date().getFullYear());
+  const fyTokens = getIndianFinancialYearTokens(yearOrDate || rule.activeYear || new Date());
   const pad = Math.max(1, parseInt(rule.paddingDigits, 10) || 3);
   const formattedNumber = String(number).padStart(pad, '0');
-  const suffix = (rule.suffix || '')
-    .replace('{YYYY}', String(activeYear))
-    .replace('{YY}', String(activeYear).slice(-2));
-  return `${rule.prefix || ''}${formattedNumber}${suffix}`;
+
+  const replaceTokens = (str) => {
+    if (!str) return '';
+    return str
+      .replace(/\{FY\}/g, fyTokens.shortFY)
+      .replace(/\{FINANCIAL_YEAR\}/g, fyTokens.shortFY)
+      .replace(/\{FY_LONG\}/g, fyTokens.longFY)
+      .replace(/\{FY_LABEL\}/g, fyTokens.midFY)
+      .replace(/\{YYYY\}/g, String(activeYear))
+      .replace(/\{YY\}/g, String(activeYear).slice(-2));
+  };
+
+  const prefix = replaceTokens(rule.prefix || '');
+  const suffix = replaceTokens(rule.suffix || '');
+  return `${prefix}${formattedNumber}${suffix}`;
 }
 
 class SequenceService {
@@ -153,12 +188,17 @@ class SequenceService {
   }
 
   /**
-   * Check if calendar year has rolled over, archive completed year sequences, and reset to starting number.
+   * Check if calendar or financial year has rolled over, archive completed year sequences, and reset to starting number.
    */
   checkYearRollOver(config = null) {
     const current = config || this.readConfig();
-    const currentYear = new Date().getFullYear();
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentFYTokens = getIndianFinancialYearTokens(now);
+    const currentFYStart = currentFYTokens.startYear;
+    let configChanged = false;
 
+    // 1. Calendar Year Rollover
     if (current.currentCalendarYear && current.currentCalendarYear !== currentYear) {
       const previousYear = current.currentCalendarYear;
       const archivesToPush = [];
@@ -192,6 +232,44 @@ class SequenceService {
 
       current.yearlyArchives = [...(current.yearlyArchives || []), ...archivesToPush];
       current.currentCalendarYear = currentYear;
+      configChanged = true;
+    }
+
+    // 2. Financial Year Rollover (April 1 to March 31)
+    Object.entries(current.modules).forEach(([modKey, modConfig]) => {
+      if (modConfig.resetPolicy === 'FINANCIAL_YEAR') {
+        const activeFYStart = modConfig.activeYear || currentFYStart;
+        if (activeFYStart !== currentFYStart) {
+          const prevFYTokens = getIndianFinancialYearTokens(new Date(activeFYStart, 6, 1));
+          const totalGen = Math.max(0, modConfig.nextNumber - modConfig.startingNumber);
+          const startCode = formatSerial(modConfig, modConfig.startingNumber, activeFYStart);
+          const lastGeneratedNum = Math.max(modConfig.startingNumber, modConfig.nextNumber - 1);
+          const lastCode = formatSerial(modConfig, lastGeneratedNum, activeFYStart);
+
+          current.yearlyArchives = current.yearlyArchives || [];
+          current.yearlyArchives.push({
+            id: `ARC-${modKey.toUpperCase()}-FY${prevFYTokens.shortFY}-${Date.now()}`,
+            moduleKey: modKey,
+            moduleName: modConfig.name,
+            year: `FY ${prevFYTokens.midFY}`,
+            range: totalGen > 0 ? `${startCode} to ${lastCode}` : 'None generated',
+            totalGenerated: totalGen,
+            lastNumber: lastGeneratedNum,
+            lastSerial: lastCode,
+            prefix: modConfig.prefix,
+            suffix: modConfig.suffix,
+            archivedAt: new Date().toISOString()
+          });
+
+          modConfig.nextNumber = modConfig.startingNumber || 1;
+          modConfig.activeYear = currentFYStart;
+          modConfig.financialYearLabel = currentFYTokens.midFY;
+          configChanged = true;
+        }
+      }
+    });
+
+    if (configChanged) {
       this.writeConfig(current);
     }
 
@@ -252,7 +330,15 @@ class SequenceService {
       rule.nextNumber = Math.max(1, parseInt(updates.nextNumber, 10) || 1);
     }
     if (updates.resetPolicy !== undefined) {
-      rule.resetPolicy = updates.resetPolicy === 'CONTINUOUS' ? 'CONTINUOUS' : 'CALENDAR_YEAR';
+      rule.resetPolicy = ['CONTINUOUS', 'FINANCIAL_YEAR', 'CALENDAR_YEAR'].includes(updates.resetPolicy)
+        ? updates.resetPolicy
+        : 'CALENDAR_YEAR';
+    }
+    if (updates.activeYear !== undefined && updates.activeYear !== null) {
+      rule.activeYear = parseInt(updates.activeYear, 10) || rule.activeYear;
+    }
+    if (updates.financialYearLabel !== undefined) {
+      rule.financialYearLabel = String(updates.financialYearLabel).trim();
     }
 
     this.writeConfig(config);
@@ -295,6 +381,31 @@ class SequenceService {
         // Reset to starting number (1 -> 001) for the new year
         modConfig.nextNumber = modConfig.startingNumber || 1;
         modConfig.activeYear = targetYear;
+      } else if (modConfig.resetPolicy === 'FINANCIAL_YEAR') {
+        const prevFYTokens = getIndianFinancialYearTokens(new Date(modConfig.activeYear || previousYear, 6, 1));
+        const totalGen = Math.max(0, modConfig.nextNumber - modConfig.startingNumber);
+        const startCode = formatSerial(modConfig, modConfig.startingNumber, modConfig.activeYear || previousYear);
+        const lastGeneratedNum = Math.max(modConfig.startingNumber, modConfig.nextNumber - 1);
+        const lastCode = formatSerial(modConfig, lastGeneratedNum, modConfig.activeYear || previousYear);
+
+        archivesToPush.push({
+          id: `ARC-${modKey.toUpperCase()}-FY${prevFYTokens.shortFY}-${Date.now()}`,
+          moduleKey: modKey,
+          moduleName: modConfig.name,
+          year: `FY ${prevFYTokens.midFY}`,
+          range: totalGen > 0 ? `${startCode} to ${lastCode}` : 'None generated',
+          totalGenerated: totalGen,
+          lastNumber: lastGeneratedNum,
+          lastSerial: lastCode,
+          prefix: modConfig.prefix,
+          suffix: modConfig.suffix,
+          archivedAt: new Date().toISOString()
+        });
+
+        const nextFYTokens = getIndianFinancialYearTokens(new Date(targetYear, 6, 1));
+        modConfig.nextNumber = modConfig.startingNumber || 1;
+        modConfig.activeYear = targetYear;
+        modConfig.financialYearLabel = nextFYTokens.midFY;
       }
     });
 
@@ -315,6 +426,8 @@ class SequenceService {
    */
   getSummary() {
     const config = this.checkYearRollOver();
+    const now = new Date();
+    const fyTokens = getIndianFinancialYearTokens(now);
     const modulesWithPreviews = {};
 
     Object.entries(config.modules).forEach(([key, rule]) => {
@@ -327,6 +440,8 @@ class SequenceService {
 
     return {
       currentCalendarYear: config.currentCalendarYear,
+      currentFinancialYear: fyTokens.midFY,
+      currentFinancialYearShort: fyTokens.shortFY,
       yearType: config.yearType,
       modules: modulesWithPreviews,
       yearlyArchives: config.yearlyArchives || []

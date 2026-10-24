@@ -33,6 +33,7 @@ const leadSchema = new mongoose.Schema({
 
 const quotationSchema = new mongoose.Schema({
   quotationId: { type: String, required: true, unique: true, index: true },
+  proposalNumber: { type: String, index: true },
   enquiryId: { type: String, index: true },
   customerId: { type: String, index: true },
   customerName: { type: String, index: true },

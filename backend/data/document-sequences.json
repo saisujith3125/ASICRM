@@ -29,14 +29,15 @@
     "quotations": {
       "key": "quotations",
       "name": "Quotations",
-      "prefix": "QTN/",
-      "suffix": "/{YYYY}",
-      "paddingDigits": 3,
+      "prefix": "ASI/{FY}/QT",
+      "suffix": "",
+      "paddingDigits": 4,
       "startingNumber": 1,
-      "nextNumber": 3,
-      "resetPolicy": "CALENDAR_YEAR",
+      "nextNumber": 7,
+      "resetPolicy": "FINANCIAL_YEAR",
       "activeYear": 2026,
-      "description": "Commercial sales quotation document series"
+      "financialYearLabel": "2026-27",
+      "description": "Commercial sales quotation and proposal document series"
     },
     "purchaseOrders": {
       "key": "purchaseOrders",

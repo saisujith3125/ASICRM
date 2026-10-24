@@ -1447,8 +1447,10 @@ const createQuotation = (req, res) => {
       ? ((requestedStatus === 'READY_FOR_QUOTATION' || requestedStatus === 'AWAITING_CUSTOMER') ? 'PENDING' : requestedStatus)
       : 'PENDING';
 
+    const generatedQuoteId = generateQuotationId();
     const quotation = {
-      quotationId: generateQuotationId(),
+      quotationId: generatedQuoteId,
+      proposalNumber: generatedQuoteId,
       source: 'ENQUIRY',
       enquiryId: enquiry.enquiryId,
       customerId: finalCustId,
@@ -1621,6 +1623,7 @@ const createStandaloneQuotation = (req, res) => {
 
     const quotation = {
       quotationId,
+      proposalNumber: quotationId,
       source: isDirect ? 'DIRECT' : 'ENQUIRY',
       enquiryId: linkedEnquiry ? linkedEnquiry.enquiryId : null,
       customerId: cust.id,

@@ -283,6 +283,94 @@
   overflow: visible !important;
 }
 
+.dc-overview-page .recent-table-header.dc-recent-header,
+.dc-overview-table-card .recent-table-header.dc-recent-header,
+.dc-recent-header {
+  flex: 0 0 auto !important;
+  padding: 10px 16px !important;
+  min-height: 50px !important;
+  height: auto !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  background: #ffffff !important;
+}
+
+.dc-recent-title-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.dc-recent-title {
+  margin: 0 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  line-height: 1.25 !important;
+}
+
+.dc-recent-counter {
+  font-size: 12px !important;
+  color: #64748b !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+}
+
+.dc-view-all-history-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  padding: 6px 14px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  box-sizing: border-box !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: #1e40af !important;
+  background: #eff6ff !important;
+  border: 1px solid #bfdbfe !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease-in-out !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  text-decoration: none !important;
+  box-shadow: 0 1px 2px rgba(30, 64, 175, 0.05) !important;
+}
+
+.dc-view-all-history-btn:hover {
+  background: #dbeafe !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.12) !important;
+}
+
+.dc-view-all-history-btn:active {
+  background: #bfdbfe !important;
+  transform: translateY(1px) !important;
+}
+
+.dc-view-all-history-btn .dc-view-all-icon {
+  width: 14px !important;
+  height: 14px !important;
+  stroke-width: 2.2 !important;
+  color: inherit !important;
+  transition: transform 0.15s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.dc-view-all-history-btn:hover .dc-view-all-icon {
+  transform: translateX(3px) !important;
+}
+
 .dc-overview-table {
   width: 100% !important;
   table-layout: fixed !important;

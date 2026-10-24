@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, ClipboardList, Truck, PackageCheck, RotateCcw, Eye } from 'lucide-react';
+import { Plus, ClipboardList, Truck, PackageCheck, RotateCcw, Eye, ArrowRight } from 'lucide-react';
 import { navigate } from '../../router';
 import { DCStatusBadge, DCEmptyState } from './dcPrimitives';
 import { useTablePagination, TableFooter } from '../common/TableWorkspace';
@@ -119,10 +119,12 @@ export default function DcOverview({ challans = [], onNavigateSubView, onOpenDoc
           </div>
           <button
             type="button"
-            className="crm-btn-secondary compact"
+            className="dc-view-all-history-btn crm-btn-secondary compact"
             onClick={() => goToNav('history')}
+            title="View full delivery challans history"
           >
-            View All History →
+            <span>View All History</span>
+            <ArrowRight size={14} className="dc-view-all-icon" />
           </button>
         </div>
 

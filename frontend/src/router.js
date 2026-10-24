@@ -2,6 +2,32 @@
 // Supports direct URL entry, browser refresh, back/forward navigation,
 // and clean standard paths for ASICRM.
 
+/**
+ * Safely extracts a document ID and optional sub-action suffix from a URL path,
+ * supporting IDs with embedded forward slashes (e.g. PO/001/2026, QTN/001/2026, ENQ/001/2026, DC/001/2026, INV/001/2026)
+ * as well as URL-encoded slashes (%2F).
+ */
+export function extractModuleId(pathname, modulePrefix, subActionSuffixes = []) {
+  const clean = (pathname || '').split(/[?#]/)[0].replace(/\/+$/, '');
+  const prefixPattern = new RegExp(`^/${modulePrefix}/?`, 'i');
+  if (!prefixPattern.test(clean)) return { id: null, action: null };
+  const remainder = clean.replace(prefixPattern, '');
+  if (!remainder) return { id: null, action: null };
+
+  const segments = remainder.split('/').filter(Boolean);
+  if (segments.length === 0) return { id: null, action: null };
+
+  const lastSeg = segments[segments.length - 1].toLowerCase();
+  if (subActionSuffixes.includes(lastSeg) && segments.length > 1) {
+    const idSegments = segments.slice(0, segments.length - 1);
+    const id = decodeURIComponent(idSegments.join('/'));
+    return { id, action: lastSeg };
+  }
+
+  const id = decodeURIComponent(segments.join('/'));
+  return { id, action: null };
+}
+
 export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.location.pathname + window.location.search) : '/')) {
   // Normalize pathname: strip query params and hash if present, remove trailing slash, ensure leading slash
   let queryString = '';
@@ -306,9 +332,8 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
         stockProductInfo: null
       };
     }
-    if (sub) {
-      const rawSub = pathname.split('/')[2] || sub;
-      const quotationId = decodeURIComponent(rawSub);
+    const { id: quotationId } = extractModuleId(pathname, 'quotations', []);
+    if (quotationId) {
       return {
         path: `/quotations/${quotationId}`,
         activeTab: 'quotations',
@@ -444,13 +469,41 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
       };
     }
     if (sub && sub !== 'overview' && sub !== 'details') {
-      const rawSub = pathname.split('/')[2] || sub;
-      const poId = decodeURIComponent(String(rawSub).split(/[?#]/)[0]);
-      if (action === 'receive') {
+      const { id: poId, action: poAction } = extractModuleId(pathname, section, ['receive', 'edit']);
+      if (poId) {
+        const effectiveAction = poAction || action;
+        if (effectiveAction === 'receive') {
+          return {
+            path: `/purchase-orders/${poId}/receive`,
+            activeTab: 'purchase-orders',
+            poSubView: 'receive-po',
+            activePoId: poId,
+            targetGrnId: targetGrnId,
+            activeCustomerId: null,
+            activeEnquiryId: null,
+            stockBranch: 'overview',
+            stockProductCreate: false,
+            stockProductInfo: null
+          };
+        }
+        if (effectiveAction === 'edit') {
+          return {
+            path: `/purchase-orders/${poId}/edit`,
+            activeTab: 'purchase-orders',
+            poSubView: 'edit',
+            activePoId: poId,
+            targetGrnId: targetGrnId,
+            activeCustomerId: null,
+            activeEnquiryId: null,
+            stockBranch: 'overview',
+            stockProductCreate: false,
+            stockProductInfo: null
+          };
+        }
         return {
-          path: `/purchase-orders/${poId}/receive`,
+          path: `/purchase-orders/${poId}`,
           activeTab: 'purchase-orders',
-          poSubView: 'receive-po',
+          poSubView: 'details',
           activePoId: poId,
           targetGrnId: targetGrnId,
           activeCustomerId: null,
@@ -460,32 +513,6 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
           stockProductInfo: null
         };
       }
-      if (action === 'edit') {
-        return {
-          path: `/purchase-orders/${poId}/edit`,
-          activeTab: 'purchase-orders',
-          poSubView: 'edit',
-          activePoId: poId,
-          targetGrnId: targetGrnId,
-          activeCustomerId: null,
-          activeEnquiryId: null,
-          stockBranch: 'overview',
-          stockProductCreate: false,
-          stockProductInfo: null
-        };
-      }
-      return {
-        path: `/purchase-orders/${poId}`,
-        activeTab: 'purchase-orders',
-        poSubView: 'details',
-        activePoId: poId,
-        targetGrnId: targetGrnId,
-        activeCustomerId: null,
-        activeEnquiryId: null,
-        stockBranch: 'overview',
-        stockProductCreate: false,
-        stockProductInfo: null
-      };
     }
     return {
       path: '/purchase-orders',
@@ -588,19 +615,20 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
       };
     }
     if (sub) {
-      const rawSub = pathname.split('/')[2] || sub;
-      const dcId = decodeURIComponent(rawSub);
-      return {
-        path: `/delivery-challans/${dcId}`,
-        activeTab: 'delivery-challans',
-        dcSubView: 'history',
-        activeDcId: dcId,
-        activeCustomerId: null,
-        activeEnquiryId: null,
-        stockBranch: 'overview',
-        stockProductCreate: false,
-        stockProductInfo: null
-      };
+      const { id: dcId } = extractModuleId(pathname, section, []);
+      if (dcId) {
+        return {
+          path: `/delivery-challans/${dcId}`,
+          activeTab: 'delivery-challans',
+          dcSubView: 'history',
+          activeDcId: dcId,
+          activeCustomerId: null,
+          activeEnquiryId: null,
+          stockBranch: 'overview',
+          stockProductCreate: false,
+          stockProductInfo: null
+        };
+      }
     }
     return {
       path: '/delivery-challans',
@@ -620,7 +648,7 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
   // /orders/invoices
   if (section === 'orders') {
     if (sub === 'delivery-challans') {
-      const docId = action ? decodeURIComponent(pathname.split('/')[3] || action) : null;
+      const { id: docId } = extractModuleId(pathname, 'orders/delivery-challans', []);
       return {
         path: docId ? `/delivery-challans/${docId}` : '/delivery-challans',
         activeTab: 'delivery-challans',
@@ -635,7 +663,7 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
     }
     if (sub === 'proformas' || sub === 'proforma') {
       const isNew = action === 'new' || action === 'create';
-      const docId = (!isNew && action) ? decodeURIComponent(pathname.split('/')[3] || action) : null;
+      const { id: docId } = isNew ? { id: null } : extractModuleId(pathname, `orders/${sub}`, []);
       return {
         path: isNew ? '/orders/proformas/new' : (docId ? `/orders/proformas/${docId}` : '/orders/proformas'),
         activeTab: 'orders',
@@ -651,13 +679,27 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
       };
     }
     if (sub === 'invoices') {
-      const docId = action ? decodeURIComponent(pathname.split('/')[3] || action) : null;
+      const { id: docId } = extractModuleId(pathname, 'orders/invoices', []);
       return {
         path: docId ? `/orders/invoices/${docId}` : '/orders/invoices',
         activeTab: 'orders',
         ordersSubView: 'invoices',
         activeDocId: docId,
         docType: docId ? 'INV' : null,
+        activeCustomerId: null,
+        activeEnquiryId: null,
+        stockBranch: 'overview',
+        stockProductCreate: false,
+        stockProductInfo: null
+      };
+    }
+    if (sub && sub !== 'orders') {
+      const { id: orderId } = extractModuleId(pathname, 'orders', []);
+      return {
+        path: orderId ? `/orders/${orderId}` : '/orders',
+        activeTab: 'orders',
+        ordersSubView: 'orders',
+        activeDocId: orderId,
         activeCustomerId: null,
         activeEnquiryId: null,
         stockBranch: 'overview',
@@ -747,13 +789,51 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
       };
     }
     if (sub) {
-      const rawSub = pathname.split('/')[2] || sub;
-      const enquiryId = decodeURIComponent(rawSub);
-      if (action === 'followup' || action === 'follow-up') {
+      const { id: enquiryId, action: enqAction } = extractModuleId(pathname, 'enquiries', ['followup', 'follow-up', 'quotation', 'solved']);
+      if (enquiryId) {
+        const effectiveAction = enqAction || action;
+        if (effectiveAction === 'followup' || effectiveAction === 'follow-up') {
+          return {
+            path: `/enquiries/${enquiryId}/followup`,
+            activeTab: 'enquiries',
+            enquirySubView: 'followup',
+            activeEnquiryId: enquiryId,
+            activeCustomerId: null,
+            stockBranch: 'overview',
+            stockProductCreate: false,
+            stockProductInfo: null
+          };
+        }
+        if (effectiveAction === 'quotation') {
+          return {
+            path: `/enquiries/${enquiryId}/quotation`,
+            activeTab: 'quotations',
+            quotationSubView: 'new',
+            enquirySubView: 'quotation',
+            activeQuotationId: null,
+            activeEnquiryId: enquiryId,
+            activeCustomerId: null,
+            stockBranch: 'overview',
+            stockProductCreate: false,
+            stockProductInfo: null
+          };
+        }
+        if (effectiveAction === 'solved') {
+          return {
+            path: `/enquiries/${enquiryId}/solved`,
+            activeTab: 'enquiries',
+            enquirySubView: 'solved',
+            activeEnquiryId: enquiryId,
+            activeCustomerId: null,
+            stockBranch: 'overview',
+            stockProductCreate: false,
+            stockProductInfo: null
+          };
+        }
         return {
-          path: `/enquiries/${enquiryId}/followup`,
+          path: `/enquiries/${enquiryId}`,
           activeTab: 'enquiries',
-          enquirySubView: 'followup',
+          enquirySubView: 'details',
           activeEnquiryId: enquiryId,
           activeCustomerId: null,
           stockBranch: 'overview',
@@ -761,42 +841,6 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
           stockProductInfo: null
         };
       }
-      if (action === 'quotation') {
-        return {
-          path: `/enquiries/${enquiryId}/quotation`,
-          activeTab: 'quotations',
-          quotationSubView: 'new',
-          enquirySubView: 'quotation',
-          activeQuotationId: null,
-          activeEnquiryId: enquiryId,
-          activeCustomerId: null,
-          stockBranch: 'overview',
-          stockProductCreate: false,
-          stockProductInfo: null
-        };
-      }
-      if (action === 'solved') {
-        return {
-          path: `/enquiries/${enquiryId}/solved`,
-          activeTab: 'enquiries',
-          enquirySubView: 'solved',
-          activeEnquiryId: enquiryId,
-          activeCustomerId: null,
-          stockBranch: 'overview',
-          stockProductCreate: false,
-          stockProductInfo: null
-        };
-      }
-      return {
-        path: `/enquiries/${enquiryId}`,
-        activeTab: 'enquiries',
-        enquirySubView: 'details',
-        activeEnquiryId: enquiryId,
-        activeCustomerId: null,
-        stockBranch: 'overview',
-        stockProductCreate: false,
-        stockProductInfo: null
-      };
     }
     return {
       path: '/enquiries',

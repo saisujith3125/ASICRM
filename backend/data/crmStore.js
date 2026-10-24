@@ -191,6 +191,44 @@ let quotations = [];
 // Pre-seeded Enquiries
 let enquiries = [
   {
+    enquiryId: 'ENQ/001/2026',
+    customerId: 'CUST-001',
+    customerName: 'Apex Technologies Pvt Ltd',
+    customerCompany: 'Apex Technologies Pvt Ltd',
+    customerMobile: '9840123456',
+    customerEmail: 'karthik@apextech.in',
+    source: 'Direct',
+    type: 'Product Enquiry',
+    priority: 'High',
+    assignedTo: 'Super Admin',
+    status: 'SOLVED',
+    outcome: 'ORDER_CONFIRMED',
+    currentStage: 'Case Closed',
+    description: 'Enterprise Dahua IP Surveillance Systems requirement for Apex Technology Center.',
+    productsInterested: 'Dahua 5MP IR Bullet Camera',
+    quotationId: 'QTN/001/2026',
+    quotationAmount: 25960,
+    quotationItem: 'Dahua 5MP IR Bullet Camera',
+    relatedOrderId: 'ORD-001',
+    closedAt: '2026-10-05T15:00:00.000Z',
+    closedBy: 'Super Admin',
+    solvedBy: 'Super Admin',
+    createdAt: '2026-10-01T09:00:00.000Z',
+    updatedAt: '2026-10-05T15:00:00.000Z',
+    followUps: [
+      {
+        id: 'FU-001-1',
+        contactType: 'Phone Call',
+        contactDate: '2026-10-02T10:00:00.000Z',
+        employee: 'Super Admin',
+        notes: 'Discussed camera specifications and site requirements.',
+        outcome: 'Customer requested quotation.',
+        nextAction: 'Issue formal quotation',
+        createdAt: '2026-10-02T10:05:00.000Z'
+      }
+    ]
+  },
+  {
     enquiryId: 'ENQ-000101',
     customerId: 'CUST-002',
     customerName: 'Priya Patel',

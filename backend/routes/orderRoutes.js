@@ -25,39 +25,55 @@ const {
   convertProformaToInvoice
 } = require('../controllers/orderController');
 
+// Middleware to normalize wildcard params to strings (handles IDs containing slashes like DC/001/2026, INV/001/2026, QTN/001/2026)
+const normalizeParams = (req, res, next) => {
+  if (req.params) {
+    for (const key of Object.keys(req.params)) {
+      if (Array.isArray(req.params[key])) {
+        req.params[key] = req.params[key].join('/');
+      } else if (typeof req.params[key] === 'string') {
+        req.params[key] = decodeURIComponent(req.params[key]);
+      }
+    }
+  }
+  next();
+};
+
 // Serial numbers pool from stocks
 router.get('/available-serials', getAvailableSerialNumbers);
 
 // Proforma Invoice endpoints (must be defined before /:id)
 router.get('/proformas', getProformas);
-router.get('/proformas/:id', getProformaById);
 router.post('/proformas', createProforma);
-router.put('/proformas/:id', updateProforma);
-router.post('/proformas/:id/revise', reviseProforma);
-router.patch('/proformas/:id/status', updateProformaStatus);
-router.post('/proformas/:id/convert-to-order', convertProformaToOrder);
-router.post('/proformas/:id/convert-order', convertProformaToOrder);
-router.post('/proformas/:id/convert', convertProformaToOrder);
-router.post('/proformas/:id/convert-to-invoice', convertProformaToInvoice);
-router.post('/proformas/:id/convert-invoice', convertProformaToInvoice);
+router.post('/proformas/{*id}/revise', normalizeParams, reviseProforma);
+router.patch('/proformas/{*id}/status', normalizeParams, updateProformaStatus);
+router.post('/proformas/{*id}/convert-to-order', normalizeParams, convertProformaToOrder);
+router.post('/proformas/{*id}/convert-order', normalizeParams, convertProformaToOrder);
+router.post('/proformas/{*id}/convert', normalizeParams, convertProformaToOrder);
+router.post('/proformas/{*id}/convert-to-invoice', normalizeParams, convertProformaToInvoice);
+router.post('/proformas/{*id}/convert-invoice', normalizeParams, convertProformaToInvoice);
+router.put('/proformas/{*id}', normalizeParams, updateProforma);
+router.get('/proformas/{*id}', normalizeParams, getProformaById);
 
 // Delivery Challan endpoints
 router.get('/delivery-challans', getDeliveryChallans);
-router.get('/delivery-challans/:id', getDeliveryChallanById);
 router.post('/delivery-challans', createDeliveryChallan);
-router.patch('/delivery-challans/:id/status', updateDeliveryChallanStatus);
+router.patch('/delivery-challans/{*id}/status', normalizeParams, updateDeliveryChallanStatus);
+router.get('/delivery-challans/{*id}', normalizeParams, getDeliveryChallanById);
 
 // Sales Invoice endpoints
 router.get('/invoices', getInvoices);
-router.get('/invoices/:id', getInvoiceById);
 router.post('/invoices', createInvoice);
-router.patch('/invoices/:id/payment', updateInvoicePayment);
-router.patch('/invoices/:id/status', updateInvoiceStatus);
+router.patch('/invoices/{*id}/payment', normalizeParams, updateInvoicePayment);
+router.patch('/invoices/{*id}/status', normalizeParams, updateInvoiceStatus);
+router.get('/invoices/{*id}', normalizeParams, getInvoiceById);
+
+// Quotation conversion
+router.post('/from-quotation/{*quotationId}', normalizeParams, createOrderFromQuotation);
 
 // Sales Order endpoints
 router.get('/', getOrders);
-router.get('/:id', getOrderById);
 router.post('/', createOrder);
-router.post('/from-quotation/:quotationId', createOrderFromQuotation);
+router.get('/{*id}', normalizeParams, getOrderById);
 
 module.exports = router;

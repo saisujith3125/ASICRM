@@ -23,7 +23,7 @@ async function run() {
   try {
     // 1. Authenticate via localStorage
     console.log('Navigating to root and setting authentication...');
-    await page.goto('http://127.0.0.1:5173', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com', { waitUntil: 'networkidle2' });
     await page.evaluate(() => {
       localStorage.setItem('asicrm_user', JSON.stringify({
         id: 'USR-001',
@@ -35,7 +35,7 @@ async function run() {
 
     // 2. Navigate to Quotations list
     console.log('Navigating to /quotations...');
-    await page.goto('http://127.0.0.1:5173/quotations', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com/quotations', { waitUntil: 'networkidle2' });
     await page.waitForSelector('tbody tr td.actions-col', { timeout: 10000 });
     await sleep(1000);
 
@@ -197,7 +197,7 @@ async function run() {
     // TEST 5: Quotation Editor for Awaiting Decision (QT-000065)
     // ----------------------------------------------------
     console.log('\n--- Inspecting Quotation Editor for Awaiting Decision (QT-000065) ---');
-    await page.goto('http://127.0.0.1:5173/quotations', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com/quotations', { waitUntil: 'networkidle2' });
     await page.waitForSelector('tbody tr td.actions-col', { timeout: 10000 });
     // Click AWAITING tab
     const tabButtons = await page.$$('.quotation-status-filter button');
@@ -234,7 +234,7 @@ async function run() {
     // TEST 6: Quotation Editor & PDF Modal for Accepted (QT-000064)
     // ----------------------------------------------------
     console.log('\n--- Inspecting Quotation Editor & PDF Modal for Accepted (QT-000064) ---');
-    await page.goto('http://127.0.0.1:5173/quotations', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com/quotations', { waitUntil: 'networkidle2' });
     await page.waitForSelector('tbody tr td.actions-col', { timeout: 10000 });
     // Click ACCEPTED tab
     const tabButtons2 = await page.$$('.quotation-status-filter button');

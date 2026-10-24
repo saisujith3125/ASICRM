@@ -12,7 +12,7 @@ const fs = require('fs');
   const page = await browser.newPage();
 
   // Helper to log in if needed
-  await page.goto('http://localhost:5173/quotations', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com/quotations', { waitUntil: 'networkidle2' });
   await page.waitForTimeout(1000);
 
   // Check if redirected to login
@@ -30,7 +30,7 @@ const fs = require('fs');
   // TEST 1: Quotation Stock Validation & PDF Blocking (QT-000067)
   // =========================================================================
   console.log('\n[TEST 1] Quotation Stock Validation & PDF Blocking...');
-  await page.goto('http://localhost:5173/quotations', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com/quotations', { waitUntil: 'networkidle2' });
   await page.waitForTimeout(1500);
 
   // Look for QT-000067 or click the first quotation's View button
@@ -40,7 +40,7 @@ const fs = require('fs');
     await page.waitForTimeout(2000);
   } else {
     // Navigate directly to /quotations/new
-    await page.goto('http://localhost:5173/quotations/new', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com/quotations/new', { waitUntil: 'networkidle2' });
     await page.waitForTimeout(2000);
   }
 
@@ -157,7 +157,7 @@ const fs = require('fs');
   // TEST 3: Delivery Challan Customer Deduplication & Master Branding
   // =========================================================================
   console.log('\n[TEST 3] Verifying Delivery Challan Customer Deduplication & Branding...');
-  await page.goto('http://localhost:5173/delivery-challans/dc-000116', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com/delivery-challans/dc-000116', { waitUntil: 'networkidle2' });
   await page.waitForTimeout(2000);
 
   // Check if DC view is loaded
@@ -188,7 +188,7 @@ const fs = require('fs');
   // TEST 4: Delivery Challan Stock Validation & Full Width Layout
   // =========================================================================
   console.log('\n[TEST 4] Verifying Delivery Challan Stock Validation on New DC...');
-  await page.goto('http://localhost:5173/delivery-challans/new', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com/delivery-challans/new', { waitUntil: 'networkidle2' });
   await page.waitForTimeout(2000);
 
   // Check table width

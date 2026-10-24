@@ -45,8 +45,8 @@ async function runBrowserTests() {
 
   try {
     // 1. Set Auth in localStorage and navigate
-    console.log('[STEP 1] Navigating to http://localhost:5173...');
-    await page.goto('http://localhost:5173', { waitUntil: 'networkidle2' });
+    console.log('[STEP 1] Navigating to https://crmapi.asiind.com...');
+    await page.goto('https://crmapi.asiind.com', { waitUntil: 'networkidle2' });
 
     await page.evaluate(() => {
       localStorage.setItem('asicrm_user', JSON.stringify({
@@ -59,7 +59,7 @@ async function runBrowserTests() {
 
     // 2. Open Direct Quotation Creation
     console.log('[STEP 2] Navigating to /quotations/new...');
-    await page.goto('http://localhost:5173/quotations/new', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com/quotations/new', { waitUntil: 'networkidle2' });
     await sleep(1500);
 
     // Verify Quotation Editor rendered

@@ -16,7 +16,7 @@ async function runTest() {
     const page = await browser.newPage();
 
     // 1. Setup user authentication
-    await page.goto('http://127.0.0.1:5173/', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com/', { waitUntil: 'networkidle2' });
     await page.evaluate(() => {
       localStorage.setItem('asicrm_user', JSON.stringify({
         id: 'USR-001',
@@ -29,7 +29,7 @@ async function runTest() {
 
     // 2. Check New DC Page Purpose Dropdown
     console.log('Navigating to New DC page...');
-    await page.goto('http://127.0.0.1:5173/delivery-challans/new', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com/delivery-challans/new', { waitUntil: 'networkidle2' });
     await new Promise((r) => setTimeout(r, 1500));
 
     const options = await page.$$eval('.dc-group-purpose select option', opts => opts.map(o => ({ value: o.value, text: o.text })));
@@ -54,9 +54,9 @@ async function runTest() {
     }
     await page.screenshot({ path: path.join(ARTIFACTS_DIR, 'test_dc_dropdown_return_delivery.png'), fullPage: false });
 
-    // 3. Navigate directly to DC-000142 modal preview
-    console.log('Navigating to http://127.0.0.1:5173/delivery-challans/DC-000142 ...');
-    await page.goto('http://127.0.0.1:5173/delivery-challans/DC-000142', { waitUntil: 'networkidle2' });
+    // 3. Navigate directly to DC/001/2026 modal preview
+    console.log('Navigating to https://crmapi.asiind.com/delivery-challans/DC/001/2026 ...');
+    await page.goto('https://crmapi.asiind.com/delivery-challans/DC/001/2026', { waitUntil: 'networkidle2' });
     await new Promise((r) => setTimeout(r, 2000));
 
     const titleWrap142 = await page.$eval('.dc-top-title-wrap', el => el.innerText.trim());
@@ -68,8 +68,8 @@ async function runTest() {
     await page.screenshot({ path: path.join(ARTIFACTS_DIR, 'test_dc_000142_clean_title.png'), fullPage: false });
 
     // 4. Navigate directly to DC-000132 modal preview (partially returned in user screenshot)
-    console.log('Navigating to http://127.0.0.1:5173/delivery-challans/DC-000132 ...');
-    await page.goto('http://127.0.0.1:5173/delivery-challans/DC-000132', { waitUntil: 'networkidle2' });
+    console.log('Navigating to https://crmapi.asiind.com/delivery-challans/DC-000132 ...');
+    await page.goto('https://crmapi.asiind.com/delivery-challans/DC-000132', { waitUntil: 'networkidle2' });
     await new Promise((r) => setTimeout(r, 2000));
 
     const titleWrap132 = await page.$eval('.dc-top-title-wrap', el => el.innerText.trim());

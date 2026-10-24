@@ -23,8 +23,8 @@ async function run() {
   await page.setViewport({ width: 1400, height: 900 });
 
   try {
-    console.log('Navigating to http://localhost:5173...');
-    await page.goto('http://localhost:5173', { waitUntil: 'domcontentloaded' });
+    console.log('Navigating to https://crmapi.asiind.com...');
+    await page.goto('https://crmapi.asiind.com', { waitUntil: 'domcontentloaded' });
     await new Promise((r) => setTimeout(r, 1500));
 
     // Handle login if present
@@ -49,9 +49,9 @@ async function run() {
       }));
     });
 
-    // 1. Navigate directly to /delivery-challans/DC-000116
-    console.log('Navigating to /delivery-challans/DC-000116...');
-    await page.goto('http://localhost:5173/delivery-challans/DC-000116', { waitUntil: 'domcontentloaded' });
+    // 1. Navigate directly to /delivery-challans/DC/001/2026
+    console.log('Navigating to /delivery-challans/DC/001/2026...');
+    await page.goto('https://crmapi.asiind.com/delivery-challans/DC/001/2026', { waitUntil: 'domcontentloaded' });
 
     // Wait for the modal and PrintableDeliveryChallan to render
     console.log('Waiting for .printable-delivery-challan to appear...');
@@ -142,7 +142,7 @@ async function run() {
 
     // Also navigate to Settings -> Branding to capture settings UI screenshot
     console.log('Navigating to /settings/branding...');
-    await page.goto('http://localhost:5173/settings/branding', { waitUntil: 'domcontentloaded' });
+    await page.goto('https://crmapi.asiind.com/settings/branding', { waitUntil: 'domcontentloaded' });
     await new Promise((r) => setTimeout(r, 2000));
 
     const settingsScreenshotPath = path.join(ARTIFACTS_DIR, 'verify_settings_branding_page.png');

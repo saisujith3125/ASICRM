@@ -34,7 +34,7 @@ async function run() {
   await send('Page.enable');
   await send('Runtime.enable');
   await send('Emulation.setDeviceMetricsOverride', { width: 1920, height: 920, deviceScaleFactor: 1, mobile: false });
-  await send('Page.navigate', { url: 'http://127.0.0.1:5173/' });
+  await send('Page.navigate', { url: 'https://crmapi.asiind.com/' });
   await new Promise(r => setTimeout(r, 800));
   await send('Runtime.evaluate', {
     expression: `(() => {
@@ -44,7 +44,7 @@ async function run() {
       localStorage.setItem('token', 'mock-token');
     })()`
   });
-  await send('Page.navigate', { url: 'http://127.0.0.1:5173/customers' });
+  await send('Page.navigate', { url: 'https://crmapi.asiind.com/customers' });
 
   for (let i = 0; i < 20; i++) {
     await new Promise(r => setTimeout(r, 300));

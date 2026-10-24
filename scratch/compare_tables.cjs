@@ -34,7 +34,7 @@ async function run() {
 
   await send('Page.enable');
   await send('Runtime.enable');
-  await send('Page.navigate', { url: 'http://127.0.0.1:5173/' });
+  await send('Page.navigate', { url: 'https://crmapi.asiind.com/' });
   await new Promise(r => setTimeout(r, 1000));
   await send('Runtime.evaluate', {
     expression: `(() => {
@@ -46,7 +46,7 @@ async function run() {
   });
 
   // Check Brands table
-  await send('Page.navigate', { url: 'http://127.0.0.1:5173/stocks/brands' });
+  await send('Page.navigate', { url: 'https://crmapi.asiind.com/stocks/brands' });
   await new Promise(r => setTimeout(r, 2500));
   const pageCheck = await send('Runtime.evaluate', { expression: '({ url: window.location.href, text: document.body.innerText.slice(0, 150) })', returnByValue: true });
   console.log('PAGE CHECK:', pageCheck.result.value);
@@ -63,7 +63,7 @@ async function run() {
   console.log('BRANDS TABLE INFO:\n', JSON.stringify(brandsInfo.result.value, null, 2));
 
   // Check Enquiries table
-  await send('Page.navigate', { url: 'http://127.0.0.1:5173/enquiries' });
+  await send('Page.navigate', { url: 'https://crmapi.asiind.com/enquiries' });
   await new Promise(r => setTimeout(r, 2000));
   const enquiryInfo = await send('Runtime.evaluate', {
     expression: `(() => {

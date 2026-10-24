@@ -30,7 +30,7 @@ async function runVerification() {
 
   // 1. Visit Product Create Page
   console.log('1. Navigating to Product Create Page...');
-  await page.goto('http://localhost:5173/stocks/products/new', { waitUntil: 'networkidle0', timeout: 30000 });
+  await page.goto('https://crmapi.asiind.com/stocks/products/new', { waitUntil: 'networkidle0', timeout: 30000 });
   await new Promise((r) => setTimeout(r, 2000));
   const debugInfo = await page.evaluate(() => {
     return {
@@ -148,7 +148,7 @@ async function runVerification() {
 
   // 2. Visit Stock Movements Page & Test New Stock Movement Modal
   console.log('2. Navigating to Stock Movements Page...');
-  await page.goto('http://localhost:5173/stocks/movements', { waitUntil: 'networkidle0', timeout: 30000 });
+  await page.goto('https://crmapi.asiind.com/stocks/movements', { waitUntil: 'networkidle0', timeout: 30000 });
   await page.waitForSelector('.stock-movements-workspace, .crm-btn-primary', { timeout: 10000 });
 
   // Open "New Movement" modal

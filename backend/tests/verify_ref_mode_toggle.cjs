@@ -16,7 +16,7 @@ async function runTest() {
     const page = await browser.newPage();
 
     // Setup user
-    await page.goto('http://127.0.0.1:5173/', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com/', { waitUntil: 'networkidle2' });
     await page.evaluate(() => {
       localStorage.setItem('asicrm_user', JSON.stringify({
         id: 'USR-001',
@@ -29,7 +29,7 @@ async function runTest() {
       sessionStorage.removeItem('asicrm_dc_draft');
     });
 
-    await page.goto('http://127.0.0.1:5173/delivery-challans/new', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com/delivery-challans/new', { waitUntil: 'networkidle2' });
     await new Promise((r) => setTimeout(r, 1500));
 
     // 1. Check mode selector exists

@@ -4,7 +4,7 @@ const puppeteer = require(path.join(__dirname, '..', 'backend', 'node_modules', 
 
 const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const ARTIFACTS_DIR = 'C:\\Users\\gotindia\\.gemini\\antigravity\\brain\\60245ec2-db07-4a60-9e96-08a10130208f';
-const BASE_URL = 'http://127.0.0.1:5173';
+const BASE_URL = 'https://crmapi.asiind.com';
 
 (async () => {
   const browser = await puppeteer.launch({
@@ -23,7 +23,7 @@ const BASE_URL = 'http://127.0.0.1:5173';
     sessionStorage.setItem('asicrm_user', JSON.stringify({ id: 'USR-001', role: 'SUPER_ADMIN' }));
   });
 
-  await page.goto(`${BASE_URL}/quotations/QT-000113`, { waitUntil: 'networkidle2' });
+  await page.goto(`${BASE_URL}/quotations/QTN/001/2026`, { waitUntil: 'networkidle2' });
   await new Promise((r) => setTimeout(r, 2000));
 
   const btn = await page.$('button[title*="Quotation PDF"]');

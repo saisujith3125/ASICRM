@@ -29,8 +29,8 @@ async function test() {
   await page.setViewport({ width: 1400, height: 900 });
 
   try {
-    console.log('Navigating to http://localhost:5173...');
-    await page.goto('http://localhost:5173', { waitUntil: 'networkidle0', timeout: 30000 });
+    console.log('Navigating to https://crmapi.asiind.com...');
+    await page.goto('https://crmapi.asiind.com', { waitUntil: 'networkidle0', timeout: 30000 });
 
     // Ensure logged in
     const isLoginPage = await page.$('input[type="password"]');

@@ -44,7 +44,7 @@ async function run() {
 
   try {
     // Navigate to base URL to initialize localStorage
-    await page.goto('http://localhost:5173', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com', { waitUntil: 'networkidle2' });
     await page.evaluate(() => {
       localStorage.setItem('asicrm_user', JSON.stringify({
         id: 'USR-001',
@@ -73,7 +73,7 @@ async function run() {
         sealUrl: seal
       };
 
-      await fetch('http://127.0.0.1:5000/api/settings/company', {
+      await fetch('https://crmapi.asiind.com/api/settings/company', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ async function run() {
 
     // 1. Navigate to /quotations/new
     console.log('Navigating to /quotations/new...');
-    await page.goto('http://localhost:5173/quotations/new', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com/quotations/new', { waitUntil: 'networkidle2' });
     await sleep(1500);
 
     // TEST 1: Verify empty-state placeholder box is NOT rendered

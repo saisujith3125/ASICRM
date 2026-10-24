@@ -10,7 +10,7 @@ const path = require('path');
   const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 1100 });
   
-  await page.goto('http://127.0.0.1:5173', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com', { waitUntil: 'networkidle2' });
   await page.evaluate(() => {
     localStorage.setItem('asicrm_auth_token', 'mock');
     localStorage.setItem('asicrm_user', JSON.stringify({ id: 'USR-001', role: 'SUPER_ADMIN' }));
@@ -18,7 +18,7 @@ const path = require('path');
     sessionStorage.setItem('asicrm_user', JSON.stringify({ id: 'USR-001', role: 'SUPER_ADMIN' }));
   });
 
-  await page.goto('http://127.0.0.1:5173/quotations/QT-000117', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com/quotations/QTN/001/2026', { waitUntil: 'networkidle2' });
   await new Promise(r => setTimeout(r, 2000));
 
   // Ensure 'Show Discount (%)' checkbox is checked

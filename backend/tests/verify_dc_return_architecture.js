@@ -12,7 +12,7 @@
 
 const assert = require('assert');
 
-const BASE_URL = 'http://127.0.0.1:5000/api/orders';
+const BASE_URL = 'https://crmapi.asiind.com/api/orders';
 const HEADERS = {
   'Content-Type': 'application/json',
   'x-user-id': 'USR-001'

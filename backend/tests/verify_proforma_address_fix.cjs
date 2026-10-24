@@ -16,7 +16,7 @@ async function runTest() {
     const page = await browser.newPage();
 
     // 1. Log in or setup authentication
-    await page.goto('http://127.0.0.1:5173/', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com/', { waitUntil: 'networkidle2' });
     await page.evaluate(() => {
       localStorage.setItem('asicrm_user', JSON.stringify({
         id: 'USR-001',
@@ -28,8 +28,8 @@ async function runTest() {
     });
 
     // 2. Navigate to PI-000032 viewer
-    console.log('Navigating to http://127.0.0.1:5173/orders/proformas/PI-000032 ...');
-    await page.goto('http://127.0.0.1:5173/orders/proformas/PI-000032', { waitUntil: 'networkidle2' });
+    console.log('Navigating to https://crmapi.asiind.com/orders/proformas/PI-000032 ...');
+    await page.goto('https://crmapi.asiind.com/orders/proformas/PI-000032', { waitUntil: 'networkidle2' });
     await new Promise((r) => setTimeout(r, 2000));
 
     // 3. Inspect Consignee Pane lines

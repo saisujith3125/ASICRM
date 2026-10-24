@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const BASE_URL = 'http://localhost:5000/api/settings';
+const BASE_URL = 'https://crmapi.asiind.com/api/settings';
 
 async function request(endpoint, options = {}) {
   const url = `${BASE_URL}${endpoint}`;

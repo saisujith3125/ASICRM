@@ -7,7 +7,7 @@ async function testDynamicSerials() {
   const page = await browser.newPage({ viewport: { width: 1400, height: 900 } });
 
   console.log('1. Navigating to DC create page...');
-  await page.goto('http://localhost:5173/#/delivery-challans/new', { waitUntil: 'networkidle' });
+  await page.goto('https://crmapi.asiind.com/#/delivery-challans/new', { waitUntil: 'networkidle' });
   await page.waitForTimeout(2000);
 
   // Take initial screenshot

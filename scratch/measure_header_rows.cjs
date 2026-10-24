@@ -21,13 +21,13 @@ const puppeteer = require('E:/ASICRM_FINAL_PROJECT/frontend/node_modules/puppete
     }));
   });
 
-  await page.goto('http://localhost:5173/quotations', { waitUntil: 'networkidle0' });
+  await page.goto('https://crmapi.asiind.com/quotations', { waitUntil: 'networkidle0' });
   await new Promise(r => setTimeout(r, 2000));
 
   await page.evaluate(() => {
     const rows = Array.from(document.querySelectorAll('tr'));
     for (const row of rows) {
-      if (row.textContent.includes('QT-000100')) {
+      if (row.textContent.includes('QTN/001/2026') || row.textContent.includes('QT-000100')) {
         const pdfBtn = Array.from(row.querySelectorAll('button')).find(
           b => b.textContent.trim() === 'PDF' || b.title?.includes('Download Official Quotation PDF')
         );

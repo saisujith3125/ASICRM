@@ -13,7 +13,7 @@ const path = require('path');
   const artifactDir = 'C:/Users/gotindia/.gemini/antigravity/brain/60245ec2-db07-4a60-9e96-08a10130208f';
 
   // Authenticate as Super Admin
-  await page.goto('http://127.0.0.1:5173', { waitUntil: 'domcontentloaded' });
+  await page.goto('https://crmapi.asiind.com', { waitUntil: 'domcontentloaded' });
   await page.evaluate(() => {
     localStorage.setItem('asicrm_user', JSON.stringify({
       id: 'USR-001',
@@ -36,11 +36,11 @@ const path = require('path');
   });
 
   const tests = [
-    { name: 'Quotations', url: 'http://127.0.0.1:5173/quotations', file: 'verified_clean_quotations.png' },
-    { name: 'Delivery Challans', url: 'http://127.0.0.1:5173/delivery-challans', file: 'verified_clean_dc.png' },
-    { name: 'Customers', url: 'http://127.0.0.1:5173/customers', file: 'verified_clean_customers.png' },
-    { name: 'Purchase Orders', url: 'http://127.0.0.1:5173/purchase-orders/sent', file: 'verified_clean_po.png' },
-    { name: 'Orders & Deals', url: 'http://127.0.0.1:5173/orders', file: 'verified_clean_orders.png' }
+    { name: 'Quotations', url: 'https://crmapi.asiind.com/quotations', file: 'verified_clean_quotations.png' },
+    { name: 'Delivery Challans', url: 'https://crmapi.asiind.com/delivery-challans', file: 'verified_clean_dc.png' },
+    { name: 'Customers', url: 'https://crmapi.asiind.com/customers', file: 'verified_clean_customers.png' },
+    { name: 'Purchase Orders', url: 'https://crmapi.asiind.com/purchase-orders/sent', file: 'verified_clean_po.png' },
+    { name: 'Orders & Deals', url: 'https://crmapi.asiind.com/orders', file: 'verified_clean_orders.png' }
   ];
 
   for (const t of tests) {

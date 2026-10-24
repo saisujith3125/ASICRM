@@ -11,7 +11,7 @@ const puppeteer = require('../backend/node_modules/puppeteer-core');
 
   // 1. Initial navigation to set localStorage auth
   console.log('Navigating to base URL to authenticate...');
-  await page.goto('http://127.0.0.1:5173', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com', { waitUntil: 'networkidle2' });
   await page.evaluate(() => {
     const user = {
       id: 'USR-001',
@@ -39,7 +39,7 @@ const puppeteer = require('../backend/node_modules/puppeteer-core');
 
   // 2. Visit Edit Product page for Dahua camera
   console.log('Navigating to Dahua camera edit page...');
-  await page.goto('http://127.0.0.1:5173/stocks/products/PROD-000001/edit', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com/stocks/products/PROD-000001/edit', { waitUntil: 'networkidle2' });
   await new Promise(r => setTimeout(r, 1200));
   await page.screenshot({ path: 'C:/Users/gotindia/.gemini/antigravity/brain/60245ec2-db07-4a60-9e96-08a10130208f/test_dahua_edit_page.png' });
   console.log('Saved test_dahua_edit_page.png');
@@ -105,7 +105,7 @@ const puppeteer = require('../backend/node_modules/puppeteer-core');
   console.log('Saved test_back_to_product_page.png');
 
   // 6. Navigate back to Stock Movements and test "View All Movements"
-  await page.goto('http://127.0.0.1:5173/stocks/products/PROD-000001/movements', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com/stocks/products/PROD-000001/movements', { waitUntil: 'networkidle2' });
   await new Promise(r => setTimeout(r, 1000));
   await page.evaluate(() => {
     const btns = Array.from(document.querySelectorAll('button'));
@@ -118,7 +118,7 @@ const puppeteer = require('../backend/node_modules/puppeteer-core');
   console.log('Saved test_all_stock_movements_page.png');
 
   // 7. Check products list table with Stock Movement action icon
-  await page.goto('http://127.0.0.1:5173/stocks/products', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com/stocks/products', { waitUntil: 'networkidle2' });
   await new Promise(r => setTimeout(r, 1200));
   await page.screenshot({ path: 'C:/Users/gotindia/.gemini/antigravity/brain/60245ec2-db07-4a60-9e96-08a10130208f/test_products_table_movement_icon.png' });
   console.log('Saved test_products_table_movement_icon.png');

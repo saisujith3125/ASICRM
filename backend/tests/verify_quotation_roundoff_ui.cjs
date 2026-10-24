@@ -86,7 +86,7 @@ async function run() {
     });
 
     console.log('1. Setting auth session...');
-    await send('Page.navigate', { url: 'http://localhost:5173/' });
+    await send('Page.navigate', { url: 'https://crmapi.asiind.com/' });
     await new Promise((r) => setTimeout(r, 800));
 
     await evaluate(`
@@ -99,8 +99,8 @@ async function run() {
       }));
     `);
 
-    console.log('2. Navigating to http://localhost:5173/quotations/new ...');
-    await send('Page.navigate', { url: 'http://localhost:5173/quotations/new' });
+    console.log('2. Navigating to https://crmapi.asiind.com/quotations/new ...');
+    await send('Page.navigate', { url: 'https://crmapi.asiind.com/quotations/new' });
     
     // Wait for quotation editor container
     for (let i = 0; i < 30; i++) {

@@ -13,7 +13,7 @@ async function analyze() {
     localStorage.setItem('asicrm_user', JSON.stringify({ id: 'USR-001', role: 'SUPER_ADMIN', permissions: ['*'] }));
   });
 
-  await page.goto('http://127.0.0.1:5173/quotations', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com/quotations', { waitUntil: 'networkidle2' });
   
   // Find row with QT-000101 and click PDF
   await page.evaluate(() => {

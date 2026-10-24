@@ -34,7 +34,7 @@ async function runMasterBrandingAndQuotationE2ETest() {
   try {
     // Step 1: Login / Auth Setup
     console.log('[STEP 1] Setting authenticated session...');
-    await page.goto('http://localhost:5173', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com', { waitUntil: 'networkidle2' });
     await page.evaluate(() => {
       localStorage.setItem('asicrm_user', JSON.stringify({
         id: 'USR-001',
@@ -65,7 +65,7 @@ async function runMasterBrandingAndQuotationE2ETest() {
         sealUrl: seal
       };
 
-      const res = await fetch('http://127.0.0.1:5000/api/settings/company', {
+      const res = await fetch('https://crmapi.asiind.com/api/settings/company', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ async function runMasterBrandingAndQuotationE2ETest() {
     // Step 3: Verify Persistence by re-fetching from backend
     console.log('[STEP 3] Verifying backend persistence of ISO, logoUrl, signatureUrl, sealUrl...');
     const verifyRes = await page.evaluate(async () => {
-      const res = await fetch('http://127.0.0.1:5000/api/settings/company', {
+      const res = await fetch('https://crmapi.asiind.com/api/settings/company', {
         headers: { 'x-user-id': 'USR-001' }
       });
       return await res.json();
@@ -103,7 +103,7 @@ async function runMasterBrandingAndQuotationE2ETest() {
 
     // Step 4: Open Quotation Creator / Editor
     console.log('[STEP 4] Opening Quotation Editor...');
-    await page.goto('http://localhost:5173/quotations/new', { waitUntil: 'networkidle2' });
+    await page.goto('https://crmapi.asiind.com/quotations/new', { waitUntil: 'networkidle2' });
     await sleep(1500);
 
     // Select customer

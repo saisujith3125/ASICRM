@@ -40,7 +40,7 @@ async function inspect() {
   await send('DOM.enable');
   await send('CSS.enable');
 
-  await send('Page.navigate', { url: 'http://127.0.0.1:5173/' });
+  await send('Page.navigate', { url: 'https://crmapi.asiind.com/' });
   await new Promise(r => setTimeout(r, 1200));
 
   await send('Runtime.evaluate', {
@@ -53,7 +53,7 @@ async function inspect() {
     `
   });
 
-  await send('Page.navigate', { url: 'http://127.0.0.1:5173/delivery-challans/DC-000109' });
+  await send('Page.navigate', { url: 'https://crmapi.asiind.com/delivery-challans/DC/001/2026' });
   await new Promise(r => setTimeout(r, 3000));
 
   const doc = await send('DOM.getDocument');

@@ -36,7 +36,7 @@ async function run() {
   await send('Runtime.enable');
   // Match user's viewport height from media_1791612648448.png
   await send('Emulation.setDeviceMetricsOverride', { width: 1920, height: 920, deviceScaleFactor: 1, mobile: false });
-  await send('Page.navigate', { url: 'http://127.0.0.1:5173/' });
+  await send('Page.navigate', { url: 'https://crmapi.asiind.com/' });
   await new Promise(r => setTimeout(r, 800));
   await send('Runtime.evaluate', {
     expression: `(() => {
@@ -46,7 +46,7 @@ async function run() {
       localStorage.setItem('token', 'mock-token');
     })()`
   });
-  await send('Page.navigate', { url: 'http://127.0.0.1:5173/enquiries' });
+  await send('Page.navigate', { url: 'https://crmapi.asiind.com/enquiries' });
 
   for (let i = 0; i < 20; i++) {
     await new Promise(r => setTimeout(r, 300));

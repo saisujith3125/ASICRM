@@ -86,7 +86,7 @@ async function run() {
     });
 
     console.log('1. Setting auth session...');
-    await send('Page.navigate', { url: 'http://localhost:5173/' });
+    await send('Page.navigate', { url: 'https://crmapi.asiind.com/' });
     await new Promise((r) => setTimeout(r, 800));
 
     await evaluate(`
@@ -99,8 +99,8 @@ async function run() {
       }));
     `);
 
-    console.log('2. Navigating to http://localhost:5173/delivery-challans/return ...');
-    await send('Page.navigate', { url: 'http://localhost:5173/delivery-challans/return' });
+    console.log('2. Navigating to https://crmapi.asiind.com/delivery-challans/return ...');
+    await send('Page.navigate', { url: 'https://crmapi.asiind.com/delivery-challans/return' });
     
     // Wait for the register card to appear
     for (let i = 0; i < 30; i++) {

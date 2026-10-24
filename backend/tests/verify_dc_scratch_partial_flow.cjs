@@ -16,7 +16,7 @@ async function runTest() {
   const page = await browser.newPage();
 
   // 1. Log in or setup authentication in localStorage
-  await page.goto('http://127.0.0.1:5173/', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com/', { waitUntil: 'networkidle2' });
   await page.evaluate(() => {
     localStorage.setItem('asicrm_user', JSON.stringify({
       id: 'USR-001',
@@ -26,7 +26,7 @@ async function runTest() {
       department: 'Management'
     }));
   });
-  await page.goto('http://127.0.0.1:5173/delivery-challans/new', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com/delivery-challans/new', { waitUntil: 'networkidle2' });
 
   console.log('On page:', page.url());
   await new Promise((r) => setTimeout(r, 1500));
@@ -112,7 +112,7 @@ async function runTest() {
   await new Promise((r) => setTimeout(r, 2000));
 
   // Verify created DC from backend API
-  const res = await fetch('http://127.0.0.1:5000/api/orders/delivery-challans', {
+  const res = await fetch('https://crmapi.asiind.com/api/orders/delivery-challans', {
     headers: { 'x-user-id': 'USR-001' }
   });
   const resJson = await res.json();
@@ -142,7 +142,7 @@ async function runTest() {
 
   // 8. Test "Ref No / Pending DC" connection
   console.log('\n--- TESTING REF NO / PENDING DC DROPDOWN ---');
-  await page.goto('http://127.0.0.1:5173/delivery-challans/new', { waitUntil: 'networkidle2' });
+  await page.goto('https://crmapi.asiind.com/delivery-challans/new', { waitUntil: 'networkidle2' });
   await new Promise((r) => setTimeout(r, 1200));
 
   // Check the Ref No dropdown before selecting customer
@@ -220,7 +220,7 @@ async function runTest() {
   await new Promise((r) => setTimeout(r, 2000));
 
   // Verify backend state of parent and child DCs
-  const res2 = await fetch('http://127.0.0.1:5000/api/orders/delivery-challans', {
+  const res2 = await fetch('https://crmapi.asiind.com/api/orders/delivery-challans', {
     headers: { 'x-user-id': 'USR-001' }
   });
   const res2Json = await res2.json();

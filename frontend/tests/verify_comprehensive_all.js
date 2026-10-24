@@ -17,7 +17,7 @@ async function run() {
   await page.setViewport({ width: 1440, height: 900 });
 
   // 1. Initial load & authenticate
-  await page.goto('http://localhost:5173/delivery-challans', { waitUntil: 'domcontentloaded' });
+  await page.goto('https://crmapi.asiind.com/delivery-challans', { waitUntil: 'domcontentloaded' });
   await new Promise((r) => setTimeout(r, 1500));
 
   const isLoginPage = await page.$('input[type="password"]');
@@ -36,7 +36,7 @@ async function run() {
   // TEST 1: Quotation Stock Validation & PDF Blocking (QT-000067)
   // =========================================================================
   console.log('\n[TEST 1] Quotation Stock Validation & PDF Blocking in Editor...');
-  await page.goto('http://localhost:5173/quotations', { waitUntil: 'domcontentloaded' });
+  await page.goto('https://crmapi.asiind.com/quotations', { waitUntil: 'domcontentloaded' });
   await new Promise((r) => setTimeout(r, 2000));
 
   // Find first edit/view button
@@ -177,7 +177,7 @@ async function run() {
   // =========================================================================
   console.log('\n[TEST 3] Verifying DC Customer Deduplication & Official Branding...');
   // Fetch DC-000116 from backend and mount directly in browser DOM
-  const dcRes = await fetch('http://127.0.0.1:5000/api/orders/delivery-challans/DC-000116', {
+  const dcRes = await fetch('https://crmapi.asiind.com/api/orders/delivery-challans/DC-000116', {
     headers: { 'x-user-id': 'USR-001' }
   });
   const dcJson = await dcRes.json();
@@ -249,7 +249,7 @@ async function run() {
   // TEST 4: Delivery Challan New DC Full-Width Layout & Stock Validation
   // =========================================================================
   console.log('\n[TEST 4] Verifying New DC Stock Validation and Full-Width Layout...');
-  await page.goto('http://localhost:5173/delivery-challans/new', { waitUntil: 'domcontentloaded' });
+  await page.goto('https://crmapi.asiind.com/delivery-challans/new', { waitUntil: 'domcontentloaded' });
   await new Promise((r) => setTimeout(r, 2000));
 
   // Check table width

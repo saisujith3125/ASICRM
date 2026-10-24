@@ -168,23 +168,42 @@ app.use((err, req, res, next) => {
   });
 });
 
-const port = Number(process.env.PORT) || 5000;
-const host = process.env.HOST || "0.0.0.0";
+// Robust port binding supporting standard TCP ports (local dev / Docker) and IISNode Named Pipes (Windows IIS)
+const rawPort = process.env.PORT;
+const isNamedPipe = typeof rawPort === "string" && (rawPort.startsWith("\\\\.\\pipe\\") || isNaN(Number(rawPort)));
 
-const server = app.listen(port, host, () => {
-  const publicApi = process.env.PUBLIC_API_URL || "https://crmapi.asiind.com";
-  console.log(`Server running on port ${port} (Public API: ${publicApi})`);
-  const sms = getSmsConfigSummary();
-  console.log(`[CONFIG] SMS_PROVIDER configured: ${sms.SMS_PROVIDER_configured}`);
-  console.log(`[CONFIG] SMS_API_KEY configured: ${sms.SMS_API_KEY_configured}`);
-  console.log(`[CONFIG] SMS_SENDER configured: ${sms.SMS_SENDER_configured} (${sms.SMS_SENDER})`);
-  console.log(`[CONFIG] SMS_PROVIDER_ENABLED: ${sms.SMS_PROVIDER_ENABLED}`);
-  console.log(`[CONFIG] NODE_ENV: ${sms.NODE_ENV}`);
-});
+let server;
+if (isNamedPipe) {
+  // Under IISNode, listen directly on the named pipe without specifying a host IP
+  server = app.listen(rawPort, () => {
+    const publicApi = process.env.PUBLIC_API_URL || "https://crmapi.asiind.com";
+    console.log(`Server running via IISNode named pipe (Public API: ${publicApi})`);
+    const sms = getSmsConfigSummary();
+    console.log(`[CONFIG] SMS_PROVIDER configured: ${sms.SMS_PROVIDER_configured}`);
+    console.log(`[CONFIG] SMS_API_KEY configured: ${sms.SMS_API_KEY_configured}`);
+    console.log(`[CONFIG] SMS_SENDER configured: ${sms.SMS_SENDER_configured} (${sms.SMS_SENDER})`);
+    console.log(`[CONFIG] SMS_PROVIDER_ENABLED: ${sms.SMS_PROVIDER_ENABLED}`);
+    console.log(`[CONFIG] NODE_ENV: ${sms.NODE_ENV}`);
+  });
+} else {
+  // Standard TCP listen
+  const port = Number(rawPort) || 5000;
+  const host = process.env.HOST || "0.0.0.0";
+  server = app.listen(port, host, () => {
+    const publicApi = process.env.PUBLIC_API_URL || "https://crmapi.asiind.com";
+    console.log(`Server running on port ${port} (Public API: ${publicApi})`);
+    const sms = getSmsConfigSummary();
+    console.log(`[CONFIG] SMS_PROVIDER configured: ${sms.SMS_PROVIDER_configured}`);
+    console.log(`[CONFIG] SMS_API_KEY configured: ${sms.SMS_API_KEY_configured}`);
+    console.log(`[CONFIG] SMS_SENDER configured: ${sms.SMS_SENDER_configured} (${sms.SMS_SENDER})`);
+    console.log(`[CONFIG] SMS_PROVIDER_ENABLED: ${sms.SMS_PROVIDER_ENABLED}`);
+    console.log(`[CONFIG] NODE_ENV: ${sms.NODE_ENV}`);
+  });
+}
 
 server.on("error", (error) => {
   if (error.code === "EADDRINUSE") {
-    console.error(`Port ${port} is already in use. Stop the existing ASICRM backend process before starting this one.`);
+    console.error(`Port ${rawPort || 5000} is already in use. Stop the existing ASICRM backend process before starting this one.`);
     process.exitCode = 1;
     return;
   }

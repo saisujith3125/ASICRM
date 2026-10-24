@@ -1,0 +1,91 @@
+{
+  "currentCalendarYear": 2026,
+  "yearType": "CALENDAR_YEAR",
+  "modules": {
+    "enquiries": {
+      "key": "enquiries",
+      "name": "Enquiries",
+      "prefix": "ENQ/",
+      "suffix": "/{YYYY}",
+      "paddingDigits": 3,
+      "startingNumber": 1,
+      "nextNumber": 1,
+      "resetPolicy": "CALENDAR_YEAR",
+      "activeYear": 2026,
+      "description": "Customer sales enquiry reference code"
+    },
+    "customers": {
+      "key": "customers",
+      "name": "Customers",
+      "prefix": "CUST-",
+      "suffix": "",
+      "paddingDigits": 3,
+      "startingNumber": 1,
+      "nextNumber": 1,
+      "resetPolicy": "CONTINUOUS",
+      "activeYear": null,
+      "description": "Unique customer client account identification"
+    },
+    "quotations": {
+      "key": "quotations",
+      "name": "Quotations",
+      "prefix": "QTN/",
+      "suffix": "/{YYYY}",
+      "paddingDigits": 3,
+      "startingNumber": 1,
+      "nextNumber": 1,
+      "resetPolicy": "CALENDAR_YEAR",
+      "activeYear": 2026,
+      "description": "Commercial sales quotation document series"
+    },
+    "purchaseOrders": {
+      "key": "purchaseOrders",
+      "name": "Purchase Orders",
+      "prefix": "PO/",
+      "suffix": "/{YYYY}",
+      "paddingDigits": 3,
+      "startingNumber": 1,
+      "nextNumber": 1,
+      "resetPolicy": "CALENDAR_YEAR",
+      "activeYear": 2026,
+      "description": "Vendor purchase order document sequence"
+    },
+    "stocks": {
+      "key": "stocks",
+      "name": "Stocks / Products",
+      "prefix": "PRD-",
+      "suffix": "",
+      "paddingDigits": 3,
+      "startingNumber": 1,
+      "nextNumber": 1,
+      "resetPolicy": "CONTINUOUS",
+      "activeYear": null,
+      "description": "Inventory product master catalog code"
+    },
+    "deliveryChallans": {
+      "key": "deliveryChallans",
+      "name": "Delivery Challans",
+      "prefix": "DC/",
+      "suffix": "/{YYYY}",
+      "paddingDigits": 3,
+      "startingNumber": 1,
+      "nextNumber": 1,
+      "resetPolicy": "CALENDAR_YEAR",
+      "activeYear": 2026,
+      "description": "Goods dispatch and transport delivery challan sequence"
+    },
+    "invoices": {
+      "key": "invoices",
+      "name": "Tax Invoices",
+      "prefix": "INV/",
+      "suffix": "/{YYYY}",
+      "paddingDigits": 3,
+      "startingNumber": 1,
+      "nextNumber": 1,
+      "resetPolicy": "CALENDAR_YEAR",
+      "activeYear": 2026,
+      "description": "Official tax invoice document sequence"
+    }
+  },
+  "yearlyArchives": []
+}

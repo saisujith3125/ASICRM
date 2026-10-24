@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { hasPermission } = require('../utils/accessControl');
+const { sequenceService } = require('../services/sequenceService');
 const { deliveryChallans, invoices, goodsReceipts, purchaseOrders, orders, quotations } = require('../data/crmStore');
 const { filterRecordsBySearch } = require('../utils/searchHelper');
 
@@ -277,17 +278,21 @@ function normalizeProductCode(code) {
 }
 
 function getNextProductCode(products) {
-  let maxNum = 0;
-  (products || []).forEach((p) => {
-    const code = String(p.code || '').trim().toUpperCase();
-    const match = code.match(/^ASI-?(\d+)$/i);
-    if (match) {
-      const num = parseInt(match[1], 10);
-      if (!isNaN(num) && num > maxNum) maxNum = num;
-    }
-  });
-  const nextNum = maxNum + 1;
-  return `ASI-${String(nextNum).padStart(2, '0')}`;
+  try {
+    return sequenceService.peekNextId('stocks');
+  } catch {
+    let maxNum = 0;
+    (products || []).forEach((p) => {
+      const code = String(p.code || '').trim().toUpperCase();
+      const match = code.match(/^(?:ASI|PRD)-?(\d+)$/i);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (!isNaN(num) && num > maxNum) maxNum = num;
+      }
+    });
+    const nextNum = maxNum + 1;
+    return `PRD-${String(nextNum).padStart(3, '0')}`;
+  }
 }
 
 function isDuplicateProductCode(products, code, excludeId = null) {
@@ -1157,7 +1162,11 @@ function createEntity(req, res, type) {
 
     let code = normalizeProductCode(body.code);
     if (!code) {
-      code = getNextProductCode(data.products);
+      try {
+        code = sequenceService.getNextId('stocks');
+      } catch {
+        code = getNextProductCode(data.products);
+      }
     } else {
       if (isDuplicateProductCode(data.products, code)) {
         return res.status(409).json({ success: false, message: `Product code ${code} is already in use.` });

@@ -23,7 +23,10 @@ const {
   clearDatabaseEndpoint,
   restoreBackupEndpoint,
   deleteBackupEndpoint,
-  importBackupEndpoint
+  importBackupEndpoint,
+  getSequencesEndpoint,
+  updateSequenceEndpoint,
+  rolloverSequencesEndpoint
 } = require('../controllers/settingsController');
 
 router.get('/', getSettings);
@@ -56,5 +59,11 @@ router.post('/database/clear', clearDatabaseEndpoint);
 router.post('/database/restore/:id', restoreBackupEndpoint);
 router.delete('/database/backups/:id', deleteBackupEndpoint);
 router.post('/database/import', importBackupEndpoint);
+
+// Central Serial Numbers & Document Sequences endpoints
+router.get('/sequences', getSequencesEndpoint);
+router.put('/sequences/:moduleKey', updateSequenceEndpoint);
+router.post('/sequences/:moduleKey', updateSequenceEndpoint); // POST dual-verb
+router.post('/sequences/rollover', rolloverSequencesEndpoint);
 
 module.exports = router;

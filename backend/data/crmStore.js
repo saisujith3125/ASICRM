@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const { normalizeCustomer } = require('../utils/crmHelpers');
+const { sequenceService } = require('../services/sequenceService');
 const DATA_FILE = process.env.CRM_DATA_FILE || path.join(__dirname, 'crm-data.json');
 
 let nextEnquirySeq = 1;
@@ -647,66 +648,73 @@ if (quotationMigrationUpdated) {
   persistStore();
 }
 
-// Helper ID generators
+// Helper ID generators connected to Central Sequence Engine
 const generateEnquiryId = () => {
-  const id = `ENQ-${String(nextEnquirySeq).padStart(6, '0')}`;
-  nextEnquirySeq += 1;
-  return id;
+  try {
+    const id = sequenceService.getNextId('enquiries');
+    persistStore();
+    return id;
+  } catch {
+    const id = `ENQ/${String(nextEnquirySeq).padStart(3, '0')}/${new Date().getFullYear()}`;
+    nextEnquirySeq += 1;
+    return id;
+  }
 };
 
 const generateOrderId = () => {
-  const id = `ORD-${String(nextOrderSeq).padStart(6, '0')}`;
+  const id = `ORD-${String(nextOrderSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
   nextOrderSeq += 1;
   return id;
 };
 
 const generateQuotationId = () => {
-  const existingIds = new Set([
-    ...quotations.map((q) => q.quotationId),
-    ...enquiries.map((e) => e.quotationId)
-  ].filter(Boolean));
-
-  let candidate = `QT-${String(nextQuotationSeq).padStart(6, '0')}`;
-  while (existingIds.has(candidate)) {
+  try {
+    const id = sequenceService.getNextId('quotations');
+    persistStore();
+    return id;
+  } catch {
+    const id = `QTN/${String(nextQuotationSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
     nextQuotationSeq += 1;
-    candidate = `QT-${String(nextQuotationSeq).padStart(6, '0')}`;
+    return id;
   }
-  const assignedId = candidate;
-  nextQuotationSeq += 1;
-  return assignedId;
 };
 
 const peekQuotationId = () => {
-  const existingIds = new Set([
-    ...quotations.map((q) => q.quotationId),
-    ...enquiries.map((e) => e.quotationId)
-  ].filter(Boolean));
-
-  let seq = nextQuotationSeq;
-  let candidate = `QT-${String(seq).padStart(6, '0')}`;
-  while (existingIds.has(candidate)) {
-    seq += 1;
-    candidate = `QT-${String(seq).padStart(6, '0')}`;
+  try {
+    return sequenceService.peekNextId('quotations');
+  } catch {
+    return `QTN/${String(nextQuotationSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
   }
-  return candidate;
 };
 
 const generateLeadId = () => {
-  const id = `LEAD-${String(nextLeadSeq).padStart(6, '0')}`;
+  const id = `LEAD-${String(nextLeadSeq).padStart(3, '0')}`;
   nextLeadSeq += 1;
   return id;
 };
 
 const generateCustomerId = () => {
-  const id = `CUST-${String(nextCustSeq).padStart(3, '0')}`;
-  nextCustSeq += 1;
-  return id;
+  try {
+    const id = sequenceService.getNextId('customers');
+    persistStore();
+    return id;
+  } catch {
+    const id = `CUST-${String(nextCustSeq).padStart(3, '0')}`;
+    nextCustSeq += 1;
+    return id;
+  }
 };
 
 const generateChallanId = () => {
-  const id = `DC-${String(nextChallanSeq).padStart(6, '0')}`;
-  nextChallanSeq += 1;
-  return id;
+  try {
+    const id = sequenceService.getNextId('deliveryChallans');
+    persistStore();
+    return id;
+  } catch {
+    const id = `DC/${String(nextChallanSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
+    nextChallanSeq += 1;
+    return id;
+  }
 };
 
 const generateReturnId = () => {
@@ -719,10 +727,10 @@ const generateReturnId = () => {
       if (rh.id) allReturnIds.add(rh.id);
     });
   });
-  let candidate = `RET-${String(nextReturnSeq).padStart(6, '0')}`;
+  let candidate = `RET-${String(nextReturnSeq).padStart(3, '0')}`;
   while (allReturnIds.has(candidate)) {
     nextReturnSeq += 1;
-    candidate = `RET-${String(nextReturnSeq).padStart(6, '0')}`;
+    candidate = `RET-${String(nextReturnSeq).padStart(3, '0')}`;
   }
   const assignedId = candidate;
   nextReturnSeq += 1;
@@ -730,17 +738,23 @@ const generateReturnId = () => {
 };
 
 const generateInvoiceId = () => {
-  const id = `INV-${String(nextInvoiceSeq).padStart(6, '0')}`;
-  nextInvoiceSeq += 1;
-  return id;
+  try {
+    const id = sequenceService.getNextId('invoices');
+    persistStore();
+    return id;
+  } catch {
+    const id = `INV/${String(nextInvoiceSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
+    nextInvoiceSeq += 1;
+    return id;
+  }
 };
 
 const generateProformaId = () => {
   const existingIds = new Set(proformas.map((p) => p.proformaId || p.id).filter(Boolean));
-  let candidate = `PI-${String(nextProformaSeq).padStart(6, '0')}`;
+  let candidate = `PI/${String(nextProformaSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
   while (existingIds.has(candidate)) {
     nextProformaSeq += 1;
-    candidate = `PI-${String(nextProformaSeq).padStart(6, '0')}`;
+    candidate = `PI/${String(nextProformaSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
   }
   const assignedId = candidate;
   nextProformaSeq += 1;
@@ -748,21 +762,21 @@ const generateProformaId = () => {
 };
 
 function generateBranchId() {
-  const id = `BR-${String(nextBranchSeq).padStart(4, '0')}`;
+  const id = `BR-${String(nextBranchSeq).padStart(3, '0')}`;
   nextBranchSeq += 1;
   return id;
 }
 
 const generatePurchaseOrderId = () => {
-  const existingIds = new Set(purchaseOrders.map((po) => po.id || po.purchaseOrderId).filter(Boolean));
-  let candidate = `PO-${String(nextPurchaseOrderSeq).padStart(5, '0')}`;
-  while (existingIds.has(candidate)) {
+  try {
+    const id = sequenceService.getNextId('purchaseOrders');
+    persistStore();
+    return id;
+  } catch {
+    const id = `PO/${String(nextPurchaseOrderSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
     nextPurchaseOrderSeq += 1;
-    candidate = `PO-${String(nextPurchaseOrderSeq).padStart(5, '0')}`;
+    return id;
   }
-  const assignedId = candidate;
-  nextPurchaseOrderSeq += 1;
-  return assignedId;
 };
 
 const generateGrnId = () => {

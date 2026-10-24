@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { hasPermission, getCurrentUser } = require('../utils/accessControl');
 const { normalizeWarehouseLayout, createDefaultLayout } = require('../utils/warehouseLayoutHelper');
+const { sequenceService } = require('../services/sequenceService');
 
 const DATA_FILE = path.join(__dirname, '..', 'data', 'access-control.json');
 const PROTECTED_ROLE = 'SUPER_ADMIN';
@@ -1091,6 +1092,53 @@ function importBackupEndpoint(req, res) {
   }
 }
 
+function getSequencesEndpoint(req, res) {
+  try {
+    if (!requireSettingsAccess(req, res)) return;
+    const summary = sequenceService.getSummary();
+    return res.json({ success: true, data: summary });
+  } catch (err) {
+    console.error('Error fetching sequences:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to fetch serial numbers.' });
+  }
+}
+
+function updateSequenceEndpoint(req, res) {
+  try {
+    if (!requireSettingsPermission(req, res, 'Manage Roles') && !isSuperAdmin(req)) {
+      return res.status(403).json({ success: false, message: 'You do not have permission to configure serial numbers.' });
+    }
+    const { moduleKey } = req.params;
+    const result = sequenceService.updateModuleRule(moduleKey, req.body);
+    return res.json({
+      success: true,
+      message: `Serial number format for ${result.rule.name} updated successfully.`,
+      data: result
+    });
+  } catch (err) {
+    console.error('Error updating sequence:', err);
+    return res.status(400).json({ success: false, message: err.message || 'Failed to update sequence.' });
+  }
+}
+
+function rolloverSequencesEndpoint(req, res) {
+  try {
+    if (!isSuperAdmin(req)) {
+      return res.status(403).json({ success: false, message: 'Only Super Administrators can execute year rollovers.' });
+    }
+    const { targetYear } = req.body || {};
+    const result = sequenceService.executeManualRollOver(targetYear);
+    return res.json({
+      success: true,
+      message: `Calendar year rollover to ${result.newYear} completed and historical data archived in database.`,
+      data: result
+    });
+  } catch (err) {
+    console.error('Error rolling over sequences:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to execute year rollover.' });
+  }
+}
+
 module.exports = {
   getSettings,
   getActiveEmployees,
@@ -1113,5 +1161,8 @@ module.exports = {
   clearDatabaseEndpoint,
   restoreBackupEndpoint,
   deleteBackupEndpoint,
-  importBackupEndpoint
+  importBackupEndpoint,
+  getSequencesEndpoint,
+  updateSequenceEndpoint,
+  rolloverSequencesEndpoint
 };

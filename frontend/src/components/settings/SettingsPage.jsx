@@ -21,6 +21,7 @@ import RolesSection from './sections/RolesSection';
 import PermissionsSection from './sections/PermissionsSection';
 import ProductUnitsSection from './sections/ProductUnitsSection';
 import DatabaseBackupSection from './sections/DatabaseBackupSection';
+import SerialNumberSetupSection from './sections/SerialNumberSetupSection';
 
 import { apiFetch, apiUrl } from '../../api';
 import { DEFAULT_ASI_LOGO, notifyCompanyConfig, getCompanyConfig } from '../documents/companyConfig';
@@ -518,6 +519,14 @@ export default function SettingsPage({
           />
         );
 
+      case 'serial-numbers':
+        return (
+          <SerialNumberSetupSection
+            user={user}
+            showToast={showToast}
+          />
+        );
+
       case 'invoice-setup':
         return (
           <InvoiceSetupSection
@@ -687,7 +696,7 @@ export default function SettingsPage({
         onSelectSection={handleRequestSelectSection}
         hasUnsavedChanges={hasUnsavedChanges}
         onSaveActiveSection={
-          ['users', 'roles', 'permissions', 'database-backup'].includes(activeSection)
+          ['users', 'roles', 'permissions', 'database-backup', 'serial-numbers'].includes(activeSection)
             ? null
             : handleSaveCompanySettings
         }

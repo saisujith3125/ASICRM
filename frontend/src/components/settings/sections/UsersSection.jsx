@@ -181,7 +181,41 @@ export default function UsersSection({
       {/* SECTION HEADER */}
       <div className="settings-section-head">
         <div className="settings-section-title-wrap">
-          <h2>Users &amp; Personnel Accounts</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '2px' }}>
+            <h2 style={{ margin: 0 }}>Users &amp; Personnel Accounts</h2>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span
+                style={{
+                  padding: '3px 9px',
+                  background: '#fefce8',
+                  border: '1px solid #fef08a',
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  fontSize: '11.5px',
+                  color: '#854d0e',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                <Crown size={12} style={{ color: '#eab308' }} />
+                <span>{activeSuperAdmins.length} Active Super Admin{activeSuperAdmins.length === 1 ? '' : 's'}</span>
+              </span>
+              <span
+                style={{
+                  padding: '3px 9px',
+                  background: '#f1f5f9',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  fontWeight: 500,
+                  fontSize: '11.5px',
+                  color: '#475569'
+                }}
+              >
+                👥 {users.length} Total Members
+              </span>
+            </div>
+          </div>
           <p>Create user logins, assign employee identification numbers, and delegate operational access roles.</p>
         </div>
         <div className="settings-section-actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -203,7 +237,7 @@ export default function UsersSection({
                 setTransferError('');
                 setTransferModalOpen(true);
               }}
-              title="Transfer Super Admin privileges to another member, like WhatsApp Group Admin"
+              title="Transfer Super Admin privileges to another member"
             >
               <ArrowRightLeft size={15} />
               <span>Transfer Super Admin</span>
@@ -217,85 +251,6 @@ export default function UsersSection({
           >
             + Add New User
           </button>
-        </div>
-      </div>
-
-      {/* WHATSAPP-STYLE GOVERNANCE CALLOUT CARD */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '14px 18px',
-          background: 'linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%)',
-          border: '1px solid #bbf7d0',
-          borderRadius: '10px',
-          marginBottom: '20px',
-          fontSize: '13px',
-          color: '#166534',
-          flexWrap: 'wrap',
-          gap: '12px',
-          boxShadow: '0 2px 6px rgba(16, 185, 129, 0.05)'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '280px', flex: '1 1 500px' }}>
-          <div
-            style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '8px',
-              background: '#10b981',
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0
-            }}
-          >
-            <ShieldCheck size={20} />
-          </div>
-          <div>
-            <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>WhatsApp-Style Admin Governance</span>
-              <span style={{ fontSize: '11px', background: '#dcfce7', color: '#15803d', padding: '1px 7px', borderRadius: '12px', fontWeight: 600 }}>Active</span>
-            </div>
-            <div style={{ fontSize: '12.5px', color: '#475569', lineHeight: 1.4 }}>
-              Super Admins can promote any member to Super Admin, demote admins, or transfer ownership and leave. At least one active Super Admin is always maintained for system safety.
-            </div>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span
-            style={{
-              padding: '4px 10px',
-              background: '#ffffff',
-              border: '1px solid #cbd5e1',
-              borderRadius: '16px',
-              fontWeight: 600,
-              fontSize: '12px',
-              color: '#0f172a',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <Crown size={14} style={{ color: '#eab308' }} />
-            <span>{activeSuperAdmins.length} Active Super Admin{activeSuperAdmins.length === 1 ? '' : 's'}</span>
-          </span>
-          <span
-            style={{
-              padding: '4px 10px',
-              background: '#ffffff',
-              border: '1px solid #cbd5e1',
-              borderRadius: '16px',
-              fontWeight: 500,
-              fontSize: '12px',
-              color: '#475569'
-            }}
-          >
-            👥 {users.length} Total Members
-          </span>
         </div>
       </div>
 
@@ -539,7 +494,7 @@ export default function UsersSection({
                                     gap: '3px'
                                   }}
                                   onClick={() => setPromoteConfirmUser(u)}
-                                  title="Promote this member to Super Admin (like WhatsApp Make Group Admin)"
+                                  title="Promote this member to Super Admin"
                                 >
                                   <Crown size={12} style={{ color: '#10b981' }} />
                                   <span>Make Admin</span>
@@ -557,7 +512,7 @@ export default function UsersSection({
                                     borderColor: '#fde047'
                                   }}
                                   onClick={() => setDismissConfirmUser(u)}
-                                  title="Dismiss this member from Super Admin role (like WhatsApp Dismiss as Admin)"
+                                  title="Dismiss this member from Super Admin role"
                                 >
                                   Dismiss
                                 </button>
@@ -774,7 +729,7 @@ export default function UsersSection({
                     Transfer Super Admin &amp; Step Down
                   </h3>
                   <span style={{ fontSize: '12px', color: '#166534' }}>
-                    Like WhatsApp Group Admin Ownership Transfer
+                    Delegate primary ownership to another active team member
                   </span>
                 </div>
               </div>
@@ -984,7 +939,7 @@ export default function UsersSection({
                 Are you sure you want to promote <strong>{promoteConfirmUser.name}</strong> to <strong>Super Admin</strong>?
               </p>
               <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '12.5px', color: '#475569' }}>
-                Just like WhatsApp Group Admins, multiple Super Admins can co-exist. They will have full access to manage all CRM modules, system settings, and personnel.
+                Multiple Super Admins can co-exist with full access to manage all CRM modules, system settings, and personnel.
               </div>
             </div>
             <div className="settings-modal-footer" style={{ padding: '14px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>

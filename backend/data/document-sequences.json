@@ -9,7 +9,7 @@
       "suffix": "/{YYYY}",
       "paddingDigits": 3,
       "startingNumber": 1,
-      "nextNumber": 1,
+      "nextNumber": 2,
       "resetPolicy": "CALENDAR_YEAR",
       "activeYear": 2026,
       "description": "Customer sales enquiry reference code"
@@ -21,7 +21,7 @@
       "suffix": "",
       "paddingDigits": 3,
       "startingNumber": 1,
-      "nextNumber": 1,
+      "nextNumber": 3,
       "resetPolicy": "CONTINUOUS",
       "activeYear": null,
       "description": "Unique customer client account identification"
@@ -33,7 +33,7 @@
       "suffix": "/{YYYY}",
       "paddingDigits": 3,
       "startingNumber": 1,
-      "nextNumber": 1,
+      "nextNumber": 3,
       "resetPolicy": "CALENDAR_YEAR",
       "activeYear": 2026,
       "description": "Commercial sales quotation document series"
@@ -45,7 +45,7 @@
       "suffix": "/{YYYY}",
       "paddingDigits": 3,
       "startingNumber": 1,
-      "nextNumber": 1,
+      "nextNumber": 2,
       "resetPolicy": "CALENDAR_YEAR",
       "activeYear": 2026,
       "description": "Vendor purchase order document sequence"
@@ -57,7 +57,7 @@
       "suffix": "",
       "paddingDigits": 3,
       "startingNumber": 1,
-      "nextNumber": 1,
+      "nextNumber": 48,
       "resetPolicy": "CONTINUOUS",
       "activeYear": null,
       "description": "Inventory product master catalog code"
@@ -69,7 +69,7 @@
       "suffix": "/{YYYY}",
       "paddingDigits": 3,
       "startingNumber": 1,
-      "nextNumber": 1,
+      "nextNumber": 3,
       "resetPolicy": "CALENDAR_YEAR",
       "activeYear": 2026,
       "description": "Goods dispatch and transport delivery challan sequence"
@@ -81,7 +81,7 @@
       "suffix": "/{YYYY}",
       "paddingDigits": 3,
       "startingNumber": 1,
-      "nextNumber": 1,
+      "nextNumber": 2,
       "resetPolicy": "CALENDAR_YEAR",
       "activeYear": 2026,
       "description": "Official tax invoice document sequence"

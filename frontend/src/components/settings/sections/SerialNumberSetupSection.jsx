@@ -310,13 +310,13 @@ export default function SerialNumberSetupSection({ user, showToast }) {
           <div className="settings-table-scroll">
             <table className="settings-table">
               <colgroup>
-                <col style={{ width: '20%' }} />
-                <col style={{ width: '9%' }} />
-                <col style={{ width: '9%' }} />
-                <col style={{ width: '12%' }} />
+                <col style={{ width: '18%' }} />
                 <col style={{ width: '8%' }} />
-                <col style={{ width: '14%' }} />
-                <col style={{ width: '16%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '8%' }} />
+                <col style={{ width: '17%' }} />
+                <col style={{ width: '17%' }} />
                 <col style={{ width: '12%' }} />
               </colgroup>
               <thead>
@@ -325,7 +325,7 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                   <th>Prefix</th>
                   <th style={{ textAlign: 'center' }}>Padding</th>
                   <th>Suffix / Year</th>
-                  <th style={{ textAlign: 'center' }}>Next Number</th>
+                  <th style={{ textAlign: 'center' }}>Next No.</th>
                   <th>Reset Policy</th>
                   <th>Live Next ID</th>
                   <th style={{ textAlign: 'right' }}>Action</th>
@@ -399,7 +399,9 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                               color: '#15803d',
                               border: '1px solid #bbf7d0',
                               fontSize: '11px',
-                              fontWeight: 600
+                              fontWeight: 600,
+                              whiteSpace: 'nowrap',
+                              display: 'inline-block'
                             }}
                           >
                             Calendar Year (Jan 1)
@@ -412,7 +414,9 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                               color: '#475569',
                               border: '1px solid #cbd5e1',
                               fontSize: '11px',
-                              fontWeight: 600
+                              fontWeight: 600,
+                              whiteSpace: 'nowrap',
+                              display: 'inline-block'
                             }}
                           >
                             Continuous Lifetime

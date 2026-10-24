@@ -159,10 +159,10 @@ export default function ProductPriceHistoryPage({
           return evt.includes('goods receipt') || refType === 'GRN' || refType === 'GOODS_RECEIPT' || refStr.startsWith('GRN-');
         }
         if (typeFilter === 'PO' || typeFilter === 'PURCHASE_ORDER') {
-          return evt.includes('purchase order') || refType === 'PO' || refStr.startsWith('PO-');
+          return evt.includes('purchase order') || refType === 'PO' || refStr.startsWith('PO-') || refStr.startsWith('PO/');
         }
         if (typeFilter === 'PROD' || typeFilter === 'CATALOGUE') {
-          return evt.includes('product added') || refType === 'PROD' || refStr.startsWith('PROD-') || refStr.includes('CATALOGUE');
+          return evt.includes('product added') || refType === 'PROD' || refType === 'PRD' || refStr.startsWith('PROD-') || refStr.startsWith('PRD-') || refStr.includes('CATALOGUE');
         }
         return true;
       });

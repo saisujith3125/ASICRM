@@ -1,173 +1,173 @@
 {
   "categories": [
     {
-      "id": "CAT-000001",
+      "id": "CAT-001",
       "name": "IP Cameras",
       "description": "Network surveillance cameras"
     },
     {
-      "id": "CAT-000002",
+      "id": "CAT-002",
       "name": "NVR & DVR",
       "description": "Recording and storage systems"
     },
     {
-      "id": "CAT-000003",
+      "id": "CAT-003",
       "name": "Networking",
       "description": "Switches, routers and network accessories"
     },
     {
-      "id": "CAT-000004",
+      "id": "CAT-004",
       "name": "Cables",
       "description": "Copper and fiber connectivity"
     },
     {
-      "id": "CAT-000005",
+      "id": "CAT-005",
       "name": "Storage",
       "description": "Hard drives and SSD storage"
     },
     {
-      "id": "CAT-000006",
+      "id": "CAT-006",
       "name": "CCTV Accessories",
       "description": ""
     },
     {
-      "id": "CAT-000007",
+      "id": "CAT-007",
       "name": "Switches",
       "description": ""
     },
     {
-      "id": "CAT-000008",
+      "id": "CAT-008",
       "name": "Sensor",
       "description": ""
     },
     {
-      "id": "CAT-000009",
+      "id": "CAT-009",
       "name": "Hard Disk",
       "description": ""
     },
     {
-      "id": "CAT-000010",
+      "id": "CAT-010",
       "name": "Stoarge",
       "description": ""
     },
     {
-      "id": "CAT-000011",
+      "id": "CAT-011",
       "name": "Installation",
       "description": ""
     }
   ],
   "subcategories": [
     {
-      "id": "SUBCAT-000001",
+      "id": "SUBCAT-001",
       "name": "Bullet Camera",
-      "categoryId": "CAT-000001"
+      "categoryId": "CAT-001"
     },
     {
-      "id": "SUBCAT-000002",
+      "id": "SUBCAT-002",
       "name": "Dome Camera",
-      "categoryId": "CAT-000001"
+      "categoryId": "CAT-001"
     },
     {
-      "id": "SUBCAT-000003",
+      "id": "SUBCAT-003",
       "name": "8 Channel NVR",
-      "categoryId": "CAT-000002"
+      "categoryId": "CAT-002"
     },
     {
-      "id": "SUBCAT-000004",
+      "id": "SUBCAT-004",
       "name": "PoE Switch",
-      "categoryId": "CAT-000003"
+      "categoryId": "CAT-003"
     },
     {
-      "id": "SUBCAT-000005",
+      "id": "SUBCAT-005",
       "name": "Cat6 UTP Cable",
-      "categoryId": "CAT-000004"
+      "categoryId": "CAT-004"
     },
     {
-      "id": "SUBCAT-000006",
+      "id": "SUBCAT-006",
       "name": "Box",
-      "categoryId": "CAT-000006",
+      "categoryId": "CAT-006",
       "description": ""
     },
     {
-      "id": "SUBCAT-000007",
+      "id": "SUBCAT-007",
       "name": "Network Switches",
-      "categoryId": "CAT-000007",
+      "categoryId": "CAT-007",
       "description": ""
     },
     {
-      "id": "SUBCAT-000008",
+      "id": "SUBCAT-008",
       "name": "Motion",
-      "categoryId": "CAT-000008",
+      "categoryId": "CAT-008",
       "description": ""
     },
     {
-      "id": "SUBCAT-000009",
+      "id": "SUBCAT-009",
       "name": "Hard Disk",
-      "categoryId": "CAT-000010",
+      "categoryId": "CAT-010",
       "description": ""
     },
     {
-      "id": "SUBCAT-000010",
+      "id": "SUBCAT-010",
       "name": "Labour Charges",
-      "categoryId": "CAT-000011",
+      "categoryId": "CAT-011",
       "description": ""
     }
   ],
   "brands": [
     {
-      "id": "BR-000001",
+      "id": "BR-001",
       "name": "Dahua",
       "description": "Video surveillance and security solutions"
     },
     {
-      "id": "BR-000002",
+      "id": "BR-002",
       "name": "CP Plus",
       "description": "Security cameras and recording solutions"
     },
     {
-      "id": "BR-000003",
+      "id": "BR-003",
       "name": "Hikvision",
       "description": "Video surveillance products"
     },
     {
-      "id": "BR-000004",
+      "id": "BR-004",
       "name": "TP-Link",
       "description": "Networking equipment"
     },
     {
-      "id": "BR-000005",
+      "id": "BR-005",
       "name": "Western Digital",
       "description": "Storage products"
     },
     {
-      "id": "BR-000006",
+      "id": "BR-006",
       "name": "ASI-Dahua-CP Plus-TVT-Prama",
       "description": ""
     },
     {
-      "id": "BR-000007",
+      "id": "BR-007",
       "name": "sensinova",
       "description": ""
     },
     {
-      "id": "BR-000008",
+      "id": "BR-008",
       "name": "D-Link-CP Plus-TVT",
       "description": ""
     },
     {
-      "id": "BR-000009",
+      "id": "BR-009",
       "name": "ASI",
       "description": ""
     }
   ],
   "products": [
     {
-      "id": "PROD-000001",
+      "id": "PRD-001",
       "code": "CAM-IPC-001",
       "name": "Dahua 5MP IR Bullet Camera",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-001",
       "unit": "Nos",
       "cost": 10000,
       "dealerPercentage": 10,
@@ -211,67 +211,67 @@
           "inwardDate": "2025-04-16",
           "expiryDate": "2027-04-16",
           "shelfLifeMonths": 24,
-          "grnReference": "GRN-00001",
+          "grnReference": "GRN-001",
           "supplierName": "Dahua Technology India Pvt Ltd"
         },
         "DH-CAM-EXP-12M": {
           "inwardDate": "2025-10-16",
           "expiryDate": "2027-10-16",
           "shelfLifeMonths": 24,
-          "grnReference": "GRN-00001",
+          "grnReference": "GRN-001",
           "supplierName": "Dahua Technology India Pvt Ltd"
         },
         "CAM-IPC-001-SN-1003": {
           "inwardDate": "2026-09-25",
           "expiryDate": "2028-09-25",
           "shelfLifeMonths": 24,
-          "grnReference": "GRN-00001",
+          "grnReference": "GRN-001",
           "supplierName": "Dahua Technology India Pvt Ltd"
         },
         "CAM-IPC-001-SN-1004": {
           "inwardDate": "2026-09-25",
           "expiryDate": "2028-09-25",
           "shelfLifeMonths": 24,
-          "grnReference": "GRN-00001",
+          "grnReference": "GRN-001",
           "supplierName": "Dahua Technology India Pvt Ltd"
         },
         "CAM-IPC-001-SN-1005": {
           "inwardDate": "2026-09-25",
           "expiryDate": "2028-09-25",
           "shelfLifeMonths": 24,
-          "grnReference": "GRN-00001",
+          "grnReference": "GRN-001",
           "supplierName": "Dahua Technology India Pvt Ltd"
         },
         "CAM-IPC-001-SN-1006": {
           "inwardDate": "2026-09-25",
           "expiryDate": "2028-09-25",
           "shelfLifeMonths": 24,
-          "grnReference": "GRN-00001",
+          "grnReference": "GRN-001",
           "supplierName": "Dahua Technology India Pvt Ltd"
         },
         "CAM-IPC-001-SN-1007": {
           "inwardDate": "2026-09-25",
           "expiryDate": "2028-09-25",
           "shelfLifeMonths": 24,
-          "grnReference": "GRN-00001",
+          "grnReference": "GRN-001",
           "supplierName": "Dahua Technology India Pvt Ltd"
         },
         "CAM-IPC-001-SN-1008": {
           "inwardDate": "2026-09-25",
           "expiryDate": "2028-09-25",
           "shelfLifeMonths": 24,
-          "grnReference": "GRN-00001",
+          "grnReference": "GRN-001",
           "supplierName": "Dahua Technology India Pvt Ltd"
         }
       }
     },
     {
-      "id": "PROD-000002",
+      "id": "PRD-002",
       "code": "CAM-IPC-002",
       "name": "CP Plus 2MP Dome Camera",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000002",
-      "brandId": "BR-000002",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-002",
+      "brandId": "BR-002",
       "unit": "Nos",
       "cost": 2700,
       "dealerPrice": 3213,
@@ -366,12 +366,12 @@
       "isIGSTApplicable": false
     },
     {
-      "id": "PROD-000003",
+      "id": "PRD-003",
       "code": "NVR-008-001",
       "name": "Hikvision 8 Channel PoE NVR",
-      "categoryId": "CAT-000002",
-      "subcategoryId": "SUBCAT-000003",
-      "brandId": "BR-000003",
+      "categoryId": "CAT-002",
+      "subcategoryId": "SUBCAT-003",
+      "brandId": "BR-003",
       "unit": "Nos",
       "cost": 7800,
       "dealerPrice": 8600,
@@ -446,12 +446,12 @@
       "hsnSac": "85219090"
     },
     {
-      "id": "PROD-000004",
+      "id": "PRD-004",
       "code": "NET-SW-001",
       "name": "TP-Link 8 Port PoE Switch",
-      "categoryId": "CAT-000003",
-      "subcategoryId": "SUBCAT-000004",
-      "brandId": "BR-000004",
+      "categoryId": "CAT-003",
+      "subcategoryId": "SUBCAT-004",
+      "brandId": "BR-004",
       "unit": "Nos",
       "cost": 4200,
       "dealerPrice": 4700,
@@ -472,12 +472,12 @@
       "hsnSac": "85176290"
     },
     {
-      "id": "PROD-000005",
+      "id": "PRD-005",
       "code": "HDD-1TB-001",
       "name": "WD Purple 1TB Surveillance HDD",
-      "categoryId": "CAT-000005",
+      "categoryId": "CAT-005",
       "subcategoryId": null,
-      "brandId": "BR-000005",
+      "brandId": "BR-005",
       "unit": "Nos",
       "cost": 4900,
       "dealerPrice": 5450,
@@ -501,12 +501,12 @@
       "hsnSac": "84717020"
     },
     {
-      "id": "PROD-000006",
+      "id": "PRD-006",
       "code": "CAB-UTP-001",
       "name": "D-Link Cat6 UTP 305M Solid Cable Roll",
-      "categoryId": "CAT-000004",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000004",
+      "categoryId": "CAT-004",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-004",
       "unit": "Roll",
       "cost": 6800,
       "dealerPrice": 7500,
@@ -521,12 +521,12 @@
       "highestInwardRate": 6800
     },
     {
-      "id": "PROD-000007",
+      "id": "PRD-007",
       "code": "PWR-SMPS-001",
       "name": "Active 12V 10A CCTV Power Supply Unit",
-      "categoryId": "CAT-000003",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000001",
+      "categoryId": "CAT-003",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-001",
       "unit": "Nos",
       "cost": 950,
       "dealerPrice": 1200,
@@ -621,12 +621,12 @@
       "hsnSac": "85044090"
     },
     {
-      "id": "PROD-000008",
+      "id": "PRD-008",
       "code": "RCK-WALL-004",
       "name": "4U Wall Mount Network Server Rack",
-      "categoryId": "CAT-000003",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000001",
+      "categoryId": "CAT-003",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-001",
       "unit": "Nos",
       "cost": 1800,
       "dealerPrice": 2200,
@@ -674,12 +674,12 @@
       "hsnSac": "85371000"
     },
     {
-      "id": "PROD-000009",
+      "id": "PRD-009",
       "code": "ACC-RJ45-100",
       "name": "D-Link Cat6 RJ45 Modular Connectors Box (100 Pcs)",
-      "categoryId": "CAT-000004",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000004",
+      "categoryId": "CAT-004",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-004",
       "unit": "Box",
       "cost": 650,
       "dealerPrice": 850,
@@ -693,12 +693,12 @@
       "hsnSac": "85366990"
     },
     {
-      "id": "PROD-000010",
+      "id": "PRD-010",
       "code": "CBL-HDMI-010",
       "name": "High Speed 4K 60Hz HDMI 2.0 Cable 10 Meter",
-      "categoryId": "CAT-000004",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000001",
+      "categoryId": "CAT-004",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-001",
       "unit": "Nos",
       "cost": 550,
       "dealerPrice": 750,
@@ -712,16 +712,16 @@
       "hsnSac": "85444299"
     },
     {
-      "id": "PROD-000011",
+      "id": "PRD-011",
       "code": "ASI01",
       "name": "2MP Bullet Camera Updated",
       "description": "H.265+ /H.265 /H.264+ /H.264/MJPEG coding Max. resolution: 2MP ( 1920 × 1080) Auto day/night switch3D DNR, WDR, HLC, BLC, etc. ROI coding Support smart supplement light 10~20m white light view distance; 10~20m IR view distance DC12V/PoE power supply IP 67 ingress protection",
       "hsnSac": "85258090",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000006",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-006",
       "unit": "Nos",
       "size": "20",
       "cost": 2000,
@@ -769,15 +769,15 @@
       "createdAt": "2026-10-05T09:13:10.164Z"
     },
     {
-      "id": "PROD-000012",
+      "id": "PRD-012",
       "code": "ASI02",
       "name": "Camera Outdoor Box",
       "description": "5x5” Round Waterproof PVC Junction Box for CCTV Camera, Heavy Duty Outdoor Electrical Enclosure",
       "hsnSac": "85219090",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000006",
-      "subcategoryId": "SUBCAT-000006",
+      "categoryId": "CAT-006",
+      "subcategoryId": "SUBCAT-006",
       "brandId": null,
       "unit": "Nos",
       "size": "50",
@@ -900,15 +900,15 @@
       "createdAt": "2026-10-05T09:28:22.631Z"
     },
     {
-      "id": "PROD-000013",
+      "id": "PRD-013",
       "code": "ASI03",
       "name": "Exit Switch",
       "description": "",
       "hsnSac": "83016000",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000007",
-      "subcategoryId": "SUBCAT-000007",
+      "categoryId": "CAT-007",
+      "subcategoryId": "SUBCAT-007",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -951,15 +951,15 @@
       "costUpdatedReason": "Cost updated to ₹400 on Goods Receipt GRN-00123 (Profit Protection Rule)"
     },
     {
-      "id": "PROD-000014",
+      "id": "PRD-014",
       "code": "ASI-04",
       "name": "ASI PTZ Integration Camera 1890",
       "description": "",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
       "brandId": null,
       "unit": "Nos",
       "size": "12",
@@ -983,15 +983,15 @@
       "createdAt": "2026-10-05T13:07:12.471Z"
     },
     {
-      "id": "PROD-000015",
+      "id": "PRD-015",
       "code": "ASI-05",
       "name": "ASI PTZ Integration Camera 2659",
       "description": "",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -1016,15 +1016,15 @@
       "createdAt": "2026-10-05T13:10:41.595Z"
     },
     {
-      "id": "PROD-000016",
+      "id": "PRD-016",
       "code": "ASI-06",
       "name": "ASI PTZ Integration Camera 5062",
       "description": "",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -1049,15 +1049,15 @@
       "createdAt": "2026-10-05T13:25:23.981Z"
     },
     {
-      "id": "PROD-000017",
+      "id": "PRD-017",
       "code": "ASI-07",
       "name": "ASI PTZ Integration Camera 3985",
       "description": "",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -1082,15 +1082,15 @@
       "createdAt": "2026-10-05T13:26:08.736Z"
     },
     {
-      "id": "PROD-000018",
+      "id": "PRD-018",
       "code": "ASI-08",
       "name": "ASI PTZ Integration Camera 7315",
       "description": "",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -1115,15 +1115,15 @@
       "createdAt": "2026-10-05T13:26:49.113Z"
     },
     {
-      "id": "PROD-000019",
+      "id": "PRD-019",
       "code": "ASI-09ASI-NAV-1131",
       "name": "ASI Nav Vision Camera 1131",
       "description": "High performance camera for quotation test",
       "hsnSac": "85258900",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -1141,15 +1141,15 @@
       "createdAt": "2026-10-06T04:57:44.677Z"
     },
     {
-      "id": "PROD-000020",
+      "id": "PRD-020",
       "code": "ASI-PRO-9901",
       "name": "ASI Vision Pro PTZ 9901",
       "description": "Commercial surveillance camera",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -1178,16 +1178,16 @@
       "createdAt": "2026-10-06T05:50:56.654Z"
     },
     {
-      "id": "PROD-000021",
+      "id": "PRD-021",
       "code": "ASI-CAM-9654",
       "name": "ASI Optical Vision Pro Camera ASI-CAM-9654",
       "description": "High performance optical vision camera for commercial deployment",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-001",
       "unit": "Nos",
       "size": "",
       "cost": 2000,
@@ -1215,16 +1215,16 @@
       "createdAt": "2026-10-06T05:51:22.606Z"
     },
     {
-      "id": "PROD-000022",
+      "id": "PRD-022",
       "code": "ASI-CAM-1928",
       "name": "ASI Optical Vision Pro Camera ASI-CAM-1928",
       "description": "High performance optical vision camera for commercial deployment",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-001",
       "unit": "Nos",
       "size": "",
       "cost": 2000,
@@ -1250,16 +1250,16 @@
       "createdAt": "2026-10-06T05:53:02.554Z"
     },
     {
-      "id": "PROD-000023",
+      "id": "PRD-023",
       "code": "ASI-CAM-2242",
       "name": "ASI Optical Vision Pro Camera ASI-CAM-2242",
       "description": "High performance optical vision camera for commercial deployment",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-001",
       "unit": "Nos",
       "size": "",
       "cost": 2000,
@@ -1285,16 +1285,16 @@
       "createdAt": "2026-10-06T05:53:24.704Z"
     },
     {
-      "id": "PROD-000024",
+      "id": "PRD-024",
       "code": "ASI-CAM-5619",
       "name": "ASI Optical Vision Pro Camera ASI-CAM-5619",
       "description": "High performance optical vision camera for commercial deployment",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-001",
       "unit": "Nos",
       "size": "",
       "cost": 2000,
@@ -1320,16 +1320,16 @@
       "createdAt": "2026-10-06T05:54:11.883Z"
     },
     {
-      "id": "PROD-000025",
+      "id": "PRD-025",
       "code": "ASI-CAM-1660",
       "name": "ASI Optical Vision Pro Camera ASI-CAM-1660",
       "description": "High performance optical vision camera for commercial deployment",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-001",
       "unit": "Nos",
       "size": "",
       "cost": 2000,
@@ -1355,16 +1355,16 @@
       "createdAt": "2026-10-06T05:55:33.903Z"
     },
     {
-      "id": "PROD-000026",
+      "id": "PRD-026",
       "code": "ASI-CAM-4396",
       "name": "ASI Optical Vision Pro Camera ASI-CAM-4396",
       "description": "High performance optical vision camera for commercial deployment",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-001",
       "unit": "Nos",
       "size": "",
       "cost": 2000,
@@ -1390,16 +1390,16 @@
       "createdAt": "2026-10-06T05:56:22.298Z"
     },
     {
-      "id": "PROD-000027",
+      "id": "PRD-027",
       "code": "ASI-CAM-5785",
       "name": "ASI Optical Vision Pro Camera ASI-CAM-5785",
       "description": "High performance optical vision camera for commercial deployment",
       "hsnSac": "852580",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-001",
       "unit": "Nos",
       "size": "",
       "cost": 2000,
@@ -1423,15 +1423,15 @@
       "createdAt": "2026-10-06T05:58:58.264Z"
     },
     {
-      "id": "PROD-000028",
+      "id": "PRD-028",
       "code": "ASI-09ASI-CAM-5696",
       "name": "ASI Vision Pro Sensor ASI-CAM-5696",
       "description": "High precision optical sensor for industrial monitoring",
       "hsnSac": "85258090",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -1453,15 +1453,15 @@
       "archivedAt": "2026-10-06T06:44:14.402Z"
     },
     {
-      "id": "PROD-000029",
+      "id": "PRD-029",
       "code": "ASI-09ASI-CAM-5091",
       "name": "ASI Vision Pro Sensor ASI-CAM-5091",
       "description": "High precision optical sensor for industrial monitoring",
       "hsnSac": "85258090",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -1486,15 +1486,15 @@
       "createdAt": "2026-10-06T06:46:37.956Z"
     },
     {
-      "id": "PROD-000030",
+      "id": "PRD-030",
       "code": "ASI-09ASI-CAM-7410",
       "name": "ASI Vision Pro Sensor ASI-CAM-7410",
       "description": "High precision optical sensor for industrial monitoring",
       "hsnSac": "85258090",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -1512,15 +1512,15 @@
       "createdAt": "2026-10-06T06:50:17.310Z"
     },
     {
-      "id": "PROD-000031",
+      "id": "PRD-031",
       "code": "ASI-DC-NEW-482",
       "name": "ASI Sensor Controller 318",
       "description": "",
       "hsnSac": "85258090",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -1554,16 +1554,16 @@
       "createdAt": "2026-10-07T06:54:15.917Z"
     },
     {
-      "id": "PROD-000032",
+      "id": "PRD-032",
       "code": "ASI-09",
       "name": "sensinova IP 20",
       "description": "It is a 360° ceiling-mounted PIR Motion Sensor designed for automatic indoor lighting control and energy savings in homes, offices, corridors, and commercial spaces.",
       "hsnSac": "90319000",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000008",
-      "subcategoryId": "SUBCAT-000008",
-      "brandId": "BR-000007",
+      "categoryId": "CAT-008",
+      "subcategoryId": "SUBCAT-008",
+      "brandId": "BR-007",
       "unit": "Nos",
       "size": "",
       "cost": 1000,
@@ -1590,16 +1590,16 @@
       "createdAt": "2026-10-13T04:25:40.070Z"
     },
     {
-      "id": "PROD-000033",
+      "id": "PRD-033",
       "code": "ASI-10",
       "name": "Sensinova NOVA 4T",
       "description": "Other measuring or checking instruments, appliances, and machines",
       "hsnSac": "90318000",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000008",
-      "subcategoryId": "SUBCAT-000008",
-      "brandId": "BR-000007",
+      "categoryId": "CAT-008",
+      "subcategoryId": "SUBCAT-008",
+      "brandId": "BR-007",
       "unit": "Nos",
       "size": "",
       "cost": 1000,
@@ -1625,16 +1625,16 @@
       "createdAt": "2026-10-13T04:29:37.948Z"
     },
     {
-      "id": "PROD-000034",
+      "id": "PRD-034",
       "code": "ASI-11",
       "name": "Sensinova",
       "description": "The Sensinova Nano 16 is an energy-saving electronic switch featuring an integrated high-frequency 5.8 GHz microwave motion sensor (CW Radar, ISM band). It automatically triggers connected electrical loads (like lights) upon detecting motion and turns them off after a customizable delay.",
       "hsnSac": "90319000",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000008",
-      "subcategoryId": "SUBCAT-000008",
-      "brandId": "BR-000007",
+      "categoryId": "CAT-008",
+      "subcategoryId": "SUBCAT-008",
+      "brandId": "BR-007",
       "unit": "Nos",
       "size": "",
       "cost": 1200,
@@ -1661,16 +1661,16 @@
       "createdAt": "2026-10-13T04:33:37.262Z"
     },
     {
-      "id": "PROD-000035",
+      "id": "PRD-035",
       "code": "ASI-12",
       "name": "Sensinova wardrobe sensor",
       "description": "The NEO D15 Wardrobe Sensor is a versatile and modern lighting solution designed for cabinets, wardrobes, and kitchen spaces. With dual operating modes, it offers Door Sense Mode and Wave Switch Mode, providing flexible control options. The Door Sense Mode automatically activates lights upon opening the door, while the Wave Switch Mode allows users to turn lights on or off with a simple hand wave.",
       "hsnSac": "90318000",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000008",
-      "subcategoryId": "SUBCAT-000008",
-      "brandId": "BR-000007",
+      "categoryId": "CAT-008",
+      "subcategoryId": "SUBCAT-008",
+      "brandId": "BR-007",
       "unit": "Nos",
       "size": "",
       "cost": 1000,
@@ -1711,16 +1711,16 @@
       "createdAt": "2026-10-13T04:37:44.543Z"
     },
     {
-      "id": "PROD-000036",
+      "id": "PRD-036",
       "code": "ASI-13",
       "name": "ASI-Dahua-CP Plus-TVT-Prama0-8ch NVR",
       "description": "supports 4/8 CH IP input, simultaneous 4/8 CH playback,and 4K high definition display.",
       "hsnSac": "85219090",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000002",
-      "subcategoryId": "SUBCAT-000003",
-      "brandId": "BR-000006",
+      "categoryId": "CAT-002",
+      "subcategoryId": "SUBCAT-003",
+      "brandId": "BR-006",
       "unit": "Nos",
       "size": "",
       "cost": 4800,
@@ -1745,16 +1745,16 @@
       "createdAt": "2026-10-13T09:30:49.901Z"
     },
     {
-      "id": "PROD-000037",
+      "id": "PRD-037",
       "code": "ASI-14",
       "name": "ASI-Dahua-CP Plus-TVT-Prama-4mp Bullet camera",
       "description": "4MP Smart Dual Light Fixed-focal Bullet WizSense Network Camera.",
       "hsnSac": "85258090",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000001",
-      "brandId": "BR-000006",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-001",
+      "brandId": "BR-006",
       "unit": "Nos",
       "size": "",
       "cost": 3700,
@@ -1780,15 +1780,15 @@
       "createdAt": "2026-10-13T09:36:52.074Z"
     },
     {
-      "id": "PROD-000038",
+      "id": "PRD-038",
       "code": "ASI-15",
       "name": "Seagate/WD 4TB HARD DISK",
       "description": "",
       "hsnSac": "84717020",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000010",
-      "subcategoryId": "SUBCAT-000009",
+      "categoryId": "CAT-010",
+      "subcategoryId": "SUBCAT-009",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -1817,16 +1817,16 @@
       "createdAt": "2026-10-13T09:40:20.538Z"
     },
     {
-      "id": "PROD-000039",
+      "id": "PRD-039",
       "code": "ASI-16",
       "name": "8+2 Port POE Gigabyte Switch",
       "description": "10-Port Economical Gigabit Switch with 8-Port PoE.",
       "hsnSac": "85176990",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000003",
-      "subcategoryId": "SUBCAT-000004",
-      "brandId": "BR-000006",
+      "categoryId": "CAT-003",
+      "subcategoryId": "SUBCAT-004",
+      "brandId": "BR-006",
       "unit": "Nos",
       "size": "",
       "cost": 4400,
@@ -1854,16 +1854,16 @@
       "createdAt": "2026-10-13T09:46:41.962Z"
     },
     {
-      "id": "PROD-000040",
+      "id": "PRD-040",
       "code": "ASI-17",
       "name": "8+2 Port POE Switch",
       "description": "10-Port Economical Switch with 8-Port PoE",
       "hsnSac": "85176990",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000003",
-      "subcategoryId": "SUBCAT-000004",
-      "brandId": "BR-000006",
+      "categoryId": "CAT-003",
+      "subcategoryId": "SUBCAT-004",
+      "brandId": "BR-006",
       "unit": "Nos",
       "size": "",
       "cost": 2900,
@@ -1889,16 +1889,16 @@
       "createdAt": "2026-10-13T09:48:40.924Z"
     },
     {
-      "id": "PROD-000041",
+      "id": "PRD-041",
       "code": "ASI-18",
       "name": "Cat 6 Cable",
       "description": "Cable & Labour with Accessories",
       "hsnSac": "85444999",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000004",
-      "subcategoryId": "SUBCAT-000005",
-      "brandId": "BR-000008",
+      "categoryId": "CAT-004",
+      "subcategoryId": "SUBCAT-005",
+      "brandId": "BR-008",
       "unit": "Nos",
       "size": "",
       "cost": 25,
@@ -1915,16 +1915,16 @@
       "createdAt": "2026-10-13T09:54:58.202Z"
     },
     {
-      "id": "PROD-000042",
+      "id": "PRD-042",
       "code": "ASI-19",
       "name": "Installation Testing & Commissioning Charges",
       "description": "",
       "hsnSac": "998717",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000011",
-      "subcategoryId": "SUBCAT-000010",
-      "brandId": "BR-000009",
+      "categoryId": "CAT-011",
+      "subcategoryId": "SUBCAT-010",
+      "brandId": "BR-009",
       "unit": "Nos",
       "size": "",
       "cost": 1500,
@@ -2044,15 +2044,15 @@
       "archivedAt": "2026-10-15T06:55:47.936Z"
     },
     {
-      "id": "PROD-000043",
+      "id": "PRD-043",
       "code": "ASI-TEST-HW-1",
       "name": "Dahua 4K Dome Test Camera",
       "description": "Testing serial numbers loading",
       "hsnSac": "85258090",
       "productDetails": "",
       "productLink": "",
-      "categoryId": "CAT-000001",
-      "subcategoryId": "SUBCAT-000002",
+      "categoryId": "CAT-001",
+      "subcategoryId": "SUBCAT-002",
       "brandId": null,
       "unit": "Nos",
       "size": "",
@@ -2082,22 +2082,22 @@
   ],
   "inventoryTransactions": [
     {
-      "id": "TXN-GRN-GRN-00001-CAM-IPC-001",
-      "productId": "PROD-000001",
+      "id": "TXN-GRN-GRN-001-CAM-IPC-001",
+      "productId": "PRD-001",
       "productCode": "CAM-IPC-001",
       "productName": "Dahua 5MP IR Bullet Camera",
       "date": "2026-09-25T14:30:00.000Z",
       "event": "Goods Receipt",
-      "reference": "GRN-00001",
+      "reference": "GRN-001",
       "referenceType": "GRN",
-      "referenceId": "GRN-00001",
-      "poReference": "PO-00001",
+      "referenceId": "GRN-001",
+      "poReference": "PO/001/2026",
       "quantity": 10,
       "unitRate": 4500,
       "gstRate": 18,
       "taxAmount": 8100,
       "totalValue": 45000,
-      "supplierId": "SUP-000001",
+      "supplierId": "SUP-001",
       "supplierName": "Dahua Technology India Pvt Ltd",
       "partyName": "Dahua Technology India Pvt Ltd",
       "customerName": null,
@@ -2113,7 +2113,7 @@
         "DH-CAM-EXP-06M",
         "DH-CAM-EXP-12M"
       ],
-      "remarks": "Received 10 units under PO-00001 / GRN-00001",
+      "remarks": "Received 10 units under PO/001/2026 / GRN-001",
       "currentStock": 10,
       "type": "STOCK IN",
       "stockBefore": 0,
@@ -2122,21 +2122,21 @@
       "createdBy": "Super Admin"
     },
     {
-      "id": "TXN-DC-DC-000001-CAM-IPC-001",
-      "productId": "PROD-000001",
+      "id": "TXN-DC-DC/001/2026-CAM-IPC-001",
+      "productId": "PRD-001",
       "productCode": "CAM-IPC-001",
       "productName": "Dahua 5MP IR Bullet Camera",
       "date": "2026-10-06T10:00:00.000Z",
       "event": "Delivery Challan",
-      "reference": "DC-000001",
+      "reference": "DC/001/2026",
       "referenceType": "DC",
-      "referenceId": "DC-000001",
+      "referenceId": "DC/001/2026",
       "quantity": -2,
       "unitRate": 11000,
       "gstRate": 18,
       "taxAmount": 3960,
       "totalValue": 22000,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -2153,21 +2153,21 @@
       "createdBy": "Super Admin"
     },
     {
-      "id": "TXN-INV-INV-000001-CAM-IPC-001",
-      "productId": "PROD-000001",
+      "id": "TXN-INV-INV/001/2026-CAM-IPC-001",
+      "productId": "PRD-001",
       "productCode": "CAM-IPC-001",
       "productName": "Dahua 5MP IR Bullet Camera",
       "date": "2026-10-06T15:00:00.000Z",
       "event": "Sales Invoice",
-      "reference": "INV-000001",
+      "reference": "INV/001/2026",
       "referenceType": "INV",
-      "referenceId": "INV-000001",
+      "referenceId": "INV/001/2026",
       "quantity": -2,
       "unitRate": 11000,
       "gstRate": 18,
       "taxAmount": 3960,
       "totalValue": 22000,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -2182,8 +2182,8 @@
       "supplierName": null
     },
     {
-      "id": "TXN-INIT-PROD-000001",
-      "productId": "PROD-000001",
+      "id": "TXN-INIT-PRD-001",
+      "productId": "PRD-001",
       "productCode": "CAM-IPC-001",
       "productName": "Dahua 5MP IR Bullet Camera",
       "date": "2026-09-15T09:00:00.000Z",
@@ -2207,22 +2207,22 @@
       "stockAfter": 8
     },
     {
-      "id": "TXN-GOODS_RECEIPT-GRN-00001-CAM-IPC-001",
-      "productId": "PROD-000001",
+      "id": "TXN-GOODS_RECEIPT-GRN-001-CAM-IPC-001",
+      "productId": "PRD-001",
       "productCode": "CAM-IPC-001",
       "productName": "Dahua 5MP IR Bullet Camera",
       "date": "2026-09-25T14:30:00.000Z",
       "event": "Goods Receipt",
-      "reference": "GRN-00001",
+      "reference": "GRN-001",
       "referenceType": "GRN",
-      "referenceId": "GRN-00001",
-      "poReference": "PO-00001",
+      "referenceId": "GRN-001",
+      "poReference": "PO/001/2026",
       "quantity": 10,
       "unitRate": 4500,
       "gstRate": 18,
       "taxAmount": 8100,
       "totalValue": 45000,
-      "supplierId": "SUP-000001",
+      "supplierId": "SUP-001",
       "supplierName": "Dahua Technology India Pvt Ltd",
       "partyName": "Dahua Technology India Pvt Ltd",
       "customerName": null,
@@ -2238,7 +2238,7 @@
         "DH-CAM-EXP-06M",
         "DH-CAM-EXP-12M"
       ],
-      "remarks": "Received 10 units under PO-00001 / GRN-00001",
+      "remarks": "Received 10 units under PO/001/2026 / GRN-001",
       "currentStock": 6,
       "type": "STOCK IN",
       "stockBefore": 0,
@@ -2247,8 +2247,8 @@
       "createdBy": "Super Admin"
     },
     {
-      "id": "TXN-INIT-PROD-000002",
-      "productId": "PROD-000002",
+      "id": "TXN-INIT-PRD-002",
+      "productId": "PRD-002",
       "productCode": "CAM-IPC-002",
       "productName": "CP Plus 2MP Dome Camera",
       "date": "2026-09-15T09:00:00.000Z",
@@ -2272,8 +2272,8 @@
       "stockAfter": 75
     },
     {
-      "id": "TXN-INIT-PROD-000003",
-      "productId": "PROD-000003",
+      "id": "TXN-INIT-PRD-003",
+      "productId": "PRD-003",
       "productCode": "NVR-008-001",
       "productName": "Hikvision 8 Channel PoE NVR",
       "date": "2026-09-15T09:00:00.000Z",
@@ -2297,8 +2297,8 @@
       "stockAfter": 61
     },
     {
-      "id": "TXN-INIT-PROD-000004",
-      "productId": "PROD-000004",
+      "id": "TXN-INIT-PRD-004",
+      "productId": "PRD-004",
       "productCode": "NET-SW-001",
       "productName": "TP-Link 8 Port PoE Switch",
       "date": "2026-09-15T09:00:00.000Z",
@@ -2322,8 +2322,8 @@
       "stockAfter": 8
     },
     {
-      "id": "TXN-INIT-PROD-000005",
-      "productId": "PROD-000005",
+      "id": "TXN-INIT-PRD-005",
+      "productId": "PRD-005",
       "productCode": "HDD-1TB-001",
       "productName": "WD Purple 1TB Surveillance HDD",
       "date": "2026-09-15T09:00:00.000Z",
@@ -2347,8 +2347,8 @@
       "stockAfter": 10
     },
     {
-      "id": "TXN-INIT-PROD-000006",
-      "productId": "PROD-000006",
+      "id": "TXN-INIT-PRD-006",
+      "productId": "PRD-006",
       "productCode": "CAB-UTP-001",
       "productName": "D-Link Cat6 UTP 305M Solid Cable Roll",
       "date": "2026-09-15T09:00:00.000Z",
@@ -2372,8 +2372,8 @@
       "stockAfter": 51
     },
     {
-      "id": "TXN-INIT-PROD-000007",
-      "productId": "PROD-000007",
+      "id": "TXN-INIT-PRD-007",
+      "productId": "PRD-007",
       "productCode": "PWR-SMPS-001",
       "productName": "Active 12V 10A CCTV Power Supply Unit",
       "date": "2026-09-15T09:00:00.000Z",
@@ -2397,8 +2397,8 @@
       "stockAfter": 80
     },
     {
-      "id": "TXN-INIT-PROD-000008",
-      "productId": "PROD-000008",
+      "id": "TXN-INIT-PRD-008",
+      "productId": "PRD-008",
       "productCode": "RCK-WALL-004",
       "productName": "4U Wall Mount Network Server Rack",
       "date": "2026-09-15T09:00:00.000Z",
@@ -2422,8 +2422,8 @@
       "stockAfter": 33
     },
     {
-      "id": "TXN-INIT-PROD-000009",
-      "productId": "PROD-000009",
+      "id": "TXN-INIT-PRD-009",
+      "productId": "PRD-009",
       "productCode": "ACC-RJ45-100",
       "productName": "D-Link Cat6 RJ45 Modular Connectors Box (100 Pcs)",
       "date": "2026-09-15T09:00:00.000Z",
@@ -2447,8 +2447,8 @@
       "stockAfter": 60
     },
     {
-      "id": "TXN-INIT-PROD-000010",
-      "productId": "PROD-000010",
+      "id": "TXN-INIT-PRD-010",
+      "productId": "PRD-010",
       "productCode": "CBL-HDMI-010",
       "productName": "High Speed 4K 60Hz HDMI 2.0 Cable 10 Meter",
       "date": "2026-09-15T09:00:00.000Z",
@@ -2472,8 +2472,8 @@
       "stockAfter": 75
     },
     {
-      "id": "TXN-INIT-PROD-000011",
-      "productId": "PROD-000011",
+      "id": "TXN-INIT-PRD-011",
+      "productId": "PRD-011",
       "productCode": "ASI01",
       "productName": "2MP Bullet Camera Updated",
       "date": "2026-10-05T09:13:10.164Z",
@@ -2497,8 +2497,8 @@
       "stockAfter": 31
     },
     {
-      "id": "TXN-INIT-PROD-000012",
-      "productId": "PROD-000012",
+      "id": "TXN-INIT-PRD-012",
+      "productId": "PRD-012",
       "productCode": "ASI02",
       "productName": "Camera Outdoor Box",
       "date": "2026-10-05T09:28:22.631Z",
@@ -2522,8 +2522,8 @@
       "stockAfter": 106
     },
     {
-      "id": "TXN-INIT-PROD-000013",
-      "productId": "PROD-000013",
+      "id": "TXN-INIT-PRD-013",
+      "productId": "PRD-013",
       "productCode": "ASI03",
       "productName": "Exit Switch",
       "date": "2026-10-05T09:38:53.037Z",
@@ -2547,8 +2547,8 @@
       "stockAfter": 22
     },
     {
-      "id": "TXN-INIT-PROD-000014",
-      "productId": "PROD-000014",
+      "id": "TXN-INIT-PRD-014",
+      "productId": "PRD-014",
       "productCode": "ASI-04",
       "productName": "ASI PTZ Integration Camera 1890",
       "date": "2026-10-05T13:07:12.471Z",
@@ -2572,8 +2572,8 @@
       "stockAfter": 6
     },
     {
-      "id": "TXN-INIT-PROD-000015",
-      "productId": "PROD-000015",
+      "id": "TXN-INIT-PRD-015",
+      "productId": "PRD-015",
       "productCode": "ASI-05",
       "productName": "ASI PTZ Integration Camera 2659",
       "date": "2026-10-05T13:10:41.595Z",
@@ -2597,8 +2597,8 @@
       "stockAfter": 6
     },
     {
-      "id": "TXN-INIT-PROD-000016",
-      "productId": "PROD-000016",
+      "id": "TXN-INIT-PRD-016",
+      "productId": "PRD-016",
       "productCode": "ASI-06",
       "productName": "ASI PTZ Integration Camera 5062",
       "date": "2026-10-05T13:25:23.981Z",
@@ -2622,8 +2622,8 @@
       "stockAfter": 6
     },
     {
-      "id": "TXN-INIT-PROD-000017",
-      "productId": "PROD-000017",
+      "id": "TXN-INIT-PRD-017",
+      "productId": "PRD-017",
       "productCode": "ASI-07",
       "productName": "ASI PTZ Integration Camera 3985",
       "date": "2026-10-05T13:26:08.736Z",
@@ -2647,8 +2647,8 @@
       "stockAfter": 6
     },
     {
-      "id": "TXN-INIT-PROD-000018",
-      "productId": "PROD-000018",
+      "id": "TXN-INIT-PRD-018",
+      "productId": "PRD-018",
       "productCode": "ASI-08",
       "productName": "ASI PTZ Integration Camera 7315",
       "date": "2026-10-05T13:26:49.113Z",
@@ -2672,8 +2672,8 @@
       "stockAfter": 6
     },
     {
-      "id": "TXN-INIT-PROD-000019",
-      "productId": "PROD-000019",
+      "id": "TXN-INIT-PRD-019",
+      "productId": "PRD-019",
       "productCode": "ASI-09ASI-NAV-1131",
       "productName": "ASI Nav Vision Camera 1131",
       "date": "2026-10-06T04:57:44.677Z",
@@ -2697,8 +2697,8 @@
       "stockAfter": 0
     },
     {
-      "id": "TXN-INIT-PROD-000020",
-      "productId": "PROD-000020",
+      "id": "TXN-INIT-PRD-020",
+      "productId": "PRD-020",
       "productCode": "ASI-PRO-9901",
       "productName": "ASI Vision Pro PTZ 9901",
       "date": "2026-10-06T05:50:56.654Z",
@@ -2722,8 +2722,8 @@
       "stockAfter": 10
     },
     {
-      "id": "TXN-INIT-PROD-000021",
-      "productId": "PROD-000021",
+      "id": "TXN-INIT-PRD-021",
+      "productId": "PRD-021",
       "productCode": "ASI-CAM-9654",
       "productName": "ASI Optical Vision Pro Camera ASI-CAM-9654",
       "date": "2026-10-06T05:51:22.606Z",
@@ -2747,8 +2747,8 @@
       "stockAfter": 10
     },
     {
-      "id": "TXN-INIT-PROD-000022",
-      "productId": "PROD-000022",
+      "id": "TXN-INIT-PRD-022",
+      "productId": "PRD-022",
       "productCode": "ASI-CAM-1928",
       "productName": "ASI Optical Vision Pro Camera ASI-CAM-1928",
       "date": "2026-10-06T05:53:02.554Z",
@@ -2772,8 +2772,8 @@
       "stockAfter": 8
     },
     {
-      "id": "TXN-INIT-PROD-000023",
-      "productId": "PROD-000023",
+      "id": "TXN-INIT-PRD-023",
+      "productId": "PRD-023",
       "productCode": "ASI-CAM-2242",
       "productName": "ASI Optical Vision Pro Camera ASI-CAM-2242",
       "date": "2026-10-06T05:53:24.704Z",
@@ -2797,8 +2797,8 @@
       "stockAfter": 8
     },
     {
-      "id": "TXN-INIT-PROD-000024",
-      "productId": "PROD-000024",
+      "id": "TXN-INIT-PRD-024",
+      "productId": "PRD-024",
       "productCode": "ASI-CAM-5619",
       "productName": "ASI Optical Vision Pro Camera ASI-CAM-5619",
       "date": "2026-10-06T05:54:11.883Z",
@@ -2822,8 +2822,8 @@
       "stockAfter": 8
     },
     {
-      "id": "TXN-INIT-PROD-000025",
-      "productId": "PROD-000025",
+      "id": "TXN-INIT-PRD-025",
+      "productId": "PRD-025",
       "productCode": "ASI-CAM-1660",
       "productName": "ASI Optical Vision Pro Camera ASI-CAM-1660",
       "date": "2026-10-06T05:55:33.903Z",
@@ -2847,8 +2847,8 @@
       "stockAfter": 8
     },
     {
-      "id": "TXN-INIT-PROD-000026",
-      "productId": "PROD-000026",
+      "id": "TXN-INIT-PRD-026",
+      "productId": "PRD-026",
       "productCode": "ASI-CAM-4396",
       "productName": "ASI Optical Vision Pro Camera ASI-CAM-4396",
       "date": "2026-10-06T05:56:22.298Z",
@@ -2872,8 +2872,8 @@
       "stockAfter": 8
     },
     {
-      "id": "TXN-INIT-PROD-000027",
-      "productId": "PROD-000027",
+      "id": "TXN-INIT-PRD-027",
+      "productId": "PRD-027",
       "productCode": "ASI-CAM-5785",
       "productName": "ASI Optical Vision Pro Camera ASI-CAM-5785",
       "date": "2026-10-06T05:58:58.264Z",
@@ -2897,8 +2897,8 @@
       "stockAfter": 6
     },
     {
-      "id": "TXN-INIT-PROD-000028",
-      "productId": "PROD-000028",
+      "id": "TXN-INIT-PRD-028",
+      "productId": "PRD-028",
       "productCode": "ASI-09ASI-CAM-5696",
       "productName": "ASI Vision Pro Sensor ASI-CAM-5696",
       "date": "2026-10-06T06:43:43.381Z",
@@ -2922,8 +2922,8 @@
       "stockAfter": 0
     },
     {
-      "id": "TXN-INIT-PROD-000029",
-      "productId": "PROD-000029",
+      "id": "TXN-INIT-PRD-029",
+      "productId": "PRD-029",
       "productCode": "ASI-09ASI-CAM-5091",
       "productName": "ASI Vision Pro Sensor ASI-CAM-5091",
       "date": "2026-10-06T06:46:37.956Z",
@@ -2947,8 +2947,8 @@
       "stockAfter": 6
     },
     {
-      "id": "TXN-INIT-PROD-000030",
-      "productId": "PROD-000030",
+      "id": "TXN-INIT-PRD-030",
+      "productId": "PRD-030",
       "productCode": "ASI-09ASI-CAM-7410",
       "productName": "ASI Vision Pro Sensor ASI-CAM-7410",
       "date": "2026-10-06T06:50:17.310Z",
@@ -2972,8 +2972,8 @@
       "stockAfter": 0
     },
     {
-      "id": "TXN-INIT-PROD-000031",
-      "productId": "PROD-000031",
+      "id": "TXN-INIT-PRD-031",
+      "productId": "PRD-031",
       "productCode": "ASI-DC-NEW-482",
       "productName": "ASI Sensor Controller 318",
       "date": "2026-10-07T06:54:15.917Z",
@@ -2997,8 +2997,8 @@
       "stockAfter": 15
     },
     {
-      "id": "TXN-INIT-PROD-000032",
-      "productId": "PROD-000032",
+      "id": "TXN-INIT-PRD-032",
+      "productId": "PRD-032",
       "productCode": "ASI-09",
       "productName": "sensinova IP 20",
       "date": "2026-10-13T04:25:40.070Z",
@@ -3022,8 +3022,8 @@
       "stockAfter": 9
     },
     {
-      "id": "TXN-INIT-PROD-000033",
-      "productId": "PROD-000033",
+      "id": "TXN-INIT-PRD-033",
+      "productId": "PRD-033",
       "productCode": "ASI-10",
       "productName": "Sensinova NOVA 4T",
       "date": "2026-10-13T04:29:37.948Z",
@@ -3047,8 +3047,8 @@
       "stockAfter": 8
     },
     {
-      "id": "TXN-INIT-PROD-000034",
-      "productId": "PROD-000034",
+      "id": "TXN-INIT-PRD-034",
+      "productId": "PRD-034",
       "productCode": "ASI-11",
       "productName": "Sensinova",
       "date": "2026-10-13T04:33:37.262Z",
@@ -3072,8 +3072,8 @@
       "stockAfter": 9
     },
     {
-      "id": "TXN-INIT-PROD-000035",
-      "productId": "PROD-000035",
+      "id": "TXN-INIT-PRD-035",
+      "productId": "PRD-035",
       "productCode": "ASI-12",
       "productName": "Sensinova wardrobe sensor",
       "date": "2026-10-13T04:37:44.543Z",
@@ -3097,8 +3097,8 @@
       "stockAfter": 23
     },
     {
-      "id": "TXN-INIT-PROD-000036",
-      "productId": "PROD-000036",
+      "id": "TXN-INIT-PRD-036",
+      "productId": "PRD-036",
       "productCode": "ASI-13",
       "productName": "ASI-Dahua-CP Plus-TVT-Prama0-8ch NVR",
       "date": "2026-10-13T09:30:49.901Z",
@@ -3122,8 +3122,8 @@
       "stockAfter": 7
     },
     {
-      "id": "TXN-INIT-PROD-000037",
-      "productId": "PROD-000037",
+      "id": "TXN-INIT-PRD-037",
+      "productId": "PRD-037",
       "productCode": "ASI-14",
       "productName": "ASI-Dahua-CP Plus-TVT-Prama-4mp Bullet camera",
       "date": "2026-10-13T09:36:52.074Z",
@@ -3147,8 +3147,8 @@
       "stockAfter": 8
     },
     {
-      "id": "TXN-INIT-PROD-000038",
-      "productId": "PROD-000038",
+      "id": "TXN-INIT-PRD-038",
+      "productId": "PRD-038",
       "productCode": "ASI-15",
       "productName": "Seagate/WD 4TB HARD DISK",
       "date": "2026-10-13T09:40:20.538Z",
@@ -3172,8 +3172,8 @@
       "stockAfter": 10
     },
     {
-      "id": "TXN-INIT-PROD-000039",
-      "productId": "PROD-000039",
+      "id": "TXN-INIT-PRD-039",
+      "productId": "PRD-039",
       "productCode": "ASI-16",
       "productName": "8+2 Port POE Gigabyte Switch",
       "date": "2026-10-13T09:46:41.962Z",
@@ -3197,8 +3197,8 @@
       "stockAfter": 10
     },
     {
-      "id": "TXN-INIT-PROD-000040",
-      "productId": "PROD-000040",
+      "id": "TXN-INIT-PRD-040",
+      "productId": "PRD-040",
       "productCode": "ASI-17",
       "productName": "8+2 Port POE Switch",
       "date": "2026-10-13T09:48:40.924Z",
@@ -3222,8 +3222,8 @@
       "stockAfter": 8
     },
     {
-      "id": "TXN-INIT-PROD-000041",
-      "productId": "PROD-000041",
+      "id": "TXN-INIT-PRD-041",
+      "productId": "PRD-041",
       "productCode": "ASI-18",
       "productName": "Cat 6 Cable",
       "date": "2026-10-13T09:54:58.202Z",
@@ -3247,8 +3247,8 @@
       "stockAfter": 656
     },
     {
-      "id": "TXN-INIT-PROD-000042",
-      "productId": "PROD-000042",
+      "id": "TXN-INIT-PRD-042",
+      "productId": "PRD-042",
       "productCode": "ASI-19",
       "productName": "Installation Testing & Commissioning Charges",
       "date": "2026-10-13T09:57:58.245Z",
@@ -3272,8 +3272,8 @@
       "stockAfter": 98
     },
     {
-      "id": "TXN-INIT-PROD-000043",
-      "productId": "PROD-000043",
+      "id": "TXN-INIT-PRD-043",
+      "productId": "PRD-043",
       "productCode": "ASI-TEST-HW-1",
       "productName": "Dahua 4K Dome Test Camera",
       "date": "2026-10-14T05:41:22.046Z",
@@ -3297,18 +3297,18 @@
       "stockAfter": 5
     },
     {
-      "id": "TXN-DC-DC-000002-CAM-IPC-001-1792216944747",
-      "productId": "PROD-000001",
+      "id": "TXN-DC-DC/002/2026-CAM-IPC-001-1792216944747",
+      "productId": "PRD-001",
       "productCode": "CAM-IPC-001",
       "productName": "Dahua 5MP IR Bullet Camera",
       "date": "2026-10-17",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -2,
       "stockAfter": 6,
       "currentStock": 6,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -3318,18 +3318,18 @@
       "remarks": "Delivered to Apex Technologies Pvt Ltd"
     },
     {
-      "id": "TXN-DC-DC-000002-CAM-IPC-002-1792216944747",
-      "productId": "PROD-000002",
+      "id": "TXN-DC-DC/002/2026-CAM-IPC-002-1792216944747",
+      "productId": "PRD-002",
       "productCode": "CAM-IPC-002",
       "productName": "CP Plus 2MP Dome Camera",
       "date": "2026-10-17",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 74,
       "currentStock": 74,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -3338,36 +3338,36 @@
       "remarks": "Delivered to Apex Technologies Pvt Ltd"
     },
     {
-      "id": "TXN-DC-DC-000002-ASI-18-1792216944747",
-      "productId": "PROD-000041",
+      "id": "TXN-DC-DC/002/2026-ASI-18-1792216944747",
+      "productId": "PRD-041",
       "productCode": "ASI-18",
       "productName": "Cat 6 Cable",
       "date": "2026-10-17",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 655,
       "currentStock": 655,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [],
       "remarks": "Delivered to Apex Technologies Pvt Ltd"
     },
     {
-      "id": "TXN-DC-DC-000002-NVR-008-001-1792216944747",
-      "productId": "PROD-000003",
+      "id": "TXN-DC-DC/002/2026-NVR-008-001-1792216944747",
+      "productId": "PRD-003",
       "productCode": "NVR-008-001",
       "productName": "Hikvision 8 Channel PoE NVR",
       "date": "2026-10-17",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 60,
       "currentStock": 60,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -3376,18 +3376,18 @@
       "remarks": "Delivered to Apex Technologies Pvt Ltd"
     },
     {
-      "id": "TXN-DC-DC-000002-NET-SW-001-1792216944747",
-      "productId": "PROD-000004",
+      "id": "TXN-DC-DC/002/2026-NET-SW-001-1792216944747",
+      "productId": "PRD-004",
       "productCode": "NET-SW-001",
       "productName": "TP-Link 8 Port PoE Switch",
       "date": "2026-10-17",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 7,
       "currentStock": 7,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -3396,36 +3396,36 @@
       "remarks": "Delivered to Apex Technologies Pvt Ltd"
     },
     {
-      "id": "TXN-DC-DC-000002-CBL-HDMI-010-1792216944747",
-      "productId": "PROD-000010",
+      "id": "TXN-DC-DC/002/2026-CBL-HDMI-010-1792216944747",
+      "productId": "PRD-010",
       "productCode": "CBL-HDMI-010",
       "productName": "High Speed 4K 60Hz HDMI 2.0 Cable 10 Meter",
       "date": "2026-10-17",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 74,
       "currentStock": 74,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [],
       "remarks": "Delivered to Apex Technologies Pvt Ltd"
     },
     {
-      "id": "TXN-DC-DC-000002-ASI-04-1792216944747",
-      "productId": "PROD-000014",
+      "id": "TXN-DC-DC/002/2026-ASI-04-1792216944747",
+      "productId": "PRD-014",
       "productCode": "ASI-04",
       "productName": "ASI PTZ Integration Camera 1890",
       "date": "2026-10-17",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 5,
       "currentStock": 5,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -3434,18 +3434,18 @@
       "remarks": "Delivered to Apex Technologies Pvt Ltd"
     },
     {
-      "id": "TXN-DC-DC-000002-ASI02-1792216944747",
-      "productId": "PROD-000012",
+      "id": "TXN-DC-DC/002/2026-ASI02-1792216944747",
+      "productId": "PRD-012",
       "productCode": "ASI02",
       "productName": "Camera Outdoor Box",
       "date": "2026-10-17",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 105,
       "currentStock": 105,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -3454,18 +3454,18 @@
       "remarks": "Delivered to Apex Technologies Pvt Ltd"
     },
     {
-      "id": "TXN-DC-DC-000002-CAM-IPC-001",
-      "productId": "PROD-000001",
+      "id": "TXN-DC-DC/002/2026-CAM-IPC-001",
+      "productId": "PRD-001",
       "productCode": "CAM-IPC-001",
       "productName": "Dahua 5MP IR Bullet Camera",
       "date": "2026-10-17T06:02:20.180Z",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -2,
       "stockAfter": 6,
       "currentStock": 6,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -3477,24 +3477,24 @@
       "gstRate": 18,
       "totalValue": 20000,
       "supplierName": null,
-      "referenceId": "DC-000002",
+      "referenceId": "DC/002/2026",
       "taxAmount": 3960,
       "type": "STOCK OUT",
       "stockBefore": 8
     },
     {
-      "id": "TXN-DC-DC-000002-CAM-IPC-002",
-      "productId": "PROD-000002",
+      "id": "TXN-DC-DC/002/2026-CAM-IPC-002",
+      "productId": "PRD-002",
       "productCode": "CAM-IPC-002",
       "productName": "CP Plus 2MP Dome Camera",
       "date": "2026-10-17T06:02:20.180Z",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 74,
       "currentStock": 74,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -3505,24 +3505,24 @@
       "gstRate": 18,
       "totalValue": 2700,
       "supplierName": null,
-      "referenceId": "DC-000002",
+      "referenceId": "DC/002/2026",
       "taxAmount": 578.34,
       "type": "STOCK OUT",
       "stockBefore": 75
     },
     {
-      "id": "TXN-DC-DC-000002-NVR-008-001",
-      "productId": "PROD-000003",
+      "id": "TXN-DC-DC/002/2026-NVR-008-001",
+      "productId": "PRD-003",
       "productCode": "NVR-008-001",
       "productName": "Hikvision 8 Channel PoE NVR",
       "date": "2026-10-17T06:02:20.180Z",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 60,
       "currentStock": 60,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -3533,24 +3533,24 @@
       "gstRate": 18,
       "totalValue": 7800,
       "supplierName": null,
-      "referenceId": "DC-000002",
+      "referenceId": "DC/002/2026",
       "taxAmount": 1548,
       "type": "STOCK OUT",
       "stockBefore": 61
     },
     {
-      "id": "TXN-DC-DC-000002-NET-SW-001",
-      "productId": "PROD-000004",
+      "id": "TXN-DC-DC/002/2026-NET-SW-001",
+      "productId": "PRD-004",
       "productCode": "NET-SW-001",
       "productName": "TP-Link 8 Port PoE Switch",
       "date": "2026-10-17T06:02:20.180Z",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 7,
       "currentStock": 7,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -3561,24 +3561,24 @@
       "gstRate": 18,
       "totalValue": 4200,
       "supplierName": null,
-      "referenceId": "DC-000002",
+      "referenceId": "DC/002/2026",
       "taxAmount": 846,
       "type": "STOCK OUT",
       "stockBefore": 8
     },
     {
-      "id": "TXN-DC-DC-000002-CBL-HDMI-010",
-      "productId": "PROD-000010",
+      "id": "TXN-DC-DC/002/2026-CBL-HDMI-010",
+      "productId": "PRD-010",
       "productCode": "CBL-HDMI-010",
       "productName": "High Speed 4K 60Hz HDMI 2.0 Cable 10 Meter",
       "date": "2026-10-17T06:02:20.180Z",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 74,
       "currentStock": 74,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [],
@@ -3587,24 +3587,24 @@
       "gstRate": 18,
       "totalValue": 550,
       "supplierName": null,
-      "referenceId": "DC-000002",
+      "referenceId": "DC/002/2026",
       "taxAmount": 135,
       "type": "STOCK OUT",
       "stockBefore": 75
     },
     {
-      "id": "TXN-DC-DC-000002-ASI02",
-      "productId": "PROD-000012",
+      "id": "TXN-DC-DC/002/2026-ASI02",
+      "productId": "PRD-012",
       "productCode": "ASI02",
       "productName": "Camera Outdoor Box",
       "date": "2026-10-17T06:02:20.180Z",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 105,
       "currentStock": 105,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -3615,24 +3615,24 @@
       "gstRate": 18,
       "totalValue": 80,
       "supplierName": null,
-      "referenceId": "DC-000002",
+      "referenceId": "DC/002/2026",
       "taxAmount": 15.84,
       "type": "STOCK OUT",
       "stockBefore": 106
     },
     {
-      "id": "TXN-DC-DC-000002-ASI-04",
-      "productId": "PROD-000014",
+      "id": "TXN-DC-DC/002/2026-ASI-04",
+      "productId": "PRD-014",
       "productCode": "ASI-04",
       "productName": "ASI PTZ Integration Camera 1890",
       "date": "2026-10-17T06:02:20.180Z",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 5,
       "currentStock": 5,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [
@@ -3643,24 +3643,24 @@
       "gstRate": 18,
       "totalValue": 8000,
       "supplierName": null,
-      "referenceId": "DC-000002",
+      "referenceId": "DC/002/2026",
       "taxAmount": 1800,
       "type": "STOCK OUT",
       "stockBefore": 6
     },
     {
-      "id": "TXN-DC-DC-000002-ASI-18",
-      "productId": "PROD-000041",
+      "id": "TXN-DC-DC/002/2026-ASI-18",
+      "productId": "PRD-041",
       "productCode": "ASI-18",
       "productName": "Cat 6 Cable",
       "date": "2026-10-17T06:02:20.180Z",
       "event": "Delivery Challan",
-      "reference": "DC-000002",
+      "reference": "DC/002/2026",
       "referenceType": "DC",
       "quantity": -1,
       "stockAfter": 655,
       "currentStock": 655,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "partyName": "Apex Technologies Pvt Ltd",
       "serialNumbers": [],
@@ -3669,7 +3669,7 @@
       "gstRate": 18,
       "totalValue": 25,
       "supplierName": null,
-      "referenceId": "DC-000002",
+      "referenceId": "DC/002/2026",
       "taxAmount": 9,
       "type": "STOCK OUT",
       "stockBefore": 656

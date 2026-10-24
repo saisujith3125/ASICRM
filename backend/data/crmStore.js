@@ -39,7 +39,7 @@ let goodsReceipts = [];
 // Pre-seeded Suppliers
 let suppliers = [
   {
-    id: 'SUP-000001',
+    id: 'SUP-001',
     companyName: 'Dahua Technology India Pvt Ltd',
     contactPerson: 'Sanjay Verma',
     phone: '9840123456',
@@ -52,7 +52,7 @@ let suppliers = [
     createdAt: new Date('2026-05-01T10:00:00Z').toISOString()
   },
   {
-    id: 'SUP-000002',
+    id: 'SUP-002',
     companyName: 'CP Plus Global Security Solutions',
     contactPerson: 'Kavita Iyer',
     phone: '9884112233',
@@ -65,7 +65,7 @@ let suppliers = [
     createdAt: new Date('2026-05-01T10:00:00Z').toISOString()
   },
   {
-    id: 'SUP-000003',
+    id: 'SUP-003',
     companyName: 'Hikvision India Pvt Ltd',
     contactPerson: 'Rajesh Nair',
     phone: '9740556677',
@@ -78,7 +78,7 @@ let suppliers = [
     createdAt: new Date('2026-05-01T10:00:00Z').toISOString()
   },
   {
-    id: 'SUP-000004',
+    id: 'SUP-004',
     companyName: 'TP-Link India Pvt Ltd',
     contactPerson: 'Amitabh Sen',
     phone: '9820334455',
@@ -91,7 +91,7 @@ let suppliers = [
     createdAt: new Date('2026-05-01T10:00:00Z').toISOString()
   },
   {
-    id: 'SUP-000005',
+    id: 'SUP-005',
     companyName: 'Western Digital India Pvt Ltd',
     contactPerson: 'Vikram Joshi',
     phone: '9900887766',
@@ -417,9 +417,9 @@ const loadPersistedStore = () => {
       const name = String(item.name || item.productName || item.description || '').toLowerCase();
       const code = String(item.code || item.sku || item.productCode || '').toLowerCase();
       const cat = String(item.category || item.categoryName || item.categoryId || '').toLowerCase();
-      if (cat === 'cat-000004' || cat.includes('cable')) return true;
+      if (cat === 'cat-000004' || cat === 'cat-004' || cat.includes('cable')) return true;
       if (name.includes('cable') || name.includes('cat 6') || name.includes('cat6') || name.includes('patch cord') || name.includes('fiber cable')) return true;
-      if (code === 'asi-18' || code === 'prod-000041' || code.includes('cable')) return true;
+      if (code === 'asi-18' || code === 'prod-000041' || code === 'prd-041' || code.includes('cable')) return true;
       const unit = String(item.unit || '').toLowerCase();
       if ((unit === 'meter' || unit === 'roll') && (name.includes('wire') || name.includes('cable'))) return true;
       return false;
@@ -586,10 +586,10 @@ quotations.forEach((quote) => {
       ...quotations.map((q) => q.quotationId).filter(Boolean)
     ]);
     let candidateSeq = 1;
-    let candidateId = `QT-${String(candidateSeq).padStart(6, '0')}`;
+    let candidateId = `QTN/${String(candidateSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
     while (allKnown.has(candidateId)) {
       candidateSeq++;
-      candidateId = `QT-${String(candidateSeq).padStart(6, '0')}`;
+      candidateId = `QTN/${String(candidateSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
     }
     const oldId = quote.quotationId;
     quote.quotationId = candidateId;
@@ -781,10 +781,10 @@ const generatePurchaseOrderId = () => {
 
 const generateGrnId = () => {
   const existingIds = new Set(goodsReceipts.map((grn) => grn.id || grn.grnId).filter(Boolean));
-  let candidate = `GRN-${String(nextGrnSeq).padStart(5, '0')}`;
+  let candidate = `GRN-${String(nextGrnSeq).padStart(3, '0')}`;
   while (existingIds.has(candidate)) {
     nextGrnSeq += 1;
-    candidate = `GRN-${String(nextGrnSeq).padStart(5, '0')}`;
+    candidate = `GRN-${String(nextGrnSeq).padStart(3, '0')}`;
   }
   const assignedId = candidate;
   nextGrnSeq += 1;
@@ -793,10 +793,10 @@ const generateGrnId = () => {
 
 const generateSupplierId = () => {
   const existingIds = new Set(suppliers.map((s) => s.id || s.supplierId).filter(Boolean));
-  let candidate = `SUP-${String(nextSupplierSeq).padStart(6, '0')}`;
+  let candidate = `SUP-${String(nextSupplierSeq).padStart(3, '0')}`;
   while (existingIds.has(candidate)) {
     nextSupplierSeq += 1;
-    candidate = `SUP-${String(nextSupplierSeq).padStart(6, '0')}`;
+    candidate = `SUP-${String(nextSupplierSeq).padStart(3, '0')}`;
   }
   const assignedId = candidate;
   nextSupplierSeq += 1;

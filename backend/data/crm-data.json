@@ -1,7 +1,7 @@
 {
   "customers": [
     {
-      "id": "CUST-000001",
+      "id": "CUST-001",
       "name": "Apex Technologies Pvt Ltd",
       "mobile": "9840123456",
       "email": "karthik@apextech.in",
@@ -46,16 +46,16 @@
   "enquiries": [],
   "orders": [
     {
-      "orderId": "ORD-000001",
-      "enquiryId": "ENQ-000001",
-      "quotationId": "QT-000001",
-      "customerId": "CUST-000001",
+      "orderId": "ORD-001",
+      "enquiryId": "ENQ/001/2026",
+      "quotationId": "QTN/001/2026",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "company": "Apex Technologies Pvt Ltd",
       "amount": 25960,
       "items": [
         {
-          "productId": "PROD-000001",
+          "productId": "PRD-001",
           "productCode": "CAM-IPC-001",
           "productName": "Dahua 5MP IR Bullet Camera",
           "quantity": 2,
@@ -67,7 +67,7 @@
       ],
       "lineItems": [
         {
-          "productId": "PROD-000001",
+          "productId": "PRD-001",
           "productCode": "CAM-IPC-001",
           "productName": "Dahua 5MP IR Bullet Camera",
           "quantity": 2,
@@ -79,16 +79,16 @@
       ],
       "status": "COMPLETED",
       "stockDeducted": true,
-      "remarks": "Order confirmed and approved against Quotation QT-000001.",
+      "remarks": "Order confirmed and approved against Quotation QTN/001/2026.",
       "createdAt": "2026-10-05T15:00:00.000Z",
       "createdBy": "Super Admin"
     }
   ],
   "leads": [
     {
-      "leadId": "LEAD-000001",
-      "enquiryId": "ENQ-000001",
-      "customerId": "CUST-000001",
+      "leadId": "LEAD-001",
+      "enquiryId": "ENQ/001/2026",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "title": "Corporate Surveillance Upgrade",
       "status": "Converted",
@@ -98,15 +98,15 @@
   ],
   "quotations": [
     {
-      "quotationId": "QT-000001",
-      "enquiryId": "ENQ-000001",
-      "customerId": "CUST-000001",
+      "quotationId": "QTN/001/2026",
+      "enquiryId": "ENQ/001/2026",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "amount": 25960,
       "item": "Dahua 5MP IR Bullet Camera",
       "items": [
         {
-          "productId": "PROD-000001",
+          "productId": "PRD-001",
           "productCode": "CAM-IPC-001",
           "productName": "Dahua 5MP IR Bullet Camera",
           "description": "5MP HD IR Bullet IP Camera with Starlight Technology",
@@ -126,24 +126,24 @@
       "validUntil": "2026-11-15",
       "remarks": "Standard 1-year manufacturer warranty with on-site deployment support.",
       "status": "Accepted",
-      "orderId": "ORD-000001",
+      "orderId": "ORD-001",
       "stockDeducted": true,
       "createdAt": "2026-10-03T11:00:00.000Z",
       "updatedAt": "2026-10-05T15:00:00.000Z",
       "createdBy": "Super Admin"
     },
     {
-      "quotationId": "QT-000002",
+      "quotationId": "QTN/002/2026",
       "source": "DIRECT",
       "enquiryId": null,
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "customerCompany": "Apex Technologies Pvt Ltd",
       "amount": 44102.5,
       "item": "125x camew3wk 2, 1x Installation Testing & Commissioning Charges",
       "items": [
         {
-          "productId": "PROD-000047",
+          "productId": "PRD-047",
           "productCode": "ASI-23",
           "productName": "camew3wk 2",
           "description": "xde",
@@ -222,13 +222,13 @@
   ],
   "deliveryChallans": [
     {
-      "challanId": "DC-000001",
-      "orderId": "ORD-000001",
-      "quotationId": "QT-000001",
-      "enquiryId": "ENQ-000001",
-      "refNo": "DC-000001",
-      "poNumber": "PO-00001",
-      "customerId": "CUST-000001",
+      "challanId": "DC/001/2026",
+      "orderId": "ORD-001",
+      "quotationId": "QTN/001/2026",
+      "enquiryId": "ENQ/001/2026",
+      "refNo": "DC/001/2026",
+      "poNumber": "PO/001/2026",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "company": "Apex Technologies Pvt Ltd",
       "customerAddress": "Apex Towers, No. 45, Anna Salai, Guindy, Chennai - 600032",
@@ -252,7 +252,7 @@
       "remainingAfterThisDC": 0,
       "items": [
         {
-          "productId": "PROD-000001",
+          "productId": "PRD-001",
           "productCode": "CAM-IPC-001",
           "productName": "Dahua 5MP IR Bullet Camera",
           "requiredQty": 2,
@@ -270,22 +270,22 @@
         }
       ],
       "stockDeducted": true,
-      "invoiceId": "INV-000001",
+      "invoiceId": "INV/001/2026",
       "remarks": "Delivered with full factory seals intact.",
       "createdAt": "2026-10-06T10:00:00.000Z",
       "deliveredAt": "2026-10-06T14:00:00.000Z",
       "createdBy": "Super Admin"
     },
     {
-      "challanId": "DC-000002",
+      "challanId": "DC/002/2026",
       "orderId": "",
       "poNumber": "",
       "refNo": "",
       "enquiryId": "",
-      "quotationId": "QT-000001",
+      "quotationId": "QTN/001/2026",
       "quotationDate": "",
       "vehicleDetails": "",
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "company": "Apex Technologies Pvt Ltd",
       "customerAddress": "Apex Towers, No. 45, Anna Salai, Guindy, Chennai",
@@ -313,7 +313,7 @@
       "remainingAfterThisDC": 0,
       "items": [
         {
-          "productId": "PROD-000001",
+          "productId": "PRD-001",
           "productCode": "CAM-IPC-001",
           "productName": "Dahua 5MP IR Bullet Camera",
           "productDetails": "5MP outdoor IR bullet camera with night vision.",
@@ -335,7 +335,7 @@
           "status": "COMPLETE"
         },
         {
-          "productId": "PROD-000002",
+          "productId": "PRD-002",
           "productCode": "CAM-IPC-002",
           "productName": "CP Plus 2MP Dome Camera",
           "productDetails": "2MP indoor dome camera with 20m IR range, plastic housing, 3.6mm fixed lens.",
@@ -356,7 +356,7 @@
           "status": "COMPLETE"
         },
         {
-          "productId": "PROD-000041",
+          "productId": "PRD-041",
           "productCode": "ASI-18",
           "productName": "Cat 6 Cable",
           "productDetails": "Cable & Labour with Accessories",
@@ -376,7 +376,7 @@
           "isSerialized": false
         },
         {
-          "productId": "PROD-000003",
+          "productId": "PRD-003",
           "productCode": "NVR-008-001",
           "productName": "Hikvision 8 Channel PoE NVR",
           "productDetails": "8 Channel Network Video Recorder with 8-port built-in PoE switch, 4K HDMI output, H.265+ compression and dual SATA interface.",
@@ -397,7 +397,7 @@
           "status": "COMPLETE"
         },
         {
-          "productId": "PROD-000004",
+          "productId": "PRD-004",
           "productCode": "NET-SW-001",
           "productName": "TP-Link 8 Port PoE Switch",
           "productDetails": "",
@@ -418,7 +418,7 @@
           "status": "COMPLETE"
         },
         {
-          "productId": "PROD-000010",
+          "productId": "PRD-010",
           "productCode": "CBL-HDMI-010",
           "productName": "High Speed 4K 60Hz HDMI 2.0 Cable 10 Meter",
           "productDetails": "Triple shielded braided jacket HDMI male-to-male video interconnect cable.",
@@ -438,7 +438,7 @@
           "isSerialized": false
         },
         {
-          "productId": "PROD-000014",
+          "productId": "PRD-014",
           "productCode": "ASI-04",
           "productName": "ASI PTZ Integration Camera 1890",
           "productDetails": "",
@@ -459,7 +459,7 @@
           "status": "COMPLETE"
         },
         {
-          "productId": "PROD-000012",
+          "productId": "PRD-012",
           "productCode": "ASI02",
           "productName": "Camera Outdoor Box",
           "productDetails": "5x5” Round Waterproof PVC Junction Box for CCTV Camera, Heavy Duty Outdoor Electrical Enclosure",
@@ -495,20 +495,20 @@
   ],
   "invoices": [
     {
-      "invoiceId": "INV-000001",
-      "proformaId": "PI-000001",
+      "invoiceId": "INV/001/2026",
+      "proformaId": "PI/001/2026",
       "proformaDate": "2026-10-04",
-      "orderId": "ORD-000001",
-      "challanId": "DC-000001",
+      "orderId": "ORD-001",
+      "challanId": "DC/001/2026",
       "challanDate": "2026-10-06",
-      "enquiryId": "ENQ-000001",
-      "quotationId": "QT-000001",
+      "enquiryId": "ENQ/001/2026",
+      "quotationId": "QTN/001/2026",
       "quotationDate": "2026-10-03",
-      "poNumber": "PO-00001",
+      "poNumber": "PO/001/2026",
       "poDate": "2026-09-16",
       "dispatchThrough": "Road Express (TN-02-AB-9876)",
       "dispatchDate": "2026-10-06",
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "company": "Apex Technologies Pvt Ltd",
       "consigneeName": "Apex Technologies Pvt Ltd",
@@ -533,7 +533,7 @@
       "paymentDate": "2026-10-07",
       "items": [
         {
-          "productId": "PROD-000001",
+          "productId": "PRD-001",
           "productCode": "CAM-IPC-001",
           "productName": "Dahua 5MP IR Bullet Camera",
           "hsnSac": "85258090",
@@ -570,9 +570,9 @@
   ],
   "proformas": [
     {
-      "proformaId": "PI-000001",
+      "proformaId": "PI/001/2026",
       "revisionNumber": 1,
-      "revisionId": "PI-000001-R1",
+      "revisionId": "PI/001/2026-R1",
       "isLatest": true,
       "status": "APPROVED",
       "proformaDate": "2026-10-04",
@@ -580,7 +580,7 @@
       "createdAt": "2026-10-04T12:00:00.000Z",
       "updatedAt": "2026-10-04T12:00:00.000Z",
       "createdBy": "Super Admin",
-      "customerId": "CUST-000001",
+      "customerId": "CUST-001",
       "customerName": "Apex Technologies Pvt Ltd",
       "company": "Apex Technologies Pvt Ltd",
       "contactPerson": "Karthik Ramanathan",
@@ -594,11 +594,11 @@
       "shippingGstin": "33AAACA1234A1Z5",
       "shippingState": "Tamil Nadu",
       "isInterstate": false,
-      "enquiryId": "ENQ-000001",
-      "quotationId": "QT-000001",
-      "quotationNumber": "QT-000001",
+      "enquiryId": "ENQ/001/2026",
+      "quotationId": "QTN/001/2026",
+      "quotationNumber": "QTN/001/2026",
       "quotationDate": "2026-10-03",
-      "orderId": "ORD-000001",
+      "orderId": "ORD-001",
       "paymentTerms": "100% Advance Against Proforma",
       "deliveryTerms": "Ex-Stock / Immediate Delivery",
       "validityNotes": "15 Days from Proforma Date",
@@ -607,7 +607,7 @@
       "showDiscount": false,
       "items": [
         {
-          "productId": "PROD-000001",
+          "productId": "PRD-001",
           "productCode": "CAM-IPC-001",
           "productName": "Dahua 5MP IR Bullet Camera",
           "description": "5MP HD IR Bullet IP Camera with Starlight Technology",
@@ -640,13 +640,13 @@
       "roundOffAmount": 0,
       "grandTotal": 25960,
       "stockDeducted": true,
-      "convertedInvoiceId": "INV-000001",
+      "convertedInvoiceId": "INV/001/2026",
       "convertedInvoiceDate": "2026-10-06"
     }
   ],
   "suppliers": [
     {
-      "id": "SUP-000001",
+      "id": "SUP-001",
       "companyName": "Dahua Technology India Pvt Ltd",
       "contactPerson": "Suresh Mehra",
       "phone": "04428123456",
@@ -661,11 +661,11 @@
   ],
   "purchaseOrders": [
     {
-      "id": "PO-00001",
-      "purchaseOrderId": "PO-00001",
-      "supplierId": "SUP-000001",
+      "id": "PO/001/2026",
+      "purchaseOrderId": "PO/001/2026",
+      "supplierId": "SUP-001",
       "supplierSnapshot": {
-        "id": "SUP-000001",
+        "id": "SUP-001",
         "companyName": "Dahua Technology India Pvt Ltd",
         "gstin": "33AAACD9876K1Z2",
         "phone": "04428123456",
@@ -678,7 +678,7 @@
       "status": "RECEIVED",
       "items": [
         {
-          "productId": "PROD-000001",
+          "productId": "PRD-001",
           "productCode": "CAM-IPC-001",
           "productName": "Dahua 5MP IR Bullet Camera",
           "hsnSac": "85258090",
@@ -707,17 +707,17 @@
   ],
   "goodsReceipts": [
     {
-      "id": "GRN-00001",
-      "grnId": "GRN-00001",
-      "purchaseOrderId": "PO-00001",
-      "poNumber": "PO-00001",
-      "supplierId": "SUP-000001",
+      "id": "GRN-001",
+      "grnId": "GRN-001",
+      "purchaseOrderId": "PO/001/2026",
+      "poNumber": "PO/001/2026",
+      "supplierId": "SUP-001",
       "supplierName": "Dahua Technology India Pvt Ltd",
       "receivedDate": "2026-09-25",
       "receivedBy": "Super Admin",
       "items": [
         {
-          "productId": "PROD-000001",
+          "productId": "PRD-001",
           "productCode": "CAM-IPC-001",
           "productName": "Dahua 5MP IR Bullet Camera",
           "orderedQty": 10,
@@ -738,7 +738,7 @@
         }
       ],
       "totalReceivedQty": 10,
-      "notes": "Inward complete against PO-00001. All 10 serialized units verified and barcode scanned.",
+      "notes": "Inward complete against PO/001/2026. All 10 serialized units verified and barcode scanned.",
       "status": "COMPLETED",
       "createdAt": "2026-09-25T14:30:00.000Z",
       "createdBy": "Super Admin"

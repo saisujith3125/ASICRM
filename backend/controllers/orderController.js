@@ -57,7 +57,7 @@ function isCableProduct(product, categories = [], subcategories = []) {
   }
 
   const code = String(product.code || product.productCode || product.sku || '').trim().toUpperCase();
-  if (code === 'ASI-18' || code === 'PROD-000041' || /cable/i.test(code)) {
+  if (code === 'ASI-18' || code === 'PROD-000041' || code === 'PRD-041' || code === 'PRD-000041' || /cable/i.test(code)) {
     return true;
   }
 

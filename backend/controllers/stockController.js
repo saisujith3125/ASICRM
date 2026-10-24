@@ -9,32 +9,32 @@ const { filterRecordsBySearch } = require('../utils/searchHelper');
 const DATA_FILE = path.join(__dirname, '..', 'data', 'stocks-data.json');
 const DEFAULTS = {
   categories: [
-    { id: 'CAT-000001', name: 'IP Cameras', description: 'Network surveillance cameras' },
-    { id: 'CAT-000002', name: 'NVR & DVR', description: 'Recording and storage systems' },
-    { id: 'CAT-000003', name: 'Networking', description: 'Switches, routers and network accessories' },
-    { id: 'CAT-000004', name: 'Cables', description: 'Copper and fiber connectivity' },
-    { id: 'CAT-000005', name: 'Storage', description: 'Hard drives and SSD storage' }
+    { id: 'CAT-001', name: 'IP Cameras', description: 'Network surveillance cameras' },
+    { id: 'CAT-002', name: 'NVR & DVR', description: 'Recording and storage systems' },
+    { id: 'CAT-003', name: 'Networking', description: 'Switches, routers and network accessories' },
+    { id: 'CAT-004', name: 'Cables', description: 'Copper and fiber connectivity' },
+    { id: 'CAT-005', name: 'Storage', description: 'Hard drives and SSD storage' }
   ],
   subcategories: [
-    { id: 'SUBCAT-000001', name: 'Bullet Camera', categoryId: 'CAT-000001' },
-    { id: 'SUBCAT-000002', name: 'Dome Camera', categoryId: 'CAT-000001' },
-    { id: 'SUBCAT-000003', name: '8 Channel NVR', categoryId: 'CAT-000002' },
-    { id: 'SUBCAT-000004', name: 'PoE Switch', categoryId: 'CAT-000003' },
-    { id: 'SUBCAT-000005', name: 'Cat6 UTP Cable', categoryId: 'CAT-000004' }
+    { id: 'SUBCAT-001', name: 'Bullet Camera', categoryId: 'CAT-001' },
+    { id: 'SUBCAT-002', name: 'Dome Camera', categoryId: 'CAT-001' },
+    { id: 'SUBCAT-003', name: '8 Channel NVR', categoryId: 'CAT-002' },
+    { id: 'SUBCAT-004', name: 'PoE Switch', categoryId: 'CAT-003' },
+    { id: 'SUBCAT-005', name: 'Cat6 UTP Cable', categoryId: 'CAT-004' }
   ],
   brands: [
-    { id: 'BR-000001', name: 'Dahua', description: 'Video surveillance and security solutions' },
-    { id: 'BR-000002', name: 'CP Plus', description: 'Security cameras and recording solutions' },
-    { id: 'BR-000003', name: 'Hikvision', description: 'Video surveillance products' },
-    { id: 'BR-000004', name: 'TP-Link', description: 'Networking equipment' },
-    { id: 'BR-000005', name: 'Western Digital', description: 'Storage products' }
+    { id: 'BR-001', name: 'Dahua', description: 'Video surveillance and security solutions' },
+    { id: 'BR-002', name: 'CP Plus', description: 'Security cameras and recording solutions' },
+    { id: 'BR-003', name: 'Hikvision', description: 'Video surveillance products' },
+    { id: 'BR-004', name: 'TP-Link', description: 'Networking equipment' },
+    { id: 'BR-005', name: 'Western Digital', description: 'Storage products' }
   ],
   products: [
-    { id: 'PROD-000001', code: 'CAM-IPC-001', name: 'Dahua 5MP IR Bullet Camera', description: '5MP outdoor IR bullet camera with night vision.', categoryId: 'CAT-000001', subcategoryId: 'SUBCAT-000001', brandId: 'BR-000001', unit: 'Nos', cost: 4200, dealerPrice: 4850, mrp: 5600, stock: 42, alertQuantity: 10, gst: 18, hsnSac: '85258090', serialized: true },
-    { id: 'PROD-000002', code: 'CAM-IPC-002', name: 'CP Plus 2MP Dome Camera', description: '2MP indoor dome camera with 20m IR range, plastic housing, 3.6mm fixed lens.', categoryId: 'CAT-000001', subcategoryId: 'SUBCAT-000002', brandId: 'BR-000002', unit: 'Nos', cost: 2700, dealerPrice: 3150, mrp: 3800, stock: 18, alertQuantity: 8, gst: 18, hsnSac: '85258090', serialized: true },
-    { id: 'PROD-000003', code: 'NVR-008-001', name: 'Hikvision 8 Channel PoE NVR', description: '8 Channel Network Video Recorder with 8-port built-in PoE switch, 4K HDMI output, H.265+ compression and dual SATA interface.', categoryId: 'CAT-000002', subcategoryId: 'SUBCAT-000003', brandId: 'BR-000003', unit: 'Nos', cost: 7800, dealerPrice: 8600, mrp: 10200, stock: 6, alertQuantity: 5, gst: 18, hsnSac: '85219090', serialized: true },
-    { id: 'PROD-000004', code: 'NET-SW-001', name: 'TP-Link 8 Port PoE Switch', description: '', categoryId: 'CAT-000003', subcategoryId: 'SUBCAT-000004', brandId: 'BR-000004', unit: 'Nos', cost: 4200, dealerPrice: 4700, mrp: 5600, stock: 4, alertQuantity: 6, gst: 18, hsnSac: '85176290', serialized: true },
-    { id: 'PROD-000005', code: 'HDD-1TB-001', name: 'WD Purple 1TB Surveillance HDD', description: '', categoryId: 'CAT-000005', subcategoryId: null, brandId: 'BR-000005', unit: 'Nos', cost: 4900, dealerPrice: 5450, mrp: 6500, stock: 11, alertQuantity: 4, gst: 18, hsnSac: '84717020', serialized: true }
+    { id: 'PRD-001', code: 'CAM-IPC-001', name: 'Dahua 5MP IR Bullet Camera', description: '5MP outdoor IR bullet camera with night vision.', categoryId: 'CAT-001', subcategoryId: 'SUBCAT-001', brandId: 'BR-001', unit: 'Nos', cost: 4200, dealerPrice: 4850, mrp: 5600, stock: 42, alertQuantity: 10, gst: 18, hsnSac: '85258090', serialized: true },
+    { id: 'PRD-002', code: 'CAM-IPC-002', name: 'CP Plus 2MP Dome Camera', description: '2MP indoor dome camera with 20m IR range, plastic housing, 3.6mm fixed lens.', categoryId: 'CAT-001', subcategoryId: 'SUBCAT-002', brandId: 'BR-002', unit: 'Nos', cost: 2700, dealerPrice: 3150, mrp: 3800, stock: 18, alertQuantity: 8, gst: 18, hsnSac: '85258090', serialized: true },
+    { id: 'PRD-003', code: 'NVR-008-001', name: 'Hikvision 8 Channel PoE NVR', description: '8 Channel Network Video Recorder with 8-port built-in PoE switch, 4K HDMI output, H.265+ compression and dual SATA interface.', categoryId: 'CAT-002', subcategoryId: 'SUBCAT-003', brandId: 'BR-003', unit: 'Nos', cost: 7800, dealerPrice: 8600, mrp: 10200, stock: 6, alertQuantity: 5, gst: 18, hsnSac: '85219090', serialized: true },
+    { id: 'PRD-004', code: 'NET-SW-001', name: 'TP-Link 8 Port PoE Switch', description: '', categoryId: 'CAT-003', subcategoryId: 'SUBCAT-004', brandId: 'BR-004', unit: 'Nos', cost: 4200, dealerPrice: 4700, mrp: 5600, stock: 4, alertQuantity: 6, gst: 18, hsnSac: '85176290', serialized: true },
+    { id: 'PRD-005', code: 'HDD-1TB-001', name: 'WD Purple 1TB Surveillance HDD', description: '', categoryId: 'CAT-005', subcategoryId: null, brandId: 'BR-005', unit: 'Nos', cost: 4900, dealerPrice: 5450, mrp: 6500, stock: 11, alertQuantity: 4, gst: 18, hsnSac: '84717020', serialized: true }
   ]
 };
 
@@ -268,8 +268,8 @@ function requirePermission(req, res, moduleName, action) {
   return false;
 }
 function nextId(prefix, items) {
-  let n = items.length + 1; let id = `${prefix}-${String(n).padStart(6, '0')}`;
-  while (items.some((x) => x.id === id)) { n += 1; id = `${prefix}-${String(n).padStart(6, '0')}`; }
+  let n = items.length + 1; let id = `${prefix}-${String(n).padStart(3, '0')}`;
+  while (items.some((x) => x.id === id)) { n += 1; id = `${prefix}-${String(n).padStart(3, '0')}`; }
   return id;
 }
 
@@ -1202,7 +1202,7 @@ function createEntity(req, res, type) {
     }
 
     const newProd = {
-      id: nextId('PROD', data.products),
+      id: nextId('PRD', data.products),
       code,
       name: String(body.name).trim(),
       description: String(body.description || '').trim(),
@@ -1942,7 +1942,7 @@ function correctStockMovement(req, res) {
   const now = new Date().toISOString();
   const user = req.headers['x-user-name'] || req.headers['x-user-id'] || 'Admin';
   const reversalId = nextId('MOV', (data.inventoryTransactions || []).map((t) => ({ id: t.movementId || t.id })));
-  const correctedId = `MOV-${String(Number(reversalId.replace('MOV-', '')) + 1).padStart(6, '0')}`;
+  const correctedId = `MOV-${String(Number(reversalId.replace('MOV-', '')) + 1).padStart(3, '0')}`;
 
   // 1. Mark original movement as corrected
   txn.isCorrected = true;

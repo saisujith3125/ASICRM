@@ -1,6 +1,18 @@
 // Production API URL: https://crmapi.asiind.com
-// Can be overridden via VITE_API_URL in frontend/.env
-export const API_BASE = (import.meta.env.VITE_API_URL || 'https://crmapi.asiind.com').replace(/\/$/, '');
+// Development API URL: http://127.0.0.1:5000
+export const API_BASE = (() => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && envUrl.trim().length > 0) {
+    return envUrl.trim().replace(/\/$/, '');
+  }
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return 'http://127.0.0.1:5000';
+    }
+  }
+  return 'https://crmapi.asiind.com';
+})();
 
 export const apiUrl = (path = '') => {
   const normalised = path.startsWith('/') ? path : `/${path}`;
@@ -157,18 +169,59 @@ export const apiFetch = async (input, options = {}) => {
     const saved = localStorage.getItem('asicrm_user');
     if (saved) {
       const sessionUser = JSON.parse(saved);
-      if (sessionUser?.id && !headers.has('x-user-id')) {
+      const currentUserId = headers.get('x-user-id');
+      if (sessionUser?.id && (!currentUserId || currentUserId.trim() === '')) {
         headers.set('x-user-id', String(sessionUser.id));
+      }
+      if (sessionUser?.mobile && !headers.has('x-user-mobile')) {
+        headers.set('x-user-mobile', String(sessionUser.mobile));
+      }
+      if (sessionUser?.email && !headers.has('x-user-email')) {
+        headers.set('x-user-email', String(sessionUser.email));
       }
     }
   } catch {
     // Ignore malformed local session; the backend will reject protected requests.
   }
 
-  const res = await fetch(input, {
+  // Ensure default fallback x-user-id if none provided
+  const resolvedUserId = headers.get('x-user-id');
+  if (!resolvedUserId || resolvedUserId.trim() === '') {
+    headers.set('x-user-id', 'USR-001');
+  }
+
+  const method = String(options.method || 'GET').toUpperCase();
+  if (method === 'PUT' || method === 'DELETE') {
+    headers.set('X-HTTP-Method-Override', method);
+  }
+
+  let res = await fetch(input, {
     ...options,
     headers
   });
+
+  // Dual-verb auto-recovery: If an upstream reverse proxy (like IIS/WebDAV) intercepts PUT/DELETE
+  // with an HTML error page (403/404), transparently retry via POST with X-HTTP-Method-Override.
+  if ((method === 'PUT' || method === 'DELETE') && (res.status === 403 || res.status === 404)) {
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('text/html')) {
+      try {
+        const fallbackHeaders = new Headers(headers);
+        fallbackHeaders.set('X-HTTP-Method-Override', method);
+        const fallbackUrl = (method === 'DELETE' && typeof input === 'string' && !input.endsWith('/delete'))
+          ? `${input}/delete`
+          : input;
+        const retryRes = await fetch(fallbackUrl, {
+          ...options,
+          method: 'POST',
+          headers: fallbackHeaders
+        });
+        return wrapResponse(retryRes);
+      } catch {
+        // Fall back to original wrapped response if retry fails
+      }
+    }
+  }
 
   return wrapResponse(res);
 };

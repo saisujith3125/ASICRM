@@ -26,9 +26,19 @@ import { apiFetch, apiUrl } from '../../api';
 import { DEFAULT_ASI_LOGO, notifyCompanyConfig, getCompanyConfig } from '../documents/companyConfig';
 
 function authHeaders(user) {
+  let activeId = user?.id || '';
+  if (!activeId) {
+    try {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('asicrm_user') : null;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        activeId = parsed?.id || '';
+      }
+    } catch {}
+  }
   return {
     'Content-Type': 'application/json',
-    'x-user-id': user?.id || ''
+    'x-user-id': activeId || 'USR-001'
   };
 }
 

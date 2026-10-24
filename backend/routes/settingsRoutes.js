@@ -37,7 +37,9 @@ router.put('/section/:sectionKey', updateSectionSettings);
 router.post('/users/transfer-super-admin', transferSuperAdmin);
 router.post('/users', createUser);
 router.put('/users/:userId', updateUser);
+router.post('/users/:userId', updateUser); // Dual-verb support for proxies / environments blocking PUT
 router.delete('/users/:userId', deleteUser);
+router.post('/users/:userId/delete', deleteUser); // Dual-verb support for proxies / environments blocking DELETE
 
 router.post('/roles', createRole);
 router.put('/roles/:roleKey', updateRole);

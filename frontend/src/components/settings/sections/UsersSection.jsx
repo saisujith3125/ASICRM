@@ -127,7 +127,8 @@ export default function UsersSection({
       setPromoteConfirmUser(null);
       if (showToast) showToast(`${promoteConfirmUser.name} is now a Super Admin.`);
     } catch (err) {
-      alert(err.message || 'Failed to promote user to Super Admin.');
+      if (showToast) showToast(err.message || 'Failed to promote user to Super Admin.', 'error');
+      else alert(err.message || 'Failed to promote user to Super Admin.');
     }
   };
 
@@ -139,7 +140,8 @@ export default function UsersSection({
       setDismissConfirmUser(null);
       if (showToast) showToast(`${dismissConfirmUser.name} is now an ${newRole === 'ADMIN' ? 'Admin' : 'Employee'}.`);
     } catch (err) {
-      alert(err.message || 'Failed to dismiss Super Admin.');
+      if (showToast) showToast(err.message || 'Failed to dismiss Super Admin.', 'error');
+      else alert(err.message || 'Failed to dismiss Super Admin.');
     }
   };
 
@@ -169,7 +171,8 @@ export default function UsersSection({
         setDeleteConfirmUser(null);
       }
     } catch (err) {
-      alert(err.message || 'Failed to delete user.');
+      if (showToast) showToast(err.message || 'Failed to delete user.', 'error');
+      else alert(err.message || 'Failed to delete user.');
     }
   };
 

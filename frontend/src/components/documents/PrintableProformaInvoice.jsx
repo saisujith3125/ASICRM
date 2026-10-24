@@ -17,9 +17,9 @@ export function normalizeProformaDocument(proformaData = {}, customSettings = {}
   const proformaId = proformaData.proformaId || proformaData.id || 'PI-PENDING';
   const revisionNumber = proformaData.revisionNumber || 1;
   const revisionId = proformaData.revisionId || `${proformaId}-R${revisionNumber}`;
-  const proformaDate = formatDocDate(proformaData.proformaDate || proformaData.createdAt);
+  const proformaDate = formatDocDate(proformaData.proformaDate || proformaData.createdAt, 'proformaInvoices');
   const rawValidUntil = proformaData.validUntil || null;
-  const validUntil = rawValidUntil ? formatDocDate(rawValidUntil) : null;
+  const validUntil = rawValidUntil ? formatDocDate(rawValidUntil, 'proformaInvoices') : null;
 
   // Upstream Document References (only genuine references)
   const cleanRef = (val) => {

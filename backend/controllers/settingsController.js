@@ -1155,7 +1155,10 @@ function rolloverSequencesEndpoint(req, res) {
 
 function getDateFormatEndpoint(req, res) {
   try {
-    if (!requireSettingsAccess(req, res)) return;
+    const currentUserId = String(req.headers['x-user-id'] || '').trim();
+    if (!currentUserId && !settingsAccess(req)) {
+      return res.status(401).json({ success: false, message: 'Authentication is required.' });
+    }
     const summary = dateSettingsService.getSummary();
     return res.json({ success: true, data: summary });
   } catch (err) {

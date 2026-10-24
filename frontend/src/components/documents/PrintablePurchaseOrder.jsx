@@ -35,10 +35,10 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
     'PO-PENDING'
   ).toString().trim();
 
-  const poDate = formatDocDate(poData.orderDate || poData.createdAt || new Date());
+  const poDate = formatDocDate(poData.orderDate || poData.createdAt || new Date(), 'purchaseOrders');
   const deliveryDue = poData.expectedDeliveryDate
-    ? formatDocDate(poData.expectedDeliveryDate)
-    : (poData.deliveryDue ? formatDocDate(poData.deliveryDue) : '—');
+    ? formatDocDate(poData.expectedDeliveryDate, 'purchaseOrders')
+    : (poData.deliveryDue ? formatDocDate(poData.deliveryDue, 'purchaseOrders') : '—');
 
   const paymentTerms = (poData.paymentTerms || 'Net 30 Days').toString().trim();
 

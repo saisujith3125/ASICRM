@@ -30,9 +30,9 @@ export function formatPlainNumber(amount) {
  * Standard DD/MM/YYYY format matching physical ASI documents (e.g. 29/08/2026)
  * Configurable via Master Settings > Date Format Setup
  */
-export function formatDocDate(d) {
+export function formatDocDate(d, moduleKey = 'invoices') {
   if (!d || d === '—' || d === '-') return '';
-  return utilsFormatDocDate(d, '');
+  return formatDocumentDate(d, moduleKey, '');
 }
 
 /**

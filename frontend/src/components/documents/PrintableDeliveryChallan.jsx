@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { COMPANY_CONFIG, useCompanyConfig, getMergedCompanySettings, DEFAULT_ASI_LOGO, getCompanyConfig, DocumentWatermark } from './companyConfig';
 import defaultOfficialLogo from '../../assets/asi_official_logo.png';
 import { normalizePartyLines } from './documentFormatters';
-import { formatDate } from '../../utils/dateUtils';
+import { formatDate, formatDocumentDate } from '../../utils/dateUtils';
 import './documentStyles.css';
 
 /**
@@ -288,7 +288,7 @@ export function DeliveryChallanHeaderBox({ comp, masterLogoUrl, cleanPhone, form
                 <tr>
                   <td className="dc-doc-meta-label">Return Date</td>
                   <td className="dc-doc-meta-sep">:</td>
-                  <td className="dc-doc-meta-value">{formatDate(data.returnDate || data.returnedHistory?.[data.returnedHistory.length - 1]?.date || data.deliveryDate)}</td>
+                  <td className="dc-doc-meta-value">{formatDocumentDate(data.returnDate || data.returnedHistory?.[data.returnedHistory.length - 1]?.date || data.deliveryDate, 'deliveryChallans')}</td>
                 </tr>
               </>
             ) : (
@@ -546,7 +546,7 @@ export default function PrintableDeliveryChallan({ data, copyType = 'ORIGINAL FO
     cleanPhone = cleanPhone.trim();
   }
 
-  const formattedDate = formatDate(data.deliveryDate || data.createdAt);
+  const formattedDate = formatDocumentDate(data.deliveryDate || data.createdAt, 'deliveryChallans');
 
   const isReturnDocument = Boolean(
     data.isReturnDocument ||

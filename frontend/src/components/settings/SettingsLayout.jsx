@@ -22,7 +22,8 @@ import {
   ArrowLeft,
   Package,
   Database,
-  Hash
+  Hash,
+  Calendar
 } from 'lucide-react';
 import { filterRecordsBySearch } from '../../utils/searchHelper';
 
@@ -43,6 +44,7 @@ export const SETTINGS_CATEGORIES = [
     label: 'DOCUMENTS',
     items: [
       { id: 'serial-numbers', label: 'Serial Number Setup', icon: Hash, desc: 'Unified 001 sequences, calendar year resets, module prefixes' },
+      { id: 'date-format', label: 'Date Format Setup', icon: Calendar, desc: 'Unified date presentation, proposal standards, module separators' },
       { id: 'invoice-setup', label: 'Invoice Setup', icon: FileText, desc: 'Sequence, layout, terms' },
       { id: 'quotation-setup', label: 'Quotation Setup', icon: FileSpreadsheet, desc: 'Quote series, validity, rules' },
       { id: 'dc-setup', label: 'Delivery Challan Setup', icon: Truck, desc: 'DC series, returnable conditions' },

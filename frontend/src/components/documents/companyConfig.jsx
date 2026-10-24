@@ -5,6 +5,7 @@ export { DEFAULT_ASI_LOGO, ASI_WATERMARK_LOGO };
 import { apiFetch, apiUrl } from '../../api';
 import { DEFAULT_THEME, normalizeThemeId, applyThemeToDocument, THEMES } from '../../utils/theme';
 export { DEFAULT_THEME, normalizeThemeId, applyThemeToDocument, THEMES };
+import { setCachedDateSettings } from '../../utils/dateUtils';
 
 export const COMPANY_CONFIG = {
   theme: DEFAULT_THEME,
@@ -134,6 +135,11 @@ export function notifyCompanyConfig(newConfig) {
     }
   }
   applyThemeToDocument(cachedConfig.theme);
+  if (newConfig.dateFormatSettings) {
+    try {
+      setCachedDateSettings(newConfig.dateFormatSettings);
+    } catch (_) {}
+  }
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cachedConfig));
   } catch (_) {}

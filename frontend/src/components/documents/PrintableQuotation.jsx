@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { COMPANY_CONFIG, getMergedCompanySettings, AsiLogo, AsiOfficialSeal, useCompanyConfig, DEFAULT_ASI_LOGO, ASI_WATERMARK_LOGO } from './companyConfig';
-import { formatPlainNumber, formatDocDate, amountInWords, normalizePartyLines } from './documentFormatters';
+import { formatPlainNumber, formatDocDate, formatProposalDate, amountInWords, normalizePartyLines } from './documentFormatters';
 import { calculateLineItem, calculateQuotationTotals } from '../enquiry/quotationCalculator';
 import './documentStyles.css';
 
@@ -32,37 +32,12 @@ export function AsiWatermark({ logoUrl, comp }) {
 }
 
 /**
- * Format quotation/proposal date to YYYY/MM/DD matching physical ASI reference (e.g. 2026/10/24)
+ * Format quotation/proposal date (defaults to YYYY/MM/DD e.g. 2026/10/24 matching physical ASI reference)
+ * Dynamically configurable via Master Settings > Date Format Setup
  */
 export function formatQuotationDate(d) {
   if (!d || d === '—' || d === '-') return '';
-  try {
-    if (typeof d === 'string') {
-      const trimmed = d.trim();
-      const isoMatch = trimmed.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
-      if (isoMatch) {
-        const y = isoMatch[1];
-        const m = String(isoMatch[2]).padStart(2, '0');
-        const day = String(isoMatch[3]).padStart(2, '0');
-        return `${y}/${m}/${day}`;
-      }
-      const ddmmyyyy = trimmed.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
-      if (ddmmyyyy) {
-        const day = String(ddmmyyyy[1]).padStart(2, '0');
-        const m = String(ddmmyyyy[2]).padStart(2, '0');
-        const y = ddmmyyyy[3];
-        return `${y}/${m}/${day}`;
-      }
-    }
-    const dt = new Date(d);
-    if (isNaN(dt.getTime())) return String(d);
-    const y = dt.getFullYear();
-    const m = String(dt.getMonth() + 1).padStart(2, '0');
-    const day = String(dt.getDate()).padStart(2, '0');
-    return `${y}/${m}/${day}`;
-  } catch (_) {
-    return String(d || '');
-  }
+  return formatProposalDate(d);
 }
 
 /**

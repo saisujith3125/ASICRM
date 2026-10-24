@@ -1,8 +1,64 @@
 /**
  * Centralized Date & Time Utilities for ASI CRM
  * Provides resilient, localized date and time formatting across all frontend modules.
- * Standard permanent format: DD/MM/YYYY (date/month/year)
+ * Configured dynamically via Master Settings > Date Format Setup.
+ * Official Defaults:
+ *   - Proposals: YYYY/MM/DD (e.g. 2026/10/24)
+ *   - Tax Invoices & Challans: DD/MM/YYYY (e.g. 24/10/2026)
  */
+
+export const MONTH_NAMES_SHORT = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+];
+
+export const MONTH_NAMES_LONG = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+const DATE_SETTINGS_STORAGE_KEY = 'asicrm_date_settings';
+let cachedDateSettings = null;
+
+export function getCachedDateSettings() {
+  if (cachedDateSettings) return cachedDateSettings;
+  try {
+    if (typeof window !== 'undefined') {
+      const raw = localStorage.getItem(DATE_SETTINGS_STORAGE_KEY);
+      if (raw) {
+        cachedDateSettings = JSON.parse(raw);
+        return cachedDateSettings;
+      }
+      const companyRaw = localStorage.getItem('asicrm_company_settings');
+      if (companyRaw) {
+        const parsed = JSON.parse(companyRaw);
+        if (parsed.dateFormatSettings) {
+          cachedDateSettings = parsed.dateFormatSettings;
+          return cachedDateSettings;
+        }
+      }
+    }
+  } catch (_) {}
+  return null;
+}
+
+export function setCachedDateSettings(settings) {
+  if (!settings) return;
+  cachedDateSettings = settings;
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(DATE_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    }
+  } catch (_) {}
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('crm-date-settings-updated', (e) => {
+    if (e.detail) {
+      setCachedDateSettings(e.detail);
+    }
+  });
+}
 
 export function parseDateComponents(dateVal) {
   if (!dateVal || dateVal === '—' || dateVal === '-') return null;
@@ -38,6 +94,75 @@ export function parseDateComponents(dateVal) {
   } catch {
     return null;
   }
+}
+
+export function formatCustomDate(dateVal, formatPattern = 'YYYY/MM/DD', customSeparator = null, fallback = '—') {
+  if (!dateVal || dateVal === '—' || dateVal === '-') return fallback;
+  const parts = parseDateComponents(dateVal);
+  if (!parts) return String(dateVal || fallback);
+
+  const yyyy = String(parts.year);
+  const yy = yyyy.slice(-2);
+  const mm = String(parts.month).padStart(2, '0');
+  const dd = String(parts.day).padStart(2, '0');
+  const mIndex = parseInt(parts.month, 10) - 1;
+  const mmm = MONTH_NAMES_SHORT[mIndex] || mm;
+
+  let sep = customSeparator;
+  if (!sep) {
+    if (formatPattern.includes('/')) sep = '/';
+    else if (formatPattern.includes('-')) sep = '-';
+    else if (formatPattern.includes('.')) sep = '.';
+    else sep = '/';
+  }
+
+  const norm = (formatPattern || 'YYYY/MM/DD').toUpperCase();
+  if (norm.startsWith('YYYY') && norm.endsWith('DD') && norm.includes('MM')) {
+    return `${yyyy}${sep}${mm}${sep}${dd}`;
+  }
+  if (norm.startsWith('DD') && norm.endsWith('YYYY') && norm.includes('MMM')) {
+    return `${dd}-${mmm}-${yyyy}`;
+  }
+  if (norm.startsWith('DD') && norm.endsWith('YYYY')) {
+    return `${dd}${sep}${mm}${sep}${yyyy}`;
+  }
+  if (norm.startsWith('MM') && norm.endsWith('YYYY')) {
+    return `${mm}${sep}${dd}${sep}${yyyy}`;
+  }
+  if (norm.startsWith('DD') && norm.endsWith('YY')) {
+    return `${dd}${sep}${mm}${sep}${yy}`;
+  }
+  return `${yyyy}${sep}${mm}${sep}${dd}`;
+}
+
+export function formatDocumentDate(dateVal, moduleKey = 'general', fallback = '—') {
+  if (!dateVal || dateVal === '—' || dateVal === '-') return fallback;
+  const settings = getCachedDateSettings();
+  const mod = settings?.modules?.[moduleKey];
+
+  if (mod?.format) {
+    return formatCustomDate(dateVal, mod.format, mod.separator, fallback);
+  }
+
+  // Built-in official defaults
+  if (moduleKey === 'quotations') {
+    return formatCustomDate(dateVal, 'YYYY/MM/DD', '/', fallback);
+  }
+  return formatCustomDate(dateVal, 'DD/MM/YYYY', '/', fallback);
+}
+
+/**
+ * Customer Proposal Date Format (Defaults to YYYY/MM/DD matching official ASI reference: 2026/10/24)
+ */
+export function formatProposalDate(dateVal, fallback = '') {
+  return formatDocumentDate(dateVal, 'quotations', fallback);
+}
+
+/**
+ * Standard Tax/Commercial Document Date Format (Defaults to DD/MM/YYYY matching official ASI reference: 24/10/2026)
+ */
+export function formatDocDate(dateVal, fallback = '') {
+  return formatDocumentDate(dateVal, 'invoices', fallback);
 }
 
 export function formatDate(dateVal, fallback = '—') {

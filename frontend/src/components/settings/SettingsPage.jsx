@@ -22,6 +22,7 @@ import PermissionsSection from './sections/PermissionsSection';
 import ProductUnitsSection from './sections/ProductUnitsSection';
 import DatabaseBackupSection from './sections/DatabaseBackupSection';
 import SerialNumberSetupSection from './sections/SerialNumberSetupSection';
+import DateFormatSetupSection from './sections/DateFormatSetupSection';
 
 import { apiFetch, apiUrl } from '../../api';
 import { DEFAULT_ASI_LOGO, notifyCompanyConfig, getCompanyConfig } from '../documents/companyConfig';
@@ -527,6 +528,14 @@ export default function SettingsPage({
           />
         );
 
+      case 'date-format':
+        return (
+          <DateFormatSetupSection
+            user={user}
+            showToast={showToast}
+          />
+        );
+
       case 'invoice-setup':
         return (
           <InvoiceSetupSection
@@ -696,7 +705,7 @@ export default function SettingsPage({
         onSelectSection={handleRequestSelectSection}
         hasUnsavedChanges={hasUnsavedChanges}
         onSaveActiveSection={
-          ['users', 'roles', 'permissions', 'database-backup', 'serial-numbers'].includes(activeSection)
+          ['users', 'roles', 'permissions', 'database-backup', 'serial-numbers', 'date-format'].includes(activeSection)
             ? null
             : handleSaveCompanySettings
         }

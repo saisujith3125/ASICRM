@@ -26,7 +26,10 @@ const {
   importBackupEndpoint,
   getSequencesEndpoint,
   updateSequenceEndpoint,
-  rolloverSequencesEndpoint
+  rolloverSequencesEndpoint,
+  getDateFormatEndpoint,
+  updateDateFormatEndpoint,
+  resetDateFormatEndpoint
 } = require('../controllers/settingsController');
 
 router.get('/', getSettings);
@@ -65,5 +68,11 @@ router.get('/sequences', getSequencesEndpoint);
 router.put('/sequences/:moduleKey', updateSequenceEndpoint);
 router.post('/sequences/:moduleKey', updateSequenceEndpoint); // POST dual-verb
 router.post('/sequences/rollover', rolloverSequencesEndpoint);
+
+// Central Date Format & Presentation endpoints
+router.get('/date-format', getDateFormatEndpoint);
+router.put('/date-format', updateDateFormatEndpoint);
+router.post('/date-format', updateDateFormatEndpoint); // POST dual-verb
+router.post('/date-format/reset', resetDateFormatEndpoint);
 
 module.exports = router;

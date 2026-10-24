@@ -1,6 +1,14 @@
 // Currency, date, and numbers formatting helpers for printable documents
-import { formatDate, formatDateTime, formatTime } from '../../utils/dateUtils.js';
-export { formatDate, formatDateTime, formatTime };
+import {
+  formatDate,
+  formatDateTime,
+  formatTime,
+  formatDocumentDate,
+  formatCustomDate,
+  formatProposalDate as utilsFormatProposalDate,
+  formatDocDate as utilsFormatDocDate
+} from '../../utils/dateUtils.js';
+export { formatDate, formatDateTime, formatTime, formatDocumentDate, formatCustomDate };
 
 export function formatINR(amount) {
   const val = Number(amount || 0);
@@ -20,44 +28,20 @@ export function formatPlainNumber(amount) {
 
 /**
  * Standard DD/MM/YYYY format matching physical ASI documents (e.g. 29/08/2026)
+ * Configurable via Master Settings > Date Format Setup
  */
 export function formatDocDate(d) {
   if (!d || d === '—' || d === '-') return '';
-  return formatDate(d, '');
+  return utilsFormatDocDate(d, '');
 }
 
 /**
  * Format proposal date to YYYY/MM/DD (e.g. 2026/10/24) matching official proposal reference
+ * Configurable via Master Settings > Date Format Setup
  */
 export function formatProposalDate(d) {
   if (!d || d === '—' || d === '-') return '';
-  try {
-    if (typeof d === 'string') {
-      const trimmed = d.trim();
-      const isoMatch = trimmed.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
-      if (isoMatch) {
-        const y = isoMatch[1];
-        const m = String(isoMatch[2]).padStart(2, '0');
-        const day = String(isoMatch[3]).padStart(2, '0');
-        return `${y}/${m}/${day}`;
-      }
-      const ddmmyyyy = trimmed.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
-      if (ddmmyyyy) {
-        const day = String(ddmmyyyy[1]).padStart(2, '0');
-        const m = String(ddmmyyyy[2]).padStart(2, '0');
-        const y = ddmmyyyy[3];
-        return `${y}/${m}/${day}`;
-      }
-    }
-    const dt = new Date(d);
-    if (isNaN(dt.getTime())) return String(d);
-    const y = dt.getFullYear();
-    const m = String(dt.getMonth() + 1).padStart(2, '0');
-    const day = String(dt.getDate()).padStart(2, '0');
-    return `${y}/${m}/${day}`;
-  } catch (_) {
-    return String(d || '');
-  }
+  return utilsFormatProposalDate(d, '');
 }
 
 export const formatQuotationDate = formatProposalDate;

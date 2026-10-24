@@ -1,0 +1,52 @@
+{
+  "globalFormat": "YYYY/MM/DD",
+  "globalSeparator": "/",
+  "timezone": "Asia/Kolkata",
+  "timeFormat": "12_HOUR",
+  "modules": {
+    "quotations": {
+      "key": "quotations",
+      "name": "Quotations / Proposals",
+      "format": "YYYY/MM/DD",
+      "separator": "/",
+      "description": "Customer-facing commercial proposal document date"
+    },
+    "invoices": {
+      "key": "invoices",
+      "name": "Tax Invoices",
+      "format": "DD/MM/YYYY",
+      "separator": "/",
+      "description": "Statutory GST tax invoice document date"
+    },
+    "deliveryChallans": {
+      "key": "deliveryChallans",
+      "name": "Delivery Challans",
+      "format": "DD/MM/YYYY",
+      "separator": "/",
+      "description": "Dispatch and material delivery challan date"
+    },
+    "purchaseOrders": {
+      "key": "purchaseOrders",
+      "name": "Purchase Orders",
+      "format": "DD/MM/YYYY",
+      "separator": "/",
+      "description": "Supplier and vendor purchase order document date"
+    },
+    "proformaInvoices": {
+      "key": "proformaInvoices",
+      "name": "Proforma Invoices",
+      "format": "DD/MM/YYYY",
+      "separator": "/",
+      "description": "Proforma commercial invoice date"
+    },
+    "general": {
+      "key": "general",
+      "name": "CRM Timeline & Records",
+      "format": "DD/MM/YYYY",
+      "separator": "/",
+      "description": "CRM interaction logs, activity timeline, and status updates"
+    }
+  },
+  "lastUpdated": "2026-10-24T10:36:11.683Z",
+  "updatedBy": "Super Admin"
+}

@@ -1289,6 +1289,117 @@
         "description": "Continuous roll packaging (Cables / Wires)",
         "status": "Active"
       }
-    ]
+    ],
+    "dateFormatSettings": {
+      "globalFormat": "YYYY/MM/DD",
+      "globalSeparator": "/",
+      "timezone": "Asia/Kolkata",
+      "timeFormat": "12_HOUR",
+      "lastUpdated": "2026-10-24T10:36:11.683Z",
+      "updatedBy": "Super Admin",
+      "modules": {
+        "quotations": {
+          "key": "quotations",
+          "name": "Quotations / Proposals",
+          "format": "YYYY/MM/DD",
+          "separator": "/",
+          "description": "Customer-facing commercial proposal document date",
+          "previewToday": "2026/10/24",
+          "previewSample": "2026/10/24"
+        },
+        "invoices": {
+          "key": "invoices",
+          "name": "Tax Invoices",
+          "format": "DD/MM/YYYY",
+          "separator": "/",
+          "description": "Statutory GST tax invoice document date",
+          "previewToday": "24/10/2026",
+          "previewSample": "24/10/2026"
+        },
+        "deliveryChallans": {
+          "key": "deliveryChallans",
+          "name": "Delivery Challans",
+          "format": "DD/MM/YYYY",
+          "separator": "/",
+          "description": "Dispatch and material delivery challan date",
+          "previewToday": "24/10/2026",
+          "previewSample": "24/10/2026"
+        },
+        "purchaseOrders": {
+          "key": "purchaseOrders",
+          "name": "Purchase Orders",
+          "format": "DD/MM/YYYY",
+          "separator": "/",
+          "description": "Supplier and vendor purchase order document date",
+          "previewToday": "24/10/2026",
+          "previewSample": "24/10/2026"
+        },
+        "proformaInvoices": {
+          "key": "proformaInvoices",
+          "name": "Proforma Invoices",
+          "format": "DD/MM/YYYY",
+          "separator": "/",
+          "description": "Proforma commercial invoice date",
+          "previewToday": "24/10/2026",
+          "previewSample": "24/10/2026"
+        },
+        "general": {
+          "key": "general",
+          "name": "CRM Timeline & Records",
+          "format": "DD/MM/YYYY",
+          "separator": "/",
+          "description": "CRM interaction logs, activity timeline, and status updates",
+          "previewToday": "24/10/2026",
+          "previewSample": "24/10/2026"
+        }
+      },
+      "samples": {
+        "raw": {
+          "today": "2026-10-24",
+          "proposalDateSample": "2026-10-24",
+          "invoiceDateSample": "2026-10-24",
+          "financialYearStart": "2026-04-01",
+          "financialYearEnd": "2027-03-31",
+          "leapYearSample": "2028-02-29"
+        },
+        "todayFormatted": "2026/10/24",
+        "proposalFormatted": "2026/10/24",
+        "invoiceFormatted": "24/10/2026",
+        "fyFormatted": "2026/04/01 – 2027/03/31",
+        "leapYearFormatted": "2028/02/29"
+      },
+      "availablePresets": [
+        {
+          "id": "YYYY/MM/DD",
+          "label": "YYYY/MM/DD (Active Proposal Standard - e.g. 2026/10/24)",
+          "separator": "/"
+        },
+        {
+          "id": "DD/MM/YYYY",
+          "label": "DD/MM/YYYY (Indian Statutory Standard - e.g. 24/10/2026)",
+          "separator": "/"
+        },
+        {
+          "id": "MM/DD/YYYY",
+          "label": "MM/DD/YYYY (US Corporate Standard - e.g. 10/24/2026)",
+          "separator": "/"
+        },
+        {
+          "id": "DD-MMM-YYYY",
+          "label": "DD-MMM-YYYY (Formal Business Standard - e.g. 24-Oct-2026)",
+          "separator": "-"
+        },
+        {
+          "id": "YYYY-MM-DD",
+          "label": "YYYY-MM-DD (ISO 8601 Standard - e.g. 2026-10-24)",
+          "separator": "-"
+        },
+        {
+          "id": "DD.MM.YYYY",
+          "label": "DD.MM.YYYY (European Dot Standard - e.g. 24.10.2026)",
+          "separator": "."
+        }
+      ]
+    }
   }
 }

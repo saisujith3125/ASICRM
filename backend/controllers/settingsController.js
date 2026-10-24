@@ -3,6 +3,7 @@ const path = require('path');
 const { hasPermission, getCurrentUser } = require('../utils/accessControl');
 const { normalizeWarehouseLayout, createDefaultLayout } = require('../utils/warehouseLayoutHelper');
 const { sequenceService } = require('../services/sequenceService');
+const { dateSettingsService } = require('../services/dateSettingsService');
 
 const DATA_FILE = path.join(__dirname, '..', 'data', 'access-control.json');
 const PROTECTED_ROLE = 'SUPER_ADMIN';
@@ -341,7 +342,10 @@ function getSettings(req, res) {
       roles: safeRoles,
       permissions: data.permissions,
       permissionCatalog: PERMISSION_CATALOG,
-      companySettings: data.companySettings
+      companySettings: {
+        ...(data.companySettings || defaultCompanySettings),
+        dateFormatSettings: dateSettingsService.getSummary()
+      }
     }
   });
 }
@@ -721,9 +725,13 @@ function getCompanySettings(req, res) {
   }
 
   const data = readData();
+  const companySettings = {
+    ...(data.companySettings || defaultCompanySettings),
+    dateFormatSettings: dateSettingsService.getSummary()
+  };
   return res.json({
     success: true,
-    data: data.companySettings || defaultCompanySettings
+    data: companySettings
   });
 }
 
@@ -1145,6 +1153,67 @@ function rolloverSequencesEndpoint(req, res) {
   }
 }
 
+function getDateFormatEndpoint(req, res) {
+  try {
+    if (!requireSettingsAccess(req, res)) return;
+    const summary = dateSettingsService.getSummary();
+    return res.json({ success: true, data: summary });
+  } catch (err) {
+    console.error('Error fetching date format settings:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to fetch date format settings.' });
+  }
+}
+
+function updateDateFormatEndpoint(req, res) {
+  try {
+    if (!requireSettingsAccess(req, res)) return;
+    const currentUser = getCurrentUser(req);
+    const summary = dateSettingsService.updateSettings(req.body, currentUser);
+
+    try {
+      const data = readData();
+      if (data && data.companySettings) {
+        data.companySettings.dateFormatSettings = summary;
+        writeData(data);
+      }
+    } catch (_) {}
+
+    return res.json({
+      success: true,
+      message: 'Date format settings saved and propagated across ASICRM successfully.',
+      data: summary
+    });
+  } catch (err) {
+    console.error('Error updating date format settings:', err);
+    return res.status(400).json({ success: false, message: err.message || 'Failed to update date format settings.' });
+  }
+}
+
+function resetDateFormatEndpoint(req, res) {
+  try {
+    if (!requireSettingsAccess(req, res)) return;
+    const currentUser = getCurrentUser(req);
+    const summary = dateSettingsService.resetToDefaults(currentUser);
+
+    try {
+      const data = readData();
+      if (data && data.companySettings) {
+        data.companySettings.dateFormatSettings = summary;
+        writeData(data);
+      }
+    } catch (_) {}
+
+    return res.json({
+      success: true,
+      message: 'Date format configuration restored to official ASI CRM defaults.',
+      data: summary
+    });
+  } catch (err) {
+    console.error('Error resetting date format settings:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to reset date format settings.' });
+  }
+}
+
 module.exports = {
   getSettings,
   getActiveEmployees,
@@ -1170,5 +1239,8 @@ module.exports = {
   importBackupEndpoint,
   getSequencesEndpoint,
   updateSequenceEndpoint,
-  rolloverSequencesEndpoint
+  rolloverSequencesEndpoint,
+  getDateFormatEndpoint,
+  updateDateFormatEndpoint,
+  resetDateFormatEndpoint
 };

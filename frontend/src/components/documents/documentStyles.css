@@ -4309,7 +4309,7 @@
   font-size: 13.5px;
   line-height: 1.55;
   color: #000000;
-  margin-bottom: 34px;
+  margin-bottom: 44px; /* Exactly ~11.6 mm breathing room matching physical printed ASI proposal reference (media_1792834923944_f979b427.jpg) */
   position: relative;
   z-index: 1;
   max-width: 72%;

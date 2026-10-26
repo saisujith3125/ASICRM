@@ -117,7 +117,7 @@ export default function TaxGstSection({ data, onChange, onSave, isSaving }) {
 
         <div className="settings-table-wrapper" style={{ boxShadow: 'none' }}>
           <div className="settings-table-scroll">
-            <table className="settings-table">
+            <table className="settings-table" style={{ minWidth: '780px' }}>
               <colgroup>
                 <col style={{ width: '22%' }} />
                 <col style={{ width: '14%' }} />

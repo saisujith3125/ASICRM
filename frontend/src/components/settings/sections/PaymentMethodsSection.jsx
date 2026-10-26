@@ -145,7 +145,7 @@ export default function PaymentMethodsSection({ data, onChange, onSave, isSaving
         </div>
 
         <div className="settings-table-scroll">
-          <table className="settings-table">
+          <table className="settings-table" style={{ minWidth: '920px' }}>
             <colgroup>
               <col style={{ width: '9%' }} />
               <col style={{ width: '19%' }} />

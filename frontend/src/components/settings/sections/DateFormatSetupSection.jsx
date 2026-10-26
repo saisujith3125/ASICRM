@@ -466,7 +466,7 @@ export default function DateFormatSetupSection({ user, showToast }) {
             </div>
 
             <div style={{ overflowX: 'auto' }}>
-              <table className="settings-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+              <table className="settings-table" style={{ width: '100%', minWidth: '820px', borderCollapse: 'collapse', fontSize: '13px' }}>
                 <thead>
                   <tr style={{ background: '#f1f5f9', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
                     <th style={{ padding: '10px 16px', fontWeight: 600, color: '#475569' }}>Module / Document</th>

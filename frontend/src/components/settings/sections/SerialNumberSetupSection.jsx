@@ -252,7 +252,7 @@ export default function SerialNumberSetupSection({ user, showToast }) {
           </p>
         </div>
 
-        <div className="settings-section-actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <div className="settings-section-actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flexShrink: 0 }}>
           {isSuperAdmin && (
             <button
               type="button"
@@ -263,7 +263,9 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                 gap: '6px',
                 borderColor: '#6366f1',
                 color: '#4f46e5',
-                fontWeight: 600
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                flexShrink: 0
               }}
               onClick={() => setRolloverModalOpen(true)}
               title="Simulate or execute a Calendar Year rollover and archive previous year in database"
@@ -278,6 +280,7 @@ export default function SerialNumberSetupSection({ user, showToast }) {
             className="settings-btn settings-btn-secondary"
             onClick={loadData}
             title="Refresh sequence engine stats"
+            style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
           >
             Refresh
           </button>
@@ -341,16 +344,16 @@ export default function SerialNumberSetupSection({ user, showToast }) {
       {activeTab === 'active' && (
         <div className="settings-table-wrapper">
           <div className="settings-table-scroll">
-            <table className="settings-table">
+            <table className="settings-table" style={{ minWidth: '960px' }}>
               <colgroup>
-                <col style={{ width: '18%' }} />
+                <col style={{ width: '20%' }} />
                 <col style={{ width: '8%' }} />
-                <col style={{ width: '10%' }} />
-                <col style={{ width: '10%' }} />
-                <col style={{ width: '8%' }} />
-                <col style={{ width: '17%' }} />
-                <col style={{ width: '17%' }} />
                 <col style={{ width: '12%' }} />
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '9%' }} />
+                <col style={{ width: '18%' }} />
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '9%' }} />
               </colgroup>
               <thead>
                 <tr>
@@ -516,7 +519,7 @@ export default function SerialNumberSetupSection({ user, showToast }) {
           </div>
 
           <div className="settings-table-scroll">
-            <table className="settings-table">
+            <table className="settings-table" style={{ minWidth: '880px' }}>
               <colgroup>
                 <col style={{ width: '12%' }} />
                 <col style={{ width: '20%' }} />

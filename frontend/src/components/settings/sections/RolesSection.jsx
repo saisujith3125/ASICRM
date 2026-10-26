@@ -132,7 +132,7 @@ export default function RolesSection({
         </div>
 
         <div className="settings-table-scroll">
-          <table className="settings-table">
+          <table className="settings-table" style={{ minWidth: '820px' }}>
             <colgroup>
               <col style={{ width: '22%' }} />
               <col style={{ width: '22%' }} />

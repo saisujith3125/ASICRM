@@ -198,7 +198,7 @@ export default function ProductUnitsSection({ data, onChange, onSave, isSaving }
         </div>
 
         <div className="settings-table-scroll">
-          <table className="settings-table">
+          <table className="settings-table" style={{ minWidth: '820px' }}>
             <colgroup>
               <col style={{ width: '6%' }} />
               <col style={{ width: '24%' }} />

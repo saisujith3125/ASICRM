@@ -218,7 +218,7 @@ export default function UsersSection({
           </div>
           <p>Create user logins, assign employee identification numbers, and delegate operational access roles.</p>
         </div>
-        <div className="settings-section-actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <div className="settings-section-actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flexShrink: 0 }}>
           {isSuperAdmin && (
             <button
               type="button"
@@ -229,7 +229,9 @@ export default function UsersSection({
                 gap: '6px',
                 borderColor: '#0284c7',
                 color: '#0369a1',
-                fontWeight: 600
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                flexShrink: 0
               }}
               onClick={() => {
                 setTransferTargetId(transferCandidates[0]?.id || '');
@@ -248,6 +250,7 @@ export default function UsersSection({
             type="button"
             className="settings-btn settings-btn-primary"
             onClick={handleOpenCreate}
+            style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
           >
             + Add New User
           </button>
@@ -315,14 +318,14 @@ export default function UsersSection({
         </div>
 
         <div className="settings-table-scroll">
-          <table className="settings-table">
+          <table className="settings-table" style={{ minWidth: '980px' }}>
             <colgroup>
-              <col style={{ width: '27%' }} />
-              <col style={{ width: '12%' }} />
-              <col style={{ width: '18%' }} />
+              <col style={{ width: '25%' }} />
+              <col style={{ width: '11%' }} />
+              <col style={{ width: '17%' }} />
               <col style={{ width: '15%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '18%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '23%' }} />
             </colgroup>
             <thead>
               <tr>
@@ -331,7 +334,7 @@ export default function UsersSection({
                 <th>Assigned Role</th>
                 <th>Mobile Number</th>
                 <th style={{ textAlign: 'center' }}>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th style={{ textAlign: 'right', paddingRight: '14px' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -411,7 +414,7 @@ export default function UsersSection({
                                 </span>
                               )}
                             </div>
-                            <div style={{ fontSize: '12px', color: '#64748b', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                            <div style={{ fontSize: '12px', color: '#64748b', wordBreak: 'break-all', whiteSpace: 'normal', lineHeight: 1.3 }}>
                               {u.email}
                             </div>
                           </div>

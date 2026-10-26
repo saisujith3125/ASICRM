@@ -362,10 +362,10 @@ export default function WarehousesSection({ data, onChange, onSave, isSaving }) 
           </div>
         </div>
 
-        <div className="settings-table-scroll" style={{ width: '100%', overflowX: 'hidden', boxSizing: 'border-box' }}>
+        <div className="settings-table-scroll" style={{ width: '100%', overflowX: 'auto', boxSizing: 'border-box' }}>
           <table
             className="settings-table warehouses-fitted-table"
-            style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse', margin: 0 }}
+            style={{ width: '100%', minWidth: '980px', tableLayout: 'fixed', borderCollapse: 'collapse', margin: 0 }}
           >
             <colgroup>
               <col style={{ width: '8%' }} />    {/* Code: ~78px */}

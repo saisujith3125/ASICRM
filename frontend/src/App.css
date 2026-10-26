@@ -26585,6 +26585,31 @@ td.serial-dropdown-cell {
    - Dynamic row height with no submerged/overlapping text
    - Filler rows on fewer records
    ========================================================================== */
+/* ==========================================================================
+   SETTINGS MASTER MODULE VIEWPORT SYSTEM
+   - Prevents top header and breadcrumbs from being submerged under crm-topbar
+   - Smooth independent internal scrolling for sidebar navigation and content viewport
+   - Full horizontal table visibility with zero column overlapping
+   ========================================================================== */
+.crm-main-viewport:has(.settings-module-container) {
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
+}
+
+.crm-content-area:has(.settings-module-container) {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  height: calc(100vh - 50px) !important;
+  max-height: calc(100vh - 50px) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
 .crm-main-viewport:has(.crm-quotation-page-container) {
   overflow-y: hidden !important;
   overflow-x: hidden !important;

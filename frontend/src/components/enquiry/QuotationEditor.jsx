@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { ArrowLeft, Plus, Check, Trash2, Calendar, FileText, Building2, Phone, Mail, MapPin, ExternalLink, ShieldCheck, CheckCircle, Search, Printer, Zap, XCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Check, Trash2, Calendar, FileText, Building2, Phone, Mail, MapPin, ExternalLink, ShieldCheck, CheckCircle, Search, Printer, Zap, XCircle, Edit3 } from 'lucide-react';
 import { apiFetch, apiUrl, safeJson } from '../../api';
 import { navigate } from '../../router';
 import { hasPermission } from '../../utils/permissions';
@@ -639,29 +639,22 @@ export default function QuotationEditor({
             } catch (e) {}
 
             let currentStockList = loadedStockProducts;
+            try {
+              const freshRes = await apiFetch(apiUrl('/api/stocks'), { headers: authHeaders(user) });
+              if (freshRes && freshRes.ok) {
+                const fData = await safeJson(freshRes);
+                const freshList = Array.isArray(fData.data) ? fData.data : (fData.data?.products || []);
+                currentStockList = freshList;
+                setStockProducts(freshList);
+              }
+            } catch (e) {}
+
             if (!newProd && newlyCreatedId) {
               newProd = (currentStockList || []).find((p) =>
                 (p.id && String(p.id).toLowerCase() === String(newlyCreatedId).toLowerCase()) ||
                 (p.productId && String(p.productId).toLowerCase() === String(newlyCreatedId).toLowerCase()) ||
                 (p.code && String(p.code).toLowerCase() === String(newlyCreatedId).toLowerCase())
               );
-            }
-
-            if (!newProd) {
-              try {
-                const freshRes = await apiFetch(apiUrl('/api/stocks'), { headers: authHeaders(user) });
-                if (freshRes && freshRes.ok) {
-                  const fData = await safeJson(freshRes);
-                  const freshList = Array.isArray(fData.data) ? fData.data : (fData.data?.products || []);
-                  currentStockList = freshList;
-                  setStockProducts(freshList);
-                  newProd = freshList.find((p) =>
-                    (p.id && String(p.id).toLowerCase() === String(newlyCreatedId).toLowerCase()) ||
-                    (p.productId && String(p.productId).toLowerCase() === String(newlyCreatedId).toLowerCase()) ||
-                    (p.code && String(p.code).toLowerCase() === String(newlyCreatedId).toLowerCase())
-                  );
-                }
-              } catch (e) {}
             }
 
             if (newProd) {
@@ -940,84 +933,8 @@ export default function QuotationEditor({
     }
   };
 
-  const handleAddProductToMaster = (rowId = null) => {
-    let targetRow = null;
-    if (rowId) {
-      targetRow = lineItems.find((it) => it.rowId === rowId);
-    }
-    // When called from the top "+ Add Product" button (rowId === null),
-    // targetRow remains null so it opens a clean, fresh product form with no connection to existing table rows.
-
-    const preload = {};
-    if (targetRow) {
-      // 1. If an existing product is selected in the row (e.g. Dahua 5MP IR Bullet Camera)
-      const matched = targetRow.productId
-        ? (stockProducts || []).find((p) =>
-            p.id === targetRow.productId ||
-            p.productId === targetRow.productId ||
-            p.code === targetRow.productId
-          )
-        : null;
-
-      if (matched) {
-        preload.isExisting = true;
-        if (matched.id) preload.id = matched.id;
-        if (matched.code) preload.code = matched.code;
-        if (matched.name) preload.name = matched.name;
-        if (matched.description) preload.description = matched.description;
-        if (matched.hsnSac) preload.hsnSac = matched.hsnSac;
-        if (matched.categoryId) preload.categoryId = matched.categoryId;
-        if (matched.subcategoryId) preload.subcategoryId = matched.subcategoryId;
-        if (matched.brandId) preload.brandId = matched.brandId;
-        if (matched.unit) preload.unit = matched.unit;
-        if (matched.size != null && matched.size !== '') preload.size = String(matched.size);
-        if (matched.cost != null) preload.cost = String(matched.cost);
-        if (matched.dealerPercentage != null) preload.dealerPercentage = String(matched.dealerPercentage);
-        if (matched.dealerPrice != null) preload.dealerPrice = String(matched.dealerPrice);
-        if (matched.mrpPercentage != null) preload.mrpPercentage = String(matched.mrpPercentage);
-        if (matched.mrp != null) preload.mrp = String(matched.mrp);
-        if (matched.gst != null) preload.gst = String(matched.gst);
-        if (matched.stock != null) preload.stock = String(matched.stock);
-        else if (matched.currentStock != null) preload.stock = String(matched.currentStock);
-        if (matched.alertQuantity != null) preload.alertQuantity = String(matched.alertQuantity);
-        if (matched.serialized !== undefined) preload.serialized = Boolean(matched.serialized);
-        if (matched.isIGSTApplicable !== undefined) preload.isIGSTApplicable = Boolean(matched.isIGSTApplicable);
-      }
-
-      // 2. Override with any row-level edits or custom data the user entered in the quotation
-      if (targetRow.productId && !preload.id) {
-        preload.id = targetRow.productId;
-      }
-      if (targetRow.productCode && (!matched || targetRow.productCode !== matched.code)) {
-        preload.code = targetRow.productCode;
-      }
-      if (targetRow.productName && (!matched || targetRow.productName !== matched.name)) {
-        preload.name = targetRow.productName;
-      }
-      if (targetRow.description) {
-        preload.description = targetRow.description;
-      }
-      if (targetRow.hsnSac) {
-        preload.hsnSac = targetRow.hsnSac;
-      }
-      if (targetRow.unit) {
-        preload.unit = targetRow.unit;
-      }
-      if ((!matched || matched.cost == null || matched.cost === '') && targetRow.unitPrice) {
-        preload.cost = String(targetRow.unitPrice);
-      }
-      if ((!matched || matched.dealerPrice == null || matched.dealerPrice === '') && targetRow.unitPrice) {
-        preload.dealerPrice = String(targetRow.unitPrice);
-      }
-      if (targetRow.gstRate && (!matched || Number(targetRow.gstRate) !== Number(matched.gst))) {
-        preload.gst = String(targetRow.gstRate);
-      }
-      if (targetRow.isIGSTApplicable !== undefined) {
-        preload.isIGSTApplicable = Boolean(targetRow.isIGSTApplicable);
-      }
-    }
-
-    // 1. Explicitly persist current quotation draft
+  // Helper to persist current quotation draft state before navigating to Stock Master
+  const persistQuotationDraftState = (targetRowId = null) => {
     try {
       const draftKey = `asicrm_quotation_draft_${propEnquiryId || propQuotationId || 'direct'}`;
       const draftData = {
@@ -1041,34 +958,58 @@ export default function QuotationEditor({
       sessionStorage.setItem(draftKey, JSON.stringify(draftData));
       sessionStorage.setItem('asicrm_quotation_draft_latest', JSON.stringify(draftData));
 
-      if (Object.keys(preload).length > 0) {
-        sessionStorage.setItem('asicrm_product_preload', JSON.stringify(preload));
-      } else {
-        sessionStorage.removeItem('asicrm_product_preload');
-      }
-
-      if (rowId || targetRow?.rowId) {
-        sessionStorage.setItem('asicrm_target_row_id', rowId || targetRow.rowId);
+      if (targetRowId) {
+        sessionStorage.setItem('asicrm_target_row_id', targetRowId);
       } else {
         sessionStorage.removeItem('asicrm_target_row_id');
       }
     } catch (e) {
-      console.warn('Failed to save quotation draft before navigating to Add Product:', e);
+      console.warn('Failed to save quotation draft before navigating to Stock Master:', e);
     }
+  };
 
-    // 2. Set origin and return URL
+  // 1. Create a brand new product in Stock Master from an empty quotation row or toolbar
+  const handleCreateProductInMaster = (rowId = null) => {
+    persistQuotationDraftState(rowId);
+
+    // CRITICAL: Purge any old preloaded product data so new product creation always starts fresh
+    try {
+      sessionStorage.removeItem('asicrm_product_preload');
+    } catch (e) {}
+
     const returnPath = window.location.pathname + window.location.search;
     try {
       sessionStorage.setItem('asicrm_product_return', returnPath);
       sessionStorage.setItem('asicrm_product_from', 'quotation');
     } catch (e) {}
 
-    // 3. Navigate to Product Master Add Product page
     navigate(`/stocks/products/new?from=quotation&returnTo=${encodeURIComponent(returnPath)}`);
   };
 
+  // 2. Edit an existing product in Stock Master from a row where a product is already added
+  const handleEditProductInMaster = (productId, rowId = null) => {
+    if (!productId) return;
+    persistQuotationDraftState(rowId);
+
+    try {
+      sessionStorage.removeItem('asicrm_product_preload');
+    } catch (e) {}
+
+    const returnPath = window.location.pathname + window.location.search;
+    try {
+      sessionStorage.setItem('asicrm_product_return', returnPath);
+      sessionStorage.setItem('asicrm_product_from', 'quotation');
+    } catch (e) {}
+
+    navigate(`/stocks/products/${encodeURIComponent(productId)}/edit?from=quotation&returnTo=${encodeURIComponent(returnPath)}`);
+  };
+
+  const handleAddProductToMaster = (rowId = null) => {
+    handleCreateProductInMaster(rowId);
+  };
+
   const handleOpenAddProductModal = (rowId = null) => {
-    handleAddProductToMaster(rowId);
+    handleCreateProductInMaster(rowId);
   };
 
   // View customer profile with full quotation draft state preservation
@@ -2331,7 +2272,7 @@ export default function QuotationEditor({
                                 selectedName={item.productName}
                                 isDealerCustomer={isDealerCustomer}
                                 onChange={(id, selectedItem) => handleProductSelect(item.rowId, id, selectedItem)}
-                                onAddProduct={() => handleOpenAddProductModal(item.rowId)}
+                                onAddProduct={() => handleCreateProductInMaster(item.rowId)}
                                 onDuplicateAttempt={() => {
                                   setError('Product already added to this quotation.');
                                   if (typeof window !== 'undefined' && window.alert) {
@@ -2349,28 +2290,55 @@ export default function QuotationEditor({
                                   {hasProduct ? `${item.productCode ? `${item.productCode} • ` : ''}${(item.unit && item.unit !== 'Piece') ? item.unit : 'Nos'}` : ''}
                                 </span>
                                 {canManage && !isConverted && (
-                                  <button
-                                    type="button"
-                                    className="quick-add-link-btn quotation-row-add-product-btn"
-                                    onClick={() => handleAddProductToMaster(item.rowId)}
-                                    title="Open Stock Master to register a brand new product catalog entry"
-                                    style={{
-                                      fontSize: '11px',
-                                      fontWeight: 600,
-                                      color: '#2563eb',
-                                      background: '#eff6ff',
-                                      border: '1px solid #bfdbfe',
-                                      padding: '2px 8px',
-                                      borderRadius: '4px',
-                                      cursor: 'pointer',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: '3px',
-                                      lineHeight: '1.2'
-                                    }}
-                                  >
-                                    + New in Stock Master
-                                  </button>
+                                  hasProduct ? (
+                                    <button
+                                      type="button"
+                                      className="quick-add-link-btn quotation-row-edit-product-btn"
+                                      onClick={() => handleEditProductInMaster(item.productId, item.rowId)}
+                                      title={`Edit ${item.productName || 'product'} in Stock Master`}
+                                      style={{
+                                        fontSize: '11px',
+                                        fontWeight: 600,
+                                        color: '#0369a1',
+                                        background: '#f0f9ff',
+                                        border: '1px solid #bae6fd',
+                                        padding: '2px 8px',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        lineHeight: '1.2'
+                                      }}
+                                    >
+                                      <Edit3 size={11} />
+                                      <span>Edit in Stock Master</span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      className="quick-add-link-btn quotation-row-add-product-btn"
+                                      onClick={() => handleCreateProductInMaster(item.rowId)}
+                                      title="Open Stock Master to register a brand new product catalog entry"
+                                      style={{
+                                        fontSize: '11px',
+                                        fontWeight: 600,
+                                        color: '#2563eb',
+                                        background: '#eff6ff',
+                                        border: '1px solid #bfdbfe',
+                                        padding: '2px 8px',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '3px',
+                                        lineHeight: '1.2'
+                                      }}
+                                    >
+                                      <Plus size={11} />
+                                      <span>+ New in Stock Master</span>
+                                    </button>
+                                  )
                                 )}
                               </div>
                             </div>

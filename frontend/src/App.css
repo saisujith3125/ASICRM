@@ -11493,16 +11493,16 @@ button.stocks-kpi-card { cursor:pointer; }
 .quotation-directory-page .quotation-list-card .crm-data-table{table-layout:fixed;font-size:11.5px}
 .quotation-directory-page .quotation-list-card .crm-data-table th{padding:8px 10px;font-size:9.5px;white-space:nowrap}
 .quotation-directory-page .quotation-list-card .crm-data-table td{padding:8px 10px;line-height:1.25;vertical-align:middle}
-.quotation-directory-page .quotation-register-table th:nth-child(1),.quotation-directory-page .quotation-register-table td:nth-child(1){width:10%!important;text-align:left!important}
-.quotation-directory-page .quotation-register-table th:nth-child(2),.quotation-directory-page .quotation-register-table td:nth-child(2){width:20%!important;text-align:left!important}
-.quotation-directory-page .quotation-register-table th:nth-child(3),.quotation-directory-page .quotation-register-table td:nth-child(3){width:9%!important;text-align:left!important}
-.quotation-directory-page .quotation-register-table th:nth-child(4),.quotation-directory-page .quotation-register-table td:nth-child(4){width:8%!important;text-align:center!important}
-.quotation-directory-page .quotation-register-table th:nth-child(5),.quotation-directory-page .quotation-register-table td:nth-child(5){width:11%!important;text-align:right!important}
-.quotation-directory-page .quotation-register-table th:nth-child(6),.quotation-directory-page .quotation-register-table td:nth-child(6){width:9%!important;text-align:center!important}
-.quotation-directory-page .quotation-register-table th:nth-child(7),.quotation-directory-page .quotation-register-table td:nth-child(7){width:12%!important;text-align:center!important}
-.quotation-directory-page .quotation-register-table th:nth-child(8),.quotation-directory-page .quotation-register-table td:nth-child(8){width:21%!important;text-align:right!important}
+.quotation-directory-page .quotation-register-table th:nth-child(1),.quotation-directory-page .quotation-register-table td:nth-child(1){width:10%!important;min-width:105px!important;text-align:left!important}
+.quotation-directory-page .quotation-register-table th:nth-child(2),.quotation-directory-page .quotation-register-table td:nth-child(2){width:18%!important;min-width:175px!important;text-align:left!important}
+.quotation-directory-page .quotation-register-table th:nth-child(3),.quotation-directory-page .quotation-register-table td:nth-child(3){width:8%!important;min-width:85px!important;text-align:left!important}
+.quotation-directory-page .quotation-register-table th:nth-child(4),.quotation-directory-page .quotation-register-table td:nth-child(4){width:7%!important;min-width:75px!important;text-align:center!important}
+.quotation-directory-page .quotation-register-table th:nth-child(5),.quotation-directory-page .quotation-register-table td:nth-child(5){width:10%!important;min-width:105px!important;text-align:right!important}
+.quotation-directory-page .quotation-register-table th:nth-child(6),.quotation-directory-page .quotation-register-table td:nth-child(6){width:8%!important;min-width:85px!important;text-align:center!important}
+.quotation-directory-page .quotation-register-table th:nth-child(7),.quotation-directory-page .quotation-register-table td:nth-child(7){width:11%!important;min-width:110px!important;text-align:center!important}
+.quotation-directory-page .quotation-register-table th:nth-child(8),.quotation-directory-page .quotation-register-table td:nth-child(8){width:28%!important;min-width:275px!important;text-align:right!important}
 .quotation-directory-page .quotation-register-table td:nth-child(2) .customer-table-link{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.quotation-directory-page .quotation-row-actions{gap:5px!important;justify-content:flex-end!important;align-items:center!important;flex-wrap:nowrap!important}
+.quotation-directory-page .quotation-row-actions{gap:4px!important;justify-content:flex-end!important;align-items:center!important;flex-wrap:nowrap!important;padding-right:2px!important}
 .quotation-directory-page .order-link-note{font-size:11px}
 .crm-quotation-page-container .tbl-action-btn.delete-icon-btn,
 .quotation-directory-page .tbl-action-btn.delete-icon-btn {
@@ -26706,7 +26706,7 @@ td.serial-dropdown-cell {
   flex-direction: column !important;
   min-height: 0 !important;
   height: 100% !important;
-  overflow-x: hidden !important;
+  overflow-x: auto !important;
   overflow-y: hidden !important;
   background: #ffffff !important;
   box-sizing: border-box !important;
@@ -26717,7 +26717,7 @@ td.serial-dropdown-cell {
   height: 100% !important;
   display: table !important;
   width: 100% !important;
-  max-width: 100% !important;
+  min-width: 1040px !important;
   table-layout: fixed !important;
   border-collapse: collapse !important;
   border-spacing: 0 !important;
@@ -29167,6 +29167,9 @@ td.serial-dropdown-cell {
   gap: 4px !important;
   flex-wrap: nowrap !important;
   width: 100% !important;
+  padding-right: 2px !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
 }
 
 .quotation-directory-page .quotation-row-actions .tbl-action-btn,
@@ -29183,6 +29186,7 @@ td.serial-dropdown-cell {
   justify-content: center !important;
   white-space: nowrap !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  flex-shrink: 0 !important;
 }
 
 .quotation-directory-page .quotation-row-actions .tbl-action-btn.delete-icon-btn,
@@ -29197,6 +29201,7 @@ td.serial-dropdown-cell {
   color: #94a3b8 !important;
   background: #f8fafc !important;
   border: 1px solid #cbd5e1 !important;
+  flex-shrink: 0 !important;
 }
 
 .quotation-directory-page .quotation-row-actions .tbl-action-btn.delete-icon-btn:hover,

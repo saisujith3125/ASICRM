@@ -1494,7 +1494,7 @@ function CrmDashboard({
           } catch {}
           navigate(returnTo || '/stocks/products');
         };
-        const isEdit = stockProductEdit || Boolean(activeProductId);
+        const isEdit = !stockProductCreate && (stockProductEdit || Boolean(activeProductId));
         const canAct = isEdit
           ? (hasPermission(user, 'Stocks', 'Edit') || hasPermission(user, 'Stocks', 'Create'))
           : hasPermission(user, 'Stocks', 'Create');

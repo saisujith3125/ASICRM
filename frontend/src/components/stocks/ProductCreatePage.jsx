@@ -83,17 +83,24 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
   const [data, setData] = useState({ categories: [], subcategories: [], brands: [] });
   const [form, setForm] = useState(() => {
     let preloaded = {};
-    try {
-      const sessionPreload = sessionStorage.getItem('asicrm_product_preload');
-      if (sessionPreload) {
-        preloaded = JSON.parse(sessionPreload) || {};
+    if (isEditMode) {
+      try {
+        const sessionPreload = sessionStorage.getItem('asicrm_product_preload');
+        if (sessionPreload) {
+          preloaded = JSON.parse(sessionPreload) || {};
+          sessionStorage.removeItem('asicrm_product_preload');
+        }
+      } catch {}
+    } else {
+      // In create mode, purge any leftover preload so previous products never contaminate new product creation
+      try {
         sessionStorage.removeItem('asicrm_product_preload');
-      }
-    } catch {}
+      } catch {}
+    }
     return {
       ...EMPTY_FORM,
-      ...preloaded,
-      ...(initialValues || {})
+      ...(isEditMode ? preloaded : {}),
+      ...(isEditMode ? (initialValues || {}) : {})
     };
   });
   const [loading, setLoading] = useState(true);
@@ -294,6 +301,21 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
             }
           } else {
             setForm((current) => {
+              if (!isEditMode) {
+                // In create mode: strictly treat as fresh new product
+                if (!current.code) {
+                  apiFetch(apiUrl('/api/stocks/products/next-code'), { headers: headers(user) })
+                    .then((codeRes) => codeRes.json())
+                    .then((codeJson) => {
+                      if (codeJson.success && codeJson.nextCode && active) {
+                        setForm((prev) => (prev.code ? prev : { ...prev, code: codeJson.nextCode }));
+                      }
+                    })
+                    .catch(() => {});
+                }
+                return current;
+              }
+
               const matched = (current.id ? (json.data?.products || []).find((p) => String(p.id) === String(current.id)) : null) ||
                 (current.code ? (json.data?.products || []).find((p) => String(p.code).trim().toUpperCase() === String(current.code).trim().toUpperCase()) : null);
               if (matched) {
@@ -359,6 +381,7 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
   const visibleBrands = useMemo(() => (data.brands || []).filter((brand) => !isTestRecord(brand)), [data.brands]);
 
   const existingMatch = useMemo(() => {
+    if (!isEditMode) return null;
     const list = data.products || [];
     if (productId) {
       const p = list.find((item) => String(item.id) === String(productId) || String(item.code) === String(productId));
@@ -373,9 +396,9 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
       if (p) return p;
     }
     return null;
-  }, [data.products, productId, form.id, form.code]);
+  }, [isEditMode, data.products, productId, form.id, form.code]);
 
-  const isExistingProduct = Boolean(isEditMode || form.isExisting || (form.id && form.id !== '') || existingMatch);
+  const isExistingProduct = Boolean(isEditMode && (productId || form.id || existingMatch));
 
   // Cable identification rule: cables NEVER have serial numbers
   const isCable = useMemo(() => {

@@ -39,9 +39,10 @@ const DEFAULT_SUPER_ADMIN_USER = {
 };
 
 function isDefaultCheckAccount(mobile, user) {
-  if (mobile === '9999999990' || mobile === '9994126686') return true;
-  if (user && String(user.role || '').toUpperCase() === 'SUPER_ADMIN') return true;
-  return false;
+  // When SMS provider is active, all users (including Super Admin) must receive real SMS OTP
+  if (SMS_PROVIDER_ENABLED) return false;
+  // Offline fallback only when SMS provider is disabled
+  return mobile === DEFAULT_CHECK_MOBILE;
 }
 
 function readAccessData() {
@@ -146,7 +147,7 @@ const sendOtp = async (req, res) => {
       return res.status(403).json({ success: false, message: 'No active ASICRM user is registered for this mobile number.' });
     }
 
-    // Default checking account: Super Admin -> Always OTP 1234, no cooldown, no external SMS call
+    // Offline fallback account: ONLY active when SMS_PROVIDER_ENABLED is false
     if (isDefaultCheckAccount(mobile, user)) {
       otpStore.set(mobile, {
         otp: DEFAULT_CHECK_OTP,
@@ -157,12 +158,15 @@ const sendOtp = async (req, res) => {
       });
       cooldownStore.delete(mobile);
       rateLimitStore.delete(mobile);
-      return res.json({
+      const resPayload = {
         success: true,
-        message: 'OTP sent successfully. (Default Check OTP: 1234)',
-        devOtp: DEFAULT_CHECK_OTP,
+        message: 'OTP sent successfully.',
         resendCooldownSeconds: 0
-      });
+      };
+      if (process.env.NODE_ENV !== 'production' && !SMS_PROVIDER_ENABLED) {
+        resPayload.devOtp = DEFAULT_CHECK_OTP;
+      }
+      return res.json(resPayload);
     }
 
     const now = Date.now();

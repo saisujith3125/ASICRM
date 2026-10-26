@@ -131,18 +131,6 @@ export default function App() {
       }
     }
   }, [activeTab, stockProductInfo]);
-  // Default test / check account: Super Admin (USR-001)
-  const DEFAULT_CHECK_USER = {
-    id: 'USR-001',
-    name: 'Super Admin',
-    employeeId: 'SA-001',
-    email: 'superadmin@asicrm.local',
-    mobile: '9994126686',
-    role: 'SUPER_ADMIN',
-    status: 'Active',
-    permissions: {}
-  };
-
   // Authentication state (persisted in localStorage)
   const [user, setUser] = useState(() => {
     try {
@@ -159,8 +147,8 @@ export default function App() {
   // Navigation steps: 'mobile' | 'otp'
   const [step, setStep] = useState('mobile')
   
-  // Mobile form state: default to Super Admin (+91 9999999990) for testing/checking
-  const [mobile, setMobile] = useState('9999999990')
+  // Mobile form state (starts blank for clean, production login)
+  const [mobile, setMobile] = useState('')
   
   // OTP form state (4 individual digits; backend generates a fresh random OTP when real SMS mode is enabled)
   const [otpDigits, setOtpDigits] = useState(['', '', '', ''])
@@ -279,28 +267,6 @@ export default function App() {
     setErrorMsg('')
     setSuccessMsg('')
 
-    // Default checking account: Super Admin (+91 9999999990 / +91 9994126686)
-    if (mobile === '9999999990' || mobile === '9994126686') {
-      try {
-        await fetch(`${BACKEND_API_URL}/send-otp`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mobile })
-        }).catch(() => {});
-      } finally {
-        setStep('otp')
-        setOtpDigits(['1', '2', '3', '4'])
-        setSuccessMsg('Default check account: OTP is 1234')
-        setLoading(false)
-        setTimeout(() => {
-          if (otpInputRefs.current[0]) {
-            otpInputRefs.current[0].focus()
-          }
-        }, 100)
-      }
-      return
-    }
-
     try {
       const response = await fetch(`${BACKEND_API_URL}/send-otp`, {
         method: 'POST',
@@ -396,9 +362,6 @@ export default function App() {
     setErrorMsg('')
     setSuccessMsg('')
 
-    // Default checking account: Super Admin with OTP 1234
-    const isDefaultCheck = (mobile === '9999999990' || mobile === '9994126686') && fullOtp === '1234'
-
     try {
       const response = await fetch(`${BACKEND_API_URL}/verify-otp`, {
         method: 'POST',
@@ -417,23 +380,12 @@ export default function App() {
         const authUser = { ...data.user, loggedInAt: new Date().toISOString() }
         setUser(authUser)
         localStorage.setItem('asicrm_user', JSON.stringify(authUser))
-      } else if (isDefaultCheck) {
-        // Fallback for default check account if server process hasn't pulled latest OTP logic
-        const authUser = { ...DEFAULT_CHECK_USER, loggedInAt: new Date().toISOString() }
-        setUser(authUser)
-        localStorage.setItem('asicrm_user', JSON.stringify(authUser))
       } else {
         setErrorMsg(data?.message || 'Invalid OTP. Please check the 4-digit code.')
       }
     } catch (err) {
       console.error('Verify OTP Error:', err)
-      if (isDefaultCheck) {
-        const authUser = { ...DEFAULT_CHECK_USER, loggedInAt: new Date().toISOString() }
-        setUser(authUser)
-        localStorage.setItem('asicrm_user', JSON.stringify(authUser))
-      } else {
-        setErrorMsg('Unable to connect to server. Please check your network connection or try again.')
-      }
+      setErrorMsg('Unable to connect to server. Please check your network connection or try again.')
     } finally {
       setLoading(false)
     }
@@ -445,7 +397,7 @@ export default function App() {
     setUser(null)
     setPreselectedCustForEnq(null)
     setStep('mobile')
-    setMobile('9999999990')
+    setMobile('')
     setOtpDigits(['', '', '', ''])
     setResendRemainingSeconds(0)
     setCooldownsByMobile({})
@@ -462,10 +414,13 @@ export default function App() {
     setOtpDigits(['', '', '', ''])
   }
 
-  // Format masked mobile number: e.g. +91 XXXXXXXX90
+  // Format masked mobile number: e.g. +91 99941 26686
   const formatMaskedMobile = (num) => {
-    if (!num || num.length < 10) return num
-    return `+91 ${num.slice(0, 2)}******${num.slice(8)}`
+    if (!num) return ''
+    if (num.length === 10) {
+      return `+91 ${num.slice(0, 5)} ${num.slice(5)}`
+    }
+    return `+91 ${num}`
   }
 
   // =========================================================================
@@ -808,34 +763,14 @@ export default function App() {
             <>
               <div className="form-header">
                 <h2 className="form-title">Welcome Back</h2>
-                <p className="form-subtitle">Login using your mobile number</p>
+                <p className="form-subtitle">Enter your registered mobile number</p>
               </div>
 
               <form onSubmit={handleSendOtp} className="login-form">
                 <div className="form-group">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <label htmlFor="mobileInput" className="input-label" style={{ margin: 0 }}>
-                      Mobile Number
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMobile('9999999990');
-                        setErrorMsg('');
-                      }}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#2563eb',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        padding: 0
-                      }}
-                    >
-                      Default: Super Admin
-                    </button>
-                  </div>
+                  <label htmlFor="mobileInput" className="input-label">
+                    Mobile Number
+                  </label>
                   <div className="phone-input-group">
                     {/* Country code prefix */}
                     <div className="country-code-pill" aria-label="India Country Code">
@@ -858,7 +793,7 @@ export default function App() {
                       pattern="[0-9]*"
                       maxLength={10}
                       className="phone-number-input"
-                      placeholder="Enter your mobile number"
+                      placeholder="Enter 10-digit mobile number"
                       value={mobile}
                       onChange={handleMobileChange}
                       autoFocus
@@ -934,34 +869,33 @@ export default function App() {
                ================================================================= */
             <>
               <div className="form-header">
-                <div className="header-nav-row">
-                  <button type="button" onClick={handleChangeNumber} className="back-link-btn" aria-label="Go back">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="15 18 9 12 15 6" />
-                    </svg>
-                    <span>Change Number</span>
-                  </button>
-                </div>
-
                 <h2 className="form-title">Verify OTP</h2>
                 <p className="form-subtitle">
-                  Enter the 4-digit OTP sent to{' '}
-                  <strong className="target-number">{formatMaskedMobile(mobile)}</strong>
+                  Enter the 4-digit code sent to
                 </p>
+                <div className="otp-target-row">
+                  <span className="target-number">{formatMaskedMobile(mobile)}</span>
+                  <button
+                    type="button"
+                    onClick={handleChangeNumber}
+                    className="change-number-link"
+                    title="Change mobile number"
+                    aria-label="Change mobile number"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
+                    <span>Edit</span>
+                  </button>
+                </div>
               </div>
 
               <form onSubmit={handleVerifyOtp} className="login-form">
                 <div className="form-group">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <label className="input-label centered" style={{ margin: 0 }}>
-                      Enter 4-Digit Code
-                    </label>
-                    {mobile === '9999999990' && (
-                      <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 600, background: '#f0fdf4', padding: '2px 8px', borderRadius: '4px' }}>
-                        Default OTP: 1234
-                      </span>
-                    )}
-                  </div>
+                  <label className="input-label centered" style={{ display: 'block', textAlign: 'center', marginBottom: '12px' }}>
+                    Enter 4-Digit Security Code
+                  </label>
                   
                   {/* 4-box OTP Input Group */}
                   <div className="otp-boxes-container" onPaste={handleOtpPaste}>
@@ -1006,21 +940,22 @@ export default function App() {
 
               {/* Resend OTP Section: frontend countdown + backend enforcement */}
               <div className="resend-otp-section">
-                <p className="resend-text">Didn&apos;t receive the OTP?</p>
-                <button
-                  type="button"
-                  onClick={handleSendOtp}
-                  disabled={loading || resendRemainingSeconds > 0}
-                  className={`resend-active-btn ${resendRemainingSeconds > 0 ? 'resend-disabled-btn' : ''}`}
-                  aria-disabled={resendRemainingSeconds > 0 || loading}
-                  aria-label={resendRemainingSeconds > 0
-                    ? `Resend OTP available in ${formatCountdown(resendRemainingSeconds)}`
-                    : 'Resend OTP'}
-                >
-                  {resendRemainingSeconds > 0
-                    ? `Resend OTP in ${formatCountdown(resendRemainingSeconds)}`
-                    : 'Resend OTP'}
-                </button>
+                <span className="resend-text">Didn&apos;t receive the code?</span>
+                {resendRemainingSeconds > 0 ? (
+                  <span className="resend-countdown-text">
+                    Resend in <strong>{formatCountdown(resendRemainingSeconds)}</strong>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSendOtp}
+                    disabled={loading}
+                    className="resend-active-btn"
+                    aria-label="Resend OTP"
+                  >
+                    Resend OTP
+                  </button>
+                )}
               </div>
 
               {/* Secure Login Divider */}

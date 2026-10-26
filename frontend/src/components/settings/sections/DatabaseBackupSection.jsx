@@ -28,7 +28,9 @@ import {
   Receipt,
   Building2,
   HelpCircle,
-  Archive
+  Archive,
+  Cloud,
+  CloudOff
 } from 'lucide-react';
 import { apiFetch, apiUrl, safeJson } from '../../../api';
 
@@ -45,6 +47,8 @@ export default function DatabaseBackupSection({ user, showToast }) {
   const [latestBackup, setLatestBackup] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [mongoStatus, setMongoStatus] = useState(null);
+  const [isSyncingMongo, setIsSyncingMongo] = useState(false);
   const [filterType, setFilterType] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -99,9 +103,10 @@ export default function DatabaseBackupSection({ user, showToast }) {
     else setRefreshing(true);
 
     try {
-      const [statsRes, backupsRes] = await Promise.all([
+      const [statsRes, backupsRes, mongoRes] = await Promise.all([
         apiFetch(apiUrl('/api/settings/database/stats'), { headers: authHeaders(user) }).catch(() => null),
-        apiFetch(apiUrl('/api/settings/database/backups'), { headers: authHeaders(user) }).catch(() => null)
+        apiFetch(apiUrl('/api/settings/database/backups'), { headers: authHeaders(user) }).catch(() => null),
+        apiFetch(apiUrl('/api/settings/database/mongo-status'), { headers: authHeaders(user) }).catch(() => null)
       ]);
 
       if (statsRes && statsRes.ok) {
@@ -119,6 +124,13 @@ export default function DatabaseBackupSection({ user, showToast }) {
           if (!latestBackup && bkpData.data[0]) {
             setLatestBackup(bkpData.data[0]);
           }
+        }
+      }
+
+      if (mongoRes && mongoRes.ok) {
+        const mongoJson = await safeJson(mongoRes);
+        if (mongoJson.success && mongoJson.data) {
+          setMongoStatus(mongoJson.data);
         }
       }
     } catch (err) {
@@ -186,6 +198,28 @@ export default function DatabaseBackupSection({ user, showToast }) {
       alert(err.message || 'Error occurred while creating backup.');
     } finally {
       setIsBackingUp(false);
+    }
+  };
+
+  // Handler: Sync to MongoDB Atlas
+  const handleSyncToMongo = async () => {
+    setIsSyncingMongo(true);
+    try {
+      const res = await apiFetch(apiUrl('/api/settings/database/sync-mongo'), {
+        method: 'POST',
+        headers: authHeaders(user)
+      });
+      const data = await safeJson(res);
+      if (res.ok && data.success) {
+        if (showToast) showToast('✓ ' + data.message);
+        await fetchDatabaseStatsAndBackups(true);
+      } else {
+        alert(data.message || 'Failed to sync to MongoDB Atlas. Ensure 0.0.0.0/0 is added in Atlas Network Access whitelist.');
+      }
+    } catch (err) {
+      alert('Error connecting to sync service: ' + err.message);
+    } finally {
+      setIsSyncingMongo(false);
     }
   };
 
@@ -543,6 +577,100 @@ export default function DatabaseBackupSection({ user, showToast }) {
               <RefreshCw size={15} className={refreshing ? 'spin' : ''} />
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* MONGODB ATLAS CLOUD SYNCHRONIZATION STATUS CARD */}
+      <div
+        className="settings-card"
+        style={{
+          background: mongoStatus?.isConnected ? '#f0fdf4' : '#fffbeb',
+          border: mongoStatus?.isConnected ? '1px solid #bbf7d0' : '1px solid #fde68a',
+          borderRadius: '12px',
+          padding: '16px 20px',
+          marginBottom: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '16px'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', maxWidth: '780px' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              background: mongoStatus?.isConnected ? '#16a34a' : '#d97706',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}
+          >
+            {mongoStatus?.isConnected ? <Cloud size={22} /> : <CloudOff size={22} />}
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <span style={{ fontWeight: 700, fontSize: '14px', color: '#0f172a' }}>
+                MongoDB Atlas Cloud Database (Cluster0 / asicrm)
+              </span>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  background: mongoStatus?.isConnected ? '#dcfce7' : '#fef3c7',
+                  color: mongoStatus?.isConnected ? '#15803d' : '#b45309',
+                  fontSize: '11px',
+                  fontWeight: 700
+                }}
+              >
+                <span
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: mongoStatus?.isConnected ? '#16a34a' : '#f59e0b'
+                  }}
+                />
+                {mongoStatus?.isConnected ? 'Cloud Connected & In Sync' : 'Local Storage Mode (Cloud IP Blocked)'}
+              </span>
+            </div>
+            <p style={{ margin: 0, fontSize: '12.5px', color: '#475569', lineHeight: 1.45 }}>
+              {mongoStatus?.isConnected
+                ? 'All CRM records are actively synchronized to MongoDB Atlas Cloud.'
+                : 'Your CRM is safely operating in resilient local storage mode on the server. If MongoDB Atlas does not reflect new records (e.g. CUST-002), add 0.0.0.0/0 to MongoDB Atlas Network Access whitelist, then click Sync.'}
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <button
+            type="button"
+            className="settings-btn"
+            style={{
+              background: '#0284c7',
+              color: '#ffffff',
+              borderColor: '#0369a1',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 16px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+            onClick={handleSyncToMongo}
+            disabled={isSyncingMongo}
+          >
+            <RefreshCw size={14} className={isSyncingMongo ? 'spin' : ''} />
+            <span>{isSyncingMongo ? 'Syncing to Cloud...' : 'Sync to MongoDB Atlas'}</span>
+          </button>
         </div>
       </div>
 

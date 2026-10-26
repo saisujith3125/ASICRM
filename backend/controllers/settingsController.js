@@ -980,6 +980,73 @@ function getDatabaseStatsEndpoint(req, res) {
   }
 }
 
+function getMongoStatusEndpoint(req, res) {
+  try {
+    const mongoose = require('mongoose');
+    const isConnected = mongoose.connection.readyState === 1;
+    const uriConfigured = Boolean(process.env.MONGODB_URI);
+
+    return res.json({
+      success: true,
+      data: {
+        isConnected,
+        readyState: mongoose.connection.readyState,
+        host: isConnected ? mongoose.connection.host : null,
+        database: isConnected ? mongoose.connection.name : 'asicrm',
+        uriConfigured,
+        storageMode: isConnected ? 'HYBRID_MONGO_SYNC' : 'RESILIENT_LOCAL_JSON',
+        notice: isConnected
+          ? 'MongoDB Atlas is actively connected and syncing.'
+          : 'Operating in resilient local JSON storage mode. MongoDB Atlas is currently offline or blocking connections (check Network Access IP whitelist in MongoDB Atlas).'
+      }
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message || 'Failed to get MongoDB status.' });
+  }
+}
+
+async function triggerMongoSyncEndpoint(req, res) {
+  try {
+    if (!requireSettingsAccess(req, res)) return;
+    const mongoose = require('mongoose');
+    const connectDB = require('../config/db');
+
+    if (mongoose.connection.readyState !== 1) {
+      await connectDB();
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Could not connect to MongoDB Atlas. Please ensure 0.0.0.0/0 (or your server IP) is added to MongoDB Atlas Network Access whitelist.'
+      });
+    }
+
+    const { syncStoreToMongo, syncStockToMongo, syncSettingsToMongo } = require('../services/mongoSyncService');
+    const crmStore = require('../data/crmStore');
+    const stocksPath = path.join(__dirname, '..', 'data', 'stocks-data.json');
+    const accessPath = path.join(__dirname, '..', 'data', 'access-control.json');
+
+    await syncStoreToMongo(crmStore);
+    if (fs.existsSync(stocksPath)) {
+      const stocksData = JSON.parse(fs.readFileSync(stocksPath, 'utf8'));
+      await syncStockToMongo(stocksData.products, stocksData.inventoryTransactions);
+    }
+    if (fs.existsSync(accessPath)) {
+      const accessData = JSON.parse(fs.readFileSync(accessPath, 'utf8'));
+      await syncSettingsToMongo(accessData.companySettings);
+    }
+
+    return res.json({
+      success: true,
+      message: 'All records (Customers, Quotations, Invoices, Stocks) successfully synchronized to MongoDB Atlas!'
+    });
+  } catch (err) {
+    console.error('Error triggering MongoDB sync:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to sync to MongoDB Atlas.' });
+  }
+}
+
 function getBackupsListEndpoint(req, res) {
   try {
     if (!requireSettingsAccess(req, res)) return;
@@ -1245,5 +1312,7 @@ module.exports = {
   rolloverSequencesEndpoint,
   getDateFormatEndpoint,
   updateDateFormatEndpoint,
-  resetDateFormatEndpoint
+  resetDateFormatEndpoint,
+  getMongoStatusEndpoint,
+  triggerMongoSyncEndpoint
 };

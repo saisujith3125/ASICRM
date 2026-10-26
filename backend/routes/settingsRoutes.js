@@ -29,7 +29,9 @@ const {
   rolloverSequencesEndpoint,
   getDateFormatEndpoint,
   updateDateFormatEndpoint,
-  resetDateFormatEndpoint
+  resetDateFormatEndpoint,
+  getMongoStatusEndpoint,
+  triggerMongoSyncEndpoint
 } = require('../controllers/settingsController');
 
 router.get('/', getSettings);
@@ -55,6 +57,8 @@ router.put('/permissions/:roleKey', updatePermissions);
 
 // Database Backup, Clear, Restore, and Management endpoints
 router.get('/database/stats', getDatabaseStatsEndpoint);
+router.get('/database/mongo-status', getMongoStatusEndpoint);
+router.post('/database/sync-mongo', triggerMongoSyncEndpoint);
 router.get('/database/backups', getBackupsListEndpoint);
 router.get('/database/backups/:id', getBackupDetailsEndpoint);
 router.post('/database/backup', createBackupEndpoint);

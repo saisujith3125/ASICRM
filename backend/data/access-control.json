@@ -1295,7 +1295,7 @@
       "globalSeparator": "/",
       "timezone": "Asia/Kolkata",
       "timeFormat": "12_HOUR",
-      "lastUpdated": "2026-10-24T10:46:44.914Z",
+      "lastUpdated": "2026-10-26T05:47:40.682Z",
       "updatedBy": "Super Admin",
       "modules": {
         "quotations": {
@@ -1304,7 +1304,7 @@
           "format": "YYYY/MM/DD",
           "separator": "/",
           "description": "Customer-facing commercial proposal document date",
-          "previewToday": "2026/10/24",
+          "previewToday": "2026/10/26",
           "previewSample": "2026/10/24"
         },
         "invoices": {
@@ -1313,7 +1313,7 @@
           "format": "DD/MM/YYYY",
           "separator": "/",
           "description": "Statutory GST tax invoice document date",
-          "previewToday": "24/10/2026",
+          "previewToday": "26/10/2026",
           "previewSample": "24/10/2026"
         },
         "deliveryChallans": {
@@ -1322,7 +1322,7 @@
           "format": "DD/MM/YYYY",
           "separator": "/",
           "description": "Dispatch and material delivery challan date",
-          "previewToday": "24/10/2026",
+          "previewToday": "26/10/2026",
           "previewSample": "24/10/2026"
         },
         "purchaseOrders": {
@@ -1331,7 +1331,7 @@
           "format": "DD/MM/YYYY",
           "separator": "/",
           "description": "Supplier and vendor purchase order document date",
-          "previewToday": "24/10/2026",
+          "previewToday": "26/10/2026",
           "previewSample": "24/10/2026"
         },
         "proformaInvoices": {
@@ -1340,7 +1340,7 @@
           "format": "DD/MM/YYYY",
           "separator": "/",
           "description": "Proforma commercial invoice date",
-          "previewToday": "24/10/2026",
+          "previewToday": "26/10/2026",
           "previewSample": "24/10/2026"
         },
         "general": {
@@ -1349,20 +1349,20 @@
           "format": "DD/MM/YYYY",
           "separator": "/",
           "description": "CRM interaction logs, activity timeline, and status updates",
-          "previewToday": "24/10/2026",
+          "previewToday": "26/10/2026",
           "previewSample": "24/10/2026"
         }
       },
       "samples": {
         "raw": {
-          "today": "2026-10-24",
+          "today": "2026-10-26",
           "proposalDateSample": "2026-10-24",
           "invoiceDateSample": "2026-10-24",
           "financialYearStart": "2026-04-01",
           "financialYearEnd": "2027-03-31",
           "leapYearSample": "2028-02-29"
         },
-        "todayFormatted": "2026/10/24",
+        "todayFormatted": "2026/10/26",
         "proposalFormatted": "2026/10/24",
         "invoiceFormatted": "24/10/2026",
         "fyFormatted": "2026/04/01 – 2027/03/31",

@@ -80,6 +80,12 @@ function createBackup({ title = 'Manual Backup', type = 'MANUAL_BACKUP', user = 
   const createdAt = new Date().toISOString();
   const stats = getDatabaseStats();
 
+  let sequences = null;
+  try {
+    const { sequenceService } = require('./sequenceService');
+    sequences = typeof sequenceService.checkYearRollOver === 'function' ? sequenceService.checkYearRollOver() : sequenceService.readConfig();
+  } catch (seqErr) {}
+
   const backupData = {
     customers: JSON.parse(JSON.stringify(crmStore.customers || [])),
     enquiries: JSON.parse(JSON.stringify(crmStore.enquiries || [])),
@@ -96,7 +102,8 @@ function createBackup({ title = 'Manual Backup', type = 'MANUAL_BACKUP', user = 
     inventoryTransactions: JSON.parse(JSON.stringify(stocks.inventoryTransactions || [])),
     categories: JSON.parse(JSON.stringify(stocks.categories || [])),
     subcategories: JSON.parse(JSON.stringify(stocks.subcategories || [])),
-    brands: JSON.parse(JSON.stringify(stocks.brands || []))
+    brands: JSON.parse(JSON.stringify(stocks.brands || [])),
+    sequences: sequences ? JSON.parse(JSON.stringify(sequences)) : null
   };
 
   const backupRecord = {
@@ -243,6 +250,14 @@ function clearActiveDatabase({ user = null, options = {} } = {}) {
   if (clearProducts) {
     if (Array.isArray(stocks.products)) stocks.products.length = 0;
     if (Array.isArray(stocks.inventoryTransactions)) stocks.inventoryTransactions.length = 0;
+    try {
+      const { sequenceService } = require('./sequenceService');
+      const seqConfig = typeof sequenceService.checkYearRollOver === 'function' ? sequenceService.checkYearRollOver() : sequenceService.readConfig();
+      const startNum = seqConfig?.modules?.stocks?.startingNumber || 1;
+      sequenceService.updateModuleRule('stocks', { nextNumber: startNum });
+    } catch (seqErr) {
+      console.warn('[BACKUP] Sequence reset notice:', seqErr.message);
+    }
   }
   writeStocks(stocks);
 
@@ -263,7 +278,8 @@ function clearActiveDatabase({ user = null, options = {} } = {}) {
       if (clearPurchaseOrders && models.PurchaseOrder) collectionsToWipe.push(models.PurchaseOrder.deleteMany({}));
       if (clearGoodsReceipts && models.GoodsReceipt) collectionsToWipe.push(models.GoodsReceipt.deleteMany({}));
       if (clearSuppliers && models.Supplier) collectionsToWipe.push(models.Supplier.deleteMany({}));
-      if (resetStock && models.InventoryTransaction) collectionsToWipe.push(models.InventoryTransaction.deleteMany({}));
+      if (clearProducts && models.Product) collectionsToWipe.push(models.Product.deleteMany({}));
+      if ((clearProducts || resetStock) && models.InventoryTransaction) collectionsToWipe.push(models.InventoryTransaction.deleteMany({}));
 
       Promise.all(collectionsToWipe).catch((err) => {
         console.warn('[BACKUP] Mongo clear warning:', err.message);
@@ -323,6 +339,19 @@ function restoreBackup(backupId, { user = null } = {}) {
   if (Array.isArray(d.subcategories)) stocks.subcategories = d.subcategories;
   if (Array.isArray(d.brands)) stocks.brands = d.brands;
   writeStocks(stocks);
+
+  try {
+    const { sequenceService } = require('./sequenceService');
+    if (d.sequences && typeof d.sequences === 'object') {
+      sequenceService.writeConfig(d.sequences);
+    }
+    const existingCodes = (stocks.products || []).flatMap((p) => [p.code, p.id]).filter(Boolean);
+    if (typeof sequenceService.advancePastExisting === 'function') {
+      sequenceService.advancePastExisting('stocks', existingCodes);
+    }
+  } catch (seqErr) {
+    console.warn('[BACKUP] Sequence restore advance notice:', seqErr.message);
+  }
 
   // Step 4: Sync to MongoDB if connected
   try {

@@ -73,7 +73,7 @@ export default function DatabaseBackupSection({ user, showToast }) {
     clearGoodsReceipts: true,
     resetStock: true,
     clearSuppliers: false,
-    clearProducts: false
+    clearProducts: true
   });
 
   // Restore Modal state
@@ -1073,6 +1073,14 @@ export default function DatabaseBackupSection({ user, showToast }) {
                     onChange={(e) => setClearOptions({ ...clearOptions, clearPurchaseOrders: e.target.checked, clearGoodsReceipts: e.target.checked })}
                   />
                   <span>Purchase Orders & GRN ({Number(stats?.purchaseOrders || 0) + Number(stats?.goodsReceipts || 0)})</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#1e293b', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={clearOptions.clearProducts}
+                    onChange={(e) => setClearOptions({ ...clearOptions, clearProducts: e.target.checked })}
+                  />
+                  <span>Stocks & Products Master ({stats?.products || 0})</span>
                 </label>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#1e293b', cursor: 'pointer' }}>
                   <input

@@ -287,7 +287,7 @@ function normalizeProductCode(code) {
 
 function getNextProductCode(products) {
   try {
-    const existingCodes = (products || []).map((p) => p.code || p.id).filter(Boolean);
+    const existingCodes = (products || []).flatMap((p) => [p.code, p.id]).filter(Boolean);
     if (typeof sequenceService.advancePastExisting === 'function') {
       sequenceService.advancePastExisting('stocks', existingCodes);
     }

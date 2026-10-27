@@ -318,23 +318,23 @@ export default function UsersSection({
         </div>
 
         <div className="settings-table-scroll">
-          <table className="settings-table" style={{ minWidth: '980px' }}>
+          <table className="settings-table" style={{ width: '100%', minWidth: '1020px' }}>
             <colgroup>
               <col style={{ width: '25%' }} />
-              <col style={{ width: '11%' }} />
-              <col style={{ width: '17%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '18%' }} />
               <col style={{ width: '15%' }} />
               <col style={{ width: '9%' }} />
-              <col style={{ width: '23%' }} />
+              <col style={{ width: '21%' }} />
             </colgroup>
             <thead>
               <tr>
                 <th>User Details</th>
-                <th>Employee ID</th>
-                <th>Assigned Role</th>
-                <th>Mobile Number</th>
-                <th style={{ textAlign: 'center' }}>Status</th>
-                <th style={{ textAlign: 'right', paddingRight: '14px' }}>Actions</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Employee ID</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Assigned Role</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Mobile Number</th>
+                <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Status</th>
+                <th style={{ textAlign: 'right', paddingRight: '14px', whiteSpace: 'nowrap' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -422,14 +422,14 @@ export default function UsersSection({
                       </td>
 
                       {/* EMPLOYEE ID */}
-                      <td>
-                        <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#334155' }}>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#334155', whiteSpace: 'nowrap' }}>
                           {u.employeeId || '—'}
                         </span>
                       </td>
 
                       {/* ASSIGNED ROLE */}
-                      <td>
+                      <td style={{ whiteSpace: 'nowrap' }}>
                         {isUserSuperAdmin ? (
                           <span
                             className="settings-pill-badge"
@@ -440,29 +440,30 @@ export default function UsersSection({
                               fontWeight: 700,
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '4px'
+                              gap: '4px',
+                              whiteSpace: 'nowrap'
                             }}
                           >
                             <Crown size={12} style={{ color: '#eab308' }} />
                             <span>SUPER ADMIN</span>
                           </span>
                         ) : (
-                          <span className="settings-pill-badge">
+                          <span className="settings-pill-badge" style={{ whiteSpace: 'nowrap' }}>
                             {roleLabel}
                           </span>
                         )}
                       </td>
 
                       {/* MOBILE */}
-                      <td>
-                        <span style={{ fontFamily: 'monospace', fontSize: '12px' }}>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        <span style={{ fontFamily: 'monospace', fontSize: '12px', whiteSpace: 'nowrap' }}>
                           +91 {u.mobile}
                         </span>
                       </td>
 
                       {/* STATUS */}
-                      <td style={{ textAlign: 'center' }}>
-                        <span className={`settings-pill-badge ${u.status === 'Active' ? 'active' : 'inactive'}`}>
+                      <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <span className={`settings-pill-badge ${u.status === 'Active' ? 'active' : 'inactive'}`} style={{ whiteSpace: 'nowrap' }}>
                           {u.status}
                         </span>
                       </td>

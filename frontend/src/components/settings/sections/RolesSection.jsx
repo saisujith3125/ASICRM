@@ -132,21 +132,21 @@ export default function RolesSection({
         </div>
 
         <div className="settings-table-scroll">
-          <table className="settings-table" style={{ minWidth: '820px' }}>
+          <table className="settings-table" style={{ width: '100%', minWidth: '900px' }}>
             <colgroup>
+              <col style={{ width: '20%' }} />
               <col style={{ width: '22%' }} />
-              <col style={{ width: '22%' }} />
-              <col style={{ width: '28%' }} />
-              <col style={{ width: '14%' }} />
-              <col style={{ width: '14%' }} />
+              <col style={{ width: '32%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '13%' }} />
             </colgroup>
             <thead>
               <tr>
-                <th>Role Identifier</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Role Identifier</th>
                 <th>Role Name</th>
                 <th>Description</th>
-                <th style={{ textAlign: 'center' }}>Users</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Users</th>
+                <th style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -163,8 +163,8 @@ export default function RolesSection({
 
                   return (
                     <tr key={r.id || r.key}>
-                      <td>
-                        <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0f172a', wordBreak: 'break-all', fontSize: '12px' }}>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', fontSize: '12px' }}>
                           {r.key}
                         </span>
                       </td>
@@ -172,7 +172,7 @@ export default function RolesSection({
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                           <strong>{r.name}</strong>
                           {isProtected && (
-                            <span className="settings-pill-badge primary" style={{ fontSize: '10px' }}>
+                            <span className="settings-pill-badge primary" style={{ fontSize: '10px', whiteSpace: 'nowrap' }}>
                               System Protected
                             </span>
                           )}
@@ -181,12 +181,12 @@ export default function RolesSection({
                       <td style={{ color: '#475569', fontSize: '12.5px', lineHeight: 1.4 }}>
                         {r.description || '—'}
                       </td>
-                      <td style={{ textAlign: 'center' }}>
-                        <span className="settings-pill-badge active" style={{ fontSize: '11px' }}>
+                      <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <span className="settings-pill-badge active" style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
                           {count} User{count === 1 ? '' : 's'}
                         </span>
                       </td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                         {!isProtected ? (
                           <div className="settings-table-actions-group">
                             <button

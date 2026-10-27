@@ -198,23 +198,23 @@ export default function ProductUnitsSection({ data, onChange, onSave, isSaving }
         </div>
 
         <div className="settings-table-scroll">
-          <table className="settings-table" style={{ minWidth: '820px' }}>
+          <table className="settings-table" style={{ width: '100%', minWidth: '900px' }}>
             <colgroup>
               <col style={{ width: '6%' }} />
-              <col style={{ width: '24%' }} />
+              <col style={{ width: '22%' }} />
               <col style={{ width: '18%' }} />
-              <col style={{ width: '28%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '14%' }} />
+              <col style={{ width: '30%' }} />
+              <col style={{ width: '11%' }} />
+              <col style={{ width: '13%' }} />
             </colgroup>
             <thead>
               <tr>
-                <th style={{ textAlign: 'center' }}>#</th>
+                <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>#</th>
                 <th>Unit Name</th>
-                <th>Code / Symbol</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Code / Symbol</th>
                 <th>Description</th>
-                <th style={{ textAlign: 'center' }}>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Status</th>
+                <th style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -227,13 +227,13 @@ export default function ProductUnitsSection({ data, onChange, onSave, isSaving }
               ) : (
                 filtered.map((u, idx) => (
                   <tr key={u.id || idx}>
-                    <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600 }}>
+                    <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' }}>
                       {idx + 1}
                     </td>
                     <td>
                       <strong style={{ fontSize: '13.5px', color: '#0f172a' }}>{u.name}</strong>
                     </td>
-                    <td>
+                    <td style={{ whiteSpace: 'nowrap' }}>
                       <span style={{
                         fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
                         fontSize: '11.5px',
@@ -243,7 +243,8 @@ export default function ProductUnitsSection({ data, onChange, onSave, isSaving }
                         padding: '2px 8px',
                         borderRadius: '4px',
                         border: '1px solid #e2e8f0',
-                        display: 'inline-block'
+                        display: 'inline-block',
+                        whiteSpace: 'nowrap'
                       }}>
                         {u.code || u.name?.toUpperCase()}
                       </span>
@@ -251,24 +252,25 @@ export default function ProductUnitsSection({ data, onChange, onSave, isSaving }
                     <td style={{ color: '#475569', fontSize: '12.5px', lineHeight: 1.4 }}>
                       {u.description || '—'}
                     </td>
-                    <td style={{ textAlign: 'center' }}>
+                    <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                       <button
                         type="button"
                         onClick={() => handleToggleStatus(u.id)}
                         className={`settings-pill-badge ${u.status === 'Active' ? 'active' : 'inactive'}`}
-                        style={{ border: 'none', cursor: 'pointer' }}
+                        style={{ border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
                         title="Click to toggle status"
                       >
                         {u.status || 'Active'}
                       </button>
                     </td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                       <div className="settings-table-actions-group">
                         <button
                           type="button"
                           className="settings-btn settings-btn-secondary"
                           onClick={() => handleOpenEdit(u)}
                           title="Edit unit"
+                          style={{ whiteSpace: 'nowrap' }}
                         >
                           Edit
                         </button>
@@ -277,6 +279,7 @@ export default function ProductUnitsSection({ data, onChange, onSave, isSaving }
                           className="settings-btn settings-btn-outline-danger"
                           onClick={() => handleDelete(u.id)}
                           title="Delete unit"
+                          style={{ whiteSpace: 'nowrap' }}
                         >
                           Delete
                         </button>

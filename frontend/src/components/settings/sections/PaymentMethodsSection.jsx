@@ -145,25 +145,25 @@ export default function PaymentMethodsSection({ data, onChange, onSave, isSaving
         </div>
 
         <div className="settings-table-scroll">
-          <table className="settings-table" style={{ minWidth: '920px' }}>
+          <table className="settings-table" style={{ width: '100%', minWidth: '980px' }}>
             <colgroup>
-              <col style={{ width: '9%' }} />
-              <col style={{ width: '19%' }} />
-              <col style={{ width: '9%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '20%' }} />
+              <col style={{ width: '10%' }} />
               <col style={{ width: '30%' }} />
               <col style={{ width: '9%' }} />
               <col style={{ width: '9%' }} />
-              <col style={{ width: '15%' }} />
+              <col style={{ width: '12%' }} />
             </colgroup>
             <thead>
               <tr>
-                <th>Code</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Code</th>
                 <th>Method Name</th>
-                <th style={{ textAlign: 'center' }}>Type</th>
+                <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Type</th>
                 <th>Remittance Account Details</th>
-                <th style={{ textAlign: 'center' }}>Default</th>
-                <th style={{ textAlign: 'center' }}>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Default</th>
+                <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Status</th>
+                <th style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -176,42 +176,43 @@ export default function PaymentMethodsSection({ data, onChange, onSave, isSaving
               ) : (
                 filtered.map((m) => (
                   <tr key={m.id}>
-                    <td>
-                      <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0f172a' }}>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>
                         {m.code}
                       </span>
                     </td>
                     <td>
                       <strong>{m.name}</strong>
                     </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <span className="settings-pill-badge primary">{m.type}</span>
+                    <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      <span className="settings-pill-badge primary" style={{ whiteSpace: 'nowrap' }}>{m.type}</span>
                     </td>
                     <td style={{ color: '#475569', fontSize: '12.5px', lineHeight: 1.4 }}>{m.details || '—'}</td>
-                    <td style={{ textAlign: 'center' }}>
+                    <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                       {m.isDefault ? (
-                        <span className="settings-pill-badge active">Default</span>
+                        <span className="settings-pill-badge active" style={{ whiteSpace: 'nowrap' }}>Default</span>
                       ) : (
                         <span style={{ color: '#94a3b8', fontSize: '12px' }}>—</span>
                       )}
                     </td>
-                    <td style={{ textAlign: 'center' }}>
+                    <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                       <button
                         type="button"
                         onClick={() => handleToggleStatus(m.id)}
                         className={`settings-pill-badge ${m.status === 'Active' ? 'active' : 'inactive'}`}
-                        style={{ border: 'none', cursor: 'pointer' }}
+                        style={{ border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
                         title="Click to toggle status"
                       >
                         {m.status}
                       </button>
                     </td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                       <div className="settings-table-actions-group">
                         <button
                           type="button"
                           className="settings-btn settings-btn-secondary"
                           onClick={() => handleOpenEdit(m)}
+                          style={{ whiteSpace: 'nowrap' }}
                         >
                           Edit
                         </button>
@@ -219,6 +220,7 @@ export default function PaymentMethodsSection({ data, onChange, onSave, isSaving
                           type="button"
                           className="settings-btn settings-btn-outline-danger"
                           onClick={() => handleDelete(m.id)}
+                          style={{ whiteSpace: 'nowrap' }}
                         >
                           Delete
                         </button>

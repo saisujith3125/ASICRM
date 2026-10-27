@@ -132,25 +132,25 @@ export default function BranchesSection({ data, onChange, onSave, isSaving }) {
         </div>
 
         <div className="settings-table-scroll">
-          <table className="settings-table" style={{ minWidth: '920px' }}>
+          <table className="settings-table" style={{ width: '100%', minWidth: '980px' }}>
             <colgroup>
-              <col style={{ width: '9%' }} />
-              <col style={{ width: '18%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '20%' }} />
               <col style={{ width: '18%' }} />
               <col style={{ width: '14%' }} />
-              <col style={{ width: '19%' }} />
+              <col style={{ width: '18%' }} />
               <col style={{ width: '9%' }} />
-              <col style={{ width: '13%' }} />
+              <col style={{ width: '11%' }} />
             </colgroup>
             <thead>
               <tr>
-                <th>Code</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Code</th>
                 <th>Branch Name</th>
                 <th>Linked Location</th>
                 <th>Manager</th>
                 <th>Direct Contact</th>
-                <th style={{ textAlign: 'center' }}>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Status</th>
+                <th style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -163,8 +163,8 @@ export default function BranchesSection({ data, onChange, onSave, isSaving }) {
               ) : (
                 filtered.map((b) => (
                   <tr key={b.id}>
-                    <td>
-                      <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0f172a' }}>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>
                         {b.code}
                       </span>
                     </td>
@@ -175,27 +175,28 @@ export default function BranchesSection({ data, onChange, onSave, isSaving }) {
                     <td>{b.manager || '—'}</td>
                     <td>
                       <div style={{ fontSize: '12.5px', lineHeight: 1.35 }}>
-                        <div>{b.phone || '—'}</div>
-                        <div style={{ color: '#64748b', fontSize: '11.5px' }}>{b.email || ''}</div>
+                        <div style={{ whiteSpace: 'nowrap' }}>{b.phone || '—'}</div>
+                        <div style={{ color: '#64748b', fontSize: '11.5px', whiteSpace: 'nowrap' }}>{b.email || ''}</div>
                       </div>
                     </td>
-                    <td style={{ textAlign: 'center' }}>
+                    <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                       <button
                         type="button"
                         onClick={() => handleToggleStatus(b.id)}
                         className={`settings-pill-badge ${b.status === 'Active' ? 'active' : 'inactive'}`}
-                        style={{ border: 'none', cursor: 'pointer' }}
+                        style={{ border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
                         title="Click to toggle status"
                       >
                         {b.status}
                       </button>
                     </td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                       <div className="settings-table-actions-group">
                         <button
                           type="button"
                           className="settings-btn settings-btn-secondary"
                           onClick={() => handleOpenEdit(b)}
+                          style={{ whiteSpace: 'nowrap' }}
                         >
                           Edit
                         </button>
@@ -203,6 +204,7 @@ export default function BranchesSection({ data, onChange, onSave, isSaving }) {
                           type="button"
                           className="settings-btn settings-btn-outline-danger"
                           onClick={() => handleDelete(b.id)}
+                          style={{ whiteSpace: 'nowrap' }}
                         >
                           Delete
                         </button>

@@ -365,18 +365,18 @@ export default function WarehousesSection({ data, onChange, onSave, isSaving }) 
         <div className="settings-table-scroll" style={{ width: '100%', overflowX: 'auto', boxSizing: 'border-box' }}>
           <table
             className="settings-table warehouses-fitted-table"
-            style={{ width: '100%', minWidth: '980px', tableLayout: 'fixed', borderCollapse: 'collapse', margin: 0 }}
+            style={{ width: '100%', minWidth: '1080px', borderCollapse: 'collapse', margin: 0 }}
           >
             <colgroup>
-              <col style={{ width: '8%' }} />    {/* Code: ~78px */}
-              <col style={{ width: '16%' }} />   {/* Facility Name: ~155px */}
-              <col style={{ width: '12%' }} />   {/* Storage Area: ~116px */}
-              <col style={{ width: '9%' }} />    {/* Capacity: ~87px */}
-              <col style={{ width: '9%' }} />    {/* Lead: ~87px */}
-              <col style={{ width: '14%' }} />   {/* Storage Bins: ~135px */}
-              <col style={{ width: '8.5%' }} />  {/* Default: ~82px */}
-              <col style={{ width: '6.5%' }} />  {/* Status: ~63px */}
-              <col style={{ width: '17%' }} />   {/* Actions: ~165px */}
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '17%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '13%' }} />
             </colgroup>
             <thead>
               <tr>

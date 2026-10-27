@@ -344,27 +344,27 @@ export default function SerialNumberSetupSection({ user, showToast }) {
       {activeTab === 'active' && (
         <div className="settings-table-wrapper">
           <div className="settings-table-scroll">
-            <table className="settings-table" style={{ minWidth: '960px' }}>
+            <table className="settings-table" style={{ width: '100%', minWidth: '1080px' }}>
               <colgroup>
-                <col style={{ width: '20%' }} />
-                <col style={{ width: '8%' }} />
+                <col style={{ width: '22%' }} />
+                <col style={{ width: '11%' }} />
                 <col style={{ width: '12%' }} />
-                <col style={{ width: '12%' }} />
+                <col style={{ width: '11%' }} />
                 <col style={{ width: '9%' }} />
-                <col style={{ width: '18%' }} />
+                <col style={{ width: '16%' }} />
                 <col style={{ width: '12%' }} />
-                <col style={{ width: '9%' }} />
+                <col style={{ width: '7%' }} />
               </colgroup>
               <thead>
                 <tr>
                   <th>Module</th>
-                  <th>Prefix</th>
-                  <th style={{ textAlign: 'center' }}>Padding</th>
-                  <th>Suffix / Year</th>
-                  <th style={{ textAlign: 'center' }}>Next No.</th>
-                  <th>Reset Policy</th>
-                  <th>Live Next ID</th>
-                  <th style={{ textAlign: 'right' }}>Action</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Prefix</th>
+                  <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Padding</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Suffix / Year</th>
+                  <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Next No.</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Reset Policy</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Live Next ID</th>
+                  <th style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -402,31 +402,31 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                         </div>
                       </td>
 
-                      <td>
-                        <code style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155' }}>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        <code style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155', whiteSpace: 'nowrap' }}>
                           {mod.prefix}
                         </code>
                       </td>
 
-                      <td style={{ textAlign: 'center' }}>
-                        <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0f172a' }}>
+                      <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>
                           {mod.paddingDigits} digits ({String(1).padStart(mod.paddingDigits, '0')})
                         </span>
                       </td>
 
-                      <td>
-                        <span style={{ fontSize: '12px', color: '#475569', fontFamily: 'monospace' }}>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: '12px', color: '#475569', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
                           {mod.suffix ? mod.suffix.replace('{YYYY}', String(currentYear)) : '—'}
                         </span>
                       </td>
 
-                      <td style={{ textAlign: 'center' }}>
-                        <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0f172a' }}>
+                      <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>
                           #{mod.nextNumber}
                         </span>
                       </td>
 
-                      <td>
+                      <td style={{ whiteSpace: 'nowrap' }}>
                         {isYearly ? (
                           <span
                             className="settings-pill-badge"
@@ -437,7 +437,8 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                               fontSize: '11px',
                               fontWeight: 600,
                               whiteSpace: 'nowrap',
-                              display: 'inline-block'
+                              display: 'inline-flex',
+                              alignItems: 'center'
                             }}
                           >
                             Calendar Year (Jan 1)
@@ -452,7 +453,8 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                               fontSize: '11px',
                               fontWeight: 600,
                               whiteSpace: 'nowrap',
-                              display: 'inline-block'
+                              display: 'inline-flex',
+                              alignItems: 'center'
                             }}
                           >
                             Continuous Lifetime
@@ -460,7 +462,7 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                         )}
                       </td>
 
-                      <td>
+                      <td style={{ whiteSpace: 'nowrap' }}>
                         <span
                           style={{
                             padding: '4px 8px',
@@ -519,21 +521,21 @@ export default function SerialNumberSetupSection({ user, showToast }) {
           </div>
 
           <div className="settings-table-scroll">
-            <table className="settings-table" style={{ minWidth: '880px' }}>
+            <table className="settings-table" style={{ width: '100%', minWidth: '980px' }}>
               <colgroup>
-                <col style={{ width: '12%' }} />
-                <col style={{ width: '20%' }} />
-                <col style={{ width: '30%' }} />
-                <col style={{ width: '18%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '22%' }} />
+                <col style={{ width: '32%' }} />
+                <col style={{ width: '16%' }} />
                 <col style={{ width: '20%' }} />
               </colgroup>
               <thead>
                 <tr>
-                  <th>Year</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Year</th>
                   <th>Module</th>
-                  <th>Sequence Range Generated</th>
-                  <th style={{ textAlign: 'center' }}>Total Documents</th>
-                  <th>Archived Timestamp</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Sequence Range Generated</th>
+                  <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Total Documents</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Archived Timestamp</th>
                 </tr>
               </thead>
               <tbody>
@@ -547,26 +549,26 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                 ) : (
                   archivesList.map((arc) => (
                     <tr key={arc.id}>
-                      <td>
-                        <strong style={{ color: '#1d4ed8', fontSize: '13px' }}>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        <strong style={{ color: '#1d4ed8', fontSize: '13px', whiteSpace: 'nowrap' }}>
                           {arc.year}
                         </strong>
                       </td>
                       <td>
                         <strong>{arc.moduleName}</strong>
                       </td>
-                      <td>
-                        <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0f172a', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0f172a', background: '#f1f5f9', padding: '3px 8px', borderRadius: '4px', whiteSpace: 'nowrap', border: '1px solid #cbd5e1' }}>
                           {arc.range}
                         </span>
                       </td>
-                      <td style={{ textAlign: 'center' }}>
-                        <span style={{ fontWeight: 700, color: '#059669' }}>
+                      <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontWeight: 700, color: '#059669', whiteSpace: 'nowrap' }}>
                           {arc.totalGenerated} documents
                         </span>
                       </td>
-                      <td>
-                        <span style={{ fontSize: '12px', color: '#64748b' }}>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>
                           {new Date(arc.archivedAt).toLocaleString()}
                         </span>
                       </td>

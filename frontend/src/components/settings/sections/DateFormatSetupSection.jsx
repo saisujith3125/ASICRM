@@ -465,15 +465,22 @@ export default function DateFormatSetupSection({ user, showToast }) {
               </div>
             </div>
 
-            <div style={{ overflowX: 'auto' }}>
-              <table className="settings-table" style={{ width: '100%', minWidth: '820px', borderCollapse: 'collapse', fontSize: '13px' }}>
+            <div className="settings-table-scroll" style={{ overflowX: 'auto', width: '100%' }}>
+              <table className="settings-table" style={{ width: '100%', minWidth: '940px', borderCollapse: 'collapse', fontSize: '13px' }}>
+                <colgroup>
+                  <col style={{ width: '34%' }} />
+                  <col style={{ width: '18%' }} />
+                  <col style={{ width: '12%' }} />
+                  <col style={{ width: '22%' }} />
+                  <col style={{ width: '14%' }} />
+                </colgroup>
                 <thead>
-                  <tr style={{ background: '#f1f5f9', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
-                    <th style={{ padding: '10px 16px', fontWeight: 600, color: '#475569' }}>Module / Document</th>
-                    <th style={{ padding: '10px 16px', fontWeight: 600, color: '#475569' }}>Format Pattern</th>
-                    <th style={{ padding: '10px 16px', fontWeight: 600, color: '#475569' }}>Separator</th>
-                    <th style={{ padding: '10px 16px', fontWeight: 600, color: '#475569' }}>Rendered Live Sample</th>
-                    <th style={{ padding: '10px 16px', fontWeight: 600, color: '#475569', textAlign: 'right' }}>Actions</th>
+                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
+                    <th style={{ padding: '10px 16px', fontWeight: 700, color: '#475569', fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Module / Document</th>
+                    <th style={{ padding: '10px 16px', fontWeight: 700, color: '#475569', fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>Format Pattern</th>
+                    <th style={{ padding: '10px 16px', fontWeight: 700, color: '#475569', fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>Separator</th>
+                    <th style={{ padding: '10px 16px', fontWeight: 700, color: '#475569', fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>Rendered Live Sample</th>
+                    <th style={{ padding: '10px 16px', fontWeight: 700, color: '#475569', fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '0.04em', textAlign: 'right', whiteSpace: 'nowrap' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -512,7 +519,8 @@ export default function DateFormatSetupSection({ user, showToast }) {
                                       background: '#dbeafe',
                                       color: '#1e40af',
                                       fontSize: '10.5px',
-                                      fontWeight: 700
+                                      fontWeight: 700,
+                                      whiteSpace: 'nowrap'
                                     }}
                                   >
                                     PROPOSAL STANDARD
@@ -523,7 +531,7 @@ export default function DateFormatSetupSection({ user, showToast }) {
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: '12px 16px' }}>
+                        <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
                           <span
                             style={{
                               padding: '3px 8px',
@@ -533,13 +541,14 @@ export default function DateFormatSetupSection({ user, showToast }) {
                               fontFamily: 'monospace',
                               fontWeight: 600,
                               fontSize: '12px',
-                              color: '#334155'
+                              color: '#334155',
+                              whiteSpace: 'nowrap'
                             }}
                           >
                             {mod.format}
                           </span>
                         </td>
-                        <td style={{ padding: '12px 16px' }}>
+                        <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
                           <span
                             style={{
                               padding: '2px 8px',
@@ -548,30 +557,32 @@ export default function DateFormatSetupSection({ user, showToast }) {
                               borderRadius: '4px',
                               fontFamily: 'monospace',
                               fontWeight: 700,
-                              color: '#475569'
+                              color: '#475569',
+                              whiteSpace: 'nowrap'
                             }}
                           >
                             {mod.separator}
                           </span>
                         </td>
-                        <td style={{ padding: '12px 16px' }}>
+                        <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
                           <span
                             style={{
                               fontFamily: 'monospace',
                               fontWeight: 700,
                               fontSize: '13px',
-                              color: isProposal ? '#2563eb' : '#0f172a'
+                              color: isProposal ? '#2563eb' : '#0f172a',
+                              whiteSpace: 'nowrap'
                             }}
                           >
                             {sample}
                           </span>
                         </td>
-                        <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                        <td style={{ padding: '12px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                           <button
                             type="button"
                             onClick={() => handleOpenEditModule(mod)}
                             className="settings-btn settings-btn-secondary"
-                            style={{ padding: '5px 10px', fontSize: '12px' }}
+                            style={{ padding: '5px 10px', fontSize: '12px', whiteSpace: 'nowrap' }}
                           >
                             <Edit3 size={13} />
                             <span>Customize</span>

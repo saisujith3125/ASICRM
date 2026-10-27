@@ -117,30 +117,30 @@ export default function TaxGstSection({ data, onChange, onSave, isSaving }) {
 
         <div className="settings-table-wrapper" style={{ boxShadow: 'none' }}>
           <div className="settings-table-scroll">
-            <table className="settings-table" style={{ minWidth: '780px' }}>
+            <table className="settings-table" style={{ width: '100%', minWidth: '860px' }}>
               <colgroup>
                 <col style={{ width: '22%' }} />
-                <col style={{ width: '14%' }} />
-                <col style={{ width: '14%' }} />
-                <col style={{ width: '14%' }} />
-                <col style={{ width: '36%' }} />
+                <col style={{ width: '13%' }} />
+                <col style={{ width: '13%' }} />
+                <col style={{ width: '13%' }} />
+                <col style={{ width: '39%' }} />
               </colgroup>
               <thead>
                 <tr>
                   <th>Tax Bracket</th>
-                  <th style={{ textAlign: 'center' }}>CGST</th>
-                  <th style={{ textAlign: 'center' }}>SGST</th>
-                  <th style={{ textAlign: 'center' }}>IGST</th>
+                  <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>CGST</th>
+                  <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>SGST</th>
+                  <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>IGST</th>
                   <th>Category Applicability</th>
                 </tr>
               </thead>
               <tbody>
                 {STANDARD_GST_SLABS.map((s) => (
                   <tr key={s.slab}>
-                    <td><strong>{s.slab}</strong></td>
-                    <td style={{ textAlign: 'center', fontFamily: 'monospace', fontWeight: 600 }}>{s.cgst}</td>
-                    <td style={{ textAlign: 'center', fontFamily: 'monospace', fontWeight: 600 }}>{s.sgst}</td>
-                    <td style={{ textAlign: 'center', fontFamily: 'monospace', fontWeight: 600 }}>{s.igst}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}><strong>{s.slab}</strong></td>
+                    <td style={{ textAlign: 'center', fontFamily: 'monospace', fontWeight: 600, whiteSpace: 'nowrap' }}>{s.cgst}</td>
+                    <td style={{ textAlign: 'center', fontFamily: 'monospace', fontWeight: 600, whiteSpace: 'nowrap' }}>{s.sgst}</td>
+                    <td style={{ textAlign: 'center', fontFamily: 'monospace', fontWeight: 600, whiteSpace: 'nowrap' }}>{s.igst}</td>
                     <td style={{ color: '#475569', fontSize: '12.5px', lineHeight: 1.4 }}>{s.desc}</td>
                   </tr>
                 ))}

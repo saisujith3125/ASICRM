@@ -147,25 +147,25 @@ export default function LocationsSection({ data, onChange, onSave, isSaving }) {
         </div>
 
         <div className="settings-table-scroll">
-          <table className="settings-table" style={{ minWidth: '920px' }}>
+          <table className="settings-table" style={{ width: '100%', minWidth: '980px' }}>
             <colgroup>
-              <col style={{ width: '9%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '20%' }} />
               <col style={{ width: '18%' }} />
-              <col style={{ width: '17%' }} />
-              <col style={{ width: '26%' }} />
-              <col style={{ width: '9%' }} />
+              <col style={{ width: '24%' }} />
               <col style={{ width: '8%' }} />
-              <col style={{ width: '13%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '11%' }} />
             </colgroup>
             <thead>
               <tr>
-                <th>Code</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Code</th>
                 <th>Location Name</th>
                 <th>City &amp; State</th>
                 <th>Postal Address</th>
-                <th style={{ textAlign: 'center' }}>Primary</th>
-                <th style={{ textAlign: 'center' }}>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Primary</th>
+                <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>Status</th>
+                <th style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -178,40 +178,41 @@ export default function LocationsSection({ data, onChange, onSave, isSaving }) {
               ) : (
                 filtered.map((loc) => (
                   <tr key={loc.id}>
-                    <td>
-                      <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0f172a' }}>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>
                         {loc.code}
                       </span>
                     </td>
                     <td>
                       <strong>{loc.name}</strong>
                     </td>
-                    <td>{loc.city}, {loc.state} ({loc.pincode})</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>{loc.city}, {loc.state} ({loc.pincode})</td>
                     <td style={{ color: '#475569', fontSize: '12.5px', lineHeight: 1.4 }}>{loc.address}</td>
-                    <td style={{ textAlign: 'center' }}>
+                    <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                       {loc.isPrimary ? (
-                        <span className="settings-pill-badge primary">Primary</span>
+                        <span className="settings-pill-badge primary" style={{ whiteSpace: 'nowrap' }}>Primary</span>
                       ) : (
                         <span style={{ color: '#94a3b8', fontSize: '12px' }}>—</span>
                       )}
                     </td>
-                    <td style={{ textAlign: 'center' }}>
+                    <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                       <button
                         type="button"
                         onClick={() => handleToggleStatus(loc.id)}
                         className={`settings-pill-badge ${loc.status === 'Active' ? 'active' : 'inactive'}`}
-                        style={{ border: 'none', cursor: 'pointer' }}
+                        style={{ border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
                         title="Click to toggle status"
                       >
                         {loc.status}
                       </button>
                     </td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                       <div className="settings-table-actions-group">
                         <button
                           type="button"
                           className="settings-btn settings-btn-secondary"
                           onClick={() => handleOpenEdit(loc)}
+                          style={{ whiteSpace: 'nowrap' }}
                         >
                           Edit
                         </button>
@@ -219,6 +220,7 @@ export default function LocationsSection({ data, onChange, onSave, isSaving }) {
                           type="button"
                           className="settings-btn settings-btn-outline-danger"
                           onClick={() => handleDelete(loc.id)}
+                          style={{ whiteSpace: 'nowrap' }}
                         >
                           Delete
                         </button>

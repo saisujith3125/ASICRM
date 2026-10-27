@@ -287,12 +287,23 @@ function normalizeProductCode(code) {
 
 function getNextProductCode(products) {
   try {
-    return sequenceService.peekNextId('stocks');
+    const existingCodes = (products || []).map((p) => p.code || p.id).filter(Boolean);
+    if (typeof sequenceService.advancePastExisting === 'function') {
+      sequenceService.advancePastExisting('stocks', existingCodes);
+    }
+    let candidate = sequenceService.peekNextId('stocks');
+    let safetyCounter = 0;
+    while (isDuplicateProductCode(products, candidate) && safetyCounter < 100) {
+      sequenceService.getNextId('stocks');
+      candidate = sequenceService.peekNextId('stocks');
+      safetyCounter++;
+    }
+    return candidate;
   } catch {
     let maxNum = 0;
     (products || []).forEach((p) => {
       const code = String(p.code || '').trim().toUpperCase();
-      const match = code.match(/^(?:ASI|PRD)-?(\d+)$/i);
+      const match = code.match(/^(?:ASI|PRD)-?(\d+)$/i) || code.match(/(\d+)/);
       if (match) {
         const num = parseInt(match[1], 10);
         if (!isNaN(num) && num > maxNum) maxNum = num;

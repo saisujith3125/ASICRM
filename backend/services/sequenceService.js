@@ -309,6 +309,37 @@ class SequenceService {
   }
 
   /**
+   * Ensure that the nextNumber for a module is strictly greater than any existing numeric ID in the provided list.
+   * If existing IDs collide with or exceed nextNumber, automatically advance nextNumber past them.
+   */
+  advancePastExisting(moduleKey, existingCodes = []) {
+    const config = this.checkYearRollOver();
+    const rule = config.modules[moduleKey];
+    if (!rule) return;
+
+    const rawPrefix = (rule.prefix || '').replace(/[-/]/g, '').trim().toUpperCase();
+    const prefixPattern = rawPrefix === 'PRD' || moduleKey === 'stocks'
+      ? 'PRD|ASI'
+      : (rawPrefix ? rawPrefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '[A-Z0-9]+');
+    const regex = new RegExp(`^(?:${prefixPattern})[-_\\/]?(\\d+)$`, 'i');
+
+    let maxNum = 0;
+    (existingCodes || []).forEach((c) => {
+      const codeStr = String(c || '').trim().toUpperCase();
+      const match = codeStr.match(regex);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (!isNaN(num) && num > maxNum) maxNum = num;
+      }
+    });
+
+    if (maxNum >= rule.nextNumber) {
+      rule.nextNumber = maxNum + 1;
+      this.writeConfig(config);
+    }
+  }
+
+  /**
    * Update configuration for a specific module
    */
   updateModuleRule(moduleKey, updates = {}) {

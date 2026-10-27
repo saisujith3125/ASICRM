@@ -763,7 +763,6 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                 value={form.name}
                 onChange={(v) => update('name', v)}
                 required
-                disabled={isExistingProduct}
               />
               <Field
                 label="HSN / SAC Code"
@@ -772,7 +771,6 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                 required
                 maxLength={8}
                 helper="Maximum 8 characters"
-                disabled={isExistingProduct}
               />
               <Field
                 label="Product Description"
@@ -781,7 +779,6 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                 value={form.description}
                 onChange={(v) => update('description', v)}
                 placeholder="Enter product description"
-                disabled={isExistingProduct}
               />
             </div>
           </div>
@@ -799,17 +796,14 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                 placeholder="Select category"
                 searchPlaceholder="Search categories..."
                 required
-                disabled={isExistingProduct}
                 actionButton={
-                  !isExistingProduct ? (
-                    <button
-                      type="button"
-                      className="quick-add-link-btn"
-                      onClick={() => setQuickModal({ type: 'category', name: '', description: '', saving: false, error: '' })}
-                    >
-                      + Add Category
-                    </button>
-                  ) : null
+                  <button
+                    type="button"
+                    className="quick-add-link-btn"
+                    onClick={() => setQuickModal({ type: 'category', name: '', description: '', saving: false, error: '' })}
+                  >
+                    + Add Category
+                  </button>
                 }
               />
               <SearchableSelect
@@ -820,32 +814,29 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                 placeholder="Select subcategory"
                 searchPlaceholder="Search subcategories..."
                 required
-                disabled={isExistingProduct}
                 actionButton={
-                  !isExistingProduct ? (
-                    <button
-                      type="button"
-                      className={`quick-add-link-btn${!form.categoryId ? ' disabled' : ''}`}
-                      aria-disabled={!form.categoryId}
-                      title={!form.categoryId ? 'Select a category first to add subcategory' : 'Add new subcategory for this category'}
-                      onClick={() => {
-                        if (!form.categoryId) {
-                          setError('Please select a Category first to add a Subcategory.');
-                          return;
-                        }
-                        setQuickModal({
-                          type: 'subcategory',
-                          categoryId: form.categoryId,
-                          name: '',
-                          description: '',
-                          saving: false,
-                          error: ''
-                        });
-                      }}
-                    >
-                      + Add Subcategory
-                    </button>
-                  ) : null
+                  <button
+                    type="button"
+                    className={`quick-add-link-btn${!form.categoryId ? ' disabled' : ''}`}
+                    aria-disabled={!form.categoryId}
+                    title={!form.categoryId ? 'Select a category first to add subcategory' : 'Add new subcategory for this category'}
+                    onClick={() => {
+                      if (!form.categoryId) {
+                        setError('Please select a Category first to add a Subcategory.');
+                        return;
+                      }
+                      setQuickModal({
+                        type: 'subcategory',
+                        categoryId: form.categoryId,
+                        name: '',
+                        description: '',
+                        saving: false,
+                        error: ''
+                      });
+                    }}
+                  >
+                    + Add Subcategory
+                  </button>
                 }
               />
               <SearchableSelect
@@ -856,17 +847,14 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                 placeholder="No brand / select brand"
                 searchPlaceholder="Search brands..."
                 allowEmpty
-                disabled={isExistingProduct}
                 actionButton={
-                  !isExistingProduct ? (
-                    <button
-                      type="button"
-                      className="quick-add-link-btn"
-                      onClick={() => setQuickModal({ type: 'brand', name: '', description: '', saving: false, error: '' })}
-                    >
-                      + Add Brand
-                    </button>
-                  ) : null
+                  <button
+                    type="button"
+                    className="quick-add-link-btn"
+                    onClick={() => setQuickModal({ type: 'brand', name: '', description: '', saving: false, error: '' })}
+                  >
+                    + Add Brand
+                  </button>
                 }
               />
               <Select
@@ -875,18 +863,15 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                 onChange={(v) => update('unit', v)}
                 options={unitsList}
                 required
-                disabled={isExistingProduct}
                 actionButton={
-                  !isExistingProduct ? (
-                    <button
-                      type="button"
-                      className="quick-add-link-btn"
-                      onClick={() => navigate('/settings?section=product-units')}
-                      title="Manage Units in Master Settings"
-                    >
-                      ⚙ Manage Units
-                    </button>
-                  ) : null
+                  <button
+                    type="button"
+                    className="quick-add-link-btn"
+                    onClick={() => navigate('/settings?section=product-units')}
+                    title="Manage Units in Master Settings"
+                  >
+                    ⚙ Manage Units
+                  </button>
                 }
               />
             </div>
@@ -1064,22 +1049,20 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                 label="Product Details for Quotation"
                 value={form.productDetails}
                 onChange={(v) => update('productDetails', v)}
-                disabled={isExistingProduct}
               />
               <Field
                 label="Product Link"
                 value={form.productLink}
                 onChange={(v) => update('productLink', v)}
-                disabled={isExistingProduct}
               />
               <div className="form-field-group" style={{ gridColumn: 'span 2' }}>
-                <label className="field-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: (isExistingProduct || isCable) ? 'not-allowed' : 'pointer', opacity: (isExistingProduct || isCable) ? 0.75 : 1 }}>
+                <label className="field-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: isCable ? 'not-allowed' : 'pointer', opacity: isCable ? 0.75 : 1 }}>
                   <input
                     type="checkbox"
                     checked={!isCable && Boolean(form.serialized)}
-                    onChange={(e) => !isExistingProduct && !isCable && update('serialized', e.target.checked)}
-                    disabled={isExistingProduct || isCable}
-                    style={{ width: '16px', height: '16px', cursor: (isExistingProduct || isCable) ? 'not-allowed' : 'pointer' }}
+                    onChange={(e) => !isCable && update('serialized', e.target.checked)}
+                    disabled={isCable}
+                    style={{ width: '16px', height: '16px', cursor: isCable ? 'not-allowed' : 'pointer' }}
                   />
                   <span style={{ fontWeight: 600, color: '#0f172a' }}>Serialized Inventory Tracking</span>
                   {isCable && (

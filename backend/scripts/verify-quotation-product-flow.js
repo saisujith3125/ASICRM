@@ -22,14 +22,14 @@ assert(cssContent.includes('min-width: 1040px !important'), 'Quotation register 
 assert(cssContent.includes('overflow-x: auto !important;'), 'Table container must have overflow-x: auto');
 console.log('✓ Quotation table layout CSS verified (min-width 1040px, actions col 28% / min-width 275px, overflow-x auto)');
 
-// 2. Verify QuotationEditor conditional rendering (Edit in Stock Master vs + New in Stock Master)
+// 2. Verify QuotationEditor conditional rendering (Edit Product vs + Add Product)
 const editorPath = path.join(__dirname, '..', '..', 'frontend', 'src', 'components', 'enquiry', 'QuotationEditor.jsx');
 const editorContent = fs.readFileSync(editorPath, 'utf8');
 
 assert(editorContent.includes('handleEditProductInMaster'), 'QuotationEditor must define handleEditProductInMaster');
 assert(editorContent.includes('handleCreateProductInMaster'), 'QuotationEditor must define handleCreateProductInMaster');
-assert(editorContent.includes('Edit in Stock Master'), 'QuotationEditor must render "Edit in Stock Master" when product is selected');
-assert(editorContent.includes('+ New in Stock Master'), 'QuotationEditor must render "+ New in Stock Master" when no product is selected');
+assert(editorContent.includes('Edit Product'), 'QuotationEditor must render "Edit Product" when product is selected');
+assert(editorContent.includes('+ Add Product'), 'QuotationEditor must render "+ Add Product" when no product is selected');
 
 // Check that handleCreateProductInMaster purges asicrm_product_preload
 assert(

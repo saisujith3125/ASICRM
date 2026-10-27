@@ -2295,7 +2295,7 @@ export default function QuotationEditor({
                                       type="button"
                                       className="quick-add-link-btn quotation-row-edit-product-btn"
                                       onClick={() => handleEditProductInMaster(item.productId, item.rowId)}
-                                      title={`Edit ${item.productName || 'product'} in Stock Master`}
+                                      title={`Edit ${item.productName || 'product'}`}
                                       style={{
                                         fontSize: '11px',
                                         fontWeight: 600,
@@ -2312,14 +2312,14 @@ export default function QuotationEditor({
                                       }}
                                     >
                                       <Edit3 size={11} />
-                                      <span>Edit in Stock Master</span>
+                                      <span>Edit Product</span>
                                     </button>
                                   ) : (
                                     <button
                                       type="button"
                                       className="quick-add-link-btn quotation-row-add-product-btn"
                                       onClick={() => handleCreateProductInMaster(item.rowId)}
-                                      title="Open Stock Master to register a brand new product catalog entry"
+                                      title="Add product to catalog"
                                       style={{
                                         fontSize: '11px',
                                         fontWeight: 600,
@@ -2336,7 +2336,7 @@ export default function QuotationEditor({
                                       }}
                                     >
                                       <Plus size={11} />
-                                      <span>+ New in Stock Master</span>
+                                      <span>+ Add Product</span>
                                     </button>
                                   )
                                 )}

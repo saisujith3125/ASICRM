@@ -2198,18 +2198,6 @@ export default function QuotationEditor({
                 <span>Show Stock</span>
               </label>
             </div>
-
-            {!isConverted && canManage && (
-              <button
-                type="button"
-                className="quick-add-link-btn"
-                onClick={handleAddRow}
-                style={{ fontSize: '12.5px', textDecoration: 'none' }}
-                title="Add product row directly to this quotation"
-              >
-                + Add Product
-              </button>
-            )}
           </div>
 
           {/* Products Table */}

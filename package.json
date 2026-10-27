@@ -1,0 +1,16 @@
+{
+  "name": "asicrm-unified",
+  "version": "1.0.0",
+  "description": "ASICRM Enterprise Management Platform",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "cd backend && node server.js",
+    "deploy": "bash deploy.sh",
+    "test:all": "node backend/scripts/verify-real-superadmin-sms.js && node backend/scripts/verify-quotation-product-flow.js && node backend/tests/verify_date_settings_master.js && node backend/scripts/verify-otp-flow.js"
+  },
+  "keywords": ["crm", "erp", "inventory", "quotations", "active-system-integration"],
+  "author": "Active System Integration",
+  "license": "UNLICENSED"
+}

@@ -968,7 +968,7 @@ export default function QuotationEditor({
     }
   };
 
-  // 1. Create a brand new product in Stock Master from an empty quotation row or toolbar
+  // 1. Create a brand new product from an empty quotation row or toolbar
   const handleCreateProductInMaster = (rowId = null) => {
     persistQuotationDraftState(rowId);
 
@@ -986,7 +986,7 @@ export default function QuotationEditor({
     navigate(`/stocks/products/new?from=quotation&returnTo=${encodeURIComponent(returnPath)}`);
   };
 
-  // 2. Edit an existing product in Stock Master from a row where a product is already added
+  // 2. Edit an existing product from a row where a product is already added
   const handleEditProductInMaster = (productId, rowId = null) => {
     if (!productId) return;
     persistQuotationDraftState(rowId);

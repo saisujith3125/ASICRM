@@ -54,7 +54,7 @@ export async function printDocumentElement(sourceElement, documentTitle = 'Docum
         <style>
           @page {
             size: A4 portrait;
-            margin: ${isPaged ? '0mm !important' : '8mm 8mm 8mm 8mm'};
+            margin: 0mm !important;
           }
           html, body {
             margin: 0 !important;
@@ -64,7 +64,7 @@ export async function printDocumentElement(sourceElement, documentTitle = 'Docum
           }
           #print-mount-point {
             width: 100% !important;
-            max-width: ${isPaged ? '210mm !important' : '194mm'};
+            max-width: 210mm !important;
             margin: 0 auto !important;
             padding: 0 !important;
           }

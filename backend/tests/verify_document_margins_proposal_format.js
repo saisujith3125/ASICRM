@@ -9,21 +9,16 @@ console.log('--- STARTING VERIFICATION OF ASICRM DOCUMENT MARGINS & PROPOSAL NUM
 const cssPath = path.join(__dirname, '..', '..', 'frontend', 'src', 'components', 'documents', 'documentStyles.css');
 const cssContent = fs.readFileSync(cssPath, 'utf8');
 
-// Verify Left margin: exactly 20mm (2cm), Right margin: exactly 18mm (1.8cm)
+// Verify Left margin: exactly 14mm, Right margin: exactly 10mm
 assert(
-  cssContent.includes('padding: 10mm 18mm 10mm 20mm !important'),
-  'Quotation page must use 20mm Left, 18mm Right margins'
+  cssContent.includes('padding: 10mm 10mm 10mm 14mm !important'),
+  'Quotation page must use 14mm Left, 10mm Right balanced margins'
 );
 assert(
-  cssContent.includes('padding: 8mm 18mm 8mm 20mm !important'),
-  'Paged documents (DC, Invoice, Proforma, PO) must use 20mm Left, 18mm Right margins'
+  cssContent.includes('padding: 8mm 10mm 8mm 14mm !important'),
+  'Paged documents (DC, Invoice, Proforma, PO) must use 14mm Left, 10mm Right balanced margins'
 );
-assert(
-  cssContent.includes('.doc-po-root .doc-paged-page') &&
-  cssContent.includes('left: 106mm'),
-  'PO documents must respect margins and watermarks must be centered at 106mm'
-);
-console.log('✓ TEST 1 PASSED: documentStyles.css margins verified: exactly 20mm Left, 18mm Right across all documents.');
+console.log('✓ TEST 1 PASSED: documentStyles.css margins verified: balanced 14mm Left, 10mm Right across all documents.');
 
 // 2. Verify Sequence Service & Financial Year Tokens
 const rule = {

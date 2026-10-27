@@ -115,9 +115,9 @@ console.log('Test 5: Verify Document Physical Margins & Breathing Room Spacing..
 const cssPath = path.join(__dirname, '..', '..', 'frontend', 'src', 'components', 'documents', 'documentStyles.css');
 const cssContent = fs.readFileSync(cssPath, 'utf8');
 
-// Margins: Left 20mm, Right 18mm
-assert(cssContent.includes('10mm 18mm 10mm 20mm !important'), 'Left margin must be exactly 20mm and Right margin must be exactly 18mm in quotation page');
-assert(cssContent.includes('8mm 18mm 8mm 20mm !important'), 'Paged root must have 20mm left and 18mm right margins');
+// Margins: Left 14mm, Right 10mm (Balanced for A4)
+assert(cssContent.includes('10mm 10mm 10mm 14mm !important'), 'Left margin must be 14mm and Right margin must be 10mm in quotation page');
+assert(cssContent.includes('8mm 10mm 8mm 14mm !important'), 'Paged root must have 14mm left and 10mm right margins');
 
 // Spacing: Customer Section margin-bottom (breathing room)
 const customerSectionMatch = cssContent.match(/\.quotation-customer-section\s*\{[^}]*margin-bottom:\s*(\d+)px/);

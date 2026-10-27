@@ -20,31 +20,6 @@ const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes window
 const MAX_REQUESTS_PER_WINDOW = Number.isFinite(Number(process.env.MAX_REQUESTS_PER_WINDOW)) ? Number(process.env.MAX_REQUESTS_PER_WINDOW) : 5; // Max 5 requests per 15 minutes
 const RECENT_OTP_HISTORY_SIZE = 100; // Avoid reissuing a recently used/generated OTP for the same mobile
 
-// Development-only shared OTP. It is used only when Pay4SMS delivery is disabled.
-// Once SMS_PROVIDER_ENABLED=true, every OTP request uses a fresh random OTP,
-// even when NODE_ENV=development, so the real SMS login path behaves like production.
-const DEV_SHARED_OTP = String(process.env.DEV_SHARED_OTP || '1234');
-
-// Default checking account: Super Admin (SA-001 / OTP 1234)
-const DEFAULT_CHECK_MOBILE = '9999999990';
-const DEFAULT_CHECK_OTP = '1234';
-const DEFAULT_SUPER_ADMIN_USER = {
-  id: 'USR-001',
-  name: 'Super Admin',
-  employeeId: 'SA-001',
-  email: 'superadmin@asicrm.local',
-  mobile: '9999999990',
-  role: 'SUPER_ADMIN',
-  status: 'Active'
-};
-
-function isDefaultCheckAccount(mobile, user) {
-  // When SMS provider is active, all users (including Super Admin) must receive real SMS OTP
-  if (SMS_PROVIDER_ENABLED) return false;
-  // Offline fallback only when SMS provider is disabled
-  return mobile === DEFAULT_CHECK_MOBILE;
-}
-
 function readAccessData() {
   try {
     return JSON.parse(fs.readFileSync(ACCESS_FILE, 'utf8'));
@@ -55,11 +30,9 @@ function readAccessData() {
 
 function findUserByMobile(mobile) {
   const data = readAccessData();
-  let user = (data.users || []).find((item) => String(item.mobile || '') === mobile);
-  if (!user && mobile === DEFAULT_CHECK_MOBILE) {
-    user = DEFAULT_SUPER_ADMIN_USER;
-  }
-  return { data, user };
+  const cleanMobile = String(mobile || '').replace(/\D/g, '').slice(-10);
+  const user = (data.users || []).find((item) => String(item.mobile || '').replace(/\D/g, '').slice(-10) === cleanMobile);
+  return { data, user: user || null };
 }
 
 function roleDetails(data, roleKey) {
@@ -87,24 +60,14 @@ function getRecentOtps(mobile) {
 }
 
 function generateOtp(mobile) {
-  const { user } = findUserByMobile(mobile);
-  // Always return the default check OTP for designated check accounts
-  if (isDefaultCheckAccount(mobile, user)) {
-    return DEFAULT_CHECK_OTP;
-  }
-
-  // Keep the shared OTP only for local development when real SMS delivery is disabled.
-  if (!SMS_PROVIDER_ENABLED && process.env.NODE_ENV !== 'production') {
-    return DEV_SHARED_OTP;
-  }
-
-  // Real OTP mode: cryptographically random and never equal to a recently issued OTP
-  // for the same mobile number.
+  // Real OTP mode: cryptographically random 4-digit code, never equal to recently issued OTP
   const recent = new Set(getRecentOtps(mobile));
   let otp;
+  let attempts = 0;
   do {
     otp = String(crypto.randomInt(10 ** (OTP_LENGTH - 1), 10 ** OTP_LENGTH));
-  } while (recent.has(otp));
+    attempts++;
+  } while (recent.has(otp) && attempts < 20);
 
   return otp;
 }
@@ -145,28 +108,6 @@ const sendOtp = async (req, res) => {
     const { user } = findUserByMobile(mobile);
     if (!user || user.status !== 'Active') {
       return res.status(403).json({ success: false, message: 'No active ASICRM user is registered for this mobile number.' });
-    }
-
-    // Offline fallback account: ONLY active when SMS_PROVIDER_ENABLED is false
-    if (isDefaultCheckAccount(mobile, user)) {
-      otpStore.set(mobile, {
-        otp: DEFAULT_CHECK_OTP,
-        userId: user.id,
-        createdAt: Date.now(),
-        expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-        attempts: 0
-      });
-      cooldownStore.delete(mobile);
-      rateLimitStore.delete(mobile);
-      const resPayload = {
-        success: true,
-        message: 'OTP sent successfully.',
-        resendCooldownSeconds: 0
-      };
-      if (process.env.NODE_ENV !== 'production' && !SMS_PROVIDER_ENABLED) {
-        resPayload.devOtp = DEFAULT_CHECK_OTP;
-      }
-      return res.json(resPayload);
     }
 
     const now = Date.now();
@@ -227,12 +168,6 @@ const sendOtp = async (req, res) => {
       resendCooldownSeconds: Math.ceil(RESEND_COOLDOWN_MS / 1000)
     };
 
-    // In development-log mode, expose the shared OTP to make local testing easy.
-    // Once Pay4SMS is enabled, the OTP must be obtained from the SMS instead.
-    if (process.env.NODE_ENV !== 'production' && !SMS_PROVIDER_ENABLED) {
-      responsePayload.devOtp = DEV_SHARED_OTP;
-    }
-
     return res.json(responsePayload);
   } catch (error) {
     console.error('Error sending OTP:', error.message || error);
@@ -250,20 +185,6 @@ const verifyOtp = (req, res) => {
     const otp = String(req.body?.otp || '').trim();
     if (!/^\d{10}$/.test(mobile) || !/^\d{4}$/.test(otp)) {
       return res.status(400).json({ success: false, message: 'Mobile number and 4-digit OTP are required.' });
-    }
-
-    // Default checking account: Super Admin with OTP 1234 always verifies directly
-    const found = findUserByMobile(mobile);
-    if (isDefaultCheckAccount(mobile, found.user) && otp === DEFAULT_CHECK_OTP) {
-      otpStore.delete(mobile);
-      if (found.user && found.user.status === 'Active') {
-        return res.json({
-          success: true,
-          message: 'Login successful.',
-          mobile,
-          user: publicUser(found.data, found.user)
-        });
-      }
     }
 
     const record = otpStore.get(mobile);

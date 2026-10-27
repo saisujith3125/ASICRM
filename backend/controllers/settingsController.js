@@ -7,7 +7,6 @@ const { dateSettingsService } = require('../services/dateSettingsService');
 
 const DATA_FILE = path.join(__dirname, '..', 'data', 'access-control.json');
 const PROTECTED_ROLE = 'SUPER_ADMIN';
-const DEV_SHARED_OTP = String(process.env.DEV_SHARED_OTP || '1234');
 
 const defaultCompanySettings = {
   companyName: 'Active System Integration',
@@ -388,8 +387,7 @@ function createUser(req, res) {
     email,
     mobile,
     role,
-    status,
-    devOtp: process.env.NODE_ENV !== 'production' ? DEV_SHARED_OTP : String(body.devOtp || Math.floor(1000 + Math.random() * 9000)).slice(0, 4).padStart(4, '0')
+    status
   };
 
   data.users.push(item);
@@ -463,11 +461,6 @@ function updateUser(req, res) {
     role: nextRole,
     status: nextStatus
   };
-  if (process.env.NODE_ENV !== 'production') {
-    next.devOtp = DEV_SHARED_OTP;
-  } else if (body.devOtp && /^\d{4}$/.test(String(body.devOtp))) {
-    next.devOtp = String(body.devOtp);
-  }
 
   data.users[index] = next;
   writeData(data);
@@ -510,9 +503,6 @@ function transferSuperAdmin(req, res) {
   // 1. Promote target user to Super Admin
   targetUser.role = PROTECTED_ROLE;
   targetUser.status = 'Active';
-  if (process.env.NODE_ENV !== 'production') {
-    targetUser.devOtp = DEV_SHARED_OTP;
-  }
   data.users[targetIndex] = targetUser;
 
   // 2. Perform selfAction on caller

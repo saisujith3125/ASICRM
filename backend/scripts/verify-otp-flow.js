@@ -39,11 +39,8 @@ process.env.MAX_REQUESTS_PER_WINDOW = '50';
 
   const localSent = await invoke(auth.sendOtp, { mobile: activeUsers[0].mobile });
   assert.strictEqual(localSent.status, 200);
-  assert.strictEqual(localSent.payload.devOtp, '1234');
-
-  const localVerified = await invoke(auth.verifyOtp, { mobile: activeUsers[0].mobile, otp: '1234' });
-  assert.strictEqual(localVerified.status, 200);
-  assert.strictEqual(localVerified.payload.user.id, activeUsers[0].id);
+  assert.strictEqual(localSent.payload.devOtp, undefined, 'devOtp must NEVER be exposed in API payload');
+  assert(!String(localSent.payload.message).includes('1234'), 'Message must not contain 1234');
 
   // Real provider-enabled mode in development: every request gets a fresh random OTP.
   process.env.SMS_PROVIDER_ENABLED = 'true';

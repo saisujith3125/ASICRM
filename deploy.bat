@@ -37,7 +37,7 @@ if exist "%SCRIPT_DIR%frontend\dist\index.html" (
 
 echo.
 echo >> [4/4] Running system verification check...
-node backend/scripts/verify-real-superadmin-sms.js
+node backend/tests/verify_all_requirements_system_audit.js
 if %errorlevel% neq 0 (
     echo [Warning] Verification check reported errors.
 ) else (

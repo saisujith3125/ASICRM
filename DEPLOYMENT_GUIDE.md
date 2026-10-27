@@ -113,6 +113,11 @@ After deploying, verify the live application at `https://crmapi.asiind.com`:
 | **5** | SMS Delivery | User receives an authentic 4-digit code on their mobile via Pay4SMS. |
 | **6** | Entering `1234` | Rejects with *"Invalid OTP. 2 attempts remaining."* |
 | **7** | Entering real SMS code | Successfully logs in and loads CRM Dashboard. |
+| **8** | Open `/quotations/new` | Quotation toolbar has **no** blue `+ Add Product` button. Bottom has `+ Add Row`. Empty rows show `+ Add Product`, filled rows show `Edit Product`. |
+| **9** | Open `/stocks/products/new` | Product code is auto-allocated as `ASI-48` (or next free number). All fields are unlocked. Form starts completely blank. |
+| **10** | Open `/stocks/products/edit` | All descriptive & catalog fields (Name, HSN, Description, Category, Brand, Unit, Details, Link) are **fully unlocked and editable**. Only the immutable code remains locked. |
+| **11** | Open `/settings/database-backup` | Clear Active Database modal includes **Stocks and Products Master** checkbox with warning. |
+| **12** | Open `/settings/serial-numbers` & `/settings/date-format` | On large/wide screens (1400px+), all tables expand smoothly with zero text wrapping or chopped IDs. |
 
 ---
 

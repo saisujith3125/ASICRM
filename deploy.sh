@@ -80,9 +80,11 @@ else
     echo "  cd backend && node server.js"
 fi
 
-# Step 5: Live Health Check
-echo ">> [5/5] Performing live health check..."
+# Step 5: Live Health Check & System Verification
+echo ">> [5/5] Performing live health check and system verification..."
 sleep 2
+
+node backend/tests/verify_all_requirements_system_audit.js || true
 
 HEALTH_URL="http://localhost:5000/api/health"
 if command -v curl &> /dev/null; then

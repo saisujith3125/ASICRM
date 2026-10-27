@@ -59,11 +59,11 @@ const DEFAULT_CONFIG = {
     stocks: {
       key: 'stocks',
       name: 'Stocks / Products',
-      prefix: 'PRD-',
+      prefix: 'ASI-',
       suffix: '',
-      paddingDigits: 3,
+      paddingDigits: 2,
       startingNumber: 1,
-      nextNumber: 1,
+      nextNumber: 48,
       resetPolicy: 'CONTINUOUS',
       activeYear: null,
       description: 'Inventory product master catalog code'

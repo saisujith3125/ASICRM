@@ -310,7 +310,7 @@ function getNextProductCode(products) {
       }
     });
     const nextNum = maxNum + 1;
-    return `PRD-${String(nextNum).padStart(3, '0')}`;
+    return `ASI-${String(nextNum).padStart(2, '0')}`;
   }
 }
 

@@ -6,6 +6,7 @@ const { normalizeWarehouseLayout, createDefaultLayout } = require('../utils/ware
 const { sequenceService } = require('../services/sequenceService');
 const { dateSettingsService } = require('../services/dateSettingsService');
 const { sendSmsOtp } = require('../utils/smsProvider');
+const emailProvider = require('../utils/emailProvider');
 
 const DATA_FILE = path.join(__dirname, '..', 'data', 'access-control.json');
 const PROTECTED_ROLE = 'SUPER_ADMIN';
@@ -732,8 +733,16 @@ function getCompanySettings(req, res) {
   }
 
   const data = readData();
+  const rawSettings = data.companySettings || defaultCompanySettings;
+  const rawEmail = rawSettings.emailSetup || defaultCompanySettings.emailSetup || {};
+  const hasPassword = Boolean(rawEmail.password || process.env.SMTP_PASS);
   const companySettings = {
-    ...(data.companySettings || defaultCompanySettings),
+    ...rawSettings,
+    emailSetup: {
+      ...rawEmail,
+      hasPassword,
+      password: hasPassword ? '••••••••••••' : ''
+    },
     dateFormatSettings: dateSettingsService.getSummary()
   };
   return res.json({
@@ -798,7 +807,16 @@ function updateCompanySettings(req, res) {
   if (body.quotationSetup && typeof body.quotationSetup === 'object') next.quotationSetup = { ...next.quotationSetup, ...body.quotationSetup };
   if (body.dcSetup && typeof body.dcSetup === 'object') next.dcSetup = { ...next.dcSetup, ...body.dcSetup };
   if (body.pdfSettings && typeof body.pdfSettings === 'object') next.pdfSettings = { ...next.pdfSettings, ...body.pdfSettings };
-  if (body.emailSetup && typeof body.emailSetup === 'object') next.emailSetup = { ...next.emailSetup, ...body.emailSetup };
+  if (body.emailSetup && typeof body.emailSetup === 'object') {
+    const prevEmail = next.emailSetup || defaultCompanySettings.emailSetup || {};
+    const updatedEmail = { ...prevEmail, ...body.emailSetup };
+    if (!body.emailSetup.password || body.emailSetup.password === '••••••••••••') {
+      updatedEmail.password = prevEmail.password || '';
+    } else {
+      updatedEmail.password = String(body.emailSetup.password).trim();
+    }
+    next.emailSetup = updatedEmail;
+  }
   if (body.smsSetup && typeof body.smsSetup === 'object') next.smsSetup = { ...next.smsSetup, ...body.smsSetup };
   if (Array.isArray(body.paymentMethods)) next.paymentMethods = body.paymentMethods;
   if (body.currency && typeof body.currency === 'object') next.currency = { ...next.currency, ...body.currency };
@@ -964,6 +982,15 @@ function updateSectionSettings(req, res) {
     if (body.sealUrl !== undefined) next.sealUrl = body.sealUrl;
   } else if (Array.isArray(body)) {
     next[sectionKey] = sectionKey === 'warehouses' ? body.map(normalizeWarehouseLayout) : body;
+  } else if (sectionKey === 'emailSetup' && typeof body === 'object') {
+    const prevEmail = next.emailSetup || defaultCompanySettings.emailSetup || {};
+    const updatedEmail = { ...prevEmail, ...body };
+    if (!body.password || body.password === '••••••••••••') {
+      updatedEmail.password = prevEmail.password || '';
+    } else {
+      updatedEmail.password = String(body.password).trim();
+    }
+    next.emailSetup = updatedEmail;
   } else if (typeof body === 'object') {
     next[sectionKey] = { ...(next[sectionKey] || {}), ...body };
   }
@@ -1176,6 +1203,14 @@ async function sendDatabaseBackupOtpEndpoint(req, res) {
       return res.status(500).json({ success: false, message: 'Failed to deliver SMS OTP: ' + (smsErr.message || 'SMS provider error') });
     }
 
+    if (user.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)) {
+      try {
+        await emailProvider.sendEmailOtp(user.email, otp, 'Super Admin Database Backup Authorization');
+      } catch (emailErr) {
+        console.warn('[EMAIL NOTIFY] Backup OTP email skipped/failed:', emailErr.message || emailErr);
+      }
+    }
+
     const maskedMobile = `+91 ${mobile.slice(0, 2)}******${mobile.slice(-2)}`;
     return res.json({
       success: true,
@@ -1271,6 +1306,14 @@ async function sendDatabaseClearOtpEndpoint(req, res) {
     } catch (smsErr) {
       console.error('[SMS ERROR] Failed to send database deletion OTP:', smsErr);
       return res.status(500).json({ success: false, message: 'Failed to deliver deletion authorization SMS OTP: ' + (smsErr.message || 'SMS provider error') });
+    }
+
+    if (user.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)) {
+      try {
+        await emailProvider.sendEmailOtp(user.email, otp, 'Super Admin Database Deletion Authorization');
+      } catch (emailErr) {
+        console.warn('[EMAIL NOTIFY] Clear OTP email skipped/failed:', emailErr.message || emailErr);
+      }
     }
 
     const maskedMobile = `+91 ${mobile.slice(0, 2)}******${mobile.slice(-2)}`;
@@ -1549,7 +1592,62 @@ function resetDateFormatEndpoint(req, res) {
   }
 }
 
+async function sendTestEmailEndpoint(req, res) {
+  try {
+    if (!requireSettingsAccess(req, res)) return;
+    const { recipient, settings } = req.body || {};
+    const user = getCurrentUser(req);
+    const targetRecipient = recipient || req.body.to || user.email;
+
+    if (!targetRecipient) {
+      return res.status(400).json({
+        success: false,
+        message: 'Recipient email address is required.'
+      });
+    }
+
+    const result = await emailProvider.sendDiagnosticTestEmail({
+      recipient: targetRecipient,
+      overrides: settings || req.body.settings || req.body
+    });
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    return res.json(result);
+  } catch (err) {
+    console.error('Error in sendTestEmailEndpoint:', err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || 'Internal error sending test email.'
+    });
+  }
+}
+
+async function verifyEmailConnectionEndpoint(req, res) {
+  try {
+    if (!requireSettingsAccess(req, res)) return;
+    const settings = req.body.settings || req.body;
+    const result = await emailProvider.verifySmtpConnection(settings);
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    return res.json(result);
+  } catch (err) {
+    console.error('Error in verifyEmailConnectionEndpoint:', err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || 'Internal error verifying SMTP connection.'
+    });
+  }
+}
+
 module.exports = {
+  sendTestEmailEndpoint,
+  verifyEmailConnectionEndpoint,
   getSettings,
   getActiveEmployees,
   createUser,

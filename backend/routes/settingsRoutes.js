@@ -34,7 +34,9 @@ const {
   updateDateFormatEndpoint,
   resetDateFormatEndpoint,
   getMongoStatusEndpoint,
-  triggerMongoSyncEndpoint
+  triggerMongoSyncEndpoint,
+  sendTestEmailEndpoint,
+  verifyEmailConnectionEndpoint
 } = require('../controllers/settingsController');
 
 router.get('/', getSettings);
@@ -84,5 +86,9 @@ router.get('/date-format', getDateFormatEndpoint);
 router.put('/date-format', updateDateFormatEndpoint);
 router.post('/date-format', updateDateFormatEndpoint); // POST dual-verb
 router.post('/date-format/reset', resetDateFormatEndpoint);
+
+// Outbound Email & SMTP Gateway endpoints
+router.post('/email/send-test', sendTestEmailEndpoint);
+router.post('/email/verify-connection', verifyEmailConnectionEndpoint);
 
 module.exports = router;

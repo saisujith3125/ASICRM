@@ -2,12 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { hasPermission, hasAnyPermission } from '../../utils/permissions';
 import { navigate } from '../../router';
 
-export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ordersSubView, activeDocId, docType, dcSubView, onNavigateDcSubView, poSubView, activePoId, onNavigatePoSubView, stockBranch, setStockBranch, stockProductCreate, setStockProductCreate, stockProductPriceHistory, activeProductId, stockProductInfo, onNavigateToCreate, onNavigateToSettings, primaryActionLabel, children }) {
+export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ordersSubView, activeDocId, docType, dcSubView, onNavigateDcSubView, poSubView, activePoId, onNavigatePoSubView, stockBranch, setStockBranch, stockProductCreate, setStockProductCreate, stockProductPriceHistory, activeProductId, stockProductInfo, financeSubView, onNavigateToCreate, onNavigateToSettings, primaryActionLabel, children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isStocksExpanded, setIsStocksExpanded] = useState(() => activeTab === 'stocks');
   const [isDcExpanded, setIsDcExpanded] = useState(() => activeTab === 'delivery-challans');
   const [isPoExpanded, setIsPoExpanded] = useState(() => activeTab === 'purchase-orders');
   const [isOrdersExpanded, setIsOrdersExpanded] = useState(() => activeTab === 'orders');
+  const [isFinanceExpanded, setIsFinanceExpanded] = useState(() => activeTab === 'finance');
   const prevTabRef = useRef(activeTab);
 
   useEffect(() => {
@@ -22,6 +23,9 @@ export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ord
     }
     if (activeTab === 'orders' && prevTabRef.current !== 'orders') {
       setIsOrdersExpanded(true);
+    }
+    if (activeTab === 'finance' && prevTabRef.current !== 'finance') {
+      setIsFinanceExpanded(true);
     }
     prevTabRef.current = activeTab;
   }, [activeTab]);
@@ -115,6 +119,17 @@ export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ord
           <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
         </svg>
       )
+    },
+    {
+      id: 'finance',
+      path: '/finance',
+      label: 'Finance & Flow',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23" />
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        </svg>
+      )
     }
   ];
 
@@ -127,6 +142,7 @@ export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ord
     if (item.id === 'purchase-orders') return canView('Purchase Orders');
     if (item.id === 'stocks') return canView('Stocks');
     if (item.id === 'orders') return canView('Orders & Deals');
+    if (item.id === 'finance') return String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' || String(user?.role || '').toUpperCase() === 'ADMIN' || canView('Finance');
     return true;
   });
   const canCreateEnquiry = hasPermission(user, 'Enquiries', 'Create');
@@ -203,6 +219,11 @@ export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ord
                       setActiveTab(item.id);
                     }
                     setIsOrdersExpanded((prev) => !prev);
+                  } else if (item.id === 'finance') {
+                    if (activeTab !== 'finance') {
+                      setActiveTab(item.id);
+                    }
+                    setIsFinanceExpanded((prev) => !prev);
                   } else {
                     setActiveTab(item.id);
                   }
@@ -272,6 +293,21 @@ export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ord
                   aria-label={isOrdersExpanded ? "Collapse orders menu" : "Expand orders menu"}
                 >
                   {isOrdersExpanded ? '▼' : '▶'}
+                </span>
+              )}
+              {item.id === 'finance' && (
+                <span
+                  className="stocks-menu-chevron finance-menu-chevron"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsFinanceExpanded((prev) => !prev);
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={isFinanceExpanded ? "Collapse finance menu" : "Expand finance menu"}
+                >
+                  {isFinanceExpanded ? '▼' : '▶'}
                 </span>
               )}
             </a>
@@ -378,6 +414,34 @@ export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ord
                     href={path}
                     className={`stocks-submenu-item ${
                       (ordersSubView || 'orders') === id ? 'active' : ''
+                    }`}
+                    onClick={(e) => {
+                      if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
+                        e.preventDefault();
+                        navigate(path);
+                        setMobileMenuOpen(false);
+                      }
+                    }}
+                  >
+                    <span className="stocks-submenu-dot" />{label}
+                  </a>
+                ))}
+              </div>
+            )}
+            {item.id === 'finance' && isFinanceExpanded && (
+              <div className="stocks-submenu finance-submenu">
+                {[
+                  ['overview', 'Overview', '/finance'],
+                  ['inward', 'Inward Register', '/finance/inward'],
+                  ['outward', 'Outward Register', '/finance/outward'],
+                  ['serials', 'Serial Profit Tracker', '/finance/serials'],
+                  ['unbilled', 'Unbilled DCs', '/finance/unbilled-dcs']
+                ].map(([id, label, path]) => (
+                  <a
+                    key={id}
+                    href={path}
+                    className={`stocks-submenu-item ${
+                      (financeSubView || 'overview') === id ? 'active' : ''
                     }`}
                     onClick={(e) => {
                       if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {

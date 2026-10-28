@@ -264,6 +264,10 @@
         "Download",
         "Approve",
         "Delete"
+      ],
+      "Finance": [
+        "View",
+        "Export"
       ]
     },
     "EMPLOYEE": {

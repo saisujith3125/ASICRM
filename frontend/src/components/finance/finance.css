@@ -1,0 +1,517 @@
+/* Active System Integration - Finance & Flow Engine Styles */
+
+.finance-container {
+  padding: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+  font-family: inherit;
+}
+
+/* Header */
+.finance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.finance-header-title h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.finance-header-title p {
+  color: #64748b;
+  font-size: 13.5px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.finance-header-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.finance-select-pill {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.finance-select-pill:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* Navigation Tabs */
+.finance-nav-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.finance-tab-btn {
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.finance-tab-btn:hover {
+  color: #1e293b;
+  background: #f8fafc;
+}
+
+.finance-tab-btn.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+.finance-tab-badge {
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.finance-tab-badge.alert {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* KPI Cards Grid */
+.finance-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.finance-kpi-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.finance-kpi-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+.finance-kpi-card.highlight-green {
+  border-left: 4px solid #10b981;
+}
+
+.finance-kpi-card.highlight-blue {
+  border-left: 4px solid #2563eb;
+}
+
+.finance-kpi-card.highlight-amber {
+  border-left: 4px solid #f59e0b;
+}
+
+.finance-kpi-card.highlight-red {
+  border-left: 4px solid #ef4444;
+}
+
+.finance-kpi-card.highlight-purple {
+  border-left: 4px solid #8b5cf6;
+}
+
+.finance-kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #64748b;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+}
+
+.finance-kpi-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 4px;
+  font-family: inherit;
+  letter-spacing: -0.02em;
+}
+
+.finance-kpi-subtext {
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Revenue Leak Alert Banner */
+.finance-leak-alert {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.finance-leak-alert-text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #92400e;
+  font-size: 13.5px;
+}
+
+.finance-leak-alert-text strong {
+  color: #78350f;
+}
+
+.finance-btn-warning {
+  padding: 8px 16px;
+  background: #f59e0b;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.finance-btn-warning:hover {
+  background: #d97706;
+}
+
+/* Card Container */
+.finance-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.finance-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.finance-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.finance-card-desc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 2px 0 0 0;
+}
+
+/* Search Bar */
+.finance-search-wrap {
+  position: relative;
+  min-width: 280px;
+}
+
+.finance-search-input {
+  width: 100%;
+  padding: 9px 14px 9px 36px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+  outline: none;
+  background: #f8fafc;
+  transition: all 0.15s ease;
+}
+
+.finance-search-input:focus {
+  background: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.finance-search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+/* Tables */
+.finance-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.finance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.finance-table th {
+  background: #f8fafc;
+  padding: 11px 14px;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.finance-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+  vertical-align: middle;
+}
+
+.finance-table tr:hover td {
+  background: #f8fafc;
+}
+
+/* Flow Badges */
+.flow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.flow-badge.inflow {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.flow-badge.outflow {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.flow-badge.unbilled {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.flow-badge.in-stock {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+/* Serial Number Pill */
+.serial-pill-btn {
+  padding: 2px 8px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11.5px;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.serial-pill-btn:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+/* Serial Lifecycle Unit Economics Card */
+.serial-card-container {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  margin-top: 16px;
+}
+
+.serial-card-header {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.serial-card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-family: monospace;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.serial-card-body {
+  padding: 24px;
+}
+
+.serial-two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 800px) {
+  .serial-two-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.serial-box {
+  border-radius: 10px;
+  padding: 16px 18px;
+  border: 1px solid #e2e8f0;
+}
+
+.serial-box.inward {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.serial-box.outward {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.serial-box-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.serial-box.inward .serial-box-title {
+  color: #15803d;
+}
+
+.serial-box.outward .serial-box-title {
+  color: #1d4ed8;
+}
+
+.serial-kv-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.07);
+  font-size: 13px;
+}
+
+.serial-kv-row:last-child {
+  border-bottom: none;
+}
+
+.serial-kv-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.serial-kv-value {
+  color: #0f172a;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Profit Banner in Serial Card */
+.serial-profit-bar {
+  background: linear-gradient(135deg, #1e3a8a 0%, #0369a1 100%);
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 16px;
+  text-align: center;
+}
+
+.serial-profit-stat small {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.serial-profit-stat strong {
+  font-size: 19px;
+  font-weight: 800;
+}

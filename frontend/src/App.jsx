@@ -27,6 +27,7 @@ import PurchaseOrderHistory from './components/purchaseOrders/PurchaseOrderHisto
 import SupplierDetail from './components/purchaseOrders/SupplierDetail'
 import SuppliersRegister from './components/purchaseOrders/SuppliersRegister'
 import SentItemsToSupplierView from './components/purchaseOrders/SentItemsToSupplierView'
+import FinanceView from './components/finance/FinanceView'
 import { apiFetch, apiUrl } from './api'
 import { hasAnyPermission, hasPermission } from './utils/permissions'
 import { parseRoute, navigate } from './router'
@@ -50,6 +51,7 @@ export default function App() {
   const activePoId = routeState.activePoId || null
   const quotationSubView = routeState.quotationSubView || 'list'
   const activeQuotationId = routeState.activeQuotationId || null
+  const financeSubView = routeState.financeSubView || 'overview'
   const activeEnquiryId = routeState.activeEnquiryId
   const activeCustomerId = routeState.activeCustomerId
   const stockBranch = routeState.stockBranch || 'overview'
@@ -1569,6 +1571,12 @@ function CrmDashboard({
     } else {
       content = <div className="crm-restricted-view" style={{ padding: '48px', textAlign: 'center' }}><h3>Access Restricted</h3><p>You do not have permission to view Delivery Challans.</p></div>;
     }
+  } else if (activeTab === 'finance') {
+    if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' || String(user?.role || '').toUpperCase() === 'ADMIN' || hasPermission(user, 'Finance', 'View')) {
+      content = <FinanceView user={user} initialSubView={routeState.financeSubView} />;
+    } else {
+      content = <div className="crm-restricted-view" style={{ padding: '48px', textAlign: 'center' }}><h3>Access Restricted</h3><p>You do not have permission to view Finance &amp; Flow Control.</p></div>;
+    }
   } else if (enquirySubView === 'create') {
     if (hasPermission(user, 'Enquiries', 'Create')) {
       content = (
@@ -1709,6 +1717,11 @@ function CrmDashboard({
       navigate('/purchase-orders');
       return;
     }
+    if (tab === 'finance') {
+      if (String(user?.role || '').toUpperCase() !== 'SUPER_ADMIN' && String(user?.role || '').toUpperCase() !== 'ADMIN' && !hasPermission(user, 'Finance', 'View')) return;
+      navigate(routeState.financeSubView && routeState.financeSubView !== 'overview' ? `/finance/${routeState.financeSubView}` : '/finance');
+      return;
+    }
     if (tab === 'enquiries') {
       if (!hasPermission(user, 'Enquiries', 'View')) return;
       navigate('/enquiries');
@@ -1737,6 +1750,7 @@ function CrmDashboard({
       stockProductPriceHistory={stockProductPriceHistory}
       activeProductId={activeProductId}
       stockProductInfo={stockProductInfo}
+      financeSubView={financeSubView}
       onNavigateToCreate={primaryEnquiryAction}
       primaryActionLabel={primaryEnquiryActionLabel}
       onNavigateToSettings={openSettings}

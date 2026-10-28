@@ -343,7 +343,9 @@ function addStock({
           shelfLifeMonths: shelfLife,
           grnReference: referenceId,
           poReference: poReference || null,
-          supplierName: party
+          supplierName: party,
+          inwardCost: unitRate || Number(product.cost || 0),
+          status: 'IN_STOCK'
         };
       });
     }
@@ -472,6 +474,23 @@ function deductStock({
       if (serials.length > 0 && Array.isArray(prod.serialNumbers)) {
         const serialsToRemove = new Set(serials.map((s) => s.toLowerCase()));
         prod.serialNumbers = prod.serialNumbers.filter((s) => !serialsToRemove.has(String(s).trim().toLowerCase()));
+
+        if (!prod.serialMetadata || typeof prod.serialMetadata !== 'object') {
+          prod.serialMetadata = {};
+        }
+        serials.forEach((sn) => {
+          const prev = prod.serialMetadata[sn] || {};
+          prod.serialMetadata[sn] = {
+            ...prev,
+            outwardDate: txnDate,
+            dcReference: referenceType === 'DELIVERY_CHALLAN' || referenceType === 'DC' ? referenceId : (prev.dcReference || null),
+            invoiceReference: referenceType === 'INVOICE' || referenceType === 'SALES_INVOICE' ? referenceId : (prev.invoiceReference || null),
+            customerName: party,
+            customerId: customerId || null,
+            sellingRate: unitRate,
+            status: referenceType === 'INVOICE' || referenceType === 'SALES_INVOICE' ? 'BILLED' : 'DISPATCHED_DC'
+          };
+        });
       }
     } else {
       prod.serialNumbers = [];

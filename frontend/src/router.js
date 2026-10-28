@@ -738,6 +738,28 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
     };
   }
 
+  // FINANCE & FLOW CONTROL ROUTE
+  // /finance
+  // /finance/inward
+  // /finance/outward
+  // /finance/serials
+  // /finance/unbilled-dcs
+  if (section === 'finance') {
+    const validSubViews = ['overview', 'inward', 'outward', 'serials', 'unbilled', 'unbilled-dcs'];
+    let activeSub = (sub && validSubViews.includes(sub)) ? sub : 'overview';
+    if (activeSub === 'unbilled-dcs') activeSub = 'unbilled';
+    return {
+      path: sub ? `/finance/${sub}` : '/finance',
+      activeTab: 'finance',
+      financeSubView: activeSub,
+      activeCustomerId: null,
+      activeEnquiryId: null,
+      stockBranch: 'overview',
+      stockProductCreate: false,
+      stockProductInfo: null
+    };
+  }
+
   // 6. SETTINGS ROUTE
   // /settings
   // /settings/:section

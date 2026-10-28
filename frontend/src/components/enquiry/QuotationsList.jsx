@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Eye, FileText, Check, X, Zap, Plus, Trash2, RefreshCw } from 'lucide-react';
+import { Eye, FileText, Check, X, Zap, Plus, Trash2, RefreshCw, MoreHorizontal, Copy, FilePlus } from 'lucide-react';
 import { apiFetch, apiUrl } from '../../api';
 import { navigate } from '../../router';
 import DocumentPreviewModal from '../documents/DocumentPreviewModal';
@@ -106,8 +106,86 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [converting, setConverting] = useState(null);
   const [openItemsQuoteId, setOpenItemsQuoteId] = useState(null);
+  const [openDropdownQuoteId, setOpenDropdownQuoteId] = useState(null);
   const [selectedQuoteForPdf, setSelectedQuoteForPdf] = useState(null);
   const [pdfLoadingQuoteId, setPdfLoadingQuoteId] = useState(null);
+
+  // Global click-outside and Escape key listener for Actions dropdown
+  useEffect(() => {
+    if (!openDropdownQuoteId) return;
+    const handleOutsideClick = (e) => {
+      if (!e.target.closest('.quotation-actions-dropdown-container')) {
+        setOpenDropdownQuoteId(null);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setOpenDropdownQuoteId(null);
+      }
+    };
+    window.addEventListener('click', handleOutsideClick);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('click', handleOutsideClick);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [openDropdownQuoteId]);
+
+  // Copy Quotation (Clone line items, specs, pricing & terms for another customer)
+  const handleCopyQuotation = async (quote) => {
+    if (!quote) return;
+    setOpenDropdownQuoteId(null);
+    setError('');
+    try {
+      let fullQuote = quote;
+      if (!Array.isArray(quote.items) || quote.items.length === 0) {
+        const res = await apiFetch(apiUrl(`/api/enquiries/quotation/${encodeURIComponent(quote.quotationId)}`), {
+          headers: authHeaders(user)
+        });
+        const d = await res.json();
+        if (res.ok && d.success && d.data) {
+          fullQuote = { ...quote, ...d.data, items: d.data.items || quote.items };
+        }
+      }
+
+      const copyPayload = {
+        sourceQuotationId: fullQuote.quotationId || fullQuote.quotationNumber || fullQuote.quoteNumber || '',
+        sourceCustomerName: fullQuote.customerName || fullQuote.customerCompany || '',
+        items: (fullQuote.items || []).map((it) => ({
+          productId: it.productId || it.id || '',
+          productCode: it.productCode || it.code || '',
+          productName: it.productName || it.name || it.item || '',
+          brand: it.brand || it.brandName || '',
+          hsnSac: it.hsnSac || it.hsnCode || it.hsn || '',
+          unit: it.unit || 'Nos',
+          quantity: Number(it.quantity || it.qty || 1),
+          unitPrice: Number(it.unitPrice !== undefined ? it.unitPrice : (it.price !== undefined ? it.price : 0)),
+          minPrice: Number(it.minPrice || 0),
+          discount: Number(it.discount !== undefined ? it.discount : (it.discountPercent || 0)),
+          gst: Number(it.gst !== undefined ? it.gst : (it.gstRate !== undefined ? it.gstRate : 18)),
+          isIGSTApplicable: Boolean(it.isIGSTApplicable),
+          description: it.description || '',
+          productDetails: it.productDetails || '',
+          productLink: it.productLink || '',
+          isInstallationCharge: Boolean(
+            it.isInstallationCharge ||
+            String(it.productName || it.name || '').toLowerCase().includes('installation testing & commissioning')
+          )
+        })),
+        includeInstallationCharges: Boolean(fullQuote.includeInstallationCharges),
+        showDiscount: Boolean(fullQuote.showDiscount),
+        roundOffTotal: Boolean(fullQuote.roundOffTotal),
+        notes: fullQuote.notes || fullQuote.remarks || '',
+        terms: fullQuote.terms || fullQuote.termsAndConditions || ''
+      };
+
+      sessionStorage.setItem('asicrm_quotation_copy_payload', JSON.stringify(copyPayload));
+      navigate(`/quotations/new?copyFrom=${encodeURIComponent(copyPayload.sourceQuotationId)}`);
+    } catch (err) {
+      console.error('Failed to copy quotation:', err);
+      setError('Unable to copy quotation: ' + (err.message || 'Unknown error'));
+    }
+  };
 
   const handleOpenQuotationPdf = async (quote) => {
     if (!quote) return;
@@ -356,12 +434,14 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
           {can('Create') && (
             <button
               type="button"
-              className="crm-btn-primary compact quotation-create-btn"
+              className="quotation-topbar-create-btn"
               onClick={() => navigate('/quotations/new')}
               title="Create new quotation"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
             >
-              <Plus size={14} strokeWidth={2.5} />
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
               <span>Create Quotation</span>
             </button>
           )}
@@ -372,14 +452,14 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
         <div className="crm-table-scroll-wrap stocks-table-natural-wrap crm-table-viewport">
           <table className="settings-table quotation-settings-table quotation-register-table">
             <colgroup>
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '18%' }} />
-              <col style={{ width: '8%' }} />
-              <col style={{ width: '7%' }} />
-              <col style={{ width: '10%' }} />
+              <col style={{ width: '14%' }} />
+              <col style={{ width: '24%' }} />
+              <col style={{ width: '9%' }} />
               <col style={{ width: '8%' }} />
               <col style={{ width: '11%' }} />
-              <col style={{ width: '28%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '12%' }} />
             </colgroup>
             <thead>
               <tr>
@@ -408,11 +488,12 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                   const isAccepted = quote.status === 'ACCEPTED' || quote.status === 'CONFIRMED';
                   const rowKey = `${quote.quotationId || 'qt'}-${idx}`;
                   const isItemsOpen = openItemsQuoteId === rowKey;
+                  const isDropdownOpen = openDropdownQuoteId === rowKey;
                   const parsedProducts = parseQuotationProducts(quote);
                   const isNearBottom = idx >= currentQuotations.length - 2 && currentQuotations.length > 2;
 
                   return (
-                    <tr key={rowKey} className={isItemsOpen ? 'has-open-popover' : ''}>
+                    <tr key={rowKey} className={`${isItemsOpen ? 'has-open-popover' : ''} ${isDropdownOpen ? 'has-open-dropdown' : ''}`}>
                       <td data-label="QUOTATION ID" className="col-priority-high cell-nowrap">
                         <button
                           type="button"
@@ -545,7 +626,7 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                         </div>
                       </td>
                       <td data-label="ACTIONS" className="actions-col col-priority-high" style={{ textAlign: 'right' }}>
-                        <div className="quotation-row-actions settings-row-actions">
+                        <div className="quotation-row-actions settings-row-actions" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
                           <button
                             type="button"
                             className="tbl-action-btn edit"
@@ -555,101 +636,171 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                             <Eye size={13} />
                             <span>View</span>
                           </button>
-                          {/* Official Quotation PDF - Strictly ONLY available for ACCEPTED or CONVERTED */}
-                          {(isAccepted || isConverted) && (
+
+                          <div className="quotation-actions-dropdown-container" style={{ position: 'relative', display: 'inline-block' }}>
                             <button
                               type="button"
-                              className="tbl-action-btn"
-                              style={{ background: '#f8fafc', color: '#1e293b', borderColor: '#cbd5e1' }}
-                              onClick={() => handleOpenQuotationPdf(quote)}
-                              disabled={pdfLoadingQuoteId === quote.quotationId}
-                              title="View & Download Official Quotation PDF"
-                            >
-                              <FileText size={13} />
-                              <span>{pdfLoadingQuoteId === quote.quotationId ? '...' : 'PDF'}</span>
-                            </button>
-                          )}
-
-                          {/* Quick Accept/Reject Actions if awaiting */}
-                          {!isConverted && !isAccepted && quote.status !== 'REJECTED' && (can('Approve') || can('Reject')) && (
-                            <>
-                              {can('Approve') && (
-                                <button
-                                  type="button"
-                                  className="tbl-action-btn"
-                                  style={{ background: '#f0fdf4', color: '#16a34a', borderColor: '#bbf7d0' }}
-                                  onClick={() => updateStatus(quote.quotationId, 'ACCEPTED')}
-                                  title="Mark Customer Accepted"
-                                >
-                                  <Check size={13} strokeWidth={2.5} />
-                                  <span>Accept</span>
-                                </button>
-                              )}
-                              {can('Reject') && (
-                                <button
-                                  type="button"
-                                  className="tbl-action-btn"
-                                  style={{ background: '#fff1f2', color: '#e11d48', borderColor: '#fecdd3' }}
-                                  onClick={() => {
-                                    const reason = window.prompt('Reason for rejecting this quotation:');
-                                    if (reason === null) return;
-                                    if (!reason.trim()) {
-                                      setError('A rejection reason is required.');
-                                      return;
-                                    }
-                                    updateStatus(quote.quotationId, 'REJECTED', reason.trim());
-                                  }}
-                                  title="Reject quotation"
-                                >
-                                  <X size={13} strokeWidth={2.5} />
-                                  <span>Reject</span>
-                                </button>
-                              )}
-                            </>
-                          )}
-
-                          {/* CONVERT TO ORDER BUTTON - ONLY VISIBLE WHEN STATUS IS ACCEPTED */}
-                          {canConvert && isAccepted && !isConverted && (
-                            <button
-                              type="button"
-                              className="tbl-action-btn quotation-convert-btn"
-                              style={{ background: '#2563eb', color: '#fff', fontWeight: 'bold' }}
-                              onClick={() => convertToOrder(quote)}
-                              disabled={converting === quote.quotationId}
-                              title="Convert to Sales Order"
-                            >
-                              <Zap size={13} />
-                              <span>{converting === quote.quotationId ? 'Converting...' : 'Convert'}</span>
-                            </button>
-                          )}
-
-                          {/* GENERATE PROFORMA INVOICE BUTTON - ONLY VISIBLE ON ACCEPTED OR CONVERTED */}
-                          {(isAccepted || isConverted) && (
-                            <button
-                              type="button"
-                              className="tbl-action-btn"
-                              style={{ background: '#f0f9ff', color: '#0369a1', borderColor: '#bae6fd', fontWeight: 600 }}
-                              onClick={() => {
-                                navigate(`/orders/proformas/new?quotationId=${encodeURIComponent(quote.quotationId)}`);
+                              className={`quotation-more-trigger ${isDropdownOpen ? 'active' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenDropdownQuoteId(isDropdownOpen ? null : rowKey);
                               }}
-                              title="Generate Proforma Invoice from this Quotation"
+                              aria-expanded={isDropdownOpen}
+                              aria-haspopup="true"
+                              title="More quotation actions"
                             >
-                              <Plus size={13} strokeWidth={2.5} />
-                              <span>PI</span>
+                              <MoreHorizontal size={14} />
                             </button>
-                          )}
 
-                          {can('Delete') && (
-                            <button
-                              type="button"
-                              className="tbl-action-btn delete-icon-btn"
-                              onClick={() => deleteQuote(quote)}
-                              title="Delete quotation"
-                              aria-label="Delete quotation"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          )}
+                            {isDropdownOpen && (
+                              <div
+                                className={`quotation-actions-dropdown-menu ${isNearBottom ? 'placement-top' : ''}`}
+                                role="menu"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {/* 1. View / Edit */}
+                                <button
+                                  type="button"
+                                  className="dropdown-action-item"
+                                  onClick={() => {
+                                    setOpenDropdownQuoteId(null);
+                                    onOpenQuotation(quote.enquiryId, quote.quotationId);
+                                  }}
+                                  role="menuitem"
+                                >
+                                  <Eye size={14} />
+                                  <span>View / Edit Quotation</span>
+                                </button>
+
+                                {/* 2. Official PDF */}
+                                {(isAccepted || isConverted) && (
+                                  <button
+                                    type="button"
+                                    className="dropdown-action-item"
+                                    onClick={() => {
+                                      setOpenDropdownQuoteId(null);
+                                      handleOpenQuotationPdf(quote);
+                                    }}
+                                    disabled={pdfLoadingQuoteId === quote.quotationId}
+                                    role="menuitem"
+                                  >
+                                    <FileText size={14} />
+                                    <span>{pdfLoadingQuoteId === quote.quotationId ? 'Loading PDF...' : 'Download Official PDF'}</span>
+                                  </button>
+                                )}
+
+                                {/* 3. Copy Quotation (Clone) */}
+                                <button
+                                  type="button"
+                                  className="dropdown-action-item primary-accent"
+                                  onClick={() => handleCopyQuotation(quote)}
+                                  role="menuitem"
+                                  title="Copy products and specifications to quote for another customer"
+                                >
+                                  <Copy size={14} style={{ color: '#2563eb' }} />
+                                  <span style={{ fontWeight: 600, color: '#1d4ed8' }}>Copy Quotation</span>
+                                </button>
+
+                                {/* 4. Accept / Reject for Awaiting quotations */}
+                                {!isConverted && !isAccepted && quote.status !== 'REJECTED' && (can('Approve') || can('Reject')) && (
+                                  <>
+                                    <div className="dropdown-action-divider" />
+                                    {can('Approve') && (
+                                      <button
+                                        type="button"
+                                        className="dropdown-action-item success"
+                                        onClick={() => {
+                                          setOpenDropdownQuoteId(null);
+                                          updateStatus(quote.quotationId, 'ACCEPTED');
+                                        }}
+                                        role="menuitem"
+                                      >
+                                        <Check size={14} style={{ color: '#16a34a' }} strokeWidth={2.5} />
+                                        <span style={{ color: '#15803d', fontWeight: 600 }}>Mark Accepted</span>
+                                      </button>
+                                    )}
+                                    {can('Reject') && (
+                                      <button
+                                        type="button"
+                                        className="dropdown-action-item danger-subtle"
+                                        onClick={() => {
+                                          setOpenDropdownQuoteId(null);
+                                          const reason = window.prompt('Reason for rejecting this quotation:');
+                                          if (reason === null) return;
+                                          if (!reason.trim()) {
+                                            setError('A rejection reason is required.');
+                                            return;
+                                          }
+                                          updateStatus(quote.quotationId, 'REJECTED', reason.trim());
+                                        }}
+                                        role="menuitem"
+                                      >
+                                        <X size={14} style={{ color: '#e11d48' }} strokeWidth={2.5} />
+                                        <span style={{ color: '#be123c' }}>Reject Quotation</span>
+                                      </button>
+                                    )}
+                                  </>
+                                )}
+
+                                {/* 5. Convert to Order (Only when Accepted) */}
+                                {canConvert && isAccepted && !isConverted && (
+                                  <>
+                                    <div className="dropdown-action-divider" />
+                                    <button
+                                      type="button"
+                                      className="dropdown-action-item primary-accent"
+                                      onClick={() => {
+                                        setOpenDropdownQuoteId(null);
+                                        convertToOrder(quote);
+                                      }}
+                                      disabled={converting === quote.quotationId}
+                                      role="menuitem"
+                                    >
+                                      <Zap size={14} style={{ color: '#2563eb' }} />
+                                      <span style={{ color: '#1d4ed8', fontWeight: 600 }}>
+                                        {converting === quote.quotationId ? 'Converting...' : 'Convert to Sales Order'}
+                                      </span>
+                                    </button>
+                                  </>
+                                )}
+
+                                {/* 6. Generate Proforma Invoice */}
+                                {(isAccepted || isConverted) && (
+                                  <button
+                                    type="button"
+                                    className="dropdown-action-item"
+                                    onClick={() => {
+                                      setOpenDropdownQuoteId(null);
+                                      navigate(`/orders/proformas/new?quotationId=${encodeURIComponent(quote.quotationId)}`);
+                                    }}
+                                    role="menuitem"
+                                  >
+                                    <FilePlus size={14} style={{ color: '#0369a1' }} />
+                                    <span>Generate Proforma (PI)</span>
+                                  </button>
+                                )}
+
+                                {/* 7. Delete */}
+                                {can('Delete') && (
+                                  <>
+                                    <div className="dropdown-action-divider" />
+                                    <button
+                                      type="button"
+                                      className="dropdown-action-item danger"
+                                      onClick={() => {
+                                        setOpenDropdownQuoteId(null);
+                                        deleteQuote(quote);
+                                      }}
+                                      role="menuitem"
+                                    >
+                                      <Trash2 size={14} style={{ color: '#dc2626' }} />
+                                      <span style={{ color: '#dc2626' }}>Delete Quotation</span>
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </td>
                     </tr>

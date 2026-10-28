@@ -29630,6 +29630,155 @@ td.serial-dropdown-cell {
 .proforma-management-table th:nth-child(6), .proforma-management-table td:nth-child(6) { width: 12% !important; text-align: center !important; }
 .proforma-management-table th:nth-child(7), .proforma-management-table td:nth-child(7) { width: 22% !important; text-align: right !important; }
 
+/* ==========================================================================
+   QUOTATION WORKSPACE: POLISHED CREATE BUTTON & ACTIONS DROPDOWN ARCHITECTURE
+   ========================================================================== */
+
+/* Modern Create Quotation Button (Identical to Topbar Create Enquiry) */
+.quotation-topbar-create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 13px;
+  background-color: var(--primary-blue, #2563eb);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+}
+
+.quotation-topbar-create-btn:hover {
+  background-color: #1d4ed8;
+  box-shadow: 0 2px 5px rgba(37, 99, 235, 0.28);
+  transform: translateY(-0.5px);
+}
+
+.quotation-topbar-create-btn:active {
+  transform: translateY(0);
+}
+
+/* Quotation Actions Dropdown Architecture */
+.quotation-actions-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.quotation-more-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 26px;
+  padding: 0 !important;
+  border-radius: 5px;
+  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  color: #475569 !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.quotation-more-trigger:hover,
+.quotation-more-trigger.active {
+  background: #eff6ff !important;
+  border-color: #3b82f6 !important;
+  color: #1d4ed8 !important;
+}
+
+.quotation-actions-dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  min-width: 215px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+  z-index: 1050;
+  padding: 5px 0;
+  text-align: left;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.quotation-actions-dropdown-menu.placement-top {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+
+.dropdown-action-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #334155;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease, color 0.12s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.dropdown-action-item:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.dropdown-action-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.dropdown-action-item.success:hover:not(:disabled) {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.dropdown-action-item.danger-subtle:hover:not(:disabled) {
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.dropdown-action-item.primary-accent:hover:not(:disabled) {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.dropdown-action-item.danger:hover:not(:disabled) {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.dropdown-action-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 4px 0;
+}
+
+/* Ensure open dropdown rows maintain stacking context over subsequent rows */
+.quotation-settings-table tr.has-open-dropdown {
+  position: relative;
+  z-index: 120;
+}
+
+.quotation-settings-table tr.has-open-dropdown td {
+  overflow: visible !important;
+}
+
 
 
 

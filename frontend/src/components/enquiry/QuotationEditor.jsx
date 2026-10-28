@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { ArrowLeft, Plus, Check, Trash2, Calendar, FileText, Building2, Phone, Mail, MapPin, ExternalLink, ShieldCheck, CheckCircle, Search, Printer, Zap, XCircle, Edit3 } from 'lucide-react';
+import { ArrowLeft, Plus, Check, Trash2, Calendar, FileText, Building2, Phone, Mail, MapPin, ExternalLink, ShieldCheck, CheckCircle, Search, Printer, Zap, XCircle, Edit3, Copy } from 'lucide-react';
 import { apiFetch, apiUrl, safeJson } from '../../api';
 import { navigate } from '../../router';
 import { hasPermission } from '../../utils/permissions';
@@ -130,6 +130,7 @@ export default function QuotationEditor({
   const [customersList, setCustomersList] = useState([]);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [copiedFromSource, setCopiedFromSource] = useState(null);
 
   // Dealer Customer Detection helper
   const isCustomerDealer = (cust) => {
@@ -574,6 +575,47 @@ export default function QuotationEditor({
           }
         }
 
+        // Check if copying from an existing quotation (Copy Quote workflow)
+        let didApplyCopy = false;
+        try {
+          const rawCopy = sessionStorage.getItem('asicrm_quotation_copy_payload');
+          if (rawCopy && mounted && mode === 'direct') {
+            sessionStorage.removeItem('asicrm_quotation_copy_payload');
+            // Clean up any stale direct draft so it doesn't overwrite copied items
+            sessionStorage.removeItem('asicrm_quotation_draft_direct');
+            sessionStorage.removeItem('asicrm_quotation_draft_latest');
+
+            const copyData = JSON.parse(rawCopy);
+            if (copyData) {
+              didApplyCopy = true;
+              if (copyData.showDiscount !== undefined) setShowDiscount(Boolean(copyData.showDiscount));
+              if (copyData.roundOffTotal !== undefined) setRoundOffTotal(Boolean(copyData.roundOffTotal));
+              if (copyData.includeInstallationCharges !== undefined) setIncludeInstallationCharges(Boolean(copyData.includeInstallationCharges));
+              if (copyData.notes) setRemarks(copyData.notes);
+              if (copyData.terms) setTermsAndConditions(copyData.terms);
+
+              if (Array.isArray(copyData.items) && copyData.items.length > 0) {
+                const clonedItems = mapToLineItems(copyData.items, {
+                  showDiscount: Boolean(copyData.showDiscount),
+                  stockProducts: loadedStockProducts
+                });
+                setLineItems(clonedItems);
+              }
+
+              setCopiedFromSource({
+                quotationId: copyData.sourceQuotationId,
+                customerName: copyData.sourceCustomerName
+              });
+
+              // Crucial: leave customer empty so user chooses the new customer
+              setSelectedCustomerId('');
+              setSelectedCustomer(null);
+            }
+          }
+        } catch (copyErr) {
+          console.error('Failed to parse copy quotation payload:', copyErr);
+        }
+
         // Check and restore draft state if returning from Customer Profile or page reload
         try {
           const draftKey = `asicrm_quotation_draft_${propEnquiryId || propQuotationId || 'direct'}`;
@@ -582,7 +624,7 @@ export default function QuotationEditor({
             rawDraft = sessionStorage.getItem('asicrm_quotation_draft_latest');
           }
           let restoredItems = [];
-          if (rawDraft) {
+          if (rawDraft && !didApplyCopy) {
             const draft = JSON.parse(rawDraft);
             if (draft && mounted) {
               const draftShowDiscount = Boolean(draft.showDiscount);
@@ -1946,6 +1988,48 @@ export default function QuotationEditor({
         )}
 
         <div className="quotation-form">
+          {copiedFromSource && (
+            <div
+              className="crm-alert-box info quotation-copy-banner"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 14px',
+                borderRadius: '6px',
+                background: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                color: '#1e40af',
+                marginBottom: '16px',
+                fontSize: '13px'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Copy size={16} />
+                <span>
+                  Products, pricing, and settings copied from quotation <strong>{copiedFromSource.quotationId}</strong>{copiedFromSource.customerName ? ` (${copiedFromSource.customerName})` : ''}. Select a customer below to complete your new quotation.
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCopiedFromSource(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#1e40af',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  padding: '0 4px',
+                  lineHeight: 1
+                }}
+                title="Dismiss"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
           {/* Customer Row */}
           <div className="quotation-customer-row">
             {isContextMode ? (

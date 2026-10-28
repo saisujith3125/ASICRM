@@ -19,6 +19,9 @@ const {
   getDatabaseStatsEndpoint,
   getBackupsListEndpoint,
   getBackupDetailsEndpoint,
+  sendDatabaseBackupOtpEndpoint,
+  sendDatabaseClearOtpEndpoint,
+  getDatabaseClearStatusEndpoint,
   createBackupEndpoint,
   clearDatabaseEndpoint,
   restoreBackupEndpoint,
@@ -61,6 +64,9 @@ router.get('/database/mongo-status', getMongoStatusEndpoint);
 router.post('/database/sync-mongo', triggerMongoSyncEndpoint);
 router.get('/database/backups', getBackupsListEndpoint);
 router.get('/database/backups/:id', getBackupDetailsEndpoint);
+router.post('/database/send-backup-otp', sendDatabaseBackupOtpEndpoint);
+router.post('/database/send-clear-otp', sendDatabaseClearOtpEndpoint);
+router.get('/database/clear-status', getDatabaseClearStatusEndpoint);
 router.post('/database/backup', createBackupEndpoint);
 router.post('/database/clear', clearDatabaseEndpoint);
 router.post('/database/restore/:id', restoreBackupEndpoint);

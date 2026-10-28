@@ -1,12 +1,29 @@
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { hasPermission, getCurrentUser } = require('../utils/accessControl');
 const { normalizeWarehouseLayout, createDefaultLayout } = require('../utils/warehouseLayoutHelper');
 const { sequenceService } = require('../services/sequenceService');
 const { dateSettingsService } = require('../services/dateSettingsService');
+const { sendSmsOtp } = require('../utils/smsProvider');
 
 const DATA_FILE = path.join(__dirname, '..', 'data', 'access-control.json');
 const PROTECTED_ROLE = 'SUPER_ADMIN';
+
+// High-Security In-Memory OTP Store & Verified Backup Session Registry
+const databaseOtpStore = new Map(); // key: "BACKUP:<userId>" or "CLEAR:<userId>" -> { otp, mobile, createdAt, expiresAt }
+const verifiedBackupSessions = new Map(); // key: "<userId>" -> { backupId, timestamp, expiresAt }
+
+function getSuperAdminMobile(req) {
+  const user = getCurrentUser(req);
+  let mobile = String(user.mobile || '').replace(/\D/g, '').slice(-10);
+  if (!mobile || mobile.length !== 10) {
+    const data = readData();
+    const u = (data.users || []).find((item) => item.id === user.id);
+    if (u && u.mobile) mobile = String(u.mobile).replace(/\D/g, '').slice(-10);
+  }
+  return { user, mobile: /^\d{10}$/.test(mobile) ? mobile : null };
+}
 
 const defaultCompanySettings = {
   companyName: 'Active System Integration',
@@ -1134,20 +1151,137 @@ function getBackupDetailsEndpoint(req, res) {
   }
 }
 
-function createBackupEndpoint(req, res) {
+async function sendDatabaseBackupOtpEndpoint(req, res) {
   try {
-    if (!requireSettingsAccess(req, res)) return;
-    const user = getCurrentUser(req);
-    const { title, note } = req.body || {};
-    const backup = backupService.createBackup({ title, type: 'MANUAL_BACKUP', user, note });
+    if (!isSuperAdmin(req)) {
+      return res.status(403).json({ success: false, message: 'Only Super Administrators can authorize system backups.' });
+    }
+    const { user, mobile } = getSuperAdminMobile(req);
+    if (!mobile) {
+      return res.status(400).json({ success: false, message: 'Super Admin does not have a valid 10-digit mobile number registered.' });
+    }
+
+    const otp = String(crypto.randomInt(1000, 10000));
+    databaseOtpStore.set(`BACKUP:${user.id}`, {
+      otp,
+      mobile,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
+    });
+
+    try {
+      await sendSmsOtp(mobile, otp);
+    } catch (smsErr) {
+      console.error('[SMS ERROR] Failed to send backup authorization OTP:', smsErr);
+      return res.status(500).json({ success: false, message: 'Failed to deliver SMS OTP: ' + (smsErr.message || 'SMS provider error') });
+    }
+
+    const maskedMobile = `+91 ${mobile.slice(0, 2)}******${mobile.slice(-2)}`;
     return res.json({
       success: true,
-      message: `System backup "${backup.title}" created successfully.`,
-      data: backup
+      message: `Backup authorization OTP sent to registered mobile ${maskedMobile}.`,
+      maskedMobile
+    });
+  } catch (err) {
+    console.error('Error sending backup OTP:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to dispatch backup OTP.' });
+  }
+}
+
+function createBackupEndpoint(req, res) {
+  try {
+    if (!isSuperAdmin(req)) {
+      return res.status(403).json({ success: false, message: 'Only Super Administrators can create database backups.' });
+    }
+    const user = getCurrentUser(req);
+    const { title, note, otp } = req.body || {};
+
+    const otpKey = `BACKUP:${user.id}`;
+    const record = databaseOtpStore.get(otpKey);
+    if (!record || Date.now() > record.expiresAt) {
+      return res.status(400).json({
+        success: false,
+        message: 'Backup authorization OTP has expired or was not requested. Please request an OTP first.'
+      });
+    }
+    if (String(record.otp).trim() !== String(otp || '').trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid OTP code. Please enter the correct 4-digit verification code.'
+      });
+    }
+
+    // OTP verified: consume it
+    databaseOtpStore.delete(otpKey);
+
+    const backup = backupService.createBackup({ title, type: 'MANUAL_BACKUP', user, note });
+
+    // UNLOCK PREREQUISITE: Record verified backup session for clearance (valid for 15 minutes)
+    const unlockDurationMs = 15 * 60 * 1000;
+    const unlockExpiresAt = Date.now() + unlockDurationMs;
+    verifiedBackupSessions.set(user.id, {
+      backupId: backup.id,
+      timestamp: Date.now(),
+      expiresAt: unlockExpiresAt
+    });
+
+    return res.json({
+      success: true,
+      message: `System backup "${backup.title}" created successfully. Database clearance unlocked for 15 minutes.`,
+      data: backup,
+      isClearUnlocked: true,
+      unlockExpiresAt,
+      remainingSeconds: Math.floor(unlockDurationMs / 1000)
     });
   } catch (err) {
     console.error('Error creating backup:', err);
     return res.status(500).json({ success: false, message: err.message || 'Failed to create backup.' });
+  }
+}
+
+async function sendDatabaseClearOtpEndpoint(req, res) {
+  try {
+    if (!isSuperAdmin(req)) {
+      return res.status(403).json({ success: false, message: 'Only Super Administrators can authorize database clearance.' });
+    }
+    const { user, mobile } = getSuperAdminMobile(req);
+    if (!mobile) {
+      return res.status(400).json({ success: false, message: 'Super Admin does not have a valid 10-digit mobile number registered.' });
+    }
+
+    // MANDATORY PREREQUISITE: A verified backup must exist and not be expired
+    const verified = verifiedBackupSessions.get(user.id);
+    if (!verified || Date.now() > verified.expiresAt) {
+      return res.status(403).json({
+        success: false,
+        message: 'Database clearance is locked. An OTP-verified system backup must be completed before database clearance can be authorized.'
+      });
+    }
+
+    const otp = String(crypto.randomInt(1000, 10000));
+    databaseOtpStore.set(`CLEAR:${user.id}`, {
+      otp,
+      mobile,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
+    });
+
+    try {
+      await sendSmsOtp(mobile, otp);
+    } catch (smsErr) {
+      console.error('[SMS ERROR] Failed to send database deletion OTP:', smsErr);
+      return res.status(500).json({ success: false, message: 'Failed to deliver deletion authorization SMS OTP: ' + (smsErr.message || 'SMS provider error') });
+    }
+
+    const maskedMobile = `+91 ${mobile.slice(0, 2)}******${mobile.slice(-2)}`;
+    return res.json({
+      success: true,
+      message: `Deletion authorization OTP sent to registered mobile ${maskedMobile}.`,
+      maskedMobile
+    });
+  } catch (err) {
+    console.error('Error sending clear OTP:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to dispatch deletion OTP.' });
   }
 }
 
@@ -1157,7 +1291,37 @@ function clearDatabaseEndpoint(req, res) {
       return res.status(403).json({ success: false, message: 'Only Super Administrators can clear the database.' });
     }
     const user = getCurrentUser(req);
-    const { options } = req.body || {};
+
+    // MANDATORY PREREQUISITE: Must have a recent verified backup
+    const verified = verifiedBackupSessions.get(user.id);
+    if (!verified || Date.now() > verified.expiresAt) {
+      return res.status(403).json({
+        success: false,
+        message: 'Database clearance is locked. You must perform an OTP-verified system backup before clearing the database.'
+      });
+    }
+
+    const { options, otp } = req.body || {};
+    const otpKey = `CLEAR:${user.id}`;
+    const record = databaseOtpStore.get(otpKey);
+    if (!record || Date.now() > record.expiresAt) {
+      return res.status(400).json({
+        success: false,
+        message: 'Deletion authorization OTP has expired or was not requested. Please request an authorization OTP first.'
+      });
+    }
+    if (String(record.otp).trim() !== String(otp || '').trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid deletion authorization OTP code. Database clearance aborted.'
+      });
+    }
+
+    // Consume OTP
+    databaseOtpStore.delete(otpKey);
+    // RELOCK: Invalidate verified session so [Clear & Delete Database] re-locks immediately
+    verifiedBackupSessions.delete(user.id);
+
     const result = backupService.clearActiveDatabase({ user, options });
     return res.json({
       success: true,
@@ -1165,11 +1329,31 @@ function clearDatabaseEndpoint(req, res) {
       data: {
         autoBackup: result.autoBackup,
         clearedStats: result.clearedStats
-      }
+      },
+      isClearUnlocked: false
     });
   } catch (err) {
     console.error('Error clearing database:', err);
     return res.status(500).json({ success: false, message: err.message || 'Failed to clear database.' });
+  }
+}
+
+function getDatabaseClearStatusEndpoint(req, res) {
+  try {
+    if (!isSuperAdmin(req)) {
+      return res.json({ success: true, isClearUnlocked: false, remainingSeconds: 0 });
+    }
+    const user = getCurrentUser(req);
+    const verified = verifiedBackupSessions.get(user.id);
+    const isUnlocked = Boolean(verified && Date.now() < verified.expiresAt);
+    const remainingSeconds = isUnlocked ? Math.max(0, Math.floor((verified.expiresAt - Date.now()) / 1000)) : 0;
+    return res.json({
+      success: true,
+      isClearUnlocked: isUnlocked,
+      remainingSeconds
+    });
+  } catch (err) {
+    return res.json({ success: true, isClearUnlocked: false, remainingSeconds: 0 });
   }
 }
 
@@ -1383,6 +1567,9 @@ module.exports = {
   getDatabaseStatsEndpoint,
   getBackupsListEndpoint,
   getBackupDetailsEndpoint,
+  sendDatabaseBackupOtpEndpoint,
+  sendDatabaseClearOtpEndpoint,
+  getDatabaseClearStatusEndpoint,
   createBackupEndpoint,
   clearDatabaseEndpoint,
   restoreBackupEndpoint,

@@ -30,7 +30,11 @@ import {
   HelpCircle,
   Archive,
   Cloud,
-  CloudOff
+  CloudOff,
+  Lock,
+  ShieldCheck,
+  KeyRound,
+  Smartphone
 } from 'lucide-react';
 import { apiFetch, apiUrl, safeJson } from '../../../api';
 
@@ -56,6 +60,24 @@ export default function DatabaseBackupSection({ user, showToast }) {
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+
+  // Clearance Security & Lock State
+  const [isClearUnlocked, setIsClearUnlocked] = useState(false);
+  const [clearUnlockRemainingSec, setClearUnlockRemainingSec] = useState(0);
+
+  // Backup OTP Modal state
+  const [isBackupOtpModalOpen, setIsBackupOtpModalOpen] = useState(false);
+  const [backupOtp, setBackupOtp] = useState('');
+  const [backupMaskedMobile, setBackupMaskedMobile] = useState('');
+  const [isSendingBackupOtp, setIsSendingBackupOtp] = useState(false);
+  const [backupOtpCountdown, setBackupOtpCountdown] = useState(0);
+
+  // Clear OTP Modal state
+  const [isClearOtpModalOpen, setIsClearOtpModalOpen] = useState(false);
+  const [clearOtp, setClearOtp] = useState('');
+  const [clearMaskedMobile, setClearMaskedMobile] = useState('');
+  const [isSendingClearOtp, setIsSendingClearOtp] = useState(false);
+  const [clearOtpCountdown, setClearOtpCountdown] = useState(0);
 
   // Clear Database Modal state
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
@@ -98,15 +120,45 @@ export default function DatabaseBackupSection({ user, showToast }) {
   // Hidden File input for Import
   const fileInputRef = useRef(null);
 
+  // Clearance Unlock countdown timer
+  useEffect(() => {
+    if (!isClearUnlocked || clearUnlockRemainingSec <= 0) return;
+    const timer = setInterval(() => {
+      setClearUnlockRemainingSec((prev) => {
+        if (prev <= 1) {
+          setIsClearUnlocked(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isClearUnlocked, clearUnlockRemainingSec]);
+
+  // Backup OTP Resend countdown
+  useEffect(() => {
+    if (backupOtpCountdown <= 0) return;
+    const t = setInterval(() => setBackupOtpCountdown((c) => c - 1), 1000);
+    return () => clearInterval(t);
+  }, [backupOtpCountdown]);
+
+  // Clear OTP Resend countdown
+  useEffect(() => {
+    if (clearOtpCountdown <= 0) return;
+    const t = setInterval(() => setClearOtpCountdown((c) => c - 1), 1000);
+    return () => clearInterval(t);
+  }, [clearOtpCountdown]);
+
   const fetchDatabaseStatsAndBackups = async (isSilent = false) => {
     if (!isSilent) setLoading(true);
     else setRefreshing(true);
 
     try {
-      const [statsRes, backupsRes, mongoRes] = await Promise.all([
+      const [statsRes, backupsRes, mongoRes, clearStatusRes] = await Promise.all([
         apiFetch(apiUrl('/api/settings/database/stats'), { headers: authHeaders(user) }).catch(() => null),
         apiFetch(apiUrl('/api/settings/database/backups'), { headers: authHeaders(user) }).catch(() => null),
-        apiFetch(apiUrl('/api/settings/database/mongo-status'), { headers: authHeaders(user) }).catch(() => null)
+        apiFetch(apiUrl('/api/settings/database/mongo-status'), { headers: authHeaders(user) }).catch(() => null),
+        apiFetch(apiUrl('/api/settings/database/clear-status'), { headers: authHeaders(user) }).catch(() => null)
       ]);
 
       if (statsRes && statsRes.ok) {
@@ -131,6 +183,14 @@ export default function DatabaseBackupSection({ user, showToast }) {
         const mongoJson = await safeJson(mongoRes);
         if (mongoJson.success && mongoJson.data) {
           setMongoStatus(mongoJson.data);
+        }
+      }
+
+      if (clearStatusRes && clearStatusRes.ok) {
+        const csData = await safeJson(clearStatusRes);
+        if (csData && csData.success) {
+          setIsClearUnlocked(Boolean(csData.isClearUnlocked));
+          setClearUnlockRemainingSec(Number(csData.remainingSeconds || 0));
         }
       }
     } catch (err) {
@@ -173,28 +233,63 @@ export default function DatabaseBackupSection({ user, showToast }) {
     };
   }, [backups]);
 
-  // Handler: Create Quick / Manual Backup
-  const handleCreateManualBackup = async (customTitle = '', customNote = '') => {
-    setIsBackingUp(true);
+  // Step 1: Request OTP for Manual System Backup
+  const handleRequestBackupOtp = async () => {
+    setIsSendingBackupOtp(true);
     try {
-      const title = customTitle.trim() || `Manual System Backup - ${new Date().toLocaleDateString('en-GB')}`;
-      const res = await apiFetch(apiUrl('/api/settings/database/backup'), {
+      const res = await apiFetch(apiUrl('/api/settings/database/send-backup-otp'), {
         method: 'POST',
-        headers: authHeaders(user),
-        body: JSON.stringify({ title, note: customNote.trim() })
+        headers: authHeaders(user)
       });
       const data = await safeJson(res);
       if (res.ok && data.success) {
-        if (showToast) showToast(data.message || 'System backup created successfully.');
+        setBackupMaskedMobile(data.maskedMobile || '');
+        setBackupOtp('');
+        setBackupOtpCountdown(90);
         setIsManualModalOpen(false);
-        setManualTitle('');
-        setManualNote('');
-        await fetchDatabaseStatsAndBackups(true);
+        setIsBackupOtpModalOpen(true);
+        if (showToast) showToast('Backup authorization OTP sent to your registered mobile.');
       } else {
-        alert(data.message || 'Failed to create backup.');
+        alert(data.message || 'Failed to dispatch backup authorization OTP.');
       }
     } catch (err) {
-      console.error('Error creating backup:', err);
+      console.error('Error sending backup OTP:', err);
+      alert('Error requesting backup OTP: ' + (err.message || 'Network error'));
+    } finally {
+      setIsSendingBackupOtp(false);
+    }
+  };
+
+  // Step 2: Verify OTP & Execute Backup
+  const handleVerifyAndExecuteBackup = async (e) => {
+    if (e) e.preventDefault();
+    if (!backupOtp || backupOtp.trim().length !== 4) {
+      alert('Please enter a valid 4-digit OTP code.');
+      return;
+    }
+    setIsBackingUp(true);
+    try {
+      const title = manualTitle.trim() || `Manual System Backup - ${new Date().toLocaleDateString('en-GB')}`;
+      const res = await apiFetch(apiUrl('/api/settings/database/backup'), {
+        method: 'POST',
+        headers: authHeaders(user),
+        body: JSON.stringify({ title, note: manualNote.trim(), otp: backupOtp.trim() })
+      });
+      const data = await safeJson(res);
+      if (res.ok && data.success) {
+        if (showToast) showToast(data.message || 'System backup created successfully. Database clearance unlocked.');
+        setIsBackupOtpModalOpen(false);
+        setBackupOtp('');
+        setManualTitle('');
+        setManualNote('');
+        setIsClearUnlocked(true);
+        setClearUnlockRemainingSec(data.remainingSeconds || 900);
+        await fetchDatabaseStatsAndBackups(true);
+      } else {
+        alert(data.message || 'Failed to create backup. Please verify your OTP code.');
+      }
+    } catch (err) {
+      console.error('Error verifying backup OTP:', err);
       alert(err.message || 'Error occurred while creating backup.');
     } finally {
       setIsBackingUp(false);
@@ -223,31 +318,70 @@ export default function DatabaseBackupSection({ user, showToast }) {
     }
   };
 
-  // Handler: Clear Database
-  const handleExecuteClearDatabase = async () => {
+  // Step 1 for Deletion: Request Deletion Authorization OTP
+  const handleRequestClearOtp = async () => {
     if (clearConfirmationText.trim().toUpperCase() !== 'CLEAR') {
       alert('Please type "CLEAR" into the confirmation field to proceed.');
       return;
     }
+    if (!isClearUnlocked) {
+      alert('Database clearance is locked. You must complete an OTP-verified system backup before clearance can be authorized.');
+      return;
+    }
+    setIsSendingClearOtp(true);
+    try {
+      const res = await apiFetch(apiUrl('/api/settings/database/send-clear-otp'), {
+        method: 'POST',
+        headers: authHeaders(user)
+      });
+      const data = await safeJson(res);
+      if (res.ok && data.success) {
+        setClearMaskedMobile(data.maskedMobile || '');
+        setClearOtp('');
+        setClearOtpCountdown(90);
+        setIsClearModalOpen(false);
+        setIsClearOtpModalOpen(true);
+        if (showToast) showToast('Deletion authorization OTP sent to your registered mobile.');
+      } else {
+        alert(data.message || 'Failed to dispatch deletion authorization OTP.');
+      }
+    } catch (err) {
+      console.error('Error sending deletion OTP:', err);
+      alert('Error requesting deletion OTP: ' + (err.message || 'Network error'));
+    } finally {
+      setIsSendingClearOtp(false);
+    }
+  };
 
+  // Step 2 for Deletion: Verify Deletion OTP & Wipe Database
+  const handleExecuteClearDatabaseWithOtp = async (e) => {
+    if (e) e.preventDefault();
+    if (!clearOtp || clearOtp.trim().length !== 4) {
+      alert('Please enter the 4-digit deletion authorization OTP code.');
+      return;
+    }
     setIsClearing(true);
     try {
       const res = await apiFetch(apiUrl('/api/settings/database/clear'), {
         method: 'POST',
         headers: authHeaders(user),
-        body: JSON.stringify({ options: clearOptions })
+        body: JSON.stringify({ options: clearOptions, otp: clearOtp.trim() })
       });
       const data = await safeJson(res);
       if (res.ok && data.success) {
-        if (showToast) showToast(data.message || 'Database cleared. Auto-backup snapshot archived safely.');
-        setIsClearModalOpen(false);
+        if (showToast) showToast(data.message || 'Database cleared safely. Clearance re-locked.');
+        setIsClearOtpModalOpen(false);
+        setClearOtp('');
         setClearConfirmationText('');
+        // Re-lock clearance immediately!
+        setIsClearUnlocked(false);
+        setClearUnlockRemainingSec(0);
         await fetchDatabaseStatsAndBackups(true);
       } else {
-        alert(data.message || 'Failed to clear database.');
+        alert(data.message || 'Failed to clear database. Please verify your OTP code.');
       }
     } catch (err) {
-      console.error('Error clearing database:', err);
+      console.error('Error clearing database with OTP:', err);
       alert(err.message || 'Failed to clear database.');
     } finally {
       setIsClearing(false);
@@ -512,32 +646,74 @@ export default function DatabaseBackupSection({ user, showToast }) {
               <span>{isBackingUp ? 'Backing Up...' : 'Back Up Now'}</span>
             </button>
 
-            {/* 🔴 Clear & Delete Database Button */}
-            <button
-              type="button"
-              className="settings-btn"
-              style={{
-                background: '#fee2e2',
-                color: '#dc2626',
-                borderColor: '#fca5a5',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '9px 16px',
-                fontSize: '13.5px',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-              onClick={() => {
-                setClearConfirmationText('');
-                setIsClearModalOpen(true);
-              }}
-              disabled={isClearing || loading}
-              title="Wipe operational CRM data. An automatic backup is always saved first."
-            >
-              <Trash2 size={16} />
-              <span>Clear & Delete Database</span>
-            </button>
+            {/* 🔴 Clear & Delete Database Button (Permanently Locked until Verified Backup is Completed) */}
+            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+              <button
+                type="button"
+                className="settings-btn"
+                style={{
+                  background: isClearUnlocked ? '#fee2e2' : '#f8fafc',
+                  color: isClearUnlocked ? '#dc2626' : '#94a3b8',
+                  borderColor: isClearUnlocked ? '#fca5a5' : '#cbd5e1',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '9px 16px',
+                  fontSize: '13.5px',
+                  fontWeight: 600,
+                  cursor: isClearUnlocked ? 'pointer' : 'not-allowed',
+                  opacity: isClearUnlocked ? 1 : 0.65,
+                  transition: 'all 0.2s ease'
+                }}
+                onClick={() => {
+                  if (!isClearUnlocked) return;
+                  setClearConfirmationText('');
+                  setIsClearModalOpen(true);
+                }}
+                disabled={!isClearUnlocked || isClearing || loading}
+                title={
+                  isClearUnlocked
+                    ? `Clearance unlocked for ${Math.floor(clearUnlockRemainingSec / 60)}m ${clearUnlockRemainingSec % 60}s. Secondary OTP required to authorize.`
+                    : 'Database clearance is locked. You must perform an OTP-verified system backup before deletion can be enabled.'
+                }
+              >
+                {isClearUnlocked ? <Trash2 size={16} /> : <Lock size={16} />}
+                <span>{isClearUnlocked ? 'Clear & Delete Database' : 'Clear & Delete Database (Locked)'}</span>
+              </button>
+
+              {isClearUnlocked ? (
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: '#15803d',
+                    background: '#dcfce7',
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <ShieldCheck size={12} />
+                  <span>Unlocked ({Math.floor(clearUnlockRemainingSec / 60)}m {clearUnlockRemainingSec % 60}s)</span>
+                </span>
+              ) : (
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 500,
+                    color: '#64748b',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <Lock size={11} />
+                  <span>Requires Backup First</span>
+                </span>
+              )}
+            </div>
 
             {/* 📥 Import Backup File Button */}
             <button
@@ -1128,10 +1304,10 @@ export default function DatabaseBackupSection({ user, showToast }) {
                   borderColor: clearConfirmationText.trim().toUpperCase() === 'CLEAR' ? '#b91c1c' : '#fca5a5',
                   cursor: clearConfirmationText.trim().toUpperCase() === 'CLEAR' ? 'pointer' : 'not-allowed'
                 }}
-                onClick={handleExecuteClearDatabase}
-                disabled={clearConfirmationText.trim().toUpperCase() !== 'CLEAR' || isClearing}
+                onClick={handleRequestClearOtp}
+                disabled={clearConfirmationText.trim().toUpperCase() !== 'CLEAR' || isSendingClearOtp}
               >
-                {isClearing ? 'Clearing & Archiving...' : 'Clear Database & Create Backup'}
+                {isSendingClearOtp ? 'Sending Authorization OTP...' : 'Proceed to Deletion Authorization →'}
               </button>
             </div>
           </div>
@@ -1604,12 +1780,237 @@ export default function DatabaseBackupSection({ user, showToast }) {
               <button
                 type="button"
                 className="settings-btn settings-btn-primary"
-                onClick={() => handleCreateManualBackup(manualTitle, manualNote)}
-                disabled={isBackingUp}
+                onClick={handleRequestBackupOtp}
+                disabled={isSendingBackupOtp}
               >
-                {isBackingUp ? 'Creating Backup...' : 'Save Backup Snapshot'}
+                {isSendingBackupOtp ? 'Sending Authorization OTP...' : 'Proceed to OTP Verification →'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: BACKUP OTP VERIFICATION
+          ======================================================== */}
+      {isBackupOtpModalOpen && (
+        <div className="settings-modal-overlay">
+          <div className="settings-modal-card" style={{ maxWidth: '460px' }}>
+            <div className="settings-modal-header" style={{ background: '#f0fdf4', borderBottom: '1px solid #bbf7d0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ShieldCheck size={22} />
+                </div>
+                <div>
+                  <h3 className="settings-modal-title" style={{ color: '#15803d', margin: 0, fontSize: '16px' }}>
+                    Super Admin Backup Authorization
+                  </h3>
+                  <span style={{ fontSize: '12px', color: '#166534' }}>Identity verification required</span>
+                </div>
+              </div>
+              <button type="button" className="settings-modal-close" onClick={() => setIsBackupOtpModalOpen(false)}>
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleVerifyAndExecuteBackup}>
+              <div className="settings-modal-body" style={{ padding: '22px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '8px', color: '#065f46', fontSize: '13px', marginBottom: '18px' }}>
+                  <Smartphone size={18} style={{ flexShrink: 0 }} />
+                  <span>
+                    A 4-digit authorization OTP was dispatched to your mobile <strong>{backupMaskedMobile || '+91 Super Admin'}</strong>.
+                  </span>
+                </div>
+
+                <div style={{ textAlign: 'center', marginBottom: '18px' }}>
+                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#334155', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Enter 4-Digit Security Code
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={backupOtp}
+                    onChange={(e) => setBackupOtp(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                    placeholder="••••"
+                    autoFocus
+                    required
+                    style={{
+                      width: '180px',
+                      height: '48px',
+                      fontSize: '24px',
+                      fontWeight: 700,
+                      textAlign: 'center',
+                      letterSpacing: '10px',
+                      borderRadius: '8px',
+                      border: '2px solid #10b981',
+                      outline: 'none',
+                      background: '#f0fdf4',
+                      color: '#065f46',
+                      boxShadow: '0 2px 8px rgba(16, 185, 129, 0.15)'
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12.5px', color: '#64748b' }}>
+                  {backupOtpCountdown > 0 ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <Clock size={13} />
+                      <span>Resend in {backupOtpCountdown}s</span>
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleRequestBackupOtp}
+                      disabled={isSendingBackupOtp}
+                      style={{ background: 'none', border: 'none', color: '#0284c7', cursor: 'pointer', fontWeight: 600, padding: 0 }}
+                    >
+                      {isSendingBackupOtp ? 'Resending...' : 'Resend Code via SMS'}
+                    </button>
+                  )}
+                  <span>Valid for 10 minutes</span>
+                </div>
+              </div>
+
+              <div className="settings-modal-footer" style={{ padding: '14px 22px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="settings-btn settings-btn-secondary"
+                  onClick={() => setIsBackupOtpModalOpen(false)}
+                  disabled={isBackingUp}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="settings-btn"
+                  style={{
+                    background: backupOtp.length === 4 ? '#10b981' : '#94a3b8',
+                    color: '#ffffff',
+                    borderColor: backupOtp.length === 4 ? '#059669' : '#94a3b8',
+                    cursor: backupOtp.length === 4 ? 'pointer' : 'not-allowed',
+                    padding: '8px 18px',
+                    fontWeight: 600
+                  }}
+                  disabled={backupOtp.length !== 4 || isBackingUp}
+                >
+                  {isBackingUp ? 'Verifying & Backing Up...' : 'Verify & Create Backup'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL: DATABASE CLEARANCE OTP VERIFICATION (HIGH SECURITY)
+          ======================================================== */}
+      {isClearOtpModalOpen && (
+        <div className="settings-modal-overlay">
+          <div className="settings-modal-card" style={{ maxWidth: '480px' }}>
+            <div className="settings-modal-header" style={{ background: '#fef2f2', borderBottom: '1px solid #fecaca' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fee2e2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <AlertTriangle size={24} />
+                </div>
+                <div>
+                  <h3 className="settings-modal-title" style={{ color: '#991b1b', margin: 0, fontSize: '16px' }}>
+                    Critical: Authorize Database Wipe
+                  </h3>
+                  <span style={{ fontSize: '12px', color: '#b91c1c', fontWeight: 600 }}>High-Security Super Admin Authorization</span>
+                </div>
+              </div>
+              <button type="button" className="settings-modal-close" onClick={() => setIsClearOtpModalOpen(false)}>
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleExecuteClearDatabaseWithOtp}>
+              <div className="settings-modal-body" style={{ padding: '22px' }}>
+                <div style={{ padding: '12px 14px', background: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '8px', color: '#9f1239', fontSize: '13px', lineHeight: 1.5, marginBottom: '18px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, marginBottom: '4px' }}>
+                    <ShieldAlert size={16} />
+                    <span>Permanent Deletion Warning:</span>
+                  </div>
+                  You are authorizing the permanent clearance of selected operational records. A dedicated deletion authorization code has been sent to <strong>{clearMaskedMobile || '+91 Super Admin'}</strong>.
+                </div>
+
+                <div style={{ textAlign: 'center', marginBottom: '18px' }}>
+                  <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#334155', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Enter 4-Digit Deletion Code
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={clearOtp}
+                    onChange={(e) => setClearOtp(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                    placeholder="••••"
+                    autoFocus
+                    required
+                    style={{
+                      width: '180px',
+                      height: '48px',
+                      fontSize: '24px',
+                      fontWeight: 700,
+                      textAlign: 'center',
+                      letterSpacing: '10px',
+                      borderRadius: '8px',
+                      border: '2px solid #ef4444',
+                      outline: 'none',
+                      background: '#fef2f2',
+                      color: '#b91c1c',
+                      boxShadow: '0 2px 8px rgba(239, 68, 68, 0.15)'
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12.5px', color: '#64748b' }}>
+                  {clearOtpCountdown > 0 ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <Clock size={13} />
+                      <span>Resend in {clearOtpCountdown}s</span>
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleRequestClearOtp}
+                      disabled={isSendingClearOtp}
+                      style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 600, padding: 0 }}
+                    >
+                      {isSendingClearOtp ? 'Resending...' : 'Resend Deletion Code via SMS'}
+                    </button>
+                  )}
+                  <span>Super Admin Only</span>
+                </div>
+              </div>
+
+              <div className="settings-modal-footer" style={{ padding: '14px 22px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="settings-btn settings-btn-secondary"
+                  onClick={() => setIsClearOtpModalOpen(false)}
+                  disabled={isClearing}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="settings-btn"
+                  style={{
+                    background: clearOtp.length === 4 ? '#dc2626' : '#fca5a5',
+                    color: '#ffffff',
+                    borderColor: clearOtp.length === 4 ? '#b91c1c' : '#fca5a5',
+                    cursor: clearOtp.length === 4 ? 'pointer' : 'not-allowed',
+                    padding: '8px 18px',
+                    fontWeight: 600
+                  }}
+                  disabled={clearOtp.length !== 4 || isClearing}
+                >
+                  {isClearing ? 'Authorizing & Clearing...' : 'Authorize & Wipe Database Now'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -14,7 +14,7 @@ export default function InvoiceSetupSection({ data, onChange, onSave, isSaving }
   };
 
   const padNum = String(inv.nextNumber || 1001).padStart(inv.paddingDigits || 4, '0');
-  const previewDocNo = `${inv.prefix || 'INV/'}${padNum}${inv.suffix || '/26-27'}`;
+  const previewDocNo = `${inv.prefix || 'ASI/INV/'}${padNum}${inv.suffix || '/26-27'}`;
 
   return (
     <div className="settings-section-container">
@@ -55,9 +55,9 @@ export default function InvoiceSetupSection({ data, onChange, onSave, isSaving }
             <input
               type="text"
               className="settings-input"
-              value={inv.prefix || 'INV/'}
+              value={inv.prefix !== undefined ? inv.prefix : 'ASI/INV/'}
               onChange={(e) => handleUpdate('prefix', e.target.value)}
-              placeholder="INV/"
+              placeholder="ASI/INV/"
             />
           </div>
           <div className="settings-field-group">

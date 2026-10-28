@@ -10,7 +10,7 @@ const DEFAULT_CONFIG = {
     enquiries: {
       key: 'enquiries',
       name: 'Enquiries',
-      prefix: 'ENQ/',
+      prefix: 'ASI/ENQ/',
       suffix: '/{YYYY}',
       paddingDigits: 3,
       startingNumber: 1,
@@ -47,7 +47,7 @@ const DEFAULT_CONFIG = {
     purchaseOrders: {
       key: 'purchaseOrders',
       name: 'Purchase Orders',
-      prefix: 'PO/',
+      prefix: 'ASI/PO/',
       suffix: '/{YYYY}',
       paddingDigits: 3,
       startingNumber: 1,
@@ -71,7 +71,7 @@ const DEFAULT_CONFIG = {
     deliveryChallans: {
       key: 'deliveryChallans',
       name: 'Delivery Challans',
-      prefix: 'DC/',
+      prefix: 'ASI/DC/',
       suffix: '/{YYYY}',
       paddingDigits: 3,
       startingNumber: 1,
@@ -83,7 +83,7 @@ const DEFAULT_CONFIG = {
     invoices: {
       key: 'invoices',
       name: 'Tax Invoices',
-      prefix: 'INV/',
+      prefix: 'ASI/INV/',
       suffix: '/{YYYY}',
       paddingDigits: 3,
       startingNumber: 1,

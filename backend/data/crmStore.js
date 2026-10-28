@@ -693,7 +693,7 @@ const generateEnquiryId = () => {
     persistStore();
     return id;
   } catch {
-    const id = `ENQ/${String(nextEnquirySeq).padStart(3, '0')}/${new Date().getFullYear()}`;
+    const id = `ASI/ENQ/${String(nextEnquirySeq).padStart(3, '0')}/${new Date().getFullYear()}`;
     nextEnquirySeq += 1;
     return id;
   }
@@ -749,7 +749,7 @@ const generateChallanId = () => {
     persistStore();
     return id;
   } catch {
-    const id = `DC/${String(nextChallanSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
+    const id = `ASI/DC/${String(nextChallanSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
     nextChallanSeq += 1;
     return id;
   }
@@ -781,7 +781,7 @@ const generateInvoiceId = () => {
     persistStore();
     return id;
   } catch {
-    const id = `INV/${String(nextInvoiceSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
+    const id = `ASI/INV/${String(nextInvoiceSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
     nextInvoiceSeq += 1;
     return id;
   }
@@ -789,10 +789,10 @@ const generateInvoiceId = () => {
 
 const generateProformaId = () => {
   const existingIds = new Set(proformas.map((p) => p.proformaId || p.id).filter(Boolean));
-  let candidate = `PI/${String(nextProformaSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
+  let candidate = `ASI/PI/${String(nextProformaSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
   while (existingIds.has(candidate)) {
     nextProformaSeq += 1;
-    candidate = `PI/${String(nextProformaSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
+    candidate = `ASI/PI/${String(nextProformaSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
   }
   const assignedId = candidate;
   nextProformaSeq += 1;
@@ -811,7 +811,7 @@ const generatePurchaseOrderId = () => {
     persistStore();
     return id;
   } catch {
-    const id = `PO/${String(nextPurchaseOrderSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
+    const id = `ASI/PO/${String(nextPurchaseOrderSeq).padStart(3, '0')}/${new Date().getFullYear()}`;
     nextPurchaseOrderSeq += 1;
     return id;
   }

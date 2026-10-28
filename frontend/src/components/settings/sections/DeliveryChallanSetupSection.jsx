@@ -14,7 +14,7 @@ export default function DeliveryChallanSetupSection({ data, onChange, onSave, is
   };
 
   const padNum = String(dc.nextNumber || 1).padStart(dc.paddingDigits || 3, '0');
-  const previewDocNo = `${dc.prefix || 'DC/'}${padNum}${dc.suffix || '/26-27'}`;
+  const previewDocNo = `${dc.prefix || 'ASI/DC/'}${padNum}${dc.suffix || '/26-27'}`;
 
   return (
     <div className="settings-section-container">
@@ -55,9 +55,9 @@ export default function DeliveryChallanSetupSection({ data, onChange, onSave, is
             <input
               type="text"
               className="settings-input"
-              value={dc.prefix || 'DC/'}
+              value={dc.prefix !== undefined ? dc.prefix : 'ASI/DC/'}
               onChange={(e) => handleUpdate('prefix', e.target.value)}
-              placeholder="DC/"
+              placeholder="ASI/DC/"
             />
           </div>
           <div className="settings-field-group">

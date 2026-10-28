@@ -14,7 +14,7 @@ export default function QuotationSetupSection({ data, onChange, onSave, isSaving
   };
 
   const padNum = String(qtn.nextNumber || 101).padStart(qtn.paddingDigits || 3, '0');
-  const previewDocNo = `${qtn.prefix || 'QTN/'}${padNum}${qtn.suffix || '/26-27'}`;
+  const previewDocNo = `${qtn.prefix || 'ASI/QTN/'}${padNum}${qtn.suffix || '/26-27'}`;
 
   return (
     <div className="settings-section-container">
@@ -55,9 +55,9 @@ export default function QuotationSetupSection({ data, onChange, onSave, isSaving
             <input
               type="text"
               className="settings-input"
-              value={qtn.prefix || 'QTN/'}
+              value={qtn.prefix !== undefined ? qtn.prefix : 'ASI/QTN/'}
               onChange={(e) => handleUpdate('prefix', e.target.value)}
-              placeholder="QTN/"
+              placeholder="ASI/QTN/"
             />
           </div>
           <div className="settings-field-group">

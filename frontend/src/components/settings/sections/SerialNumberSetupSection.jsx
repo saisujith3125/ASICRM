@@ -622,7 +622,7 @@ export default function SerialNumberSetupSection({ user, showToast }) {
                       className="settings-input"
                       value={editForm.prefix}
                       onChange={(e) => setEditForm({ ...editForm, prefix: e.target.value })}
-                      placeholder="e.g. ENQ/, QTN/, CUST-"
+                      placeholder="e.g. ASI/ENQ/, ASI/INV/, ASI/DC/"
                       required
                     />
                   </div>

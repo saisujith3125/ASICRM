@@ -1098,7 +1098,7 @@
       }
     ],
     "invoiceSetup": {
-      "prefix": "INV/",
+      "prefix": "ASI/INV/",
       "suffix": "/26-27",
       "startingNumber": 1001,
       "nextNumber": 1042,
@@ -1113,7 +1113,7 @@
       "defaultTerms": "1. Payment due within agreed credit terms from invoice date.\n2. Interest @ 18% p.a. will be charged on overdue payments.\n3. Goods once sold will not be accepted back without prior RMA approval.\n4. All disputes are subject to Chennai jurisdiction only."
     },
     "quotationSetup": {
-      "prefix": "QTN/",
+      "prefix": "ASI/QTN/",
       "suffix": "/26-27",
       "startingNumber": 101,
       "nextNumber": 135,
@@ -1129,7 +1129,7 @@
       "defaultTerms": "1. Prices are valid for 7 days from quote date.\n2. Delivery: Ex-stock / 1-2 weeks upon receipt of confirmed purchase order.\n3. Payment: 100% advance or as agreed in commercial proposal.\n4. Warranty: Standard manufacturer warranty applies."
     },
     "dcSetup": {
-      "prefix": "DC/",
+      "prefix": "ASI/DC/",
       "suffix": "/26-27",
       "startingNumber": 1,
       "nextNumber": 29,
@@ -1295,7 +1295,7 @@
       "globalSeparator": "/",
       "timezone": "Asia/Kolkata",
       "timeFormat": "12_HOUR",
-      "lastUpdated": "2026-10-26T05:47:40.682Z",
+      "lastUpdated": "2026-10-28T06:36:04.327Z",
       "updatedBy": "Super Admin",
       "modules": {
         "quotations": {
@@ -1304,7 +1304,7 @@
           "format": "YYYY/MM/DD",
           "separator": "/",
           "description": "Customer-facing commercial proposal document date",
-          "previewToday": "2026/10/26",
+          "previewToday": "2026/10/28",
           "previewSample": "2026/10/24"
         },
         "invoices": {
@@ -1313,7 +1313,7 @@
           "format": "DD/MM/YYYY",
           "separator": "/",
           "description": "Statutory GST tax invoice document date",
-          "previewToday": "26/10/2026",
+          "previewToday": "28/10/2026",
           "previewSample": "24/10/2026"
         },
         "deliveryChallans": {
@@ -1322,7 +1322,7 @@
           "format": "DD/MM/YYYY",
           "separator": "/",
           "description": "Dispatch and material delivery challan date",
-          "previewToday": "26/10/2026",
+          "previewToday": "28/10/2026",
           "previewSample": "24/10/2026"
         },
         "purchaseOrders": {
@@ -1331,7 +1331,7 @@
           "format": "DD/MM/YYYY",
           "separator": "/",
           "description": "Supplier and vendor purchase order document date",
-          "previewToday": "26/10/2026",
+          "previewToday": "28/10/2026",
           "previewSample": "24/10/2026"
         },
         "proformaInvoices": {
@@ -1340,7 +1340,7 @@
           "format": "DD/MM/YYYY",
           "separator": "/",
           "description": "Proforma commercial invoice date",
-          "previewToday": "26/10/2026",
+          "previewToday": "28/10/2026",
           "previewSample": "24/10/2026"
         },
         "general": {
@@ -1349,20 +1349,20 @@
           "format": "DD/MM/YYYY",
           "separator": "/",
           "description": "CRM interaction logs, activity timeline, and status updates",
-          "previewToday": "26/10/2026",
+          "previewToday": "28/10/2026",
           "previewSample": "24/10/2026"
         }
       },
       "samples": {
         "raw": {
-          "today": "2026-10-26",
+          "today": "2026-10-28",
           "proposalDateSample": "2026-10-24",
           "invoiceDateSample": "2026-10-24",
           "financialYearStart": "2026-04-01",
           "financialYearEnd": "2027-03-31",
           "leapYearSample": "2028-02-29"
         },
-        "todayFormatted": "2026/10/26",
+        "todayFormatted": "2026/10/28",
         "proposalFormatted": "2026/10/24",
         "invoiceFormatted": "24/10/2026",
         "fyFormatted": "2026/04/01 – 2027/03/31",

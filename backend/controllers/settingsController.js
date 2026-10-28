@@ -64,7 +64,7 @@ const defaultCompanySettings = {
     { id: 'WH-003', code: 'WH-CBE-01', name: 'Coimbatore Logistics Depot', location: 'Peelamedu, Coimbatore', capacity: '4,500 sq ft', manager: 'Rajesh Kumar', isDefault: false, status: 'Active' }
   ],
   invoiceSetup: {
-    prefix: 'INV/',
+    prefix: 'ASI/INV/',
     suffix: '/26-27',
     startingNumber: 1001,
     nextNumber: 1042,
@@ -79,7 +79,7 @@ const defaultCompanySettings = {
     defaultTerms: '1. Payment due within agreed credit terms from invoice date.\n2. Interest @ 18% p.a. will be charged on overdue payments.\n3. Goods once sold will not be accepted back without prior RMA approval.\n4. All disputes are subject to Chennai jurisdiction only.'
   },
   quotationSetup: {
-    prefix: 'QTN/',
+    prefix: 'ASI/QTN/',
     suffix: '/26-27',
     startingNumber: 101,
     nextNumber: 135,
@@ -95,7 +95,7 @@ const defaultCompanySettings = {
     defaultTerms: '1. Prices are valid for 7 days from quote date.\n2. Delivery: Ex-stock / 1-2 weeks upon receipt of confirmed purchase order.\n3. Payment: 100% advance or as agreed in commercial proposal.\n4. Warranty: Standard manufacturer warranty applies.'
   },
   dcSetup: {
-    prefix: 'DC/',
+    prefix: 'ASI/DC/',
     suffix: '/26-27',
     startingNumber: 1,
     nextNumber: 29,
@@ -850,6 +850,38 @@ function updateCompanySettings(req, res) {
     }
   }
 
+  // Synchronize document setup with central sequence engine
+  if (body.invoiceSetup && next.invoiceSetup) {
+    try {
+      sequenceService.updateModuleRule('invoices', {
+        prefix: next.invoiceSetup.prefix,
+        suffix: next.invoiceSetup.suffix,
+        paddingDigits: next.invoiceSetup.paddingDigits,
+        nextNumber: next.invoiceSetup.nextNumber
+      });
+    } catch (_) {}
+  }
+  if (body.dcSetup && next.dcSetup) {
+    try {
+      sequenceService.updateModuleRule('deliveryChallans', {
+        prefix: next.dcSetup.prefix,
+        suffix: next.dcSetup.suffix,
+        paddingDigits: next.dcSetup.paddingDigits,
+        nextNumber: next.dcSetup.nextNumber
+      });
+    } catch (_) {}
+  }
+  if (body.quotationSetup && next.quotationSetup) {
+    try {
+      sequenceService.updateModuleRule('quotations', {
+        prefix: next.quotationSetup.prefix,
+        suffix: next.quotationSetup.suffix,
+        paddingDigits: next.quotationSetup.paddingDigits,
+        nextNumber: next.quotationSetup.nextNumber
+      });
+    } catch (_) {}
+  }
+
   data.companySettings = next;
   writeData(data);
 
@@ -917,6 +949,38 @@ function updateSectionSettings(req, res) {
     next[sectionKey] = sectionKey === 'warehouses' ? body.map(normalizeWarehouseLayout) : body;
   } else if (typeof body === 'object') {
     next[sectionKey] = { ...(next[sectionKey] || {}), ...body };
+  }
+
+  // Synchronize document setup with central sequence engine
+  if (body.invoiceSetup && next.invoiceSetup) {
+    try {
+      sequenceService.updateModuleRule('invoices', {
+        prefix: next.invoiceSetup.prefix,
+        suffix: next.invoiceSetup.suffix,
+        paddingDigits: next.invoiceSetup.paddingDigits,
+        nextNumber: next.invoiceSetup.nextNumber
+      });
+    } catch (_) {}
+  }
+  if (body.dcSetup && next.dcSetup) {
+    try {
+      sequenceService.updateModuleRule('deliveryChallans', {
+        prefix: next.dcSetup.prefix,
+        suffix: next.dcSetup.suffix,
+        paddingDigits: next.dcSetup.paddingDigits,
+        nextNumber: next.dcSetup.nextNumber
+      });
+    } catch (_) {}
+  }
+  if (body.quotationSetup && next.quotationSetup) {
+    try {
+      sequenceService.updateModuleRule('quotations', {
+        prefix: next.quotationSetup.prefix,
+        suffix: next.quotationSetup.suffix,
+        paddingDigits: next.quotationSetup.paddingDigits,
+        nextNumber: next.quotationSetup.nextNumber
+      });
+    } catch (_) {}
   }
 
   data.companySettings = next;
@@ -1181,6 +1245,33 @@ function updateSequenceEndpoint(req, res) {
     }
     const { moduleKey } = req.params;
     const result = sequenceService.updateModuleRule(moduleKey, req.body);
+
+    // Sync updated sequence format back to companySettings in access-control.json
+    try {
+      const data = readData();
+      if (data && data.companySettings) {
+        if (moduleKey === 'invoices' && data.companySettings.invoiceSetup) {
+          data.companySettings.invoiceSetup.prefix = result.rule.prefix;
+          data.companySettings.invoiceSetup.suffix = result.rule.suffix;
+          data.companySettings.invoiceSetup.paddingDigits = result.rule.paddingDigits;
+          data.companySettings.invoiceSetup.nextNumber = result.rule.nextNumber;
+          writeData(data);
+        } else if (moduleKey === 'deliveryChallans' && data.companySettings.dcSetup) {
+          data.companySettings.dcSetup.prefix = result.rule.prefix;
+          data.companySettings.dcSetup.suffix = result.rule.suffix;
+          data.companySettings.dcSetup.paddingDigits = result.rule.paddingDigits;
+          data.companySettings.dcSetup.nextNumber = result.rule.nextNumber;
+          writeData(data);
+        } else if (moduleKey === 'quotations' && data.companySettings.quotationSetup) {
+          data.companySettings.quotationSetup.prefix = result.rule.prefix;
+          data.companySettings.quotationSetup.suffix = result.rule.suffix;
+          data.companySettings.quotationSetup.paddingDigits = result.rule.paddingDigits;
+          data.companySettings.quotationSetup.nextNumber = result.rule.nextNumber;
+          writeData(data);
+        }
+      }
+    } catch (_) {}
+
     return res.json({
       success: true,
       message: `Serial number format for ${result.rule.name} updated successfully.`,

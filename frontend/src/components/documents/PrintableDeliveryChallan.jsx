@@ -93,7 +93,7 @@ export function estimateDcItemHeight(item) {
  * Estimates Delivery Challan bottom section height (Condition box + Signatures box)
  */
 export function estimateDcBottomHeight(data) {
-  let h = 36 + 105;
+  let h = 34 + 115;
   if (data?.returnReason || data?.remarks) {
     h += 24;
   }
@@ -107,11 +107,11 @@ export function paginateDeliveryChallan(data) {
   const items = Array.isArray(data?.items) && data.items.length > 0 ? data.items : [];
   const bottomHeight = estimateDcBottomHeight(data || {});
 
-  const A4_USABLE_PAGE_HEIGHT_PX = 955;
-  const DC_PAGE_1_HEADER_HEIGHT_PX = 270;
-  const DC_CONTINUATION_HEADER_HEIGHT_PX = 24;
+  const A4_USABLE_PAGE_HEIGHT_PX = 1015; // 297mm A4 at 96 DPI with 10mm margins
+  const DC_PAGE_1_HEADER_HEIGHT_PX = 285; // Title (36px) + Header Box (140px) + Consignee/Delivery (80px) + Exec/Returned (29px)
+  const DC_CONTINUATION_HEADER_HEIGHT_PX = 28;
   const DC_TABLE_HEADER_HEIGHT_PX = 32;
-  const DC_FOOTER_HEIGHT_PX = 32;
+  const DC_FOOTER_HEIGHT_PX = 28;
 
   let totalItemsHeight = 0;
   const itemHeights = items.map(it => {
@@ -122,9 +122,13 @@ export function paginateDeliveryChallan(data) {
 
   const page1ItemsSpaceWithBottom = A4_USABLE_PAGE_HEIGHT_PX - (DC_PAGE_1_HEADER_HEIGHT_PX + DC_TABLE_HEADER_HEIGHT_PX + bottomHeight + DC_FOOTER_HEIGHT_PX);
 
-  // If total items fit on Page 1:
+  // If total items fit on Page 1 WITH the bottom signature section:
   if (totalItemsHeight <= page1ItemsSpaceWithBottom) {
-    const blankRowsCount = items.length >= 5 ? 1 : Math.max(0, 16 - items.length);
+    const remainingSpace = page1ItemsSpaceWithBottom - totalItemsHeight;
+    // Calculate how many blank rows can safely fit without pushing the signature off the page
+    const maxSafeFillerFit = Math.max(0, Math.floor(remainingSpace / 26));
+    // Dynamic space rule: clamp empty lines so the signature block NEVER gets pushed off the page!
+    const blankRowsCount = Math.min(maxSafeFillerFit, Math.max(0, 4 - items.length));
     return [{
       pageNumber: 1,
       items,
@@ -162,11 +166,13 @@ export function paginateDeliveryChallan(data) {
       for (let j = i; j < items.length; j++) {
         currentItems.push(items[j]);
       }
+      const remainingSpace = availableWithBottom - (currentHeightUsed + remainingHeight);
+      const safeFiller = Math.min(Math.max(0, Math.floor(remainingSpace / 26)), 2);
       pages.push({
         pageNumber: pages.length + 1,
         items: currentItems,
         startIndex: currentStartIndex,
-        blankRowsCount: 1,
+        blankRowsCount: safeFiller,
         isPage1: pages.length === 0,
         showBottomSection: true
       });
@@ -193,18 +199,34 @@ export function paginateDeliveryChallan(data) {
   }
 
   if (currentItems.length > 0) {
+    const isPage1 = pages.length === 0;
+    const availableWithBottom = getAvailableHeight(isPage1, true);
+    const canFitBottom = currentHeightUsed <= availableWithBottom;
+
     pages.push({
       pageNumber: pages.length + 1,
       items: currentItems,
       startIndex: currentStartIndex,
-      blankRowsCount: 1,
-      isPage1: pages.length === 0,
-      showBottomSection: true
+      blankRowsCount: canFitBottom ? Math.min(Math.max(0, Math.floor((availableWithBottom - currentHeightUsed) / 26)), 2) : 0,
+      isPage1,
+      showBottomSection: canFitBottom
     });
+
+    if (!canFitBottom) {
+      // Signature block moves cleanly to next page so it is NEVER truncated!
+      pages.push({
+        pageNumber: pages.length + 1,
+        items: [],
+        startIndex: currentStartIndex + currentItems.length,
+        blankRowsCount: 0,
+        isPage1: false,
+        showBottomSection: true
+      });
+    }
   }
 
   // Safety: pull 1 item to last page if last page is empty
-  if (pages.length > 1 && pages[pages.length - 1].items.length === 0) {
+  if (pages.length > 1 && pages[pages.length - 1].items.length === 0 && pages[pages.length - 1].showBottomSection) {
     const prevPage = pages[pages.length - 2];
     if (prevPage.items.length > 1) {
       const movedItem = prevPage.items.pop();

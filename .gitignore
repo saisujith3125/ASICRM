@@ -15,9 +15,10 @@ frontend/.env.*
 !frontend/.env.example
 
 # Production builds
-dist/
+/dist/
 dist-ssr/
-frontend/dist/
+!frontend/dist/
+!frontend/dist/**
 build/
 
 # Logs

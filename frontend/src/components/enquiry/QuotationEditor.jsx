@@ -118,7 +118,7 @@ export default function QuotationEditor({
   });
 
   // Quotation Modifiers: Installation Charges, Discount, Round-Off & Show Stock
-  const [includeInstallationCharges, setIncludeInstallationCharges] = useState(true);
+  const [includeInstallationCharges, setIncludeInstallationCharges] = useState(false);
   const [showDiscount, setShowDiscount] = useState(false);
   const [roundOffTotal, setRoundOffTotal] = useState(false);
   const [showStock, setShowStock] = useState(false);
@@ -225,9 +225,9 @@ export default function QuotationEditor({
     qtyError: ''
   });
 
-  const ensureTrailingBlankRow = (items, currentIncludeInstallation = includeInstallationCharges) => {
+  const ensureTrailingBlankRow = (items) => {
     if (!Array.isArray(items) || items.length === 0) {
-      return currentIncludeInstallation ? [createBlankRow(), createInstallationChargeRow()] : [createBlankRow()];
+      return [createBlankRow()];
     }
     // Filter out intermediate empty rows, keeping only items with a product or price
     const nonEmpty = items.filter(it => !it.isInstallationCharge && it.productName !== INSTALLATION_CHARGE_NAME && Boolean(it.productId || it.productName));
@@ -236,15 +236,13 @@ export default function QuotationEditor({
     const result = [...nonEmpty, createBlankRow()];
     if (installCharge) {
       result.push(installCharge);
-    } else if (currentIncludeInstallation) {
-      result.push(createInstallationChargeRow());
     }
     return result;
   };
 
   const mapToLineItems = (rawItems, opts = {}) => {
     if (!Array.isArray(rawItems) || rawItems.length === 0) {
-      return includeInstallationCharges ? [createBlankRow(), createInstallationChargeRow()] : [createBlankRow()];
+      return [createBlankRow()];
     }
     const currentShowDiscount = opts.showDiscount !== undefined ? opts.showDiscount : showDiscount;
     const currentStockList = opts.stockProducts || stockProducts;
@@ -661,7 +659,7 @@ export default function QuotationEditor({
               setSelectedCustomerId('');
               setSelectedCustomer(null);
               setSelectedBranchId('');
-              setLineItems(includeInstallationCharges ? [createBlankRow(), createInstallationChargeRow()] : [createBlankRow()]);
+              setLineItems([createBlankRow()]);
             }
           } else if (!didApplyCopy) {
             const draftKey = `asicrm_quotation_draft_${propEnquiryId || propQuotationId || (isReturningFromProductMaster ? 'direct' : '')}`;
@@ -919,7 +917,7 @@ export default function QuotationEditor({
     // Crucial: When a customer is newly selected or changed in Direct Mode,
     // clear the previous data and keep the quotation fresh and clean!
     if (mode === 'direct' && isNewOrDifferentCustomer && !copiedFromSource) {
-      setLineItems(includeInstallationCharges ? [createBlankRow(), createInstallationChargeRow()] : [createBlankRow()]);
+      setLineItems([createBlankRow()]);
       if (masterDefaultsRef.current) {
         setRemarks(masterDefaultsRef.current.note || '');
         setTermsAndConditions(masterDefaultsRef.current.terms || '');
@@ -988,7 +986,7 @@ export default function QuotationEditor({
 
       // Crucial: Clear previous data for newly created customer in direct mode!
       if (mode === 'direct' && !copiedFromSource) {
-        setLineItems(includeInstallationCharges ? [createBlankRow(), createInstallationChargeRow()] : [createBlankRow()]);
+        setLineItems([createBlankRow()]);
         if (masterDefaultsRef.current) {
           setRemarks(masterDefaultsRef.current.note || '');
           setTermsAndConditions(masterDefaultsRef.current.terms || '');
@@ -2267,17 +2265,6 @@ export default function QuotationEditor({
           {/* Products Table Toolbar (Installation charges, Discount toggle, Round-off toggle, Show stock, Add Product to Master) */}
           <div className="quotation-table-toolbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', flexWrap: 'wrap', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap' }}>
-              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: '#1e293b', cursor: 'pointer', userSelect: 'none' }}>
-                <input
-                  type="checkbox"
-                  checked={includeInstallationCharges}
-                  onChange={(e) => handleToggleInstallationCharges(e.target.checked)}
-                  disabled={isConverted || !canManage}
-                  style={{ accentColor: '#2563eb', width: '15px', height: '15px', cursor: 'pointer' }}
-                />
-                <span>Installation Testing &amp; Commissioning Charges</span>
-              </label>
-
               <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: '#334155', cursor: 'pointer', userSelect: 'none' }}>
                 <input
                   type="checkbox"

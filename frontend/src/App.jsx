@@ -1241,6 +1241,7 @@ function CrmDashboard({
       if ((quotationSubView === 'new' && activeEnquiryId) || (enquirySubView === 'quotation' && activeEnquiryId)) {
         content = (
           <QuotationEditor
+            key={`quotation-enquiry-${activeEnquiryId}`}
             user={user}
             mode="enquiry"
             enquiryId={activeEnquiryId}
@@ -1252,6 +1253,7 @@ function CrmDashboard({
       } else if (quotationSubView === 'new') {
         content = (
           <QuotationEditor
+            key="quotation-direct-new"
             user={user}
             mode="direct"
             onClosed={() => navigate('/quotations')}
@@ -1261,6 +1263,7 @@ function CrmDashboard({
       } else if (quotationSubView === 'details' && activeQuotationId) {
         content = (
           <QuotationEditor
+            key={`quotation-details-${activeQuotationId}`}
             user={user}
             mode="details"
             quotationId={activeQuotationId}
@@ -1688,6 +1691,7 @@ function CrmDashboard({
   } else if (enquirySubView === 'quotation' && activeEnquiryId) {
     content = (
       <QuotationEditor
+        key={`quotation-enquiry-${activeEnquiryId}`}
         user={user}
         mode="enquiry"
         enquiryId={activeEnquiryId}

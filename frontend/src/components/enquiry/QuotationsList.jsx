@@ -435,7 +435,14 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
             <button
               type="button"
               className="quotation-topbar-create-btn"
-              onClick={() => navigate('/quotations/new')}
+              onClick={() => {
+                try {
+                  sessionStorage.removeItem('asicrm_quotation_draft_direct');
+                  sessionStorage.removeItem('asicrm_quotation_draft_latest');
+                  sessionStorage.removeItem('asicrm_quotation_copy_payload');
+                } catch (e) {}
+                navigate('/quotations/new');
+              }}
               title="Create new quotation"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

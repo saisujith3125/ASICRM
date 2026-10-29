@@ -368,6 +368,28 @@ export default function QuotationEditor({
   // Track double submission prevention flag
   const isSubmittingRef = useRef(false);
 
+  // Cached Master setup defaults for clean resets
+  const masterDefaultsRef = useRef({
+    header: 'QUOTATION',
+    note: 'Note: Prices quoted are valid for 7 days. Taxes extra as applicable.',
+    terms: '1. Prices are valid for 7 days from quote date.\n2. Delivery: Ex-stock / 1-2 weeks upon receipt of confirmed purchase order.\n3. Payment: 100% advance or as agreed in commercial proposal.\n4. Warranty: Standard manufacturer warranty applies.'
+  });
+
+  // Centralized helper to completely purge quotation drafts
+  const purgeAllQuotationDrafts = () => {
+    try {
+      sessionStorage.removeItem('asicrm_quotation_draft_direct');
+      sessionStorage.removeItem('asicrm_quotation_draft_latest');
+      sessionStorage.removeItem('asicrm_quotation_copy_payload');
+      if (propQuotationId) {
+        sessionStorage.removeItem(`asicrm_quotation_draft_${propQuotationId}`);
+      }
+      if (propEnquiryId) {
+        sessionStorage.removeItem(`asicrm_quotation_draft_${propEnquiryId}`);
+      }
+    } catch (e) {}
+  };
+
   // Initial Data Loading
   useEffect(() => {
     let mounted = true;
@@ -434,6 +456,12 @@ export default function QuotationEditor({
         const masterDefaultNote = masterQuotationSetup.defaultNotes || 'Note: Prices quoted are valid for 7 days. Taxes extra as applicable.';
         const masterDefaultTerms = masterQuotationSetup.defaultTerms || '1. Prices are valid for 7 days from quote date.\n2. Delivery: Ex-stock / 1-2 weeks upon receipt of confirmed purchase order.\n3. Payment: 100% advance or as agreed in commercial proposal.\n4. Warranty: Standard manufacturer warranty applies.';
         const masterValidityDays = Number(masterQuotationSetup.validityDays || 7);
+
+        masterDefaultsRef.current = {
+          header: masterDefaultHeader,
+          note: masterDefaultNote,
+          terms: masterDefaultTerms
+        };
 
         // Mode-specific initialization
         if (mode === 'details' && propQuotationId) {
@@ -616,50 +644,65 @@ export default function QuotationEditor({
           console.error('Failed to parse copy quotation payload:', copyErr);
         }
 
-        // Check and restore draft state if returning from Customer Profile or page reload
+        // Check if returning from Add Product to Master navigation flow
+        const isReturningFromProductMaster = Boolean(
+          sessionStorage.getItem('asicrm_newly_created_product_id') ||
+          sessionStorage.getItem('asicrm_updated_product_payload') ||
+          sessionStorage.getItem('asicrm_target_row_id')
+        );
+
+        // Check and restore draft state
+        let restoredItems = [];
         try {
-          const draftKey = `asicrm_quotation_draft_${propEnquiryId || propQuotationId || 'direct'}`;
-          let rawDraft = sessionStorage.getItem(draftKey);
-          if (!rawDraft) {
-            rawDraft = sessionStorage.getItem('asicrm_quotation_draft_latest');
-          }
-          let restoredItems = [];
-          if (rawDraft && !didApplyCopy) {
-            const draft = JSON.parse(rawDraft);
-            if (draft && mounted) {
-              const draftShowDiscount = Boolean(draft.showDiscount);
-              const draftRoundOff = Boolean(draft.roundOffTotal);
-              if (draft.showDiscount !== undefined) setShowDiscount(draftShowDiscount);
-              if (draft.roundOffTotal !== undefined) setRoundOffTotal(draftRoundOff);
-              if (draft.showStock !== undefined) setShowStock(Boolean(draft.showStock));
-              if (Array.isArray(draft.lineItems) && draft.lineItems.length > 0) {
-                restoredItems = mapToLineItems(draft.lineItems, { showDiscount: draftShowDiscount, stockProducts: loadedStockProducts });
-                setLineItems(restoredItems);
-              }
-              if (typeof draft.remarks === 'string') {
-                setRemarks(draft.remarks);
-              }
-              if (typeof draft.termsAndConditions === 'string') {
-                setTermsAndConditions(draft.termsAndConditions);
-              }
-              if (typeof draft.headerTitle === 'string') {
-                setHeaderTitle(draft.headerTitle);
-              }
-              if (draft.validUntilDate) {
-                setValidUntilDate(draft.validUntilDate);
-              }
-              if (mode === 'direct') {
-                if (draft.selectedCustomerId) {
-                  setSelectedCustomerId(draft.selectedCustomerId);
-                  if (draft.selectedCustomer) {
-                    setSelectedCustomer(draft.selectedCustomer);
-                  } else {
-                    const matched = loadedCustomers.find((c) => c.id === draft.selectedCustomerId);
-                    if (matched) setSelectedCustomer(matched);
-                  }
+          if (mode === 'direct' && !isReturningFromProductMaster && !didApplyCopy) {
+            // A brand-new direct quotation must ALWAYS start clean! Zero lingering items from previous completed quotes!
+            purgeAllQuotationDrafts();
+            if (mounted) {
+              setSelectedCustomerId('');
+              setSelectedCustomer(null);
+              setSelectedBranchId('');
+              setLineItems(includeInstallationCharges ? [createBlankRow(), createInstallationChargeRow()] : [createBlankRow()]);
+            }
+          } else if (!didApplyCopy) {
+            const draftKey = `asicrm_quotation_draft_${propEnquiryId || propQuotationId || (isReturningFromProductMaster ? 'direct' : '')}`;
+            const rawDraft = draftKey ? sessionStorage.getItem(draftKey) : null;
+            if (rawDraft) {
+              const draft = JSON.parse(rawDraft);
+              if (draft && mounted) {
+                const draftShowDiscount = Boolean(draft.showDiscount);
+                const draftRoundOff = Boolean(draft.roundOffTotal);
+                if (draft.showDiscount !== undefined) setShowDiscount(draftShowDiscount);
+                if (draft.roundOffTotal !== undefined) setRoundOffTotal(draftRoundOff);
+                if (draft.showStock !== undefined) setShowStock(Boolean(draft.showStock));
+                if (Array.isArray(draft.lineItems) && draft.lineItems.length > 0) {
+                  restoredItems = mapToLineItems(draft.lineItems, { showDiscount: draftShowDiscount, stockProducts: loadedStockProducts });
+                  setLineItems(restoredItems);
                 }
-                if (draft.selectedEnquiryId) {
-                  setSelectedEnquiryId(draft.selectedEnquiryId);
+                if (typeof draft.remarks === 'string') {
+                  setRemarks(draft.remarks);
+                }
+                if (typeof draft.termsAndConditions === 'string') {
+                  setTermsAndConditions(draft.termsAndConditions);
+                }
+                if (typeof draft.headerTitle === 'string') {
+                  setHeaderTitle(draft.headerTitle);
+                }
+                if (draft.validUntilDate) {
+                  setValidUntilDate(draft.validUntilDate);
+                }
+                if (mode === 'direct' && isReturningFromProductMaster) {
+                  if (draft.selectedCustomerId) {
+                    setSelectedCustomerId(draft.selectedCustomerId);
+                    if (draft.selectedCustomer) {
+                      setSelectedCustomer(draft.selectedCustomer);
+                    } else {
+                      const matched = loadedCustomers.find((c) => c.id === draft.selectedCustomerId);
+                      if (matched) setSelectedCustomer(matched);
+                    }
+                  }
+                  if (draft.selectedEnquiryId) {
+                    setSelectedEnquiryId(draft.selectedEnquiryId);
+                  }
                 }
               }
             }
@@ -856,6 +899,7 @@ export default function QuotationEditor({
 
   // Handle customer selection in direct mode
   const handleSelectCustomer = (id, customer) => {
+    const isNewOrDifferentCustomer = Boolean(!selectedCustomerId || (id && id !== selectedCustomerId));
     const wasDealer = isCustomerDealer(selectedCustomer);
     const isNowDealer = isCustomerDealer(customer);
 
@@ -872,7 +916,20 @@ export default function QuotationEditor({
     setSelectedEnquiryId('');
     setError('');
 
-    if (wasDealer !== isNowDealer) {
+    // Crucial: When a customer is newly selected or changed in Direct Mode,
+    // clear the previous data and keep the quotation fresh and clean!
+    if (mode === 'direct' && isNewOrDifferentCustomer && !copiedFromSource) {
+      setLineItems(includeInstallationCharges ? [createBlankRow(), createInstallationChargeRow()] : [createBlankRow()]);
+      if (masterDefaultsRef.current) {
+        setRemarks(masterDefaultsRef.current.note || '');
+        setTermsAndConditions(masterDefaultsRef.current.terms || '');
+        setHeaderTitle(masterDefaultsRef.current.header || 'QUOTATION');
+      }
+      setShowDiscount(false);
+      setRoundOffTotal(false);
+      setShowStock(false);
+      purgeAllQuotationDrafts();
+    } else if (wasDealer !== isNowDealer) {
       setLineItems((prev) => {
         return prev.map((item) => {
           if (!item.productId || item.isInstallationCharge) return item;
@@ -917,9 +974,6 @@ export default function QuotationEditor({
   // Handle new customer created via modal in direct mode
   const handleCustomerCreated = (newCust) => {
     if (newCust && newCust.id) {
-      const wasDealer = isCustomerDealer(selectedCustomer);
-      const isNowDealer = isCustomerDealer(newCust);
-
       setSelectedCustomerId(newCust.id);
       setSelectedCustomer(newCust);
       const branches = Array.isArray(newCust?.branches) ? newCust.branches : [];
@@ -932,45 +986,18 @@ export default function QuotationEditor({
       setCustomersList((prev) => [newCust, ...prev.filter((c) => c.id !== newCust.id)]);
       setIsCustomerModalOpen(false);
 
-      if (wasDealer !== isNowDealer) {
-        setLineItems((prev) => {
-          return prev.map((item) => {
-            if (!item.productId || item.isInstallationCharge) return item;
-            const prod = stockProducts.find(
-              (p) => (p.id && String(p.id) === String(item.productId)) ||
-                     (p.productId && String(p.productId) === String(item.productId)) ||
-                     (p.code && String(p.code).trim().toUpperCase() === String(item.productCode || item.productId).trim().toUpperCase())
-            );
-            const mMrp = prod ? Number(prod.mrp || 0) : Number(item.mrp || 0);
-            const mDealer = prod ? Number(prod.dealerPrice || prod.price || prod.unitPrice || prod.sellingPrice || prod.cost || 0) : Number(item.dealerPrice || 0);
-            const minPrice = mDealer > 0 ? mDealer : (mMrp > 0 ? mMrp : 0);
-
-            let nextUnitPrice = item.unitPrice;
-            if (isNowDealer) {
-              if (mDealer > 0 && (Number(item.unitPrice) === mMrp || !item.unitPrice || Number(item.unitPrice) === 0)) {
-                nextUnitPrice = mDealer;
-              }
-            } else {
-              if (mMrp > 0 && (Number(item.unitPrice) === mDealer || !item.unitPrice || Number(item.unitPrice) === 0)) {
-                nextUnitPrice = mMrp;
-              }
-            }
-
-            return {
-              ...calculateLineItem({
-                ...item,
-                unitPrice: nextUnitPrice,
-                minPrice,
-                mrp: mMrp,
-                dealerPrice: mDealer
-              }, { showDiscount }),
-              unitPrice: nextUnitPrice,
-              minPrice,
-              mrp: mMrp,
-              dealerPrice: mDealer
-            };
-          });
-        });
+      // Crucial: Clear previous data for newly created customer in direct mode!
+      if (mode === 'direct' && !copiedFromSource) {
+        setLineItems(includeInstallationCharges ? [createBlankRow(), createInstallationChargeRow()] : [createBlankRow()]);
+        if (masterDefaultsRef.current) {
+          setRemarks(masterDefaultsRef.current.note || '');
+          setTermsAndConditions(masterDefaultsRef.current.terms || '');
+          setHeaderTitle(masterDefaultsRef.current.header || 'QUOTATION');
+        }
+        setShowDiscount(false);
+        setRoundOffTotal(false);
+        setShowStock(false);
+        purgeAllQuotationDrafts();
       }
     }
   };
@@ -1105,11 +1132,16 @@ export default function QuotationEditor({
 
   // Auto-sync quotation draft to sessionStorage whenever line items, remarks, terms, dates, or customer change
   useEffect(() => {
-    if (loading || isConverted) return;
+    if (loading || isConverted || isSaved || quotationStatus === 'ACCEPTED' || quotationStatus === 'CONFIRMED' || quotationStatus === 'REJECTED') return;
     const hasItems = Array.isArray(lineItems) && lineItems.some(it => it.productId || it.productName);
     const hasRemarks = Boolean(remarks && remarks.trim());
     const hasTerms = Boolean(termsAndConditions && termsAndConditions.trim());
     const hasCust = Boolean(selectedCustomerId);
+
+    // In direct mode: do not autosave empty initial template
+    if (mode === 'direct' && (!hasCust || !hasItems)) {
+      return;
+    }
 
     if (hasItems || hasRemarks || hasTerms || hasCust) {
       try {
@@ -1135,7 +1167,7 @@ export default function QuotationEditor({
         sessionStorage.setItem(draftKey, JSON.stringify(draftData));
       } catch (e) {}
     }
-  }, [lineItems, remarks, termsAndConditions, headerTitle, validUntilDate, selectedCustomerId, selectedCustomer, selectedEnquiryId, mode, propEnquiryId, propQuotationId, quotationNumber, loading, isConverted, showDiscount, roundOffTotal, showStock]);
+  }, [lineItems, remarks, termsAndConditions, headerTitle, validUntilDate, selectedCustomerId, selectedCustomer, selectedEnquiryId, mode, propEnquiryId, propQuotationId, quotationNumber, loading, isConverted, isSaved, quotationStatus, showDiscount, roundOffTotal, showStock]);
 
   // Line item manipulation
   const handleProductSelect = (rowId, productId, selectedItem = null) => {
@@ -1536,10 +1568,7 @@ export default function QuotationEditor({
 
   // Back Navigation
   const handleBack = () => {
-    try {
-      const draftKey = `asicrm_quotation_draft_${propEnquiryId || propQuotationId || 'direct'}`;
-      sessionStorage.removeItem(draftKey);
-    } catch {}
+    purgeAllQuotationDrafts();
     if (mode === 'enquiry' && propEnquiryId && !isSaved) {
       if (onBackToFollowUp) onBackToFollowUp();
       else navigate(`/enquiries/${encodeURIComponent(propEnquiryId)}/followup`);
@@ -1570,6 +1599,7 @@ export default function QuotationEditor({
       }
       setQuotationStatus('ACCEPTED');
       setSuccess(`Quotation ${quotationNumber} accepted successfully! PDF and Order conversion are now available.`);
+      purgeAllQuotationDrafts();
     } catch (err) {
       console.error('Accept quotation error:', err);
       setError(err.message || 'Failed to accept quotation.');
@@ -1602,6 +1632,7 @@ export default function QuotationEditor({
       }
       setQuotationStatus('REJECTED');
       setSuccess(`Quotation ${quotationNumber} has been rejected.`);
+      purgeAllQuotationDrafts();
     } catch (err) {
       console.error('Reject quotation error:', err);
       setError(err.message || 'Failed to reject quotation.');
@@ -1636,6 +1667,7 @@ export default function QuotationEditor({
       setQuotationStatus('CONVERTED');
       if (createdOrderId) setOrderId(createdOrderId);
       setSuccess(`Quotation ${quotationNumber} successfully converted to Order ${createdOrderId || ''}!`);
+      purgeAllQuotationDrafts();
     } catch (err) {
       console.error('Convert quotation error:', err);
       setError(err.message || 'Failed to convert quotation to order.');
@@ -1860,10 +1892,7 @@ export default function QuotationEditor({
       if (savedQuote?.orderId) setOrderId(savedQuote.orderId);
 
       setSuccess(`Quotation ${savedId} saved successfully. Status: ${savedStatus === 'PENDING' ? 'Pending' : savedStatus.replace(/_/g, ' ')}.`);
-      try {
-        const draftKey = `asicrm_quotation_draft_${propEnquiryId || propQuotationId || 'direct'}`;
-        sessionStorage.removeItem(draftKey);
-      } catch {}
+      purgeAllQuotationDrafts();
 
       if (typeof window !== 'undefined' && window.history && window.history.replaceState) {
         window.history.replaceState(null, '', `/quotations/${encodeURIComponent(savedId)}`);

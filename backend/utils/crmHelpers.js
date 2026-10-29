@@ -66,14 +66,20 @@ const normalizeCustomer = (customer, generateBranchId) => {
 };
 
 const validateNewCustomer = (payload) => {
-  const name = String(payload.name || payload.customerName || '').trim();
+  const customerTypeRaw = String(payload.customerType || '').trim();
+  const validTypes = ['Individual', 'Business', 'Corporate', 'Dealer'];
+  const customerType = validTypes.includes(customerTypeRaw) ? customerTypeRaw : 'Individual';
+  const isIndividual = customerType === 'Individual';
+  const isBusinessOrCorporate = customerType === 'Business' || customerType === 'Corporate';
+
+  const name = String(payload.name || payload.customerName || payload.company || '').trim();
   const mobile = digitsOnly(payload.mobile || payload.mobileNumber).slice(-10);
   const email = String(payload.email || '').trim();
   const contactPerson = String(payload.contactPerson || '').trim();
-  const company = String(payload.company || payload.companyName || contactPerson || name).trim();
+  const company = String(payload.company || payload.companyName || (!isIndividual ? name : '')).trim();
 
-  if (!name) {
-    return { error: 'Customer name is required.' };
+  if (!name && !company) {
+    return { error: isIndividual ? 'Customer name is required.' : 'Company name is required.' };
   }
   if (!mobile) {
     return { error: 'Mobile number is required.' };
@@ -88,17 +94,13 @@ const validateNewCustomer = (payload) => {
     return { error: 'Please enter a valid email address.' };
   }
 
-  const validTypes = ['Individual', 'Business', 'Corporate', 'Dealer'];
-  const customerType = validTypes.includes(payload.customerType) ? payload.customerType : 'Individual';
-  const isBusinessOrCorporate = customerType === 'Business' || customerType === 'Corporate';
-
   return {
     value: {
-      name,
+      name: isIndividual ? name : (company || name),
       mobile,
       email,
-      contactPerson: contactPerson || company || name,
-      company: company || name,
+      contactPerson: contactPerson || name,
+      company: isIndividual ? '' : (company || name),
       customerType,
       address: String(payload.address || payload.billingAddress || '').trim(),
       shippingAddress: String(payload.shippingAddress || payload.deliveryAddress || payload.address || payload.billingAddress || '').trim(),

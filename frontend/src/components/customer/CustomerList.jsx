@@ -121,12 +121,13 @@ export default function CustomerList({ user, onSelectCustomer, onCreateEnquiryFo
   // Edit Customer handlers
   const openEditModal = (c) => {
     setEditingCustomer(c);
+    const isInd = (c.customerType || '').toLowerCase() === 'individual';
     setEditForm({
-      name: c.name || '',
+      name: isInd ? (c.name || '') : (c.contactPerson || c.name || ''),
+      company: c.company || (!isInd ? (c.name || '') : ''),
+      contactPerson: c.contactPerson || (!isInd ? (c.name || '') : ''),
       mobile: c.mobile || '',
       email: c.email || '',
-      contactPerson: c.contactPerson || '',
-      company: c.company || '',
       customerType: c.customerType || 'Individual',
       gstin: c.gstin || '',
       address: c.address || '',
@@ -139,7 +140,13 @@ export default function CustomerList({ user, onSelectCustomer, onCreateEnquiryFo
   const handleSaveEdit = async (e) => {
     e.preventDefault();
     const errs = {};
-    if (!editForm.name.trim()) errs.name = 'Customer name is required.';
+    const isInd = editForm.customerType === 'Individual';
+    if (isInd) {
+      if (!editForm.name.trim()) errs.name = 'Customer name is required.';
+    } else {
+      if (!editForm.company.trim()) errs.company = 'Company / Enterprise name is required.';
+      if (!editForm.name.trim() && !editForm.contactPerson.trim()) errs.name = 'Customer name (contact person) is required.';
+    }
     const rawMobile = editForm.mobile.replace(/\D/g, '');
     if (!rawMobile || rawMobile.length !== 10) errs.mobile = 'Please enter a valid 10-digit mobile number.';
     if (!editForm.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email.trim())) {
@@ -154,6 +161,11 @@ export default function CustomerList({ user, onSelectCustomer, onCreateEnquiryFo
     setSavingEdit(true);
     setEditErrors({});
 
+    const effCompany = isInd ? '' : editForm.company.trim();
+    const effContact = isInd ? editForm.name.trim() : (editForm.name.trim() || editForm.contactPerson.trim());
+    // For business, dealer, corporate: take company name as primary customer name on Customer Page!
+    const effPrimaryName = isInd ? editForm.name.trim() : (editForm.company.trim() || editForm.name.trim());
+
     try {
       const res = await apiFetch(apiUrl(`/api/customers/${editingCustomer.id}`), {
         method: 'PUT',
@@ -162,11 +174,11 @@ export default function CustomerList({ user, onSelectCustomer, onCreateEnquiryFo
           'x-user-id': user?.id || ''
         },
         body: JSON.stringify({
-          name: editForm.name.trim(),
+          name: effPrimaryName,
           mobile: rawMobile.slice(-10),
           email: editForm.email.trim(),
-          contactPerson: editForm.contactPerson.trim(),
-          company: editForm.company.trim() || editForm.contactPerson.trim(),
+          contactPerson: effContact,
+          company: effCompany,
           customerType: editForm.customerType,
           gstin: (editForm.customerType === 'Business' || editForm.customerType === 'Corporate') ? (editForm.gstin || '').trim().toUpperCase() : '',
           address: editForm.address.trim(),
@@ -333,20 +345,39 @@ export default function CustomerList({ user, onSelectCustomer, onCreateEnquiryFo
                       <span className="customer-id-pill master-code">{c.id}</span>
                     </td>
                     <td data-label="CUSTOMER" className="col-priority-high cell-wrap">
-                      <a
-                        href={`/customers/${encodeURIComponent(c.id)}`}
-                        onClick={(e) => {
-                          if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
-                            e.preventDefault();
-                            onSelectCustomer(c.id);
-                          }
-                        }}
-                        className="customer-table-link customer-table-name"
-                        title={c.name}
-                        style={{ textDecoration: 'none' }}
-                      >
-                        {c.name}
-                      </a>
+                      {(() => {
+                        const isIndividual = (c.customerType || '').toLowerCase() === 'individual';
+                        // For Business, Corporate, or Dealer: the Customer column takes the Company Name as Customer Name!
+                        const customerDisplayName = (!isIndividual && c.company) ? c.company : (c.name || c.company || '—');
+                        const contactName = (!isIndividual && (c.contactPerson || (c.name && c.name !== customerDisplayName)))
+                          ? (c.contactPerson || (c.name !== customerDisplayName ? c.name : ''))
+                          : null;
+
+                        return (
+                          <div>
+                            <a
+                              href={`/customers/${encodeURIComponent(c.id)}`}
+                              onClick={(e) => {
+                                if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
+                                  e.preventDefault();
+                                  onSelectCustomer(c.id);
+                                }
+                              }}
+                              className="customer-table-link customer-table-name"
+                              title={customerDisplayName}
+                              style={{ textDecoration: 'none', fontWeight: 600, color: '#0f172a' }}
+                            >
+                              {customerDisplayName}
+                            </a>
+                            {contactName && (
+                              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                <span style={{ fontSize: '10px' }}>👤</span>
+                                <span>{contactName}</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td data-label="MOBILE" className="col-priority-med cell-nowrap">
                       +91 {c.mobile}
@@ -471,27 +502,70 @@ export default function CustomerList({ user, onSelectCustomer, onCreateEnquiryFo
 
               <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                 <div className="field-group">
-                  <label className="field-label">Customer Name <span className="req-star">*</span></label>
+                  <label className="field-label">Customer Type</label>
+                  <select
+                    value={editForm.customerType}
+                    onChange={(e) => {
+                      const nextType = e.target.value;
+                      const isAllowed = nextType === 'Business' || nextType === 'Corporate';
+                      setEditForm((f) => ({
+                        ...f,
+                        customerType: nextType,
+                        gstin: isAllowed ? f.gstin : ''
+                      }));
+                    }}
+                    className="crm-select-input"
+                  >
+                    <option value="Individual">Individual</option>
+                    <option value="Business">Business</option>
+                    <option value="Dealer">Dealer</option>
+                    <option value="Corporate">Corporate</option>
+                  </select>
+                </div>
+
+                {editForm.customerType === 'Individual' ? (
+                  <div className="field-group">
+                    <label className="field-label">Customer Name <span className="req-star">*</span></label>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                      className="crm-text-input"
+                      placeholder="e.g. Rajesh Kumar"
+                      required
+                    />
+                    {editErrors.name && <span className="field-error-text" style={{ color: '#dc2626', fontSize: '11px' }}>{editErrors.name}</span>}
+                  </div>
+                ) : (
+                  <div className="field-group">
+                    <label className="field-label">Company / Enterprise Name <span className="req-star">*</span></label>
+                    <input
+                      type="text"
+                      value={editForm.company}
+                      onChange={(e) => setEditForm((f) => ({ ...f, company: e.target.value }))}
+                      className="crm-text-input"
+                      placeholder="e.g. Tata Motors Ltd, ABC Tech"
+                      required
+                    />
+                    {editErrors.company && <span className="field-error-text" style={{ color: '#dc2626', fontSize: '11px' }}>{editErrors.company}</span>}
+                  </div>
+                )}
+              </div>
+
+              {editForm.customerType !== 'Individual' && (
+                <div className="field-group" style={{ marginBottom: '12px' }}>
+                  <label className="field-label">Customer Name (Contact Person) <span className="req-star">*</span></label>
                   <input
                     type="text"
                     value={editForm.name}
-                    onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                    onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value, contactPerson: e.target.value }))}
                     className="crm-text-input"
+                    placeholder="e.g. Rajesh Kumar"
                     required
                   />
                   {editErrors.name && <span className="field-error-text" style={{ color: '#dc2626', fontSize: '11px' }}>{editErrors.name}</span>}
                 </div>
-
-                <div className="field-group">
-                  <label className="field-label">Contact Person / Company</label>
-                  <input
-                    type="text"
-                    value={editForm.contactPerson}
-                    onChange={(e) => setEditForm((f) => ({ ...f, contactPerson: e.target.value, company: e.target.value }))}
-                    className="crm-text-input"
-                  />
-                </div>
-              </div>
+              )}
 
               <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                 <div className="field-group">
@@ -520,38 +594,14 @@ export default function CustomerList({ user, onSelectCustomer, onCreateEnquiryFo
                 </div>
               </div>
 
-              <div className="form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
-                <div className="field-group">
-                  <label className="field-label">Customer Type</label>
-                  <select
-                    value={editForm.customerType}
-                    onChange={(e) => {
-                      const nextType = e.target.value;
-                      const isAllowed = nextType === 'Business' || nextType === 'Corporate';
-                      setEditForm((f) => ({
-                        ...f,
-                        customerType: nextType,
-                        gstin: isAllowed ? f.gstin : ''
-                      }));
-                    }}
-                    className="crm-select-input"
-                  >
-                    <option value="Individual">Individual</option>
-                    <option value="Business">Business</option>
-                    <option value="Dealer">Dealer</option>
-                    <option value="Corporate">Corporate</option>
-                  </select>
-                </div>
-
-                <div className="field-group">
-                  <label className="field-label">City</label>
-                  <input
-                    type="text"
-                    value={editForm.city}
-                    onChange={(e) => setEditForm((f) => ({ ...f, city: e.target.value }))}
-                    className="crm-text-input"
-                  />
-                </div>
+              <div className="field-group" style={{ marginBottom: '12px' }}>
+                <label className="field-label">City</label>
+                <input
+                  type="text"
+                  value={editForm.city}
+                  onChange={(e) => setEditForm((f) => ({ ...f, city: e.target.value }))}
+                  className="crm-text-input"
+                />
               </div>
 
               {(editForm.customerType === 'Business' || editForm.customerType === 'Corporate') && (

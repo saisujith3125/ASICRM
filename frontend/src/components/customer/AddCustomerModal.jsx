@@ -15,7 +15,7 @@ export default function AddCustomerModal({
   const [contactPerson, setContactPerson] = useState('');
   const [mobile, setMobile] = useState('');
   const [email, setEmail] = useState('');
-  const [customerType, setCustomerType] = useState('Individual');
+  const [customerType, setCustomerType] = useState('');
   const [gstin, setGstin] = useState('');
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
@@ -30,11 +30,14 @@ export default function AddCustomerModal({
   const [errors, setErrors] = useState({});
   const [duplicateCustomer, setDuplicateCustomer] = useState(null);
 
+  const isIndividual = customerType === 'Individual';
+  const isEnterprise = customerType === 'Business' || customerType === 'Dealer' || customerType === 'Corporate';
+  const isTypeSelected = Boolean(customerType);
+
   useEffect(() => {
     if (isOpen) {
       if (defaultName) {
         setName(defaultName);
-        if (!company) setCompany(defaultName);
       }
     }
   }, [isOpen, defaultName]);
@@ -45,7 +48,7 @@ export default function AddCustomerModal({
     setContactPerson('');
     setMobile('');
     setEmail('');
-    setCustomerType('Individual');
+    setCustomerType('');
     setGstin('');
     setAddress('');
     setCity('');
@@ -83,15 +86,21 @@ export default function AddCustomerModal({
   };
   const shouldShowGstin = isGstinAllowedType(customerType);
 
-  const handleCustomerTypeChange = (e) => {
-    const nextType = e.target.value;
+  const handleSelectCustomerType = (nextType) => {
     setCustomerType(nextType);
+    if (errors.customerType) {
+      setErrors((prev) => ({ ...prev, customerType: null }));
+    }
     if (!isGstinAllowedType(nextType)) {
       setGstin('');
       if (errors.gstin) {
         setErrors((prev) => ({ ...prev, gstin: null }));
       }
     }
+  };
+
+  const handleCustomerTypeChange = (e) => {
+    handleSelectCustomerType(e.target.value);
   };
 
   const handleEmailChange = (e) => {
@@ -104,12 +113,29 @@ export default function AddCustomerModal({
 
   const validateForm = () => {
     const errs = {};
+    if (!customerType) {
+      errs.customerType = 'Please select a Customer Type first.';
+      setErrors(errs);
+      return false;
+    }
+
     const cleanName = name.trim();
+    const cleanCompany = company.trim();
+    const cleanContact = contactPerson.trim();
     const cleanMobile = mobile.trim();
     const cleanEmail = email.trim();
 
-    if (!cleanName) {
-      errs.name = 'Customer name is required.';
+    if (isIndividual) {
+      if (!cleanName) {
+        errs.name = 'Customer name is required.';
+      }
+    } else if (isEnterprise) {
+      if (!cleanCompany) {
+        errs.company = 'Company / Enterprise name is required.';
+      }
+      if (!cleanName && !cleanContact) {
+        errs.name = 'Customer name (contact person) is required.';
+      }
     }
 
     if (!cleanMobile) {
@@ -139,13 +165,17 @@ export default function AddCustomerModal({
     // Client-side duplicate check if existingCustomers passed
     if (Array.isArray(existingCustomers) && existingCustomers.length > 0) {
       const normName = cleanName.replace(/\s+/g, ' ').toLowerCase();
+      const normCompany = cleanCompany.replace(/\s+/g, ' ').toLowerCase();
       const normEmail = cleanEmail.toLowerCase();
       const dup = existingCustomers.find((c) => {
         const cMob = String(c.mobile || '').replace(/\D/g, '').slice(-10);
         const cMail = String(c.email || '').trim().toLowerCase();
         const cName = String(c.name || '').trim().replace(/\s+/g, ' ').toLowerCase();
         const cComp = String(c.company || '').trim().replace(/\s+/g, ' ').toLowerCase();
-        return (cMob && cMob === cleanMobile) || (cMail && cMail === normEmail) || (cName && cName === normName) || (company && cComp && cComp === company.trim().toLowerCase());
+        return (cMob && cMob === cleanMobile) ||
+          (cMail && cMail === normEmail) ||
+          (isIndividual && cName && cName === normName) ||
+          (isEnterprise && cComp && normCompany && cComp === normCompany);
       });
       if (dup) {
         setDuplicateCustomer(dup);
@@ -167,7 +197,16 @@ export default function AddCustomerModal({
     setSubmitting(true);
     setDuplicateCustomer(null);
 
-    const effectiveCompany = company.trim() || contactPerson.trim() || name.trim();
+    const cleanName = name.trim();
+    const cleanCompany = company.trim();
+    const cleanContact = contactPerson.trim();
+    const cleanMobile = mobile.trim();
+    const cleanEmail = email.trim();
+
+    // In ASI CRM, when a Business, Dealer, or Corporate is chosen, the Customer Page takes the Company Name as Customer Name!
+    const effectivePrimaryName = isIndividual ? cleanName : cleanCompany;
+    const effectiveCompany = isIndividual ? '' : cleanCompany;
+    const effectiveContactPerson = isIndividual ? cleanName : (cleanContact || cleanName);
     const effectiveShipping = sameAsBilling ? address.trim() : (shippingAddress.trim() || address.trim());
 
     try {
@@ -175,11 +214,11 @@ export default function AddCustomerModal({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: name.trim(),
+          name: effectivePrimaryName,
           company: effectiveCompany,
-          contactPerson: contactPerson.trim() || name.trim(),
-          mobile: mobile.trim(),
-          email: email.trim(),
+          contactPerson: effectiveContactPerson,
+          mobile: cleanMobile,
+          email: cleanEmail,
           customerType,
           address: address.trim(),
           shippingAddress: effectiveShipping,
@@ -313,8 +352,84 @@ export default function AddCustomerModal({
           </div>
         )}
 
+        {/* Customer Type Selection Section (Alone Active Initially) */}
+        <div className="customer-type-selection-container" style={{ margin: '14px 24px 0', padding: '12px 14px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <label className="field-label prominent" style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
+              CUSTOMER TYPE <span className="req-star">*</span>
+            </label>
+            {!customerType ? (
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#ea580c', background: '#fff7ed', border: '1px solid #fed7aa', padding: '2px 8px', borderRadius: '4px' }}>
+                ⚡ Click Type to Unlock All Fields
+              </span>
+            ) : (
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#15803d', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '2px 8px', borderRadius: '4px' }}>
+                ✓ Selected: {customerType}
+              </span>
+            )}
+          </div>
+
+          <div className="customer-type-pills-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+            {[
+              { type: 'Individual', icon: '👤', label: 'Individual', desc: 'Direct Client' },
+              { type: 'Business', icon: '🏢', label: 'Business', desc: 'Commercial Entity' },
+              { type: 'Dealer', icon: '🤝', label: 'Dealer', desc: 'Partner / Reseller' },
+              { type: 'Corporate', icon: '🏛️', label: 'Corporate', desc: 'Enterprise Client' }
+            ].map((item) => {
+              const isSelected = customerType === item.type;
+              return (
+                <button
+                  key={item.type}
+                  type="button"
+                  onClick={() => handleSelectCustomerType(item.type)}
+                  className={`customer-type-pill-btn ${isSelected ? 'is-selected' : ''}`}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '10px 4px',
+                    borderRadius: '8px',
+                    border: isSelected ? '2px solid #2563eb' : '1px solid #cbd5e1',
+                    backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease-in-out',
+                    boxShadow: isSelected ? '0 2px 5px rgba(37,99,235,0.18)' : '0 1px 2px rgba(0,0,0,0.04)',
+                    position: 'relative'
+                  }}
+                >
+                  <span style={{ fontSize: '18px', marginBottom: '2px' }}>{item.icon}</span>
+                  <span style={{ fontSize: '12px', fontWeight: isSelected ? 800 : 600, color: isSelected ? '#1d4ed8' : '#334155' }}>
+                    {item.label}
+                  </span>
+                  <span style={{ fontSize: '9.5px', color: isSelected ? '#2563eb' : '#64748b', marginTop: '1px' }}>
+                    {item.desc}
+                  </span>
+                  {isSelected && (
+                    <span style={{ position: 'absolute', top: '3px', right: '5px', fontSize: '10px', color: '#2563eb', fontWeight: 800 }}>✓</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          {errors.customerType && (
+            <span className="inline-field-error" style={{ display: 'block', marginTop: '6px' }}>{errors.customerType}</span>
+          )}
+        </div>
+
+        {/* Informational Guidance Banner if locked */}
+        {!isTypeSelected && (
+          <div className="crm-alert-box info" style={{ margin: '10px 24px 0', background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: '6px' }}>
+            <span style={{ fontSize: '16px' }}>🔒</span>
+            <span style={{ fontSize: '12px', lineHeight: 1.4 }}>
+              All fields below are currently locked. <strong>Click a Customer Type above</strong> (Individual, Business, Dealer, or Corporate) to unlock and fill customer information.
+            </span>
+          </div>
+        )}
+
         <div
-          className="modal-form-content"
+          className={`modal-form-content ${!isTypeSelected ? 'is-blocked-form' : ''}`}
+          style={!isTypeSelected ? { opacity: 0.45, pointerEvents: 'none', filter: 'grayscale(20%)', userSelect: 'none' } : {}}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
               e.preventDefault();
@@ -327,105 +442,185 @@ export default function AddCustomerModal({
           <div className="modal-section-group">
             <h4 className="modal-section-heading">CUSTOMER &amp; COMPANY INFORMATION</h4>
 
-            <div className="form-grid-2">
-              {/* Customer Name */}
-              <div className="form-field-group">
-                <label className="field-label">
-                  Customer Name <span className="req-star">*</span>
-                </label>
-                <input
-                  type="text"
-                  className={`crm-text-input ${errors.name ? 'has-error' : ''}`}
-                  placeholder="e.g. Rajesh Kumar"
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
-                  }}
-                  required
-                  autoFocus
-                />
-                {errors.name && <span className="inline-field-error">{errors.name}</span>}
-              </div>
-
-              {/* Company */}
-              <div className="form-field-group">
-                <label className="field-label">Company / Enterprise</label>
-                <input
-                  type="text"
-                  className="crm-text-input"
-                  placeholder="e.g. ABC Technologies Pvt Ltd"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                />
-              </div>
-
-              {/* Contact Person */}
-              <div className="form-field-group">
-                <label className="field-label">Contact Person</label>
-                <input
-                  type="text"
-                  className="crm-text-input"
-                  placeholder="e.g. Operations Manager"
-                  value={contactPerson}
-                  onChange={(e) => setContactPerson(e.target.value)}
-                />
-              </div>
-
-              {/* Customer Type */}
-              <div className="form-field-group">
-                <label className="field-label">Customer Type</label>
-                <select
-                  className="crm-select-input"
-                  value={customerType}
-                  onChange={handleCustomerTypeChange}
-                >
-                  <option value="Individual">Individual</option>
-                  <option value="Business">Business</option>
-                  <option value="Corporate">Corporate</option>
-                  <option value="Dealer">Dealer</option>
-                </select>
-              </div>
-
-              {/* Mobile Number with Country Code */}
-              <div className="form-field-group">
-                <label className="field-label">
-                  Mobile Number <span className="req-star">*</span>
-                </label>
-                <div className={`phone-input-group ${errors.mobile ? 'has-error' : ''}`} style={{ height: '42px' }}>
-                  <div className="country-code-pill">
-                    <span style={{ fontSize: '16px' }}>🇮🇳</span>
-                    <span>+91</span>
-                  </div>
-                  <div className="phone-divider" style={{ height: '20px' }} />
+            {isIndividual ? (
+              /* Fields for Individual Customer */
+              <div className="form-grid-2">
+                {/* Customer Name */}
+                <div className="form-field-group">
+                  <label className="field-label">
+                    Customer Name <span className="req-star">*</span>
+                  </label>
                   <input
-                    type="tel"
-                    className="phone-number-input"
-                    placeholder="9811223344"
-                    value={mobile}
-                    onChange={handleMobileChange}
-                    maxLength={10}
+                    type="text"
+                    className={`crm-text-input ${errors.name ? 'has-error' : ''}`}
+                    placeholder="e.g. Rajesh Kumar"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
+                    }}
+                    required
+                    autoFocus
+                  />
+                  {errors.name && <span className="inline-field-error">{errors.name}</span>}
+                </div>
+
+                {/* Customer Type Indicator */}
+                <div className="form-field-group">
+                  <label className="field-label">Customer Type</label>
+                  <input
+                    type="text"
+                    className="crm-text-input"
+                    value="Individual (Direct Person)"
+                    disabled
+                    style={{ backgroundColor: '#f1f5f9', color: '#475569', fontWeight: 600 }}
+                  />
+                </div>
+
+                {/* Mobile Number with Country Code */}
+                <div className="form-field-group">
+                  <label className="field-label">
+                    Mobile Number <span className="req-star">*</span>
+                  </label>
+                  <div className={`phone-input-group ${errors.mobile ? 'has-error' : ''}`} style={{ height: '42px' }}>
+                    <div className="country-code-pill">
+                      <span style={{ fontSize: '16px' }}>🇮🇳</span>
+                      <span>+91</span>
+                    </div>
+                    <div className="phone-divider" style={{ height: '20px' }} />
+                    <input
+                      type="tel"
+                      className="phone-number-input"
+                      placeholder="9811223344"
+                      value={mobile}
+                      onChange={handleMobileChange}
+                      maxLength={10}
+                      required
+                    />
+                    <span className="digit-counter">{mobile.length}/10</span>
+                  </div>
+                  {errors.mobile && <span className="inline-field-error">{errors.mobile}</span>}
+                </div>
+
+                {/* Email Address */}
+                <div className="form-field-group">
+                  <label className="field-label">Email Address <span className="req-star">*</span></label>
+                  <input
+                    type="email"
+                    className={`crm-text-input ${errors.email ? 'has-error' : ''}`}
+                    placeholder="e.g. contact@abctech.in"
+                    value={email}
+                    onChange={handleEmailChange}
                     required
                   />
-                  <span className="digit-counter">{mobile.length}/10</span>
+                  {errors.email && <span className="inline-field-error">{errors.email}</span>}
                 </div>
-                {errors.mobile && <span className="inline-field-error">{errors.mobile}</span>}
               </div>
+            ) : isEnterprise ? (
+              /* Fields for Business / Dealer / Corporate Entity */
+              <div className="form-grid-2">
+                {/* Company / Enterprise Name */}
+                <div className="form-field-group">
+                  <label className="field-label">
+                    Company / Enterprise Name <span className="req-star">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className={`crm-text-input ${errors.company ? 'has-error' : ''}`}
+                    placeholder="e.g. Tata Motors Ltd, ABC Technologies"
+                    value={company}
+                    onChange={(e) => {
+                      setCompany(e.target.value);
+                      if (errors.company) setErrors((prev) => ({ ...prev, company: null }));
+                    }}
+                    required
+                    autoFocus
+                  />
+                  {errors.company && <span className="inline-field-error">{errors.company}</span>}
+                  <span style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', display: 'block' }}>
+                    Primary entity name shown on Customer Directory &amp; Proposals.
+                  </span>
+                </div>
 
-              {/* Email Address */}
-              <div className="form-field-group">
-                <label className="field-label">Email Address <span className="req-star">*</span></label>
-                <input
-                  type="email"
-                  className={`crm-text-input ${errors.email ? 'has-error' : ''}`}
-                  placeholder="e.g. contact@abctech.in"
-                  value={email}
-                  onChange={handleEmailChange}
-                  required
-                />
-                {errors.email && <span className="inline-field-error">{errors.email}</span>}
+                {/* Customer Name / Contact Person */}
+                <div className="form-field-group">
+                  <label className="field-label">
+                    Customer Name (Contact Person) <span className="req-star">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className={`crm-text-input ${errors.name ? 'has-error' : ''}`}
+                    placeholder="e.g. Rajesh Kumar"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
+                    }}
+                    required
+                  />
+                  {errors.name && <span className="inline-field-error">{errors.name}</span>}
+                </div>
+
+                {/* Mobile Number with Country Code */}
+                <div className="form-field-group">
+                  <label className="field-label">
+                    Mobile Number <span className="req-star">*</span>
+                  </label>
+                  <div className={`phone-input-group ${errors.mobile ? 'has-error' : ''}`} style={{ height: '42px' }}>
+                    <div className="country-code-pill">
+                      <span style={{ fontSize: '16px' }}>🇮🇳</span>
+                      <span>+91</span>
+                    </div>
+                    <div className="phone-divider" style={{ height: '20px' }} />
+                    <input
+                      type="tel"
+                      className="phone-number-input"
+                      placeholder="9811223344"
+                      value={mobile}
+                      onChange={handleMobileChange}
+                      maxLength={10}
+                      required
+                    />
+                    <span className="digit-counter">{mobile.length}/10</span>
+                  </div>
+                  {errors.mobile && <span className="inline-field-error">{errors.mobile}</span>}
+                </div>
+
+                {/* Email Address */}
+                <div className="form-field-group">
+                  <label className="field-label">Email Address <span className="req-star">*</span></label>
+                  <input
+                    type="email"
+                    className={`crm-text-input ${errors.email ? 'has-error' : ''}`}
+                    placeholder="e.g. contact@abctech.in"
+                    value={email}
+                    onChange={handleEmailChange}
+                    required
+                  />
+                  {errors.email && <span className="inline-field-error">{errors.email}</span>}
+                </div>
               </div>
-            </div>
+            ) : (
+              /* Blocked State Preview Placeholder */
+              <div className="form-grid-2">
+                <div className="form-field-group">
+                  <label className="field-label">Customer Name</label>
+                  <input type="text" className="crm-text-input" placeholder="Select Customer Type above to unlock..." disabled />
+                </div>
+                <div className="form-field-group">
+                  <label className="field-label">Company / Enterprise</label>
+                  <input type="text" className="crm-text-input" placeholder="Select Customer Type above to unlock..." disabled />
+                </div>
+                <div className="form-field-group">
+                  <label className="field-label">Mobile Number</label>
+                  <input type="text" className="crm-text-input" placeholder="Select Customer Type above to unlock..." disabled />
+                </div>
+                <div className="form-field-group">
+                  <label className="field-label">Email Address</label>
+                  <input type="text" className="crm-text-input" placeholder="Select Customer Type above to unlock..." disabled />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Section 2: Address & Tax Details */}
@@ -598,7 +793,7 @@ export default function AddCustomerModal({
               type="button"
               onClick={handleSubmit}
               className="crm-btn-primary"
-              disabled={submitting || !name.trim() || mobile.length !== 10 || !email.trim()}
+              disabled={submitting || !customerType || (isIndividual ? !name.trim() : (!company.trim() || !name.trim())) || mobile.length !== 10 || !email.trim()}
             >
               {submitting ? 'Saving Customer...' : 'Save Customer'}
             </button>

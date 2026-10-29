@@ -77,12 +77,16 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
   // Normalize Items with Discount & Tax Calculations
   const rawItems = Array.isArray(poData.items) ? poData.items : [];
   let totalQty = 0;
+  let totalReceivedQty = 0;
+  let totalPendingQty = 0;
   let computedSubtotal = 0;
   let computedTax = 0;
   let computedDiscount = 0;
 
   const items = rawItems.map((it, idx) => {
     const qty = Number(it.orderedQty || it.quantity || it.qty || 0);
+    const recQty = Number(it.receivedQty || 0);
+    const pendQty = Math.max(0, qty - recQty);
     const rate = Number(it.rate || it.unitPrice || 0);
     const gstRate = Number(it.gstRate || it.gst || it.taxRate || 18);
     const discountPct = Number(it.discountPercent || it.discountPct || it.discount || 0);
@@ -93,6 +97,8 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
     const lineTotal = Number(it.lineTotal !== undefined ? it.lineTotal : (taxableValue + tax));
 
     totalQty += qty;
+    totalReceivedQty += recQty;
+    totalPendingQty += pendQty;
     computedSubtotal += taxableValue;
     computedTax += tax;
     computedDiscount += discountAmount;
@@ -113,6 +119,8 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
       description: (it.description || '').toString().trim(),
       hsnSac: hsn,
       orderedQty: qty,
+      receivedQty: recQty,
+      pendingQty: pendQty,
       unit: ((it.unit && it.unit !== 'Piece') ? it.unit : 'Nos').toString().trim(),
       rate,
       discountPercent: discountPct,
@@ -190,8 +198,14 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
       gstin: comp.gstin || '33AZPPS7068A1Z4'
     },
     items,
+    totalOrderedQty: totalQty,
+    totalReceivedQty: poData.totalReceivedQty !== undefined ? Number(poData.totalReceivedQty) : totalReceivedQty,
+    totalPendingQty: poData.totalPendingQty !== undefined ? Number(poData.totalPendingQty) : totalPendingQty,
     financials: {
       totalQty,
+      totalOrderedQty: totalQty,
+      totalReceivedQty: poData.totalReceivedQty !== undefined ? Number(poData.totalReceivedQty) : totalReceivedQty,
+      totalPendingQty: poData.totalPendingQty !== undefined ? Number(poData.totalPendingQty) : totalPendingQty,
       subtotal,
       cgst,
       sgst,
@@ -308,7 +322,47 @@ function PurchaseOrderHeaderBox({ company, doc }) {
       </div>
 
       {/* Right PO Metadata Pane */}
-      <div className="doc-inv-meta-pane doc-po-meta-pane">
+      <div className="doc-inv-meta-pane doc-po-meta-pane" style={{ position: 'relative' }}>
+        {doc.status === 'RECEIVED' && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '6px',
+              right: '8px',
+              border: '2px solid #16a34a',
+              color: '#16a34a',
+              background: '#f0fdf4',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              fontWeight: 800,
+              fontSize: '11px',
+              letterSpacing: '0.5px',
+              textTransform: 'uppercase'
+            }}
+          >
+            ✓ RECEIVED
+          </div>
+        )}
+        {doc.status === 'PARTIALLY_RECEIVED' && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '6px',
+              right: '8px',
+              border: '2px solid #d97706',
+              color: '#b45309',
+              background: '#fffbeb',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              fontWeight: 800,
+              fontSize: '11px',
+              letterSpacing: '0.5px',
+              textTransform: 'uppercase'
+            }}
+          >
+            ⚡ PARTIAL
+          </div>
+        )}
         <table className="doc-po-meta-table">
           <tbody>
             <tr>
@@ -330,7 +384,15 @@ function PurchaseOrderHeaderBox({ company, doc }) {
             {doc.status && (
               <tr>
                 <td className="doc-po-meta-label">Status :</td>
-                <td className="doc-po-meta-val bold">{doc.status}</td>
+                <td className="doc-po-meta-val bold">
+                  {doc.status === 'RECEIVED' ? (
+                    <span style={{ color: '#16a34a', fontWeight: 800 }}>✓ RECEIVED (FULL DELIVERY)</span>
+                  ) : doc.status === 'PARTIALLY_RECEIVED' ? (
+                    <span style={{ color: '#d97706', fontWeight: 800 }}>⚡ PARTIALLY RECEIVED ({doc.totalReceivedQty || 0}/{doc.totalOrderedQty || 0} Recd)</span>
+                  ) : (
+                    doc.status
+                  )}
+                </td>
               </tr>
             )}
           </tbody>
@@ -602,15 +664,18 @@ function PurchaseOrderItemsTable({ items, financials, showTotals = true, hidePri
   const { totalQty, subtotal, cgst, sgst, igst, taxTotal, roundOff, grandTotal } = financials;
 
   if (hidePrices) {
+    const hasReceivedData = items.some((it) => Number(it.receivedQty || 0) > 0);
     return (
       <div className="doc-po-table-wrapper">
         <table className="doc-po-table">
           <colgroup>
-            <col style={{ width: '6%' }} />
-            <col style={{ width: '56%' }} />
-            <col style={{ width: '14%' }} />
-            <col style={{ width: '10%' }} />
-            <col style={{ width: '14%' }} />
+            <col style={{ width: '5%' }} />
+            <col style={{ width: hasReceivedData ? '45%' : '57%' }} />
+            <col style={{ width: '12%' }} />
+            <col style={{ width: '8%' }} />
+            <col style={{ width: hasReceivedData ? '10%' : '18%' }} />
+            {hasReceivedData && <col style={{ width: '10%' }} />}
+            {hasReceivedData && <col style={{ width: '10%' }} />}
           </colgroup>
           <thead>
             <tr>
@@ -618,7 +683,9 @@ function PurchaseOrderItemsTable({ items, financials, showTotals = true, hidePri
               <th style={{ textAlign: 'left', paddingLeft: '8px' }}>ITEM DESCRIPTION &amp; SPECIFICATIONS</th>
               <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>HSN/SAC</th>
               <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>UNIT</th>
-              <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>ORDERED QTY</th>
+              <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>ORDERED</th>
+              {hasReceivedData && <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>RECEIVED</th>}
+              {hasReceivedData && <th style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>PENDING</th>}
             </tr>
           </thead>
           <tbody>
@@ -638,18 +705,38 @@ function PurchaseOrderItemsTable({ items, financials, showTotals = true, hidePri
                 </td>
                 <td style={{ textAlign: 'center', fontFamily: 'monospace' }}>{it.hsnSac}</td>
                 <td style={{ textAlign: 'center', fontWeight: 600 }}>{it.unit || 'Nos'}</td>
-                <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '13.5px' }}>{it.orderedQty}</td>
+                <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '13px' }}>{it.orderedQty}</td>
+                {hasReceivedData && (
+                  <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '13px', color: (it.receivedQty || 0) > 0 ? '#16a34a' : '#64748b' }}>
+                    {it.receivedQty || 0}
+                  </td>
+                )}
+                {hasReceivedData && (
+                  <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '13px', color: (it.pendingQty || 0) > 0 ? '#d97706' : '#16a34a' }}>
+                    {it.pendingQty !== undefined ? it.pendingQty : Math.max(0, it.orderedQty - (it.receivedQty || 0))}
+                  </td>
+                )}
               </tr>
             ))}
 
             {showTotals && (
               <tr className="doc-po-total-row">
                 <td colSpan="4" className="doc-po-total-label" style={{ textAlign: 'right', paddingRight: '16px' }}>
-                  TOTAL QUANTITY ORDERED :
+                  TOTAL QUANTITIES :
                 </td>
-                <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '14px', color: '#0f172a' }}>
-                  {totalQty} Units
+                <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '13px', color: '#0f172a' }}>
+                  {totalQty} Ord
                 </td>
+                {hasReceivedData && (
+                  <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '13px', color: '#16a34a' }}>
+                    {financials.totalReceivedQty || 0} Recd
+                  </td>
+                )}
+                {hasReceivedData && (
+                  <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '13px', color: '#d97706' }}>
+                    {financials.totalPendingQty || 0} Pend
+                  </td>
+                )}
               </tr>
             )}
           </tbody>
@@ -707,7 +794,14 @@ function PurchaseOrderItemsTable({ items, financials, showTotals = true, hidePri
                 )}
               </td>
               <td style={{ textAlign: 'center', fontFamily: 'monospace' }}>{it.hsnSac}</td>
-              <td style={{ textAlign: 'center', fontWeight: 700 }}>{it.orderedQty}</td>
+              <td style={{ textAlign: 'center', fontWeight: 700 }}>
+                <div>{it.orderedQty}</div>
+                {Number(it.receivedQty || 0) > 0 && (
+                  <div style={{ fontSize: '9.5px', color: '#16a34a', fontWeight: 600, marginTop: '2px', whiteSpace: 'nowrap' }}>
+                    {it.receivedQty} Recd
+                  </div>
+                )}
+              </td>
               <td style={{ textAlign: 'right', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
                 ₹ {formatPlainNumber(it.rate)}
               </td>

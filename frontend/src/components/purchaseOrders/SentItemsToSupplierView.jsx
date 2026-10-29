@@ -472,6 +472,49 @@ export default function SentItemsToSupplierView({ user, onOpenPo, onOpenReceive 
                           >
                             DRAFT
                           </span>
+                        ) : po.status === 'PARTIALLY_RECEIVED' ? (
+                          <button
+                            type="button"
+                            onClick={() => (onOpenReceive ? onOpenReceive(po.id) : navigate(`/purchase-orders/${po.id}/receive`))}
+                            className="status-badge"
+                            style={{
+                              fontSize: '10.5px',
+                              padding: '2px 7px',
+                              borderRadius: '4px',
+                              fontWeight: 700,
+                              whiteSpace: 'nowrap',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '3px',
+                              background: '#fef3c7',
+                              color: '#b45309',
+                              border: '1px solid #fde68a',
+                              cursor: 'pointer'
+                            }}
+                            title="Click to receive remaining items for this PO"
+                          >
+                            <span>⚡ PARTIALLY RECEIVED</span>
+                            {po.totalReceivedQty !== undefined && po.totalOrderedQty !== undefined && (
+                              <span style={{ fontSize: '9.5px', opacity: 0.85 }}>({po.totalReceivedQty}/{po.totalOrderedQty})</span>
+                            )}
+                          </button>
+                        ) : po.status === 'RECEIVED' ? (
+                          <span
+                            className="status-badge"
+                            style={{
+                              fontSize: '10.5px',
+                              padding: '2px 7px',
+                              borderRadius: '4px',
+                              fontWeight: 700,
+                              whiteSpace: 'nowrap',
+                              display: 'inline-block',
+                              background: '#f0fdf4',
+                              color: '#15803d',
+                              border: '1px solid #86efac'
+                            }}
+                          >
+                            ✓ RECEIVED
+                          </span>
                         ) : (
                           <span
                             className="status-badge"
@@ -543,15 +586,27 @@ export default function SentItemsToSupplierView({ user, onOpenPo, onOpenReceive 
                           </div>
                         ) : (
                           <div className="settings-row-actions" style={{ justifyContent: 'flex-end', gap: '5px' }}>
-                            <button
-                              type="button"
-                              className="settings-row-action enquiry-action-btn"
-                              style={{ background: '#2563eb', color: '#ffffff', borderColor: '#1d4ed8', fontWeight: 600, padding: '0 7px', height: '24px' }}
-                              onClick={() => (onOpenReceive ? onOpenReceive(po.id) : navigate(`/purchase-orders/${po.id}/receive`))}
-                              title="Receive Goods"
-                            >
-                              Receive
-                            </button>
+                            {(po.status === 'PARTIALLY_RECEIVED' || po.status === 'SENT') && (
+                              <button
+                                type="button"
+                                className="settings-row-action enquiry-action-btn"
+                                style={{
+                                  background: po.status === 'PARTIALLY_RECEIVED' ? '#fef3c7' : '#2563eb',
+                                  color: po.status === 'PARTIALLY_RECEIVED' ? '#b45309' : '#ffffff',
+                                  borderColor: po.status === 'PARTIALLY_RECEIVED' ? '#fde68a' : '#1d4ed8',
+                                  fontWeight: 700,
+                                  padding: '0 8px',
+                                  height: '24px',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '3px'
+                                }}
+                                onClick={() => (onOpenReceive ? onOpenReceive(po.id) : navigate(`/purchase-orders/${po.id}/receive`))}
+                                title={po.status === 'PARTIALLY_RECEIVED' ? 'Receive remaining items for this PO' : 'Receive Goods'}
+                              >
+                                <Truck size={12} /> Receive
+                              </button>
+                            )}
                             <button
                               type="button"
                               className="settings-row-action enquiry-action-btn"

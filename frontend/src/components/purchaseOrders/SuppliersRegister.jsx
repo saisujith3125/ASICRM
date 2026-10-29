@@ -7,6 +7,10 @@ import {
   Search,
   Plus,
   Eye,
+  Edit,
+  Trash2,
+  X,
+  Loader2,
   Truck,
   FileText,
   CheckCircle2,
@@ -24,6 +28,124 @@ export default function SuppliersRegister({ user, onSelectSupplier }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Edit Supplier Modal state
+  const [editingSupplier, setEditingSupplier] = useState(null);
+  const [editForm, setEditForm] = useState({
+    companyName: '',
+    contactPerson: '',
+    phone: '',
+    email: '',
+    gstin: '',
+    address: '',
+    city: '',
+    state: '',
+    pincode: ''
+  });
+  const [editError, setEditError] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [successMsg, setSuccessMsg] = useState('');
+
+  const openEditModal = (sup) => {
+    setEditingSupplier(sup);
+    setEditForm({
+      companyName: sup.companyName || '',
+      contactPerson: sup.contactPerson || '',
+      phone: String(sup.phone || '').replace(/\D/g, '').slice(0, 10),
+      email: sup.email || '',
+      gstin: sup.gstin || '',
+      address: sup.address || '',
+      city: sup.city || '',
+      state: sup.state || '',
+      pincode: sup.pincode || sup.pinCode || ''
+    });
+    setEditError('');
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    setEditError('');
+
+    const trimmedName = editForm.companyName.trim();
+    if (!trimmedName) {
+      setEditError('Company Name is required.');
+      return;
+    }
+    const cleanPhone = editForm.phone.replace(/\D/g, '');
+    if (!cleanPhone || cleanPhone.length !== 10) {
+      setEditError('Phone number must be exactly 10 digits.');
+      return;
+    }
+
+    setSavingEdit(true);
+    try {
+      const supId = editingSupplier.id || editingSupplier.supplierId;
+      const res = await apiFetch(apiUrl(`/api/suppliers/${encodeURIComponent(supId)}`), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': user?.id || ''
+        },
+        body: JSON.stringify({
+          companyName: trimmedName,
+          contactPerson: editForm.contactPerson.trim(),
+          phone: cleanPhone,
+          email: editForm.email.trim(),
+          gstin: editForm.gstin.trim().toUpperCase(),
+          address: editForm.address.trim(),
+          city: editForm.city.trim(),
+          state: editForm.state.trim(),
+          pincode: editForm.pincode.trim()
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setEditingSupplier(null);
+        setSuccessMsg(`Supplier "${trimmedName}" updated successfully.`);
+        setTimeout(() => setSuccessMsg(''), 4000);
+        await fetchSuppliers();
+      } else {
+        setEditError(data.message || 'Failed to update supplier.');
+      }
+    } catch (err) {
+      setEditError('Network error updating supplier.');
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const handleDeleteSupplier = async (sup) => {
+    if (!window.confirm(`Are you sure you want to delete supplier "${sup.companyName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    const supId = sup.id || sup.supplierId;
+    setDeletingId(supId);
+    try {
+      const res = await apiFetch(apiUrl(`/api/suppliers/${encodeURIComponent(supId)}`), {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': user?.id || ''
+        }
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSuccessMsg(`Supplier "${sup.companyName}" deleted successfully.`);
+        setTimeout(() => setSuccessMsg(''), 4000);
+        await fetchSuppliers();
+      } else {
+        alert(data.message || 'Failed to delete supplier.');
+      }
+    } catch (err) {
+      alert('Network error deleting supplier.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const fetchSuppliers = async () => {
     setLoading(true);
@@ -129,6 +251,14 @@ export default function SuppliersRegister({ user, onSelectSupplier }) {
         </div>
       </div>
 
+      {/* Feedback Notification */}
+      {successMsg && (
+        <div style={{ padding: '10px 16px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', color: '#16a34a', fontSize: '13.5px', fontWeight: 600, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <CheckCircle2 size={16} />
+          <span>{successMsg}</span>
+        </div>
+      )}
+
       {/* 2. Compact Status Strip matching canonical Table Architecture */}
       <div className="enquiry-status-strip po-status-strip" role="group" aria-label="Suppliers status summary">
         <div className="enquiry-status-item active" style={{ cursor: 'default' }}>
@@ -187,14 +317,14 @@ export default function SuppliersRegister({ user, onSelectSupplier }) {
         <div className="po-table-viewport crm-table-scroll-wrap stocks-table-natural-wrap crm-table-viewport">
           <table className="po-table crm-master-table crm-data-table settings-table enquiry-settings-table po-register-table">
             <colgroup>
-              <col style={{ width: '4%' }} />
-              <col style={{ width: '21%' }} />
+              <col style={{ width: '3.5%' }} />
+              <col style={{ width: '20%' }} />
               <col style={{ width: '12%' }} />
-              <col style={{ width: '17%' }} />
-              <col style={{ width: '16%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '11%' }} />
+              <col style={{ width: '15%' }} />
+              <col style={{ width: '14%' }} />
               <col style={{ width: '9%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '16.5%' }} />
             </colgroup>
             <thead>
               <tr>
@@ -365,15 +495,34 @@ export default function SuppliersRegister({ user, onSelectSupplier }) {
                       </td>
 
                       <td className="actions-col" style={{ textAlign: 'right' }}>
-                        <div className="settings-row-actions" style={{ justifyContent: 'flex-end', gap: '6px' }}>
+                        <div className="settings-row-actions" style={{ justifyContent: 'flex-end', gap: '4px' }}>
                           <button
                             type="button"
                             className="settings-row-action enquiry-action-btn"
                             onClick={() => handleOpenSupplier(sup)}
-                            style={{ height: '26px', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '0 8px', fontWeight: 600 }}
+                            style={{ height: '24px', display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '0 6px', fontWeight: 600, fontSize: '11px' }}
                             title={`View history for ${sup.companyName}`}
                           >
-                            <Eye size={12} /> History
+                            <Eye size={11} /> History
+                          </button>
+                          <button
+                            type="button"
+                            className="settings-row-action enquiry-action-btn"
+                            onClick={() => openEditModal(sup)}
+                            style={{ height: '24px', display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '0 6px', fontWeight: 600, fontSize: '11px', color: '#2563eb', borderColor: '#bfdbfe', background: '#eff6ff' }}
+                            title={`Edit details for ${sup.companyName}`}
+                          >
+                            <Edit size={11} /> Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="settings-row-action enquiry-action-btn"
+                            onClick={() => handleDeleteSupplier(sup)}
+                            disabled={deletingId === (sup.id || sup.supplierId)}
+                            style={{ height: '24px', display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '0 6px', fontWeight: 600, fontSize: '11px', color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }}
+                            title={`Delete supplier ${sup.companyName}`}
+                          >
+                            <Trash2 size={11} /> Delete
                           </button>
                         </div>
                       </td>
@@ -409,6 +558,207 @@ export default function SuppliersRegister({ user, onSelectSupplier }) {
           onPageChange={pagination.goToPage}
         />
       </div>
+
+      {/* Edit Supplier Modal */}
+      {editingSupplier && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(3px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '20px'
+          }}
+          onClick={() => !savingEdit && setEditingSupplier(null)}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '12px',
+              width: '100%',
+              maxWidth: '520px',
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)',
+              overflow: 'hidden'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Building2 size={18} color="#2563eb" />
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>
+                  Edit Supplier: {editingSupplier.companyName}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => !savingEdit && setEditingSupplier(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', alignItems: 'center' }}
+                title="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleSaveEdit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflowY: 'auto' }}>
+              <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {editError && (
+                  <div style={{ padding: '10px 14px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', color: '#b91c1c', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                    <span>{editError}</span>
+                  </div>
+                )}
+
+                <div className="po-form-group">
+                  <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155', marginBottom: '4px', display: 'block' }}>
+                    Company / Supplier Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.companyName}
+                    onChange={(e) => setEditForm((f) => ({ ...f, companyName: e.target.value }))}
+                    required
+                    style={{ width: '100%', height: '36px', padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', color: '#0f172a', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="po-form-group">
+                    <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155', marginBottom: '4px', display: 'block' }}>
+                      Contact Person
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.contactPerson}
+                      onChange={(e) => setEditForm((f) => ({ ...f, contactPerson: e.target.value }))}
+                      placeholder="e.g. Sales Manager"
+                      style={{ width: '100%', height: '36px', padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', color: '#0f172a', boxSizing: 'border-box' }}
+                    />
+                  </div>
+
+                  <div className="po-form-group">
+                    <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155', marginBottom: '4px', display: 'block' }}>
+                      Phone (10 Digits) *
+                    </label>
+                    <input
+                      type="tel"
+                      value={editForm.phone}
+                      onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                      maxLength={10}
+                      placeholder="10 digit number"
+                      required
+                      style={{ width: '100%', height: '36px', padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', color: '#0f172a', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="po-form-group">
+                    <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155', marginBottom: '4px', display: 'block' }}>
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={editForm.email}
+                      onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+                      placeholder="supplier@domain.com"
+                      style={{ width: '100%', height: '36px', padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', color: '#0f172a', boxSizing: 'border-box' }}
+                    />
+                  </div>
+
+                  <div className="po-form-group">
+                    <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155', marginBottom: '4px', display: 'block' }}>
+                      GSTIN (15 Chars)
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.gstin}
+                      onChange={(e) => setEditForm((f) => ({ ...f, gstin: e.target.value.toUpperCase().slice(0, 15) }))}
+                      placeholder="33AAAAA0000A1Z5"
+                      maxLength={15}
+                      style={{ width: '100%', height: '36px', padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', color: '#0f172a', boxSizing: 'border-box', textTransform: 'uppercase', fontFamily: 'monospace' }}
+                    />
+                  </div>
+                </div>
+
+                <div className="po-form-group">
+                  <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155', marginBottom: '4px', display: 'block' }}>
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.address}
+                    onChange={(e) => setEditForm((f) => ({ ...f, address: e.target.value }))}
+                    placeholder="Street / Office address"
+                    style={{ width: '100%', height: '36px', padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', color: '#0f172a', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
+                  <div className="po-form-group">
+                    <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155', marginBottom: '4px', display: 'block' }}>
+                      City / State
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.city}
+                      onChange={(e) => setEditForm((f) => ({ ...f, city: e.target.value }))}
+                      placeholder="Chennai"
+                      style={{ width: '100%', height: '36px', padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', color: '#0f172a', boxSizing: 'border-box' }}
+                    />
+                  </div>
+
+                  <div className="po-form-group">
+                    <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#334155', marginBottom: '4px', display: 'block' }}>
+                      Pincode
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.pincode}
+                      onChange={(e) => setEditForm((f) => ({ ...f, pincode: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                      maxLength={6}
+                      placeholder="600001"
+                      style={{ width: '100%', height: '36px', padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', color: '#0f172a', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div style={{ padding: '14px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="crm-btn-secondary"
+                  onClick={() => setEditingSupplier(null)}
+                  disabled={savingEdit}
+                  style={{ height: '34px', padding: '0 14px', fontSize: '13px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="crm-btn-primary"
+                  disabled={savingEdit}
+                  style={{ height: '34px', padding: '0 16px', fontSize: '13px' }}
+                >
+                  {savingEdit ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -273,13 +273,18 @@ function createSupplier(req, res) {
       });
     }
 
+    const cleanPhone = String(phone || '').replace(/\D/g, '');
+    if (!cleanPhone || cleanPhone.length !== 10) {
+      return res.status(400).json({ success: false, message: 'Supplier phone number must be exactly 10 digits.' });
+    }
+
     const newId = generateSupplierId();
     const newSupplier = {
       id: newId,
       supplierId: newId,
       companyName: trimmedName,
       contactPerson: String(contactPerson || '').trim(),
-      phone: String(phone || '').trim(),
+      phone: cleanPhone,
       email: String(email || '').trim().toLowerCase(),
       gstin: cleanGstin,
       address: String(address || '').trim(),
@@ -319,7 +324,13 @@ function updateSupplier(req, res) {
 
     if (companyName !== undefined) supplier.companyName = String(companyName).trim();
     if (contactPerson !== undefined) supplier.contactPerson = String(contactPerson).trim();
-    if (phone !== undefined) supplier.phone = String(phone).trim();
+    if (phone !== undefined) {
+      const cleanPhone = String(phone).replace(/\D/g, '');
+      if (cleanPhone.length !== 10) {
+        return res.status(400).json({ success: false, message: 'Supplier phone number must be exactly 10 digits.' });
+      }
+      supplier.phone = cleanPhone;
+    }
     if (email !== undefined) supplier.email = String(email).trim().toLowerCase();
     if (gstin !== undefined) supplier.gstin = String(gstin).trim().toUpperCase();
     if (address !== undefined) supplier.address = String(address).trim();
@@ -342,9 +353,43 @@ function updateSupplier(req, res) {
   }
 }
 
+/**
+ * DELETE /api/suppliers/:id
+ */
+function deleteSupplier(req, res) {
+  try {
+    const { id } = req.params;
+    const index = suppliers.findIndex((s) => s.id === id || s.supplierId === id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, message: `Supplier ${id} not found.` });
+    }
+
+    const sup = suppliers[index];
+    const hasOrders = (purchaseOrders || []).some((po) => po.supplierId === sup.id || po.supplierId === sup.supplierId);
+    if (hasOrders) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot delete supplier "${sup.companyName}" because they have existing purchase orders. Please archive or remove associated orders first.`
+      });
+    }
+
+    suppliers.splice(index, 1);
+    persistStore();
+
+    return res.status(200).json({
+      success: true,
+      message: `Supplier "${sup.companyName}" deleted successfully.`
+    });
+  } catch (error) {
+    console.error('Error in deleteSupplier:', error);
+    return res.status(500).json({ success: false, message: 'Failed to delete supplier.' });
+  }
+}
+
 module.exports = {
   getSuppliers,
   getSupplierById,
   createSupplier,
-  updateSupplier
+  updateSupplier,
+  deleteSupplier
 };

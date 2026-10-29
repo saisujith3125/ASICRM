@@ -102,12 +102,16 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
             const fetchedPo = data.data;
             setPo(fetchedPo);
 
-            // Initialize receive inputs: default receiveNow to remainingQty and unitRate to item rate or known cost
+            // Initialize receive inputs
+            // If the PO is already PARTIALLY_RECEIVED, default receiveNow to 0 so the user can enter
+            // the exact partial batch received without unintentionally completing the rest of the order.
+            // If the PO is SENT, default receiveNow to remaining pending quantity.
+            const isAlreadyPartial = fetchedPo.status === 'PARTIALLY_RECEIVED';
             const initInputs = {};
             (fetchedPo.items || []).forEach((it) => {
               const pending = Math.max(0, Number(it.orderedQty || 0) - Number(it.receivedQty || 0));
               initInputs[it.productId || it.productCode] = {
-                receiveNow: pending,
+                receiveNow: isAlreadyPartial ? 0 : pending,
                 unitRate: Number(it.rate || it.cost || 0),
                 serialNumbers: []
               };
@@ -140,6 +144,51 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
         receiveNow: num
       }
     }));
+  };
+
+  const totalInwardNow = useMemo(() => {
+    return Object.values(receiveInputs).reduce((s, i) => s + (Number(i.receiveNow) || 0), 0);
+  }, [receiveInputs]);
+
+  const totalPendingUnits = useMemo(() => {
+    if (!po?.items) return 0;
+    return po.items.reduce((s, it) => s + Math.max(0, Number(it.orderedQty || 0) - Number(it.receivedQty || 0)), 0);
+  }, [po]);
+
+  const isFullDelivery = totalInwardNow > 0 && totalInwardNow === totalPendingUnits && (po?.items || []).every((it) => {
+    const pId = it.productId || it.productCode;
+    const pending = Math.max(0, Number(it.orderedQty || 0) - Number(it.receivedQty || 0));
+    return Number(receiveInputs[pId]?.receiveNow || 0) === pending;
+  });
+
+  const isPartialDelivery = totalInwardNow > 0 && !isFullDelivery;
+
+  const handleFillAllPending = () => {
+    if (!po?.items) return;
+    const nextInputs = { ...receiveInputs };
+    po.items.forEach((it) => {
+      const pId = it.productId || it.productCode;
+      const pending = Math.max(0, Number(it.orderedQty || 0) - Number(it.receivedQty || 0));
+      nextInputs[pId] = {
+        ...(nextInputs[pId] || {}),
+        receiveNow: pending
+      };
+    });
+    setReceiveInputs(nextInputs);
+  };
+
+  const handleResetToZero = () => {
+    if (!po?.items) return;
+    const nextInputs = { ...receiveInputs };
+    po.items.forEach((it) => {
+      const pId = it.productId || it.productCode;
+      nextInputs[pId] = {
+        ...(nextInputs[pId] || {}),
+        receiveNow: 0,
+        serialNumbers: []
+      };
+    });
+    setReceiveInputs(nextInputs);
   };
 
   const handleRateChange = (prodId, val) => {
@@ -252,10 +301,13 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
 
       const data = await res.json();
       if (res.ok && data.success) {
+        const receivedBatchTotal = itemsToReceive.reduce((s, i) => s + i.receiveNow, 0);
         setSuccessResult({
           grnId: data.grn?.id || data.grnId,
-          totalQty: itemsToReceive.reduce((s, i) => s + i.receiveNow, 0),
-          poId: po.id
+          totalQty: receivedBatchTotal,
+          poId: po.id,
+          deliveryType: data.deliveryType || (isFullDelivery ? 'FULL' : 'PARTIAL'),
+          remainingUnits: Math.max(0, totalPendingUnits - receivedBatchTotal)
         });
       } else {
         setErrorMsg(data.message || 'Failed to confirm goods receipt.');
@@ -269,16 +321,47 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
   };
 
   if (successResult) {
+    const isSuccessPartial = successResult.deliveryType === 'PARTIAL';
     return (
       <div className="po-container">
         <div className="po-editor-card" style={{ maxWidth: '640px', margin: '48px auto', textAlign: 'center', padding: '40px 32px' }}>
-          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              background: isSuccessPartial ? '#fef3c7' : '#ecfdf5',
+              color: isSuccessPartial ? '#b45309' : '#059669',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 16px'
+            }}
+          >
             <CheckCircle2 size={36} />
           </div>
-          <h2 style={{ margin: '0 0 8px 0', fontSize: '22px', color: '#0f172a' }}>Goods Receipt Confirmed!</h2>
+          <div style={{ marginBottom: '10px' }}>
+            {isSuccessPartial ? (
+              <span style={{ fontSize: '12px', fontWeight: 800, background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a', padding: '4px 12px', borderRadius: '12px', textTransform: 'uppercase' }}>
+                ⚡ Partial Delivery Recorded
+              </span>
+            ) : (
+              <span style={{ fontSize: '12px', fontWeight: 800, background: '#dcfce7', color: '#15803d', border: '1px solid #86efac', padding: '4px 12px', borderRadius: '12px', textTransform: 'uppercase' }}>
+                ✓ Full Delivery Completed
+              </span>
+            )}
+          </div>
+          <h2 style={{ margin: '0 0 8px 0', fontSize: '22px', color: '#0f172a' }}>
+            {isSuccessPartial ? 'Partial Goods Receipt Confirmed!' : 'All Goods Received & PO Completed!'}
+          </h2>
           <p style={{ color: '#475569', fontSize: '14px', margin: '0 0 20px 0' }}>
             Successfully generated <strong>{successResult.grnId}</strong> and credited{' '}
             <strong>+{successResult.totalQty} units</strong> directly to physical inventory.
+            {isSuccessPartial && (
+              <span style={{ display: 'block', marginTop: '8px', color: '#b45309', fontWeight: 600 }}>
+                {successResult.remainingUnits} unit(s) remain open on PO {successResult.poId} (Status: PARTIALLY RECEIVED).
+              </span>
+            )}
           </p>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
@@ -431,17 +514,95 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
               </div>
             </div>
 
+            {/* Delivery Mode & Quick Fill Controls */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px',
+              margin: '12px 0 16px 0',
+              padding: '12px 16px',
+              background: isFullDelivery ? '#f0fdf4' : isPartialDelivery ? '#fffbeb' : '#f8fafc',
+              border: `1px solid ${isFullDelivery ? '#86efac' : isPartialDelivery ? '#fde68a' : '#e2e8f0'}`,
+              borderRadius: '8px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Inward Delivery Mode:
+                </span>
+                {isFullDelivery ? (
+                  <span style={{ fontSize: '12.5px', fontWeight: 800, background: '#dcfce7', color: '#15803d', border: '1px solid #86efac', padding: '4px 12px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    ✓ FULL DELIVERY ({totalInwardNow} / {totalPendingUnits} Units) — PO will be Completed
+                  </span>
+                ) : isPartialDelivery ? (
+                  <span style={{ fontSize: '12.5px', fontWeight: 800, background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a', padding: '4px 12px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    ⚡ PARTIAL DELIVERY ({totalInwardNow} / {totalPendingUnits} Units) — {totalPendingUnits - totalInwardNow} Units Remaining Open
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '12px', color: '#64748b', fontStyle: 'italic' }}>
+                    No quantities entered yet. Enter received units below or use quick actions →
+                  </span>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={handleFillAllPending}
+                  disabled={submitting}
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    padding: '5px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #86efac',
+                    background: '#dcfce7',
+                    color: '#15803d',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                  title="Receive all remaining pending quantities (Full Delivery)"
+                >
+                  ✓ Fill All Pending (Full)
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetToZero}
+                  disabled={submitting}
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    padding: '5px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #cbd5e1',
+                    background: '#ffffff',
+                    color: '#475569',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                  title="Clear all inputs to 0 to enter only the partial items delivered"
+                >
+                  ⚡ Clear All to 0 (Partial)
+                </button>
+              </div>
+            </div>
+
             <div className="po-grid-table-wrap">
               <table className="po-table po-receive-table">
                 <colgroup>
                   <col style={{ width: '4%' }} />
-                  <col style={{ width: '26%' }} />
-                  <col style={{ width: '8%' }} />
-                  <col style={{ width: '8%' }} />
-                  <col style={{ width: '8%' }} />
-                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '25%' }} />
+                  <col style={{ width: '7%' }} />
+                  <col style={{ width: '7%' }} />
+                  <col style={{ width: '7%' }} />
+                  <col style={{ width: '13%' }} />
                   <col style={{ width: '11%' }} />
-                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '11%' }} />
                   <col style={{ width: '15%' }} />
                 </colgroup>
                 <thead>
@@ -520,22 +681,37 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
                           {pending}
                         </td>
                         <td className="po-receive-col-receivenow">
-                          <input
-                            type="number"
-                            min="0"
-                            max={pending}
-                            value={input.receiveNow}
-                            onChange={(e) => handleReceiveNowChange(prodId, e.target.value, pending)}
-                            disabled={isFullyReceived || submitting}
-                            className="po-table-input"
-                            style={{
-                              width: '100%',
-                              maxWidth: '80px',
-                              textAlign: 'center',
-                              fontWeight: 700,
-                              borderColor: input.receiveNow > 0 ? '#2563eb' : '#cbd5e1'
-                            }}
-                          />
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                            <input
+                              type="number"
+                              min="0"
+                              max={pending}
+                              value={input.receiveNow}
+                              onChange={(e) => handleReceiveNowChange(prodId, e.target.value, pending)}
+                              disabled={isFullyReceived || submitting}
+                              className="po-table-input"
+                              style={{
+                                width: '100%',
+                                maxWidth: '80px',
+                                textAlign: 'center',
+                                fontWeight: 700,
+                                borderColor: input.receiveNow > 0 ? (input.receiveNow === pending ? '#16a34a' : '#d97706') : '#cbd5e1'
+                              }}
+                            />
+                            {input.receiveNow > 0 && (
+                              <span style={{
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                color: input.receiveNow === pending ? '#15803d' : '#b45309',
+                                background: input.receiveNow === pending ? '#dcfce7' : '#fef3c7',
+                                padding: '1px 5px',
+                                borderRadius: '3px',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                {input.receiveNow === pending ? '✓ Full' : '⚡ Partial'}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td style={{ textAlign: 'right' }}>
                           <input
@@ -676,9 +852,19 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
                 type="submit"
                 className="crm-btn-primary"
                 disabled={submitting}
+                style={{
+                  background: isPartialDelivery ? '#d97706' : '#16a34a',
+                  borderColor: isPartialDelivery ? '#b45309' : '#15803d'
+                }}
               >
                 <CheckCircle2 size={16} />
-                {submitting ? 'Updating Inventory...' : 'Confirm Receipt & Update Physical Stock'}
+                {submitting
+                  ? 'Updating Inventory...'
+                  : isFullDelivery
+                  ? `✓ Confirm Full Receipt (+${totalInwardNow} Units) & Complete PO`
+                  : isPartialDelivery
+                  ? `⚡ Confirm Partial Receipt (+${totalInwardNow} Units) & Keep PO Open`
+                  : 'Confirm Receipt & Update Physical Stock'}
               </button>
             </div>
           </div>

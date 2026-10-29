@@ -749,6 +749,8 @@ function receiveGoods(req, res) {
     po.status = allReceived ? 'RECEIVED' : 'PARTIALLY_RECEIVED';
     po.updatedAt = new Date().toISOString();
 
+    const deliveryType = allReceived ? 'FULL' : 'PARTIAL';
+
     // 5. Record Goods Receipt Note (GRN)
     const grnRecord = {
       id: grnId,
@@ -759,6 +761,7 @@ function receiveGoods(req, res) {
       supplierName: po.supplierSnapshot?.companyName || 'Supplier',
       receivedDate: receiptDateStr,
       receivedBy: receiver,
+      deliveryType: deliveryType,
       items: processedLines.map((l) => ({
         productId: l.productId,
         productCode: l.productCode,
@@ -779,9 +782,11 @@ function receiveGoods(req, res) {
     // 6. Persist CRM Store
     persistStore();
 
+    const deliveryLabel = allReceived ? 'Full Delivery (Order Completed)' : `Partial Delivery (+${totalReceiveNow} units)`;
     return res.status(200).json({
       success: true,
-      message: `Goods Receipt ${grnId} confirmed. Physical stock updated (+${totalReceiveNow} units).`,
+      message: `Goods Receipt ${grnId} confirmed [${deliveryLabel}]. Physical stock updated (+${totalReceiveNow} units).`,
+      deliveryType,
       grn: grnRecord,
       purchaseOrder: enrichPurchaseOrder(po)
     });

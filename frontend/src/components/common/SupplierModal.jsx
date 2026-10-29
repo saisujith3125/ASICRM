@@ -81,8 +81,8 @@ export default function SupplierModal({
       return;
     }
     const phoneDigits = trimmedPhone.replace(/[^0-9]/g, '');
-    if (phoneDigits.length < 10) {
-      setErrorMsg('Please enter a valid 10-digit phone number.');
+    if (phoneDigits.length !== 10) {
+      setErrorMsg('Phone Number must be exactly 10 digits.');
       return;
     }
     if (!trimmedEmail) {
@@ -330,10 +330,11 @@ export default function SupplierModal({
                   Phone Number *
                 </label>
                 <input
-                  type="text"
+                  type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="e.g. +91 9884112233"
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  placeholder="10 digit mobile number"
+                  maxLength={10}
                   required
                   style={{
                     width: '100%',

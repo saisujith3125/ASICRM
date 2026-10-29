@@ -357,7 +357,18 @@ export default function PurchaseOrderHistory({ user, onOpenPo }) {
                           <strong>{formatCurrency(po.grandTotal)}</strong>
                         </td>
                         <td className="po-col-progress">
-                          <div className="po-progress-cell">
+                          <div
+                            className="po-progress-cell"
+                            onClick={() => {
+                              if (po.status === 'PARTIALLY_RECEIVED' || (po.status === 'SENT' && Number(po.totalPendingQty || 0) > 0)) {
+                                navigate(`/purchase-orders/${po.id}/receive`);
+                              }
+                            }}
+                            style={{
+                              cursor: (po.status === 'PARTIALLY_RECEIVED' || (po.status === 'SENT' && Number(po.totalPendingQty || 0) > 0)) ? 'pointer' : 'default'
+                            }}
+                            title={po.status === 'PARTIALLY_RECEIVED' ? 'Click to receive remaining items for this PO' : undefined}
+                          >
                             <div className="po-progress-bar">
                               <div
                                 className={`po-progress-fill ${pct === 100 ? 'complete' : ''}`}
@@ -370,12 +381,50 @@ export default function PurchaseOrderHistory({ user, onOpenPo }) {
                           </div>
                         </td>
                         <td className="po-col-status cell-nowrap" style={{ textAlign: 'center' }}>
-                          <span className={`po-status-badge ${String(po.status || 'draft').toLowerCase()}`}>
-                            {String(po.status || 'DRAFT').replace('_', ' ')}
-                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (po.status === 'PARTIALLY_RECEIVED' || po.status === 'SENT') {
+                                navigate(`/purchase-orders/${po.id}/receive`);
+                              }
+                            }}
+                            className={`po-status-badge ${String(po.status || 'draft').toLowerCase()}`}
+                            style={{
+                              background: 'none',
+                              border: po.status === 'PARTIALLY_RECEIVED' ? '1px dashed #d97706' : undefined,
+                              cursor: (po.status === 'PARTIALLY_RECEIVED' || po.status === 'SENT') ? 'pointer' : 'default',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '2px 8px'
+                            }}
+                            title={po.status === 'PARTIALLY_RECEIVED' ? 'Click to receive remaining items for this PO' : `Status: ${po.status}`}
+                          >
+                            <span>{String(po.status || 'DRAFT').replace('_', ' ')}</span>
+                            {po.status === 'PARTIALLY_RECEIVED' && <span style={{ fontSize: '10px' }}>⚡</span>}
+                          </button>
                         </td>
                         <td className="po-col-actions" style={{ textAlign: 'right' }}>
-                          <div className="po-actions" style={{ justifyContent: 'flex-end' }}>
+                          <div className="po-actions" style={{ justifyContent: 'flex-end', gap: '5px' }}>
+                            {(po.status === 'PARTIALLY_RECEIVED' || (po.status === 'SENT' && Number(po.totalPendingQty || 0) > 0)) && (
+                              <button
+                                type="button"
+                                className="po-btn-icon"
+                                onClick={() => navigate(`/purchase-orders/${po.id}/receive`)}
+                                style={{
+                                  background: '#fef3c7',
+                                  color: '#b45309',
+                                  borderColor: '#fde68a',
+                                  fontWeight: 700,
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '3px'
+                                }}
+                                title="Receive remaining items for this Purchase Order"
+                              >
+                                <Truck size={12} /> Receive
+                              </button>
+                            )}
                             <button
                               type="button"
                               className="po-btn-icon"
@@ -475,19 +524,44 @@ export default function PurchaseOrderHistory({ user, onOpenPo }) {
                           {grn.supplierName}
                         </a>
                       </td>
-                      <td style={{ textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>
-                        +{grn.totalReceivedQty || 0}
+                      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontWeight: 700, color: '#16a34a', fontSize: '13px' }}>
+                          +{grn.totalReceivedQty || 0}
+                        </div>
+                        <div style={{ marginTop: '2px' }}>
+                          {grn.deliveryType === 'PARTIAL' ? (
+                            <span style={{ fontSize: '10.5px', fontWeight: 700, background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a', padding: '1px 6px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                              ⚡ Partial Delivery
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: '10.5px', fontWeight: 700, background: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0', padding: '1px 6px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                              ✓ Full Delivery
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td>{grn.receivedBy || 'Store Officer'}</td>
                       <td className="po-col-actions" style={{ textAlign: 'right' }}>
-                        <div className="po-actions" style={{ justifyContent: 'flex-end' }}>
+                        <div className="po-actions" style={{ justifyContent: 'flex-end', gap: '5px' }}>
                           <button
                             type="button"
                             className="po-btn-icon"
                             onClick={() => navigate(`/purchase-orders/${grn.purchaseOrderId}`)}
+                            title="View Purchase Order"
                           >
                             <Eye size={13} /> View PO
                           </button>
+                          {grn.deliveryType === 'PARTIAL' && (
+                            <button
+                              type="button"
+                              className="po-btn-icon"
+                              onClick={() => navigate(`/purchase-orders/${grn.purchaseOrderId}/receive`)}
+                              style={{ background: '#fef3c7', color: '#b45309', borderColor: '#fde68a', fontWeight: 700 }}
+                              title="Receive remaining items for this PO"
+                            >
+                              <Truck size={12} /> Receive More
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

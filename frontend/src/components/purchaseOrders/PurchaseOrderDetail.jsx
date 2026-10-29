@@ -212,6 +212,42 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
   const statusClass = String(po.status || 'draft').toLowerCase();
   const canReceive = (po.status === 'SENT' || po.status === 'PARTIALLY_RECEIVED') && (po.totalPendingQty > 0);
 
+  const tableTotals = useMemo(() => {
+    let ordQty = 0;
+    let recQty = 0;
+    let pendQty = 0;
+    let totalTax = 0;
+    let totalLine = 0;
+    let totalTaxable = 0;
+
+    items.forEach((it) => {
+      const ord = Number(it.orderedQty || 0);
+      const rec = Number(it.receivedQty || 0);
+      const pend = Math.max(0, ord - rec);
+      const rate = Number(it.rate || 0);
+      const gstRate = Number(it.gstRate || it.gst || 18);
+      const taxable = Number((ord * rate).toFixed(2));
+      const taxAmt = Number(it.tax !== undefined ? it.tax : ((taxable * gstRate) / 100).toFixed(2));
+      const lineVal = Number(it.valuationTotal || it.lineTotal || (taxable + taxAmt));
+
+      ordQty += ord;
+      recQty += rec;
+      pendQty += pend;
+      totalTaxable += taxable;
+      totalTax += taxAmt;
+      totalLine += lineVal;
+    });
+
+    return {
+      orderedQty: ordQty,
+      receivedQty: recQty,
+      pendingQty: pendQty,
+      taxable: totalTaxable,
+      tax: totalTax,
+      lineTotal: totalLine
+    };
+  }, [items]);
+
   return (
     <div className="po-container purchase-order-page">
       {/* Top Bar */}
@@ -361,7 +397,48 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
                 <span style={{ color: '#cbd5e1' }}>|</span>
                 <span style={{ color: '#16a34a' }}><strong>Received:</strong> {po.totalReceivedQty || 0}</span>
                 <span style={{ color: '#cbd5e1' }}>|</span>
-                <span style={{ color: (po.totalPendingQty || 0) > 0 ? '#d97706' : '#16a34a' }}><strong>Pending:</strong> {po.totalPendingQty || 0}</span>
+                {Number(po.totalPendingQty || 0) > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/purchase-orders/${po.id}/receive`)}
+                    style={{
+                      border: 'none',
+                      background: 'none',
+                      padding: 0,
+                      color: '#b45309',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    title="Click to receive remaining pending items"
+                  >
+                    <span>⚡ Pending: {po.totalPendingQty}</span>
+                    <span style={{ fontSize: '11px', textDecoration: 'underline' }}>Receive →</span>
+                  </button>
+                ) : (
+                  <span style={{ color: '#16a34a' }}><strong>Pending:</strong> 0</span>
+                )}
+              </div>
+              <div style={{ marginTop: '8px' }}>
+                {po.status === 'RECEIVED' ? (
+                  <span className="po-status-badge received">✓ FULLY RECEIVED</span>
+                ) : po.status === 'PARTIALLY_RECEIVED' ? (
+                  <button
+                    type="button"
+                    className="po-reactive-pending-badge"
+                    onClick={() => navigate(`/purchase-orders/${po.id}/receive`)}
+                    title="Click to receive remaining goods for this order"
+                  >
+                    <span>⚡ PARTIALLY RECEIVED</span>
+                    <span className="badge-units">+{po.totalPendingQty || 0} Pending</span>
+                  </button>
+                ) : (
+                  <span className={`po-status-badge ${String(po.status || 'draft').toLowerCase()}`}>
+                    {String(po.status || 'DRAFT').replace('_', ' ')}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -393,26 +470,41 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
           <FileText size={18} /> Ordered Products &amp; Receipt Status
         </div>
 
-        <div className="po-grid-table-wrap">
-          <table className="po-table">
+        <div className="po-grid-table-wrap" style={{ overflowX: 'auto' }}>
+          <table className="po-table" style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+            <colgroup>
+              <col style={{ width: '4%' }} />
+              <col style={{ width: '25%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '6%' }} />
+              <col style={{ width: '7%' }} />
+              <col style={{ width: '7%' }} />
+              <col style={{ width: '7%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '6%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '10%' }} />
+            </colgroup>
             <thead>
               <tr>
-                <th style={{ width: '32px', textAlign: 'center' }}>#</th>
-                <th>PRODUCT / SKU</th>
-                <th style={{ width: '100px' }}>CATEGORY</th>
-                <th style={{ width: '90px' }}>BRAND</th>
-                <th style={{ width: '60px', textAlign: 'center' }}>UNIT</th>
-                <th style={{ width: '70px', textAlign: 'right' }}>ORDERED</th>
-                <th style={{ width: '70px', textAlign: 'right' }}>RECEIVED</th>
-                <th style={{ width: '105px', textAlign: 'right' }} title="Purchase Rate per Product / Unit (₹)">
+                <th style={{ textAlign: 'center' }}>#</th>
+                <th style={{ textAlign: 'left', paddingLeft: '8px' }}>PRODUCT / SKU</th>
+                <th style={{ textAlign: 'left' }}>CATEGORY</th>
+                <th style={{ textAlign: 'left' }}>BRAND</th>
+                <th style={{ textAlign: 'center' }}>UNIT</th>
+                <th style={{ textAlign: 'center' }}>ORDERED</th>
+                <th style={{ textAlign: 'center', color: '#16a34a' }}>RECEIVED</th>
+                <th style={{ textAlign: 'center', color: '#d97706' }}>PENDING</th>
+                <th style={{ textAlign: 'right' }} title="Purchase Rate per Product / Unit (₹)">
                   RATE (₹)
-                  <span style={{ display: 'block', fontSize: '9.5px', fontWeight: 600, color: '#64748b', textTransform: 'none', letterSpacing: 'normal' }}>
-                    (per product)
+                  <span style={{ display: 'block', fontSize: '9px', fontWeight: 600, color: '#64748b', textTransform: 'none' }}>
+                    (per unit)
                   </span>
                 </th>
-                <th style={{ width: '60px', textAlign: 'center' }}>GST%</th>
-                <th style={{ width: '80px', textAlign: 'right' }}>TAX</th>
-                <th style={{ width: '105px', textAlign: 'right' }}>LINE TOTAL</th>
+                <th style={{ textAlign: 'center' }}>GST%</th>
+                <th style={{ textAlign: 'right' }}>TAX (₹)</th>
+                <th style={{ textAlign: 'right' }}>LINE TOTAL (₹)</th>
               </tr>
             </thead>
             <tbody>
@@ -420,47 +512,64 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
                 const ord = Number(it.orderedQty || 0);
                 const rec = Number(it.receivedQty || 0);
                 const pend = Math.max(0, ord - rec);
-                const taxAmt = Number(it.tax !== undefined ? it.tax : ((ord * Number(it.rate || 0) * Number(it.gstRate || 18)) / 100).toFixed(2));
+                const rate = Number(it.rate || 0);
+                const gstRate = Number(it.gstRate || it.gst || 18);
+                const taxable = Number((ord * rate).toFixed(2));
+                const taxAmt = Number(it.tax !== undefined ? it.tax : ((taxable * gstRate) / 100).toFixed(2));
+                const lineTotalVal = Number(it.valuationTotal || it.lineTotal || (taxable + taxAmt));
 
                 return (
                   <tr key={idx}>
-                    <td style={{ textAlign: 'center', color: '#64748b' }}>{idx + 1}</td>
-                    <td>
-                      <div style={{ fontWeight: 600, color: '#0f172a' }}>{it.productName}</div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>
-                        Code: {it.productCode} {it.serialized ? ' · Serialized Item' : ''}
+                    <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600 }}>{idx + 1}</td>
+                    <td style={{ textAlign: 'left' }}>
+                      <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '13px' }}>{it.productName}</div>
+                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
+                        Code: <strong style={{ color: '#334155' }}>{it.productCode || '—'}</strong>
+                        {it.serialized ? <span style={{ color: '#059669', fontWeight: 600 }}> · Serialized</span> : ''}
                       </div>
                     </td>
-                    <td style={{ fontSize: '12px', color: '#475569' }}>
+                    <td style={{ fontSize: '12px', color: '#475569', textAlign: 'left' }}>
                       {it.category || '—'}
                     </td>
-                    <td style={{ fontSize: '12px', color: '#475569' }}>
+                    <td style={{ fontSize: '12px', color: '#475569', textAlign: 'left' }}>
                       {it.brand || '—'}
                     </td>
-                    <td style={{ textAlign: 'center', fontSize: '12px' }}>
+                    <td style={{ textAlign: 'center', fontSize: '12px', fontWeight: 600 }}>
                       {(it.unit && it.unit !== 'Piece') ? it.unit : 'Nos'}
                     </td>
-                    <td style={{ textAlign: 'right', fontWeight: 600 }}>{ord}</td>
-                    <td style={{ textAlign: 'right', fontWeight: 600, color: rec > 0 ? '#16a34a' : '#64748b' }}>
+                    <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
+                      {ord}
+                    </td>
+                    <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '13px', color: rec > 0 ? '#16a34a' : '#94a3b8' }}>
                       {rec}
                     </td>
-                    <td style={{ textAlign: 'right', fontWeight: 600, color: pend > 0 ? '#d97706' : '#16a34a' }}>
-                      {pend}
+                    <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '13px' }}>
+                      {pend > 0 ? (
+                        <span style={{ color: '#b45309', background: '#fef3c7', padding: '2px 8px', borderRadius: '4px', border: '1px solid #fde68a' }}>
+                          {pend}
+                        </span>
+                      ) : (
+                        <span style={{ color: '#16a34a' }}>0</span>
+                      )}
                     </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div>₹{Number(it.rate || 0).toFixed(2)}</div>
+                    <td style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: '12.5px' }}>
+                      <div>₹{rate.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                       {it.receiptBatches && it.receiptBatches.length > 1 && (
-                        <div style={{ fontSize: '10px', color: '#16a34a', fontWeight: 600 }}>
+                        <div style={{ fontSize: '9.5px', color: '#16a34a', fontWeight: 700 }}>
                           Highest Rate
                         </div>
                       )}
                     </td>
-                    <td style={{ textAlign: 'center' }}>{it.gstRate || 18}%</td>
-                    <td style={{ textAlign: 'right', color: '#64748b' }}>₹{taxAmt.toFixed(2)}</td>
-                    <td style={{ textAlign: 'right', fontWeight: 600 }}>
-                      <div>₹{Number(it.valuationTotal || it.lineTotal || 0).toFixed(2)}</div>
+                    <td style={{ textAlign: 'center', fontWeight: 600, fontSize: '12px' }}>
+                      {gstRate}%
+                    </td>
+                    <td style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: '12.5px', color: '#475569' }}>
+                      ₹{taxAmt.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                    <td style={{ textAlign: 'right', fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', color: '#0f172a' }}>
+                      <div>₹{lineTotalVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                       {it.receiptBatches && it.receiptBatches.length > 1 && (
-                        <div style={{ fontSize: '10px', color: '#64748b' }}>
+                        <div style={{ fontSize: '9.5px', color: '#64748b' }}>
                           Actual: ₹{Number(it.actualCostTotal || 0).toFixed(2)}
                         </div>
                       )}
@@ -469,6 +578,30 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
                 );
               })}
             </tbody>
+            <tfoot>
+              <tr style={{ background: '#f8fafc', borderTop: '2px solid #cbd5e1' }}>
+                <td colSpan="5" style={{ textAlign: 'right', fontWeight: 800, padding: '10px 12px', fontSize: '12px', textTransform: 'uppercase', color: '#0f172a', letterSpacing: '0.02em' }}>
+                  TOTALS :
+                </td>
+                <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '13px', color: '#0f172a' }}>
+                  {tableTotals.orderedQty}
+                </td>
+                <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '13px', color: '#16a34a' }}>
+                  {tableTotals.receivedQty}
+                </td>
+                <td style={{ textAlign: 'center', fontWeight: 800, fontSize: '13px', color: tableTotals.pendingQty > 0 ? '#b45309' : '#16a34a' }}>
+                  {tableTotals.pendingQty}
+                </td>
+                <td style={{ textAlign: 'right', color: '#94a3b8' }}>—</td>
+                <td style={{ textAlign: 'center', color: '#94a3b8' }}>—</td>
+                <td style={{ textAlign: 'right', fontWeight: 800, fontFamily: 'monospace', fontSize: '12.5px', color: '#475569' }}>
+                  ₹{tableTotals.tax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+                <td style={{ textAlign: 'right', fontWeight: 800, fontFamily: 'monospace', fontSize: '13.5px', color: '#0f172a' }}>
+                  ₹{tableTotals.lineTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+              </tr>
+            </tfoot>
           </table>
         </div>
 
@@ -504,39 +637,67 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
         )}
 
         {/* Totals Summary */}
-        <div className="po-totals-container" style={{ marginTop: '16px' }}>
-          <div className="po-totals-box">
-            <div className="po-total-row">
+        <div className="po-totals-container" style={{ marginTop: '20px' }}>
+          <div className="po-totals-box" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '16px 20px', width: '360px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div className="po-total-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '13px', color: '#475569' }}>
               <span>Subtotal (Taxable):</span>
-              <strong>₹{Number(po.subtotal || 0).toFixed(2)}</strong>
+              <strong style={{ fontFamily: 'monospace', color: '#0f172a', fontSize: '13px' }}>
+                ₹{Number(po.subtotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </strong>
             </div>
             {po.igst > 0 ? (
-              <div className="po-total-row">
+              <div className="po-total-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '13px', color: '#475569' }}>
                 <span>IGST (Inter-State):</span>
-                <span>₹{Number(po.igst || 0).toFixed(2)}</span>
+                <span style={{ fontFamily: 'monospace', color: '#0f172a' }}>
+                  ₹{Number(po.igst || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
               </div>
             ) : (
               <>
-                <div className="po-total-row">
-                  <span>CGST (Intra-State):</span>
-                  <span>₹{Number(po.cgst || 0).toFixed(2)}</span>
+                <div className="po-total-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '13px', color: '#475569' }}>
+                  <span>CGST (Intra-State 9%):</span>
+                  <span style={{ fontFamily: 'monospace', color: '#0f172a' }}>
+                    ₹{Number(po.cgst || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
                 </div>
-                <div className="po-total-row">
-                  <span>SGST (Intra-State):</span>
-                  <span>₹{Number(po.sgst || 0).toFixed(2)}</span>
+                <div className="po-total-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '13px', color: '#475569' }}>
+                  <span>SGST (Intra-State 9%):</span>
+                  <span style={{ fontFamily: 'monospace', color: '#0f172a' }}>
+                    ₹{Number(po.sgst || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
                 </div>
               </>
             )}
             {po.roundOff !== undefined && Number(po.roundOff) !== 0 && (
-              <div className="po-total-row">
+              <div className="po-total-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '13px', color: '#475569' }}>
                 <span>Round Off:</span>
-                <span>{Number(po.roundOff) > 0 ? `+₹${Number(po.roundOff).toFixed(2)}` : `-₹${Math.abs(Number(po.roundOff)).toFixed(2)}`}</span>
+                <span style={{ fontFamily: 'monospace' }}>
+                  {Number(po.roundOff) > 0 ? `+₹${Number(po.roundOff).toFixed(2)}` : `-₹${Math.abs(Number(po.roundOff)).toFixed(2)}`}
+                </span>
               </div>
             )}
-            <div className="po-total-row grand-total">
+            <div className="po-total-row grand-total" style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #cbd5e1', paddingTop: '10px', marginTop: '6px', fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
               <span>Grand Total:</span>
-              <span>₹{Number(po.grandTotal || 0).toLocaleString('en-IN')}</span>
+              <span style={{ fontFamily: 'monospace', color: '#1d4ed8' }}>
+                ₹{Number(po.grandTotal || 0).toLocaleString('en-IN')}
+              </span>
             </div>
+
+            {/* Inward Reconciliation Summary Pills */}
+            {(po.totalReceivedQty > 0 || po.totalPendingQty > 0) && (
+              <div style={{ borderTop: '1px dashed #cbd5e1', marginTop: '10px', paddingTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#166534', background: '#f0fdf4', padding: '4px 8px', borderRadius: '4px' }}>
+                  <span>✓ Goods Received to Date:</span>
+                  <strong>{po.totalReceivedQty || 0} Units</strong>
+                </div>
+                {po.totalPendingQty > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#92400e', background: '#fffbeb', padding: '4px 8px', borderRadius: '4px' }}>
+                    <span>⚡ Pending Delivery Balance:</span>
+                    <strong>{po.totalPendingQty || 0} Units</strong>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

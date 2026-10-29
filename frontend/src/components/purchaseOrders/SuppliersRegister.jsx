@@ -465,22 +465,26 @@ export default function SuppliersRegister({ user, onSelectSupplier }) {
 
                       <td style={{ textAlign: 'center' }}>
                         {pending > 0 ? (
-                          <span
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              padding: '2px 8px',
-                              borderRadius: '4px',
-                              fontSize: '11px',
-                              fontWeight: 700,
-                              whiteSpace: 'nowrap',
-                              background: '#fffbeb',
-                              color: '#b45309',
-                              border: '1px solid #fde68a'
+                          <button
+                            type="button"
+                            className="po-reactive-pending-badge"
+                            onClick={() => {
+                              if (sup.latestPendingPoId) {
+                                navigate(`/purchase-orders/${sup.latestPendingPoId}/receive`);
+                              } else {
+                                handleOpenSupplier(sup);
+                              }
                             }}
+                            title={`Click to receive goods for ${sup.companyName}: ${sup.pendingQty || 0} unit(s) pending on PO ${sup.latestPendingPoId || ''}`}
                           >
-                            {pending} Pending
-                          </span>
+                            <span style={{ fontSize: '11px' }}>⚡</span>
+                            <span>{pending} Pending</span>
+                            {Number(sup.pendingQty || 0) > 0 && (
+                              <span className="badge-units">
+                                {sup.pendingQty} units
+                              </span>
+                            )}
+                          </button>
                         ) : totalOrders > 0 ? (
                           <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>
                             ✓ Complete
@@ -496,6 +500,23 @@ export default function SuppliersRegister({ user, onSelectSupplier }) {
 
                       <td className="actions-col" style={{ textAlign: 'right' }}>
                         <div className="settings-row-actions" style={{ justifyContent: 'flex-end', gap: '4px' }}>
+                          {pending > 0 && (
+                            <button
+                              type="button"
+                              className="settings-row-action enquiry-action-btn"
+                              onClick={() => {
+                                if (sup.latestPendingPoId) {
+                                  navigate(`/purchase-orders/${sup.latestPendingPoId}/receive`);
+                                } else {
+                                  handleOpenSupplier(sup);
+                                }
+                              }}
+                              style={{ height: '24px', display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '0 6px', fontWeight: 700, fontSize: '11px', color: '#b45309', borderColor: '#fde68a', background: '#fef3c7' }}
+                              title={`Receive remaining ${sup.pendingQty || ''} units for ${sup.companyName}`}
+                            >
+                              <Truck size={11} /> Receive
+                            </button>
+                          )}
                           <button
                             type="button"
                             className="settings-row-action enquiry-action-btn"

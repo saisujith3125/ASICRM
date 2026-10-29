@@ -1837,7 +1837,57 @@
 .suppliers-register-page table.po-table th:nth-child(7),
 .suppliers-register-page table.po-table td:nth-child(7) { width: 100px !important; text-align: center !important; }
 .suppliers-register-page table.po-table th:nth-child(8),
-.suppliers-register-page table.po-table td:nth-child(8) { width: 90px !important; text-align: right !important; }
+.suppliers-register-page table.po-table td:nth-child(8) { width: 140px !important; min-width: 130px !important; text-align: right !important; }
+
+/* Reactive Pending Badge & Button */
+.po-reactive-pending-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #f59e0b;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(217, 119, 6, 0.12);
+}
+
+.po-reactive-pending-badge:hover {
+  background: #fef3c7;
+  border-color: #d97706;
+  color: #92400e;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(217, 119, 6, 0.22);
+}
+
+.po-reactive-pending-badge:active {
+  transform: translateY(0);
+}
+
+.po-reactive-pending-badge .badge-units {
+  background: #fde68a;
+  color: #78350f;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* PO Table Totals Summary Row in PurchaseOrderDetail */
+.po-table tfoot .po-table-totals-row td {
+  background: #f8fafc;
+  border-top: 2px solid #cbd5e1;
+  border-bottom: 2px solid #cbd5e1;
+  padding: 10px 8px;
+  font-size: 12.5px;
+  color: #0f172a;
+}
 
 
 

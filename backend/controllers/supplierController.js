@@ -97,6 +97,10 @@ function getSuppliers(req, res) {
         }
       }
 
+      const pendingOrdersList = supOrders.filter((po) => po.status === 'PARTIALLY_RECEIVED' || po.status === 'SENT');
+      const pendingPoIds = pendingOrdersList.map((p) => p.id);
+      const latestPendingPoId = pendingOrdersList[0]?.id || null;
+
       return {
         ...supplier,
         totalOrders: supOrders.length,
@@ -105,6 +109,8 @@ function getSuppliers(req, res) {
         partiallyReceivedOrders: partiallyReceivedCount,
         draftOrders: draftCount,
         pendingOrders: sentCount + partiallyReceivedCount,
+        pendingPoIds,
+        latestPendingPoId,
         totalGrns: supReceipts.length,
         totalProcurementValue: Number(totalValue.toFixed(2)),
         totalOrderedQty,

@@ -206,7 +206,9 @@
     "ADMIN": {
       "Enquiries": [
         "View",
+        "Create",
         "Edit",
+        "Follow Up",
         "Close"
       ],
       "Customers": [
@@ -224,7 +226,8 @@
         "Download",
         "Approve",
         "Reject",
-        "Convert to Order"
+        "Convert to Order",
+        "Delete"
       ],
       "Orders & Deals": [
         "View",
@@ -233,27 +236,15 @@
         "Delete",
         "Close"
       ],
-      "User Administration": [
-        "View Users",
-        "Create Users",
-        "Edit Users",
-        "Disable Users",
-        "Manage Roles",
-        "Manage Permissions"
-      ],
-      "Stocks": [
-        "View",
-        "Create",
-        "Edit",
-        "Delete"
-      ],
       "Delivery Challans": [
         "View",
         "Create",
         "Edit",
         "Dispatch",
         "Deliver",
+        "Receive Goods",
         "Return",
+        "Download",
         "Delete"
       ],
       "Purchase Orders": [
@@ -265,9 +256,34 @@
         "Approve",
         "Delete"
       ],
+      "Stocks": [
+        "View",
+        "Create",
+        "Edit",
+        "Delete",
+        "Stock Movements",
+        "Price History"
+      ],
+      "Warehouse": [
+        "View",
+        "Manage Bins"
+      ],
+      "Serial Tracking": [
+        "View",
+        "Track Serials",
+        "Manage Serials"
+      ],
       "Finance": [
         "View",
         "Export"
+      ],
+      "User Administration": [
+        "View Users",
+        "Create Users",
+        "Edit Users",
+        "Disable Users",
+        "Manage Roles",
+        "Manage Permissions"
       ]
     },
     "EMPLOYEE": {

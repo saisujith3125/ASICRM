@@ -1754,6 +1754,29 @@ function CrmDashboard({
       navigate('/purchase-orders');
       return;
     }
+        if (tab === 'serials' || tab === 'serial-tracking') {
+      const canAccessSerials = String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' ||
+        String(user?.role || '').toUpperCase() === 'ADMIN' ||
+        hasPermission(user, 'Serial Tracking', 'View') ||
+        hasPermission(user, 'Stocks', 'View') ||
+        hasPermission(user, 'Orders & Deals', 'View') ||
+        hasPermission(user, 'Purchase Orders', 'View') ||
+        hasPermission(user, 'Finance', 'View');
+      if (!canAccessSerials) return;
+      navigate('/serials');
+      return;
+    }
+    if (tab === 'warehouses' || tab === 'warehouse') {
+      const canAccessWarehouse = String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' ||
+        String(user?.role || '').toUpperCase() === 'ADMIN' ||
+        hasPermission(user, 'Warehouse', 'View') ||
+        hasPermission(user, 'Stocks', 'View') ||
+        hasPermission(user, 'Purchase Orders', 'View') ||
+        hasPermission(user, 'Orders & Deals', 'View');
+      if (!canAccessWarehouse) return;
+      navigate('/warehouses');
+      return;
+    }
     if (tab === 'finance') {
       if (String(user?.role || '').toUpperCase() !== 'SUPER_ADMIN' && String(user?.role || '').toUpperCase() !== 'ADMIN' && !hasPermission(user, 'Finance', 'View')) return;
       navigate(routeState.financeSubView && routeState.financeSubView !== 'overview' ? `/finance/${routeState.financeSubView}` : '/finance');

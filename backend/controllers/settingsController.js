@@ -205,11 +205,14 @@ const defaultData = { users: [], roles: [], permissions: {}, companySettings: de
 const PERMISSION_CATALOG = {
   Enquiries: ['View', 'Create', 'Edit', 'Follow Up', 'Close'],
   Customers: ['View', 'Create', 'Edit', 'Delete', 'View History', 'Manage Branches'],
-  Quotations: ['View', 'Create', 'Edit', 'Download', 'Approve', 'Reject', 'Convert to Order'],
+  Quotations: ['View', 'Create', 'Edit', 'Download', 'Approve', 'Reject', 'Convert to Order', 'Delete'],
   'Orders & Deals': ['View', 'Create', 'Edit', 'Delete', 'Close'],
-  'Delivery Challans': ['View', 'Create', 'Edit', 'Dispatch', 'Deliver', 'Return', 'Delete'],
+  'Delivery Challans': ['View', 'Create', 'Edit', 'Dispatch', 'Deliver', 'Receive Goods', 'Return', 'Download', 'Delete'],
   'Purchase Orders': ['View', 'Create', 'Edit', 'Receive Goods', 'Download', 'Approve', 'Delete'],
-  Stocks: ['View', 'Create', 'Edit', 'Delete'],
+  Stocks: ['View', 'Create', 'Edit', 'Delete', 'Stock Movements', 'Price History'],
+  Warehouse: ['View', 'Manage Bins'],
+  'Serial Tracking': ['View', 'Track Serials', 'Manage Serials'],
+  Finance: ['View', 'Export'],
   'User Administration': ['View Users', 'Create Users', 'Edit Users', 'Disable Users', 'Manage Roles', 'Manage Permissions']
 };
 

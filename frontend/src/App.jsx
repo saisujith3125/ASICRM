@@ -29,6 +29,7 @@ import SuppliersRegister from './components/purchaseOrders/SuppliersRegister'
 import SentItemsToSupplierView from './components/purchaseOrders/SentItemsToSupplierView'
 import FinanceView from './components/finance/FinanceView'
 import SerialTrackingView from './components/serials/SerialTrackingView'
+import WarehouseView from './components/warehouse/WarehouseView'
 import { apiFetch, apiUrl } from './api'
 import { hasAnyPermission, hasPermission } from './utils/permissions'
 import { parseRoute, navigate } from './router'
@@ -1590,6 +1591,18 @@ function CrmDashboard({
       );
     } else {
       content = <div className="crm-restricted-view" style={{ padding: '48px', textAlign: 'center' }}><h3>Access Restricted</h3><p>You do not have permission to view Serial Tracking.</p></div>;
+    }
+  } else if (activeTab === 'warehouses' || activeTab === 'warehouse') {
+    const canAccessWarehouse = String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' ||
+      String(user?.role || '').toUpperCase() === 'ADMIN' ||
+      hasPermission(user, 'Stocks', 'View') ||
+      hasPermission(user, 'Purchase Orders', 'View') ||
+      hasPermission(user, 'Orders & Deals', 'View');
+
+    if (canAccessWarehouse) {
+      content = <WarehouseView user={user} />;
+    } else {
+      content = <div className="crm-restricted-view" style={{ padding: '48px', textAlign: 'center' }}><h3>Access Restricted</h3><p>You do not have permission to view Warehouse Facility.</p></div>;
     }
   } else if (activeTab === 'finance') {
     if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' || String(user?.role || '').toUpperCase() === 'ADMIN' || hasPermission(user, 'Finance', 'View')) {

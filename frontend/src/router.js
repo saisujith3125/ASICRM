@@ -758,6 +758,21 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
     };
   }
 
+  // WAREHOUSE FACILITY & BIN HIERARCHY ROUTE
+  // /warehouses
+  // /warehouse
+  if (section === 'warehouses' || section === 'warehouse') {
+    return {
+      path: '/warehouses',
+      activeTab: 'warehouses',
+      activeCustomerId: null,
+      activeEnquiryId: null,
+      stockBranch: 'overview',
+      stockProductCreate: false,
+      stockProductInfo: null
+    };
+  }
+
   // FINANCE & FLOW CONTROL ROUTE
   // /finance
   // /finance/inward

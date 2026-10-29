@@ -25,6 +25,7 @@ const purchaseOrderRoutes = require("./routes/purchaseOrderRoutes");
 const goodsReceiptRoutes = require("./routes/goodsReceiptRoutes");
 const financeRoutes = require("./routes/financeRoutes");
 const serialTrackingRoutes = require("./routes/serialTrackingRoutes");
+const warehouseRoutes = require("./routes/warehouseRoutes");
 const { getSmsConfigSummary } = require("./utils/smsProvider");
 const connectDB = require("./config/db");
 
@@ -129,6 +130,7 @@ app.use("/api/purchase-orders", purchaseOrderRoutes);
 app.use("/api/goods-receipts", goodsReceiptRoutes);
 app.use("/api/finance", financeRoutes);
 app.use("/api/serials", serialTrackingRoutes);
+app.use("/api/warehouses", warehouseRoutes);
 
 // Catch unhandled API requests with clean JSON (preventing HTML 404 pages)
 app.use("/api", (req, res) => {

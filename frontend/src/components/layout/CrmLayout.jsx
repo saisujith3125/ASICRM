@@ -109,6 +109,19 @@ export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ord
       )
     },
     {
+      id: 'warehouses',
+      path: '/warehouses',
+      label: 'Warehouses',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z" />
+          <path d="M6 18h12" />
+          <path d="M6 14h12" />
+          <rect x="9" y="10" width="6" height="4" />
+        </svg>
+      )
+    },
+    {
       id: 'orders',
       path: '/orders',
       label: 'Orders & Deals',
@@ -157,6 +170,7 @@ export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ord
     if (item.id === 'delivery-challans') return canView('Delivery Challans');
     if (item.id === 'purchase-orders') return canView('Purchase Orders');
     if (item.id === 'stocks') return canView('Stocks');
+    if (item.id === 'warehouses') return String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' || String(user?.role || '').toUpperCase() === 'ADMIN' || canView('Stocks') || canView('Purchase Orders') || canView('Orders & Deals');
     if (item.id === 'orders') return canView('Orders & Deals');
     if (item.id === 'serials') return String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' || String(user?.role || '').toUpperCase() === 'ADMIN' || canView('Stocks') || canView('Orders & Deals') || canView('Purchase Orders') || canView('Finance');
     if (item.id === 'finance') return String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' || String(user?.role || '').toUpperCase() === 'ADMIN' || canView('Finance');

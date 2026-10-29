@@ -1818,7 +1818,7 @@ function CrmDashboard({
       primaryActionLabel={primaryEnquiryActionLabel}
       onNavigateToSettings={openSettings}
     >
-      <CrmErrorBoundary resetKey={`${activeTab}-${poSubView || ''}-${enquirySubView || ''}-${ordersSubView || ''}-${quotationSubView || ''}-${dcSubView || ''}`}>
+      <CrmErrorBoundary resetKey={`${activeTab}-${poSubView || ''}-${enquirySubView || ''}-${ordersSubView || ''}-${quotationSubView || ''}-${dcSubView || ''}-${safeFinanceSubView || ''}`}>
         {content}
       </CrmErrorBoundary>
     </CrmLayout>

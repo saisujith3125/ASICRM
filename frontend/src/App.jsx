@@ -475,6 +475,7 @@ export default function App() {
           setStockProductInfo={setStockProductInfo}
           preselectedCustForEnq={preselectedCustForEnq}
           setPreselectedCustForEnq={setPreselectedCustForEnq}
+          financeSubView={financeSubView}
         />
       </CrmErrorBoundary>
     );
@@ -1075,8 +1076,10 @@ function CrmDashboard({
   navigationState, enquiryCreateDraft, onSaveEnquiryDraft, onClearEnquiryDraft,
   stockBranch, stockProductCreate, stockProductEdit = false, stockProductPriceHistory = false, stockProductMovements = false, activeProductId = null,
   stockProductInfo, setStockProductInfo,
-  preselectedCustForEnq, setPreselectedCustForEnq
+  preselectedCustForEnq, setPreselectedCustForEnq,
+  financeSubView = 'overview'
 }) {
+    const safeFinanceSubView = financeSubView || routeState?.financeSubView || 'overview';
   const activeSupplierId = routeState?.activeSupplierId || null;
   const openCreateEnquiry = (customerId = null) => {
     setPreselectedCustForEnq(customerId);
@@ -1810,7 +1813,7 @@ function CrmDashboard({
       stockProductPriceHistory={stockProductPriceHistory}
       activeProductId={activeProductId}
       stockProductInfo={stockProductInfo}
-      financeSubView={financeSubView}
+      financeSubView={safeFinanceSubView}
       onNavigateToCreate={primaryEnquiryAction}
       primaryActionLabel={primaryEnquiryActionLabel}
       onNavigateToSettings={openSettings}

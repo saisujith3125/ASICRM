@@ -3733,9 +3733,9 @@
 .doc-quotation-root.is-exporting-pdf .doc-quotation-page {
   width: 210mm !important;
   max-width: 210mm !important;
-  height: 296mm !important;
-  min-height: 296mm !important;
-  max-height: 296mm !important;
+  height: 297mm !important;
+  min-height: 297mm !important;
+  max-height: 297mm !important;
   overflow: hidden !important;
   box-shadow: none !important;
   margin: 0 !important;
@@ -5295,7 +5295,9 @@
 
 .doc-quotation-root .doc-quotation-footer-notice.doc-unified-footer-bar {
   margin-top: auto !important;
-  padding-top: 8px !important;
+  margin-bottom: 0 !important;
+  padding-top: 4px !important;
+  padding-bottom: 0 !important;
 }
 
 .doc-unified-footer-bar .doc-footer-spacer {

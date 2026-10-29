@@ -798,20 +798,20 @@ export function QuotationContinuationHeader({ model, pageNumber = 3, totalPages 
  */
 export function estimateItemHeight(it) {
   const title = (it.displayName || it.name || it.productName || '').trim();
-  const titleLines = Math.max(1, Math.ceil(title.length / 38));
+  const titleLines = Math.max(1, Math.ceil(title.length / 42));
   const desc = (it.description || '').trim();
-  const descLines = desc ? desc.split(/[\r\n]+/).reduce((acc, line) => acc + Math.max(1, Math.ceil(line.length / 48)), 0) : 0;
-  return 20 + titleLines * 17 + descLines * 15;
+  const descLines = desc ? desc.split(/[\r\n]+/).reduce((acc, line) => acc + Math.max(1, Math.ceil(line.length / 52)), 0) : 0;
+  return 16 + titleLines * 16 + descLines * 14;
 }
 
 export function estimateTermsHeight(model) {
-  let h = 24; // title
+  let h = 20; // title
   if (model.note) {
-    h += Math.max(16, Math.ceil(model.note.length / 70) * 15) + 4;
+    h += Math.max(14, Math.ceil(model.note.length / 80) * 14) + 2;
   }
   const termsList = model.termsList || [];
   for (const term of termsList) {
-    h += Math.max(15, Math.ceil(term.length / 70) * 15) + 4;
+    h += Math.max(13, Math.ceil(term.length / 80) * 13) + 2;
   }
   return h;
 }
@@ -825,14 +825,14 @@ export function estimateTermsHeight(model) {
  */
 export function paginateQuotation(model) {
   const items = model.items || [];
-  const PAGE_CAPACITY_PX = 955; // Safe Printable A4 content height (reserving bottom footer bar)
-  const PAGE2_HEADER_HEIGHT = 280; // Full header (180px) + Meta row (56px) + thead (36px) + margin
-  const CONTINUATION_HEADER_HEIGHT = 95; // Compact header (50px) + thead (36px) + margin
-  const TOTALS_HEIGHT = model.showDiscount ? 135 : 82; // 5 totals rows with discount, 3 rows without
-  const WORDS_HEIGHT = 24; // Number in Words
+  const PAGE_CAPACITY_PX = 1015; // True usable Printable A4 content height (with 10mm / 1cm bottom gap)
+  const PAGE2_HEADER_HEIGHT = 245; // Company header (165px) + Meta row (44px) + thead (36px)
+  const CONTINUATION_HEADER_HEIGHT = 80; // Compact continuation header (44px) + thead (36px)
+  const TOTALS_HEIGHT = model.showDiscount ? 120 : 75; // totals block (without discount: 3 rows ~75px)
+  const WORDS_HEIGHT = 22; // Number in Words
   const termsHeight = estimateTermsHeight(model);
-  const SIGNOFF_HEIGHT = 126; // With Regards + Seal
-  const MARGINS_HEIGHT = 30; // Section gaps and margins
+  const SIGNOFF_HEIGHT = 105; // With Regards + Sign/Seal
+  const MARGINS_HEIGHT = 16; // Gaps and margins
 
   const totalBottomHeight = TOTALS_HEIGHT + WORDS_HEIGHT + termsHeight + SIGNOFF_HEIGHT + MARGINS_HEIGHT;
 
@@ -868,10 +868,6 @@ export function paginateQuotation(model) {
 
   if (totalItemsHeight <= availablePage2WithBottom) {
     // Fits completely on Page 2 (Standard Two-Page Quotation!)
-    const remainingSpace = availablePage2WithBottom - totalItemsHeight;
-    const maxFillerFit = Math.max(0, Math.floor(remainingSpace / 28));
-    const fillerRowsCount = Math.min(maxFillerFit, Math.max(0, 6 - items.length));
-
     pages.push({
       pageNumber: 2,
       isCoverPage: false,
@@ -879,7 +875,7 @@ export function paginateQuotation(model) {
       isPage2: true,
       isLastPage: true,
       items,
-      fillerRowsCount,
+      fillerRowsCount: 0,
       showTotals: true,
       showWords: true,
       showTerms: true,
@@ -894,9 +890,9 @@ export function paginateQuotation(model) {
 
   while (currentItemIdx < items.length) {
     const isPage2 = pageNum === 2;
-    // Page 2 has full company header with address; Page 3+ has NO header (table starts right at top)
-    const headerHeight = isPage2 ? PAGE2_HEADER_HEIGHT : 0;
-    const pageCapacity = isPage2 ? 580 : 935;
+    // Page 2 has full company header with address; Page 3+ has compact continuation header
+    const headerHeight = isPage2 ? PAGE2_HEADER_HEIGHT : CONTINUATION_HEADER_HEIGHT;
+    const pageCapacity = PAGE_CAPACITY_PX - headerHeight;
 
     const pageItems = [];
     let currentHeight = 0;

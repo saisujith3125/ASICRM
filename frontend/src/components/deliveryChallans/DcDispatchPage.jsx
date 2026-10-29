@@ -184,14 +184,14 @@ export default function DcDispatchPage({ challans = [], user, onRefresh, onOpenD
         <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-dispatch-table-body">
           <table className="crm-master-table crm-data-table settings-table dc-table dc-dispatch-table dc-register-table">
             <colgroup>
-              <col style={{ width: '12%' }} />
+              <col style={{ width: '15%' }} />
               <col style={{ width: '10%' }} />
               <col style={{ width: '22%' }} />
               <col style={{ width: '12%' }} />
-              <col style={{ width: '16%' }} />
+              <col style={{ width: '15%' }} />
               <col style={{ width: '8%' }} />
               <col style={{ width: '10%' }} />
-              <col style={{ width: '10%' }} />
+              <col style={{ width: '8%' }} />
             </colgroup>
             <thead>
               <tr>

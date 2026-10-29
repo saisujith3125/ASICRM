@@ -280,6 +280,40 @@
 .crm-master-table .cell-nowrap,
 .crm-table-viewport table .cell-nowrap {
   white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Master ID Badges & Code Blocks (Prevents Cell Bleed/Collisions) */
+.order-id-badge,
+.quotation-code-badge,
+.dc-code-badge,
+.master-code {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+}
+
+/* Table Minimum Widths for High-Density Screens (Ensures natural horizontal scroll instead of column crushing) */
+.invoices-settings-table,
+.invoices-data-table {
+  min-width: 1080px !important;
+}
+
+.quotation-settings-table,
+.quotation-register-table {
+  min-width: 1040px !important;
+}
+
+.dc-overview-table,
+.dc-history-table,
+.dc-dispatch-table,
+.dc-receive-table,
+.dc-register-table {
+  min-width: 1020px !important;
 }
 
 /* Proportional Column Layout Helpers */
@@ -312,7 +346,9 @@
 }
 
 .col-actions-compact {
-  width: 120px !important;
+  width: 76px !important;
+  min-width: 76px !important;
+  max-width: 84px !important;
   text-align: right !important;
   white-space: nowrap !important;
   padding-right: 12px !important;

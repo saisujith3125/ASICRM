@@ -204,13 +204,13 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
         <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-table-scroll-body dc-receive-table-body">
           <table className="crm-master-table crm-data-table settings-table dc-table dc-receive-table dc-register-table">
             <colgroup>
-              <col className="col-dc-no" style={{ width: '12%' }} />
+              <col className="col-dc-no" style={{ width: '15%' }} />
               <col className="col-dc-date" style={{ width: '10%' }} />
-              <col className="col-customer" style={{ width: '25%' }} />
-              <col className="col-destination" style={{ width: '21%' }} />
+              <col className="col-customer" style={{ width: '23%' }} />
+              <col className="col-destination" style={{ width: '20%' }} />
               <col className="col-receiver" style={{ width: '12%' }} />
-              <col className="col-status" style={{ width: '10%' }} />
-              <col className="col-actions" style={{ width: '10%' }} />
+              <col className="col-status" style={{ width: '12%' }} />
+              <col className="col-actions" style={{ width: '8%' }} />
             </colgroup>
             <thead>
               <tr>

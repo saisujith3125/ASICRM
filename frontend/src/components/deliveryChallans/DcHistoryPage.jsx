@@ -143,14 +143,14 @@ export default function DcHistoryPage({ challans = [], orders = [], user, onOpen
         <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-table-scroll-body dc-history-table-body">
           <table className="crm-master-table crm-data-table settings-table dc-table dc-history-table dc-register-table">
             <colgroup>
-              <col style={{ width: '11%' }} />
-              <col style={{ width: '9%' }} />
-              <col style={{ width: '23%' }} />
-              <col style={{ width: '11%' }} />
-              <col style={{ width: '8%' }} />
-              <col style={{ width: '13%' }} />
-              <col style={{ width: '10%' }} />
               <col style={{ width: '15%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '22%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '11%' }} />
+              <col style={{ width: '10%' }} />
             </colgroup>
             <thead>
               <tr>

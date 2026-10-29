@@ -831,13 +831,13 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
               <div className="crm-table-viewport crm-table-scroll-wrap">
                 <table className="crm-master-table crm-data-table settings-table orders-settings-table orders-data-table">
                 <colgroup>
-                  <col style={{ width: '22%' }} />
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '25%' }} />
+                  <col style={{ width: '11%' }} />
                   <col style={{ width: '12%' }} />
+                  <col style={{ width: '13%' }} />
                   <col style={{ width: '8%' }} />
-                  <col style={{ width: '14%' }} />
-                  <col style={{ width: '24%' }} />
+                  <col style={{ width: '13%' }} />
+                  <col style={{ width: '18%' }} />
                 </colgroup>
                 <thead>
                   <tr>
@@ -1419,16 +1419,16 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
               <div className="crm-table-viewport crm-table-scroll-wrap">
                 <table className="crm-master-table crm-data-table settings-table invoices-settings-table invoices-data-table">
                 <colgroup>
-                  <col style={{ width: '9%' }} />
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '9%' }} />
-                  <col style={{ width: '18%' }} />
+                  <col style={{ width: '13.5%' }} />
+                  <col style={{ width: '15.5%' }} />
+                  <col style={{ width: '13.5%' }} />
+                  <col style={{ width: '17.5%' }} />
                   <col style={{ width: '8%' }} />
                   <col style={{ width: '8%' }} />
                   <col style={{ width: '6%' }} />
-                  <col style={{ width: '9%' }} />
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '13%' }} />
+                  <col style={{ width: '8%' }} />
+                  <col style={{ width: '7%' }} />
+                  <col style={{ width: '7%' }} />
                 </colgroup>
                 <thead>
                   <tr>
@@ -1466,16 +1466,18 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
                       {invoicesPagination.currentRecords.map((inv) => (
                       <tr key={inv.invoiceId} className="table-data-row">
                         <td className="col-priority-high cell-nowrap" data-label="INVOICE ID">
-                          <strong className="order-id-badge" style={{ background: '#fef3c7', color: '#92400e', borderColor: '#fde68a' }}>
+                          <strong className="order-id-badge" style={{ background: '#fef3c7', color: '#92400e', borderColor: '#fde68a' }} title={inv.invoiceId}>
                             {inv.invoiceId}
                           </strong>
                         </td>
                         <td className="col-priority-med cell-nowrap" style={{ textAlign: 'center' }} data-label="SALES ORDER">
-                          <strong className="order-id-badge" style={{ minWidth: '90px', display: 'inline-block' }}>{inv.orderId || '—'}</strong>
+                          <strong className="order-id-badge" style={{ maxWidth: '100%', display: 'inline-block' }} title={inv.orderId || '—'}>
+                            {inv.orderId || '—'}
+                          </strong>
                         </td>
                         <td className="col-priority-med cell-nowrap" style={{ textAlign: 'center' }} data-label="DELIVERY REF">
                           {inv.challanId ? (
-                            <strong className="order-id-badge" style={{ background: '#eff6ff', color: '#1d4ed8', borderColor: '#bfdbfe', minWidth: '90px', display: 'inline-block' }}>
+                            <strong className="order-id-badge" style={{ background: '#eff6ff', color: '#1d4ed8', borderColor: '#bfdbfe', maxWidth: '100%', display: 'inline-block' }} title={inv.challanId}>
                               {inv.challanId}
                             </strong>
                           ) : (
@@ -1706,13 +1708,13 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
               <div className="crm-table-viewport crm-table-scroll-wrap proforma-table-scroll-wrap">
                 <table className="crm-master-table crm-data-table settings-table proforma-management-table">
                   <colgroup>
-                    <col style={{ width: '13%' }} />
-                    <col style={{ width: '10%' }} />
-                    <col style={{ width: '23%' }} />
+                    <col style={{ width: '15%' }} />
+                    <col style={{ width: '11%' }} />
+                    <col style={{ width: '26%' }} />
                     <col style={{ width: '8%' }} />
-                    <col style={{ width: '12%' }} />
-                    <col style={{ width: '12%' }} />
-                    <col style={{ width: '22%' }} />
+                    <col style={{ width: '13%' }} />
+                    <col style={{ width: '13%' }} />
+                    <col style={{ width: '14%' }} />
                   </colgroup>
                   <thead>
                     <tr>

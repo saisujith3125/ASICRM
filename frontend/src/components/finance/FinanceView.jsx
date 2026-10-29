@@ -719,7 +719,7 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
               </button>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px', fontSize: '12px', color: '#64748b' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginTop: '10px', fontSize: '12px', color: '#64748b' }}>
               <span>Quick sample serials:</span>
               <button
                 type="button"

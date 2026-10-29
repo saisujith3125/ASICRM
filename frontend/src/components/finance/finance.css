@@ -302,6 +302,7 @@
 
 .finance-table {
   width: 100%;
+  min-width: 960px;
   border-collapse: collapse;
   font-size: 13px;
   text-align: left;
@@ -364,7 +365,7 @@
 
 /* Serial Number Pill */
 .serial-pill-btn {
-  padding: 2px 8px;
+  padding: 3px 9px;
   background: #f1f5f9;
   border: 1px solid #cbd5e1;
   border-radius: 4px;
@@ -376,6 +377,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .serial-pill-btn:hover {

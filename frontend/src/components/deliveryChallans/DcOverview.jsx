@@ -131,14 +131,14 @@ export default function DcOverview({ challans = [], onNavigateSubView, onOpenDoc
         <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-overview-table-body">
           <table className="crm-master-table crm-data-table settings-table dc-table dc-overview-table dc-register-table">
             <colgroup>
-              <col style={{ width: '12%' }} />
+              <col style={{ width: '15%' }} />
               <col style={{ width: '10%' }} />
-              <col style={{ width: '24%' }} />
-              <col style={{ width: '12%' }} />
+              <col style={{ width: '22%' }} />
+              <col style={{ width: '13%' }} />
               <col style={{ width: '8%' }} />
-              <col style={{ width: '14%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '10%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '11%' }} />
+              <col style={{ width: '8%' }} />
             </colgroup>
             <thead>
               <tr>

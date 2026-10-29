@@ -821,7 +821,18 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
                               {Array.isArray(it.serialNumbers) && it.serialNumbers.length > 0 && (
                                 <div className="po-serial-tags">
                                   {it.serialNumbers.map((sn, sIdx) => (
-                                    <span key={sIdx} className="po-serial-tag">{sn}</span>
+                                    <span
+                                      key={sIdx}
+                                      className="po-serial-tag"
+                                      title={`Click to track complete serial lifecycle: ${sn}`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/serials?q=${encodeURIComponent(sn)}`);
+                                      }}
+                                      style={{ cursor: 'pointer' }}
+                                    >
+                                      {sn}
+                                    </span>
                                   ))}
                                 </div>
                               )}

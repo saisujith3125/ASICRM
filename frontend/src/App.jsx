@@ -28,6 +28,7 @@ import SupplierDetail from './components/purchaseOrders/SupplierDetail'
 import SuppliersRegister from './components/purchaseOrders/SuppliersRegister'
 import SentItemsToSupplierView from './components/purchaseOrders/SentItemsToSupplierView'
 import FinanceView from './components/finance/FinanceView'
+import SerialTrackingView from './components/serials/SerialTrackingView'
 import { apiFetch, apiUrl } from './api'
 import { hasAnyPermission, hasPermission } from './utils/permissions'
 import { parseRoute, navigate } from './router'
@@ -1570,6 +1571,25 @@ function CrmDashboard({
       );
     } else {
       content = <div className="crm-restricted-view" style={{ padding: '48px', textAlign: 'center' }}><h3>Access Restricted</h3><p>You do not have permission to view Delivery Challans.</p></div>;
+    }
+  } else if (activeTab === 'serials' || activeTab === 'serial-tracking') {
+    const canAccessSerials = String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' ||
+      String(user?.role || '').toUpperCase() === 'ADMIN' ||
+      hasPermission(user, 'Stocks', 'View') ||
+      hasPermission(user, 'Orders & Deals', 'View') ||
+      hasPermission(user, 'Purchase Orders', 'View') ||
+      hasPermission(user, 'Finance', 'View');
+
+    if (canAccessSerials) {
+      content = (
+        <SerialTrackingView
+          user={user}
+          initialQuery={routeState.serialQuery || ''}
+          initialStatus={routeState.serialStatus || 'ALL'}
+        />
+      );
+    } else {
+      content = <div className="crm-restricted-view" style={{ padding: '48px', textAlign: 'center' }}><h3>Access Restricted</h3><p>You do not have permission to view Serial Tracking.</p></div>;
     }
   } else if (activeTab === 'finance') {
     if (String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' || String(user?.role || '').toUpperCase() === 'ADMIN' || hasPermission(user, 'Finance', 'View')) {

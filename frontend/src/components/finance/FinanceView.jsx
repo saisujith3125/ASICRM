@@ -64,12 +64,6 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
   const [inwardData, setInwardData] = useState([]);
   const [outwardData, setOutwardData] = useState([]);
 
-  // Serial Tracker state
-  const [serialQuery, setSerialQuery] = useState('');
-  const [serialResult, setSerialResult] = useState(null);
-  const [isSearchingSerial, setIsSearchingSerial] = useState(false);
-  const [serialError, setSerialError] = useState('');
-
   // Serials Popover Modal for tables
   const [viewingSerialsList, setViewingSerialsList] = useState(null);
 
@@ -116,35 +110,6 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
   useEffect(() => {
     loadFinanceData();
   }, [financialYear, quarter]);
-
-  // Trace a Serial Number
-  const handleTraceSerial = async (snToTrace) => {
-    const target = String(snToTrace || serialQuery).trim();
-    if (!target) return;
-
-    setIsSearchingSerial(true);
-    setSerialError('');
-    setSerialResult(null);
-
-    try {
-      const res = await apiFetch(apiUrl(`/api/finance/serials/${encodeURIComponent(target)}`), {
-        headers: authHeaders(user)
-      });
-      const json = await res.json();
-      if (res.ok && json.success) {
-        setSerialResult(json.data);
-        setActiveTab('serials');
-      } else {
-        setSerialError(json?.message || `Serial number "${target}" not found in inventory or dispatch records.`);
-        setActiveTab('serials');
-      }
-    } catch (err) {
-      setSerialError(err.message || 'Error tracing serial number.');
-      setActiveTab('serials');
-    } finally {
-      setIsSearchingSerial(false);
-    }
-  };
 
   const kpis = summaryData?.kpis || {};
   const unbilledDcs = summaryData?.unbilledDcs || [];
@@ -261,15 +226,6 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
           <ArrowUpRight size={15} style={{ color: '#2563eb' }} />
           Outward Register (DC / Invoice)
           <span className="finance-tab-badge">{outwardData.length}</span>
-        </button>
-
-        <button
-          type="button"
-          className={`finance-tab-btn ${activeTab === 'serials' ? 'active' : ''}`}
-          onClick={() => setActiveTab('serials')}
-        >
-          <Tag size={15} style={{ color: '#9333ea' }} />
-          Serial Lifecycle &amp; Unit Profit
         </button>
 
         <button
@@ -672,244 +628,7 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
         </div>
       )}
 
-      {/* TAB 4: SERIAL LIFECYCLE & UNIT PROFIT TRACKER */}
-      {activeTab === 'serials' && (
-        <div className="finance-card">
-          <div className="finance-card-head">
-            <div>
-              <h3 className="finance-card-title">
-                <Tag size={18} style={{ color: '#9333ea' }} />
-                Serial Number Provenance &amp; Unit Profitability Audit
-              </h3>
-              <p className="finance-card-desc">
-                Trace any individual hardware serial number: see inward purchase cost, supplier, outward sale price, customer, and exact profit.
-              </p>
-            </div>
-          </div>
-
-          {/* SERIAL SEARCH INPUT & PRESETS */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleTraceSerial();
-            }}
-            style={{ marginBottom: '20px' }}
-          >
-            <div style={{ display: 'flex', gap: '10px', maxWidth: '680px' }}>
-              <div style={{ position: 'relative', flex: 1 }}>
-                <Search size={16} className="finance-search-icon" />
-                <input
-                  type="text"
-                  className="finance-search-input"
-                  style={{ paddingLeft: '38px', fontSize: '14px', height: '42px' }}
-                  placeholder="Enter or scan serial number (e.g. CAM-IPC-001-SN-1001)..."
-                  value={serialQuery}
-                  onChange={(e) => setSerialQuery(e.target.value)}
-                  autoFocus
-                />
-              </div>
-              <button
-                type="submit"
-                className="settings-btn settings-btn-primary"
-                disabled={isSearchingSerial || !serialQuery.trim()}
-                style={{ height: '42px', padding: '0 20px', display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                <Search size={15} />
-                {isSearchingSerial ? 'Tracing...' : 'Trace Serial'}
-              </button>
-            </div>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginTop: '10px', fontSize: '12px', color: '#64748b' }}>
-              <span>Quick sample serials:</span>
-              <button
-                type="button"
-                className="serial-pill-btn"
-                onClick={() => {
-                  setSerialQuery('CAM-IPC-001-SN-1001');
-                  handleTraceSerial('CAM-IPC-001-SN-1001');
-                }}
-              >
-                CAM-IPC-001-SN-1001 (Billed Sale)
-              </button>
-              <button
-                type="button"
-                className="serial-pill-btn"
-                onClick={() => {
-                  setSerialQuery('DH-CAM-EXP-06M');
-                  handleTraceSerial('DH-CAM-EXP-06M');
-                }}
-              >
-                DH-CAM-EXP-06M (Unbilled DC)
-              </button>
-              <button
-                type="button"
-                className="serial-pill-btn"
-                onClick={() => {
-                  setSerialQuery('CAM-IPC-001-SN-1004');
-                  handleTraceSerial('CAM-IPC-001-SN-1004');
-                }}
-              >
-                CAM-IPC-001-SN-1004 (In Stock)
-              </button>
-            </div>
-          </form>
-
-          {/* ERROR ALERT */}
-          {serialError && (
-            <div style={{ padding: '14px 18px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#991b1b', fontSize: '13.5px', marginBottom: '20px' }}>
-              {serialError}
-            </div>
-          )}
-
-          {/* SERIAL LIFECYCLE RESULT CARD */}
-          {serialResult && (
-            <div className="serial-card-container">
-              {/* Header */}
-              <div className="serial-card-header">
-                <div>
-                  <small style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.8 }}>
-                    Hardware Serial Unit
-                  </small>
-                  <h3>
-                    <Tag size={18} /> {serialResult.serialNumber}
-                  </h3>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span className={`flow-badge ${serialResult.status === 'BILLED_ACTIVE' ? 'inflow' : (serialResult.status === 'DISPATCHED_UNBILLED' ? 'unbilled' : 'in-stock')}`} style={{ fontSize: '13px', padding: '5px 12px' }}>
-                    {serialResult.statusLabel}
-                  </span>
-                </div>
-              </div>
-
-              {/* Body */}
-              <div className="serial-card-body">
-                <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
-                  <div>
-                    <h4 style={{ margin: 0, fontSize: '16px', color: '#0f172a' }}>{serialResult.product?.name}</h4>
-                    <span style={{ fontSize: '12px', color: '#64748b', fontFamily: 'monospace' }}>Code: {serialResult.product?.code} | HSN: {serialResult.product?.hsnSac}</span>
-                  </div>
-                </div>
-
-                {/* Two-Column Comparison (Inward vs Outward) */}
-                <div className="serial-two-columns">
-                  {/* INWARD PROCUREMENT */}
-                  <div className="serial-box inward">
-                    <div className="serial-box-title">
-                      <ArrowDownRight size={16} /> 📥 Inward Procurement Details
-                    </div>
-                    <div className="serial-kv-row">
-                      <span className="serial-kv-label">Purchase Order</span>
-                      <span className="serial-kv-value" style={{ color: '#2563eb' }}>{serialResult.inward?.poNumber}</span>
-                    </div>
-                    <div className="serial-kv-row">
-                      <span className="serial-kv-label">Goods Receipt Ref</span>
-                      <span className="serial-kv-value">{serialResult.inward?.grnReference}</span>
-                    </div>
-                    <div className="serial-kv-row">
-                      <span className="serial-kv-label">Supplier Name</span>
-                      <span className="serial-kv-value">{serialResult.inward?.supplierName}</span>
-                    </div>
-                    <div className="serial-kv-row">
-                      <span className="serial-kv-label">Inward Date</span>
-                      <span className="serial-kv-value">{serialResult.inward?.receivedDate}</span>
-                    </div>
-                    <div className="serial-kv-row">
-                      <span className="serial-kv-label">Unit Cost Price</span>
-                      <span className="serial-kv-value" style={{ color: '#15803d', fontSize: '15px' }}>
-                        {formatCurrency(serialResult.inward?.inwardCostPrice)}
-                      </span>
-                    </div>
-                    <div className="serial-kv-row">
-                      <span className="serial-kv-label">Supplier Warranty Expiry</span>
-                      <span className="serial-kv-value">{serialResult.inward?.supplierWarrantyExpiry}</span>
-                    </div>
-                  </div>
-
-                  {/* OUTWARD SALE & DISPATCH */}
-                  <div className="serial-box outward">
-                    <div className="serial-box-title">
-                      <ArrowUpRight size={16} /> 📤 Outward Sale &amp; Dispatch Details
-                    </div>
-                    {serialResult.outward ? (
-                      <>
-                        <div className="serial-kv-row">
-                          <span className="serial-kv-label">Customer Name</span>
-                          <span className="serial-kv-value" style={{ fontWeight: 700 }}>{serialResult.outward.customerName}</span>
-                        </div>
-                        <div className="serial-kv-row">
-                          <span className="serial-kv-label">Delivery Challan</span>
-                          <span className="serial-kv-value">{serialResult.outward.dcNumber}</span>
-                        </div>
-                        <div className="serial-kv-row">
-                          <span className="serial-kv-label">Sales Invoice</span>
-                          <span className="serial-kv-value" style={{ color: serialResult.outward.isBilled ? '#16a34a' : '#d97706', fontWeight: 700 }}>
-                            {serialResult.outward.invoiceNumber}
-                          </span>
-                        </div>
-                        <div className="serial-kv-row">
-                          <span className="serial-kv-label">Dispatch Date</span>
-                          <span className="serial-kv-value">{serialResult.outward.dispatchDate}</span>
-                        </div>
-                        <div className="serial-kv-row">
-                          <span className="serial-kv-label">Unit Selling Price</span>
-                          <span className="serial-kv-value" style={{ color: '#2563eb', fontSize: '15px' }}>
-                            {formatCurrency(serialResult.outward.sellingPrice)}
-                          </span>
-                        </div>
-                        <div className="serial-kv-row">
-                          <span className="serial-kv-label">Billing Status</span>
-                          <span className="serial-kv-value">{serialResult.outward.isBilled ? '✓ Billed' : '⚡ Pending Invoice'}</span>
-                        </div>
-                      </>
-                    ) : (
-                      <div style={{ padding: '24px 0', textAlign: 'center', color: '#64748b' }}>
-                        <Package size={32} style={{ color: '#94a3b8', margin: '0 auto 8px auto', display: 'block' }} />
-                        <strong>Currently In Warehouse Stock</strong>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '12px' }}>This unit has not yet been allocated to any Delivery Challan or Sales Invoice.</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* UNIT PROFITABILITY BANNER */}
-                {serialResult.financials && serialResult.outward && (
-                  <div className="serial-profit-bar">
-                    <div className="serial-profit-stat">
-                      <small>Inward Cost</small>
-                      <strong>{formatCurrency(serialResult.financials.inwardCost)}</strong>
-                    </div>
-                    <div className="serial-profit-stat">
-                      <small>Selling Price</small>
-                      <strong>{formatCurrency(serialResult.financials.sellingPrice)}</strong>
-                    </div>
-                    <div className="serial-profit-stat">
-                      <small>Unit Gross Profit</small>
-                      <strong style={{ color: serialResult.financials.unitGrossProfit >= 0 ? '#4ade80' : '#f87171' }}>
-                        {formatCurrency(serialResult.financials.unitGrossProfit)}
-                      </strong>
-                    </div>
-                    <div className="serial-profit-stat">
-                      <small>Profit Margin</small>
-                      <strong>{serialResult.financials.marginPercent}%</strong>
-                    </div>
-                    <div className="serial-profit-stat">
-                      <small>Markup</small>
-                      <strong>+{serialResult.financials.markupPercent}%</strong>
-                    </div>
-                    <div className="serial-profit-stat">
-                      <small>Turnaround Time</small>
-                      <strong>{serialResult.financials.turnaroundDays !== null ? `${serialResult.financials.turnaroundDays} Days` : '-'}</strong>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* TAB 5: UNBILLED DELIVERY CHALLANS WATCHDOG */}
+      {/* TAB 4: UNBILLED DELIVERY CHALLANS WATCHDOG */}
       {activeTab === 'unbilled' && (
         <div className="finance-card">
           <div className="finance-card-head">
@@ -1012,8 +731,7 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
                     style={{ fontSize: '12px', padding: '4px 10px' }}
                     onClick={() => {
                       setViewingSerialsList(null);
-                      setSerialQuery(sn);
-                      handleTraceSerial(sn);
+                      navigate(`/serials?q=${encodeURIComponent(sn)}`);
                     }}
                   >
                     <Tag size={12} /> {sn}

@@ -738,14 +738,48 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
     };
   }
 
+  // SERIAL NUMBER TRACKING & PROVENANCE ROUTE
+  // /serials
+  // /serial-tracking
+  if (section === 'serials' || section === 'serial-tracking') {
+    const sp = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const initialQuery = sp ? (sp.get('q') || sp.get('search') || sp.get('sn') || '') : '';
+    const initialStatus = sp ? (sp.get('status') || 'ALL') : 'ALL';
+    return {
+      path: initialQuery ? `/serials?q=${encodeURIComponent(initialQuery)}` : '/serials',
+      activeTab: 'serials',
+      serialQuery: initialQuery,
+      serialStatus: initialStatus,
+      activeCustomerId: null,
+      activeEnquiryId: null,
+      stockBranch: 'overview',
+      stockProductCreate: false,
+      stockProductInfo: null
+    };
+  }
+
   // FINANCE & FLOW CONTROL ROUTE
   // /finance
   // /finance/inward
   // /finance/outward
-  // /finance/serials
   // /finance/unbilled-dcs
   if (section === 'finance') {
-    const validSubViews = ['overview', 'inward', 'outward', 'serials', 'unbilled', 'unbilled-dcs'];
+    if (sub === 'serials') {
+      const sp = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const initialQuery = sp ? (sp.get('q') || sp.get('search') || sp.get('sn') || '') : '';
+      return {
+        path: initialQuery ? `/serials?q=${encodeURIComponent(initialQuery)}` : '/serials',
+        activeTab: 'serials',
+        serialQuery: initialQuery,
+        serialStatus: 'ALL',
+        activeCustomerId: null,
+        activeEnquiryId: null,
+        stockBranch: 'overview',
+        stockProductCreate: false,
+        stockProductInfo: null
+      };
+    }
+    const validSubViews = ['overview', 'inward', 'outward', 'unbilled', 'unbilled-dcs'];
     let activeSub = (sub && validSubViews.includes(sub)) ? sub : 'overview';
     if (activeSub === 'unbilled-dcs') activeSub = 'unbilled';
     return {

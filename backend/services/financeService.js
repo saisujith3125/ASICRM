@@ -581,10 +581,124 @@ function searchSerialNumbers(query = '') {
   return Array.from(matched).slice(0, 50);
 }
 
+/**
+ * 6. Get all serial lifecycles across inventory, POs, DCs, and Invoices
+ */
+function getAllSerialLifecycles(options = {}) {
+  const stocks = readStocksData();
+  const crm = readCrmData();
+  const txns = stocks.inventoryTransactions || [];
+  const products = stocks.products || [];
+  const dcs = crm.deliveryChallans || [];
+  const invoices = crm.invoices || [];
+
+  const allSerialsSet = new Set();
+
+  products.forEach((p) => {
+    (p.serialNumbers || []).forEach((sn) => {
+      const clean = String(sn).trim();
+      if (clean) allSerialsSet.add(clean);
+    });
+    if (p.serialMetadata) {
+      Object.keys(p.serialMetadata).forEach((sn) => {
+        const clean = String(sn).trim();
+        if (clean) allSerialsSet.add(clean);
+      });
+    }
+  });
+
+  txns.forEach((t) => {
+    (t.serialNumbers || []).forEach((sn) => {
+      const clean = String(sn).trim();
+      if (clean) allSerialsSet.add(clean);
+    });
+  });
+
+  dcs.forEach((dc) => {
+    (dc.items || []).forEach((it) => {
+      (it.serialNumbers || []).forEach((sn) => {
+        const clean = String(sn).trim();
+        if (clean) allSerialsSet.add(clean);
+      });
+    });
+  });
+
+  invoices.forEach((inv) => {
+    (inv.items || []).forEach((it) => {
+      (it.serialNumbers || []).forEach((sn) => {
+        const clean = String(sn).trim();
+        if (clean) allSerialsSet.add(clean);
+      });
+    });
+  });
+
+  const serialsList = Array.from(allSerialsSet);
+  const enrichedList = serialsList.map((sn) => getSerialLifecycle(sn)).filter((r) => r.success);
+
+  let inStockCount = 0;
+  let billedCount = 0;
+  let unbilledDcCount = 0;
+  let totalValuation = 0;
+  let totalBilledRevenue = 0;
+  let totalGrossProfit = 0;
+
+  enrichedList.forEach((s) => {
+    if (s.status === 'IN_STOCK') {
+      inStockCount++;
+      totalValuation += Number(s.financials.inwardCost || 0);
+    } else if (s.status === 'BILLED_ACTIVE') {
+      billedCount++;
+      totalBilledRevenue += Number(s.financials.sellingPrice || 0);
+      totalGrossProfit += Number(s.financials.unitGrossProfit || 0);
+    } else if (s.status === 'DISPATCHED_UNBILLED') {
+      unbilledDcCount++;
+    }
+  });
+
+  // Filter by search & status
+  const search = String(options.search || '').trim().toLowerCase();
+  const statusFilter = String(options.status || '').trim().toUpperCase();
+
+  let filtered = enrichedList;
+  if (statusFilter && statusFilter !== 'ALL') {
+    filtered = filtered.filter((s) => s.status === statusFilter);
+  }
+
+  if (search) {
+    filtered = filtered.filter((s) => {
+      return (
+        s.serialNumber.toLowerCase().includes(search) ||
+        (s.product?.name && s.product.name.toLowerCase().includes(search)) ||
+        (s.product?.code && s.product.code.toLowerCase().includes(search)) ||
+        (s.inward?.poNumber && s.inward.poNumber.toLowerCase().includes(search)) ||
+        (s.inward?.supplierName && s.inward.supplierName.toLowerCase().includes(search)) ||
+        (s.outward?.dcNumber && s.outward.dcNumber.toLowerCase().includes(search)) ||
+        (s.outward?.invoiceNumber && s.outward.invoiceNumber.toLowerCase().includes(search)) ||
+        (s.outward?.customerName && s.outward.customerName.toLowerCase().includes(search))
+      );
+    });
+  }
+
+  return {
+    kpis: {
+      totalSerials: enrichedList.length,
+      inStockCount,
+      billedCount,
+      unbilledDcCount,
+      totalValuation: Number(totalValuation.toFixed(2)),
+      totalBilledRevenue: Number(totalBilledRevenue.toFixed(2)),
+      totalGrossProfit: Number(totalGrossProfit.toFixed(2))
+    },
+    count: filtered.length,
+    serials: filtered
+  };
+}
+
 module.exports = {
   getFinanceSummary,
   getInwardRegister,
   getOutwardRegister,
   getSerialLifecycle,
+  getAllSerialLifecycles,
   searchSerialNumbers
 };

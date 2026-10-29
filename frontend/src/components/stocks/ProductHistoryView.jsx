@@ -991,7 +991,16 @@ export default function ProductHistoryView({
                                   {isSerialsExpanded && (
                                     <div className="ph-serials-list">
                                       {serials.map((sn, sIdx) => (
-                                        <span key={sIdx} className="ph-serial-pill">
+                                        <span
+                                          key={sIdx}
+                                          className="ph-serial-pill"
+                                          title="Click to track complete serial lifecycle"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigate(`/serials?q=${encodeURIComponent(sn)}`);
+                                          }}
+                                          style={{ cursor: 'pointer' }}
+                                        >
                                           {sn}
                                         </span>
                                       ))}
@@ -1326,7 +1335,24 @@ export function ProductMovementAuditModal({ txn, product, liveStock, formatDateT
               </span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxHeight: '120px', overflowY: 'auto' }}>
                 {serials.map((sn, sIdx) => (
-                  <span key={sIdx} style={{ background: '#e2e8f0', border: '1px solid #cbd5e1', padding: '2px 8px', borderRadius: '4px', fontSize: '11.5px', fontFamily: 'monospace', color: '#1e293b' }}>
+                  <span
+                    key={sIdx}
+                    title="Click to track complete serial lifecycle"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/serials?q=${encodeURIComponent(sn)}`);
+                    }}
+                    style={{
+                      background: '#e2e8f0',
+                      border: '1px solid #cbd5e1',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      fontSize: '11.5px',
+                      fontFamily: 'monospace',
+                      color: '#1e293b',
+                      cursor: 'pointer'
+                    }}
+                  >
                     {sn}
                   </span>
                 ))}

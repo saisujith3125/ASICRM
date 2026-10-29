@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatDateTime } from '../../utils/dateUtils';
+import { navigate } from '../../router';
 
 export default function StockMovementDetailModal({ movement, isOpen, onClose }) {
   React.useEffect(() => {
@@ -235,7 +236,25 @@ export default function StockMovementDetailModal({ movement, isOpen, onClose }) 
               </span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {movement.serialNumbers.map((sn, idx) => (
-                  <span key={idx} style={{ fontFamily: 'monospace', fontSize: '11px', background: '#f1f5f9', border: '1px solid #cbd5e1', padding: '2px 6px', borderRadius: '4px', color: '#0f172a' }}>
+                  <span
+                    key={idx}
+                    title="Click to track complete serial lifecycle"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onClose?.();
+                      navigate(`/serials?q=${encodeURIComponent(sn)}`);
+                    }}
+                    style={{
+                      fontFamily: 'monospace',
+                      fontSize: '11px',
+                      background: '#f1f5f9',
+                      border: '1px solid #cbd5e1',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      color: '#0f172a',
+                      cursor: 'pointer'
+                    }}
+                  >
                     {sn}
                   </span>
                 ))}

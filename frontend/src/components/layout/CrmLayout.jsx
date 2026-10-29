@@ -121,6 +121,22 @@ export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ord
       )
     },
     {
+      id: 'serials',
+      path: '/serials',
+      label: 'Serial Tracking',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+          <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+          <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+          <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+          <line x1="7" y1="8" x2="7" y2="16" />
+          <line x1="12" y1="8" x2="12" y2="16" />
+          <line x1="17" y1="8" x2="17" y2="16" />
+        </svg>
+      )
+    },
+    {
       id: 'finance',
       path: '/finance',
       label: 'Finance & Flow',
@@ -142,6 +158,7 @@ export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ord
     if (item.id === 'purchase-orders') return canView('Purchase Orders');
     if (item.id === 'stocks') return canView('Stocks');
     if (item.id === 'orders') return canView('Orders & Deals');
+    if (item.id === 'serials') return String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' || String(user?.role || '').toUpperCase() === 'ADMIN' || canView('Stocks') || canView('Orders & Deals') || canView('Purchase Orders') || canView('Finance');
     if (item.id === 'finance') return String(user?.role || '').toUpperCase() === 'SUPER_ADMIN' || String(user?.role || '').toUpperCase() === 'ADMIN' || canView('Finance');
     return true;
   });
@@ -434,7 +451,6 @@ export default function CrmLayout({ user, onLogout, activeTab, setActiveTab, ord
                   ['overview', 'Overview', '/finance'],
                   ['inward', 'Inward Register', '/finance/inward'],
                   ['outward', 'Outward Register', '/finance/outward'],
-                  ['serials', 'Serial Profit Tracker', '/finance/serials'],
                   ['unbilled', 'Unbilled DCs', '/finance/unbilled-dcs']
                 ].map(([id, label, path]) => (
                   <a

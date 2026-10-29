@@ -2194,7 +2194,30 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
                                                   {Boolean(it.isSerialized || (Array.isArray(it.serialNumbers) && it.serialNumbers.length > 0)) && Array.isArray(it.serialNumbers) && it.serialNumbers.length > 0 && (
                                                     <div style={{ marginTop: '4px', fontSize: '10.5px', color: '#0f172a', wordBreak: 'break-word', whiteSpace: 'normal' }}>
                                                       <strong style={{ fontSize: '9.5px', textTransform: 'uppercase', color: '#0f172a' }}>Serial No(s): </strong>
-                                                      <span>{it.serialNumbers.join(', ')}</span>
+                                                      {it.serialNumbers.map((sn, sIdx) => (
+                                                        <span
+                                                          key={sIdx}
+                                                          title={`Click to track complete serial lifecycle: ${sn}`}
+                                                          onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate(`/serials?q=${encodeURIComponent(sn)}`);
+                                                          }}
+                                                          style={{
+                                                            display: 'inline-block',
+                                                            background: '#f1f5f9',
+                                                            border: '1px solid #cbd5e1',
+                                                            padding: '1px 5px',
+                                                            borderRadius: '3px',
+                                                            fontFamily: 'monospace',
+                                                            fontSize: '10.5px',
+                                                            marginRight: '4px',
+                                                            marginBottom: '2px',
+                                                            cursor: 'pointer'
+                                                          }}
+                                                        >
+                                                          {sn}
+                                                        </span>
+                                                      ))}
                                                     </div>
                                                   )}
                                                 </td>

@@ -279,7 +279,16 @@ export default function DcHistoryPage({ challans = [], orders = [], user, onOpen
                                           <div className="dc-inline-serials-label">Serial Numbers:</div>
                                           <div className="dc-inline-serials-list">
                                             {it.serialNumbers.map((sn, sIdx) => (
-                                              <span key={sIdx} className="dc-inline-serial-badge" title={`Allocated Serial Number: ${sn}`}>
+                                              <span
+                                                key={sIdx}
+                                                className="dc-inline-serial-badge"
+                                                title={`Click to track complete serial lifecycle: ${sn}`}
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  navigate(`/serials?q=${encodeURIComponent(sn)}`);
+                                                }}
+                                                style={{ cursor: 'pointer' }}
+                                              >
                                                 {sn}
                                               </span>
                                             ))}

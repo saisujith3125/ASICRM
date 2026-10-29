@@ -10,10 +10,14 @@ import {
   Calendar,
   User,
   FileText,
-  Barcode
+  Barcode,
+  Printer
 } from 'lucide-react';
 import SearchablePurchaseOrderSelect from '../common/SearchablePurchaseOrderSelect';
 import SerialNumberModal from '../common/SerialNumberModal';
+import PrintablePurchaseOrder from '../documents/PrintablePurchaseOrder';
+import DocumentPreviewModal from '../documents/DocumentPreviewModal';
+import { getPurchaseOrderFilename } from '../documents/DocumentPdfService';
 import './purchaseOrders.css';
 
 export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComplete }) {
@@ -24,6 +28,7 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successResult, setSuccessResult] = useState(null);
+  const [showGrnPrint, setShowGrnPrint] = useState(false);
 
   // Sync preselectedPoId when passed or updated from routing
   useEffect(() => {
@@ -307,7 +312,8 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
           totalQty: receivedBatchTotal,
           poId: po.id,
           deliveryType: data.deliveryType || (isFullDelivery ? 'FULL' : 'PARTIAL'),
-          remainingUnits: Math.max(0, totalPendingUnits - receivedBatchTotal)
+          remainingUnits: Math.max(0, totalPendingUnits - receivedBatchTotal),
+          po: data.purchaseOrder || po
         });
       } else {
         setErrorMsg(data.message || 'Failed to confirm goods receipt.');
@@ -324,7 +330,7 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
     const isSuccessPartial = successResult.deliveryType === 'PARTIAL';
     return (
       <div className="po-container">
-        <div className="po-editor-card" style={{ maxWidth: '640px', margin: '48px auto', textAlign: 'center', padding: '40px 32px' }}>
+        <div className="po-editor-card" style={{ maxWidth: '680px', margin: '48px auto', textAlign: 'center', padding: '40px 32px' }}>
           <div
             style={{
               width: '64px',
@@ -364,7 +370,15 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
             )}
           </p>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="crm-btn-secondary"
+              style={{ background: '#ecfdf5', color: '#047857', borderColor: '#a7f3d0', fontWeight: 700 }}
+              onClick={() => setShowGrnPrint(true)}
+            >
+              <Printer size={16} /> Print Received Copy (GRN)
+            </button>
             <button
               type="button"
               className="crm-btn-secondary"
@@ -381,6 +395,24 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
             </button>
           </div>
         </div>
+
+        {/* Goods Receipt Note (GRN) Modal */}
+        {showGrnPrint && successResult.po && (
+          <DocumentPreviewModal
+            title="Goods Receipt Note (GRN)"
+            docId={successResult.po.id}
+            docType="po"
+            status={successResult.po.status}
+            filename={getPurchaseOrderFilename(successResult.po, 'RECEIVED_ONLY')}
+            data={successResult.po}
+            onClose={() => setShowGrnPrint(false)}
+          >
+            <PrintablePurchaseOrder
+              purchaseOrder={successResult.po}
+              defaultFulfillmentMode="RECEIVED_ONLY"
+            />
+          </DocumentPreviewModal>
+        )}
       </div>
     );
   }

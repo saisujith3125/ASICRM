@@ -546,6 +546,22 @@ export default function PurchaseOrderHistory({ user, onOpenPo }) {
                           <button
                             type="button"
                             className="po-btn-icon"
+                            onClick={() => {
+                              const matchedPo = purchaseOrders.find((p) => p.id === grn.purchaseOrderId || p.poNumber === grn.purchaseOrderId);
+                              if (matchedPo) {
+                                setPreviewPo({ ...matchedPo, fulfillmentMode: 'RECEIVED_ONLY' });
+                              } else {
+                                navigate(`/purchase-orders/${grn.purchaseOrderId}`);
+                              }
+                            }}
+                            style={{ background: '#ecfdf5', color: '#047857', borderColor: '#a7f3d0', fontWeight: 600 }}
+                            title="Print Goods Receipt Note (GRN)"
+                          >
+                            <Printer size={13} /> Print GRN
+                          </button>
+                          <button
+                            type="button"
+                            className="po-btn-icon"
                             onClick={() => navigate(`/purchase-orders/${grn.purchaseOrderId}`)}
                             title="View Purchase Order"
                           >

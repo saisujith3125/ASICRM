@@ -29,6 +29,7 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showDocPreview, setShowDocPreview] = useState(false);
+  const [previewMode, setPreviewMode] = useState('ALL');
 
   const grnSectionRef = useRef(null);
   const targetGrnRowRef = useRef(null);
@@ -302,7 +303,10 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
           <button
             type="button"
             className="crm-btn-secondary"
-            onClick={() => setShowDocPreview(true)}
+            onClick={() => {
+              setPreviewMode('ALL');
+              setShowDocPreview(true);
+            }}
           >
             <Printer size={16} /> Print / PDF Document
           </button>
@@ -612,6 +616,7 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
                   <th style={{ width: '110px', textAlign: 'right' }}>TOTAL RECEIVED</th>
                   <th style={{ width: '120px' }}>RECEIVED BY</th>
                   <th>REMARKS</th>
+                  <th style={{ width: '110px', textAlign: 'right' }}>ACTION</th>
                 </tr>
               </thead>
               <tbody>
@@ -670,6 +675,20 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
                       <td>
                         <span style={{ fontSize: '12px', color: '#64748b' }}>{grn.notes || '—'}</span>
                       </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <button
+                          type="button"
+                          className="crm-btn-secondary"
+                          style={{ padding: '4px 8px', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#ecfdf5', color: '#047857', borderColor: '#a7f3d0', fontWeight: 700 }}
+                          onClick={() => {
+                            setPreviewMode('RECEIVED_ONLY');
+                            setShowDocPreview(true);
+                          }}
+                          title="Print Goods Receipt Note (GRN)"
+                        >
+                          <Printer size={12} /> Print GRN
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -682,15 +701,18 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
       {/* Document Print & PDF Modal */}
       {showDocPreview && (
         <DocumentPreviewModal
-          title="Purchase Order"
+          title={previewMode === 'RECEIVED_ONLY' ? 'Goods Receipt Note (GRN)' : 'Purchase Order'}
           docId={po.id || po.poNumber}
           docType="po"
           status={po.status}
-          filename={getPurchaseOrderFilename(po)}
+          filename={getPurchaseOrderFilename(po, previewMode)}
           data={po}
           onClose={() => setShowDocPreview(false)}
         >
-          <PrintablePurchaseOrder purchaseOrder={po} />
+          <PrintablePurchaseOrder
+            purchaseOrder={po}
+            defaultFulfillmentMode={previewMode}
+          />
         </DocumentPreviewModal>
       )}
     </div>

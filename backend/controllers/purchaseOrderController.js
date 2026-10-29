@@ -41,26 +41,74 @@ function enrichPurchaseOrder(po) {
   let totalOrderedQty = 0;
   let totalReceivedQty = 0;
   let totalPendingQty = 0;
+  let fullOrderedSubtotal = 0;
+  let fullOrderedTax = 0;
+  let fullReceivedSubtotal = 0;
+  let fullReceivedTax = 0;
+  let fullPendingSubtotal = 0;
+  let fullPendingTax = 0;
 
-  items.forEach((item) => {
+  const enrichedItems = items.map((item) => {
     const ord = Number(item.orderedQty || 0);
     const rec = Number(item.receivedQty || 0);
     const pend = Math.max(0, ord - rec);
+    const rate = Number(item.rate || 0);
+    const gstRate = Number(item.gstRate || 18);
+
+    const ordTaxable = Number((ord * rate).toFixed(2));
+    const ordTax = Number(((ordTaxable * gstRate) / 100).toFixed(2));
+    const recTaxable = Number((rec * rate).toFixed(2));
+    const recTax = Number(((recTaxable * gstRate) / 100).toFixed(2));
+    const pendTaxable = Number((pend * rate).toFixed(2));
+    const pendTax = Number(((pendTaxable * gstRate) / 100).toFixed(2));
+
     totalOrderedQty += ord;
     totalReceivedQty += rec;
     totalPendingQty += pend;
+
+    fullOrderedSubtotal += ordTaxable;
+    fullOrderedTax += ordTax;
+    fullReceivedSubtotal += recTaxable;
+    fullReceivedTax += recTax;
+    fullPendingSubtotal += pendTaxable;
+    fullPendingTax += pendTax;
+
+    return {
+      ...item,
+      orderedQty: ord,
+      receivedQty: rec,
+      pendingQty: pend,
+      receivedTaxable: recTaxable,
+      receivedTax: recTax,
+      receivedLineTotal: Number((recTaxable + recTax).toFixed(2)),
+      pendingTaxable: pendTaxable,
+      pendingTax: pendTax,
+      pendingLineTotal: Number((pendTaxable + pendTax).toFixed(2))
+    };
   });
 
   const percentReceived = totalOrderedQty > 0 ? Math.round((totalReceivedQty / totalOrderedQty) * 100) : 0;
+  const orderedGrandTotal = Math.round(fullOrderedSubtotal + fullOrderedTax);
+  const receivedGrandTotal = Math.round(fullReceivedSubtotal + fullReceivedTax);
+  const pendingGrandTotal = Math.round(fullPendingSubtotal + fullPendingTax);
 
   return {
     ...po,
-    items,
+    items: enrichedItems,
     totalOrderedQty,
     totalReceivedQty,
     totalPendingQty,
     percentReceived,
-    receiptProgress: `${totalReceivedQty} / ${totalOrderedQty} items`
+    receiptProgress: `${totalReceivedQty} / ${totalOrderedQty} items`,
+    orderedSubtotal: Number(fullOrderedSubtotal.toFixed(2)),
+    orderedTaxTotal: Number(fullOrderedTax.toFixed(2)),
+    orderedGrandTotal,
+    receivedSubtotal: Number(fullReceivedSubtotal.toFixed(2)),
+    receivedTaxTotal: Number(fullReceivedTax.toFixed(2)),
+    receivedGrandTotal,
+    pendingSubtotal: Number(fullPendingSubtotal.toFixed(2)),
+    pendingTaxTotal: Number(fullPendingTax.toFixed(2)),
+    pendingGrandTotal
   };
 }
 
@@ -732,17 +780,36 @@ function receiveGoods(req, res) {
       item.profitProtectionBuffer = Number(Math.max(0, valuationAtHighestRate - actualCostPaid).toFixed(2));
     }
 
-    // Recalculate PO totals using Profit Protection Highest Price Valuation
-    let poValuationSubtotal = 0;
+    // Recalculate PO totals including tax and grand total
+    let poOrderedSubtotal = 0;
+    let poOrderedTax = 0;
     let poActualCost = 0;
     po.items.forEach((it) => {
-      poValuationSubtotal += Number(it.valuationTotal || (Number(it.orderedQty || 0) * Number(it.rate || 0)) || 0);
+      const q = Number(it.orderedQty || 0);
+      const r = Number(it.rate || 0);
+      const gst = Number(it.gst || it.gstRate || 18);
+      const itemTaxable = Number((q * r).toFixed(2));
+      const itemTax = Number(((itemTaxable * gst) / 100).toFixed(2));
+      poOrderedSubtotal += itemTaxable;
+      poOrderedTax += itemTax;
       poActualCost += Number(it.actualCostTotal || 0);
     });
-    po.subtotal = Number(poValuationSubtotal.toFixed(2));
+    po.subtotal = Number(poOrderedSubtotal.toFixed(2));
     po.actualCostTotal = Number(poActualCost.toFixed(2));
-    po.profitProtectionBuffer = Number(Math.max(0, poValuationSubtotal - poActualCost).toFixed(2));
-    po.grandTotal = Math.round(po.subtotal);
+    po.profitProtectionBuffer = Number(Math.max(0, poOrderedSubtotal - poActualCost).toFixed(2));
+
+    const isIntraState = !po.igst || (Number(po.cgst || 0) > 0);
+    if (isIntraState) {
+      po.cgst = Number((poOrderedTax / 2).toFixed(2));
+      po.sgst = Number((poOrderedTax / 2).toFixed(2));
+      po.igst = 0;
+    } else {
+      po.cgst = 0;
+      po.sgst = 0;
+      po.igst = Number(poOrderedTax.toFixed(2));
+    }
+    po.tax = Number(poOrderedTax.toFixed(2));
+    po.grandTotal = Math.round(poOrderedSubtotal + poOrderedTax);
 
     // Determine updated PO status
     const allReceived = po.items.every((it) => (Number(it.orderedQty || 0) - Number(it.receivedQty || 0)) <= 0);

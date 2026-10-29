@@ -305,10 +305,17 @@ export function getQuotationFilename(quotation) {
   return `ASI_${fy}_${normId}-${normCustomer}.pdf`;
 }
 
-export function getPurchaseOrderFilename(purchaseOrder) {
+export function getPurchaseOrderFilename(purchaseOrder, fulfillmentMode = 'ALL') {
   const rawId = purchaseOrder?.id || purchaseOrder?.purchaseOrderId || purchaseOrder?.poNumber || 'PurchaseOrder';
   const cleanId = String(rawId).replace(/[^a-zA-Z0-9-_]/g, '_');
   const prefixed = cleanId.startsWith('PO-') || cleanId.startsWith('PO_') ? cleanId : `PO-${cleanId}`;
+  const effectiveMode = (fulfillmentMode || purchaseOrder?.fulfillmentMode || 'ALL').toUpperCase();
+  if (effectiveMode === 'RECEIVED_ONLY') {
+    return `${prefixed}_GRN_Received_Goods.pdf`;
+  }
+  if (effectiveMode === 'PENDING_ONLY') {
+    return `${prefixed}_Pending_Statement.pdf`;
+  }
   return `${prefixed}.pdf`;
 }
 

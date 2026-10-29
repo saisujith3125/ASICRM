@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { apiFetch, apiUrl } from '../../api';
 import { navigate } from '../../router';
 import { useCompanyConfig } from '../documents/companyConfig';
@@ -416,19 +416,20 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
     return false;
   }, [form.categoryId, form.subcategoryId, form.name, form.unit, visibleCategories, subcategories]);
 
-  // When cable product is detected, force serialized = false; when non-cable, restore serialized = true
+  // When cable product is detected, force serialized = false; when transitioning from cable to non-cable, restore serialized = true
+  const prevIsCableRef = useRef(isCable);
   useEffect(() => {
     if (isCable) {
       if (form.serialized) {
         setForm((prev) => ({ ...prev, serialized: false }));
         setSerialNumbersText('');
       }
-    } else {
-      if (form.serialized === false && !isExistingProduct) {
-        setForm((prev) => ({ ...prev, serialized: true }));
-      }
+    } else if (prevIsCableRef.current && !isCable) {
+      // Transitioned from cable to non-cable: restore default serialized = true
+      setForm((prev) => ({ ...prev, serialized: true }));
     }
-  }, [isCable, isExistingProduct]);
+    prevIsCableRef.current = isCable;
+  }, [isCable]);
 
   const parsedSerials = useMemo(() => {
     if (!serialNumbersText) return [];
@@ -639,10 +640,11 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
           }
           finalSerials = parsedSerials;
         } else if (parsedSerials.length === 0) {
-          const code = String(form.code || 'ASI-01').trim().toUpperCase();
-          finalSerials = Array.from({ length: finalStock }, (_, i) => `${code}-SN-${1001 + i}`);
+          setError(`Product requires mandatory serial numbers. Please enter exactly ${finalStock} serial number(s) or click "Auto-Generate Serial Numbers".`);
+          setSaving(false);
+          return;
         } else {
-          setError(`Product is serialized and requires exactly ${finalStock} serial number(s) for opening stock (currently entered: ${parsedSerials.length}).`);
+          setError(`Product requires mandatory serial numbers. Exactly ${finalStock} serial number(s) are required for opening stock (currently entered: ${parsedSerials.length}).`);
           setSaving(false);
           return;
         }
@@ -1055,39 +1057,82 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                 value={form.productLink}
                 onChange={(v) => update('productLink', v)}
               />
-              <div className="form-field-group" style={{ gridColumn: 'span 2' }}>
-                <label className="field-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: isCable ? 'not-allowed' : 'pointer', opacity: isCable ? 0.75 : 1 }}>
-                  <input
-                    type="checkbox"
-                    checked={!isCable && Boolean(form.serialized)}
-                    onChange={(e) => !isCable && update('serialized', e.target.checked)}
-                    disabled={isCable}
-                    style={{ width: '16px', height: '16px', cursor: isCable ? 'not-allowed' : 'pointer' }}
-                  />
-                  <span style={{ fontWeight: 600, color: '#0f172a' }}>Serialized Inventory Tracking</span>
-                  {isCable && (
+              <div className="form-field-group" style={{ gridColumn: 'span 2', marginTop: '6px' }}>
+                <div style={{
+                  padding: '14px 18px',
+                  borderRadius: '8px',
+                  background: isCable ? '#fef2f2' : (form.serialized ? '#eff6ff' : '#f8fafc'),
+                  border: `1.5px solid ${isCable ? '#fecaca' : (form.serialized ? '#93c5fd' : '#e2e8f0')}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '12px',
+                  boxShadow: (!isCable && form.serialized) ? '0 1px 3px rgba(37,99,235,0.08)' : 'none',
+                  transition: 'all 0.2s ease'
+                }}>
+                  <label style={{
+                    display: 'inline-flex',
+                    alignItems: 'flex-start',
+                    gap: '12px',
+                    cursor: isCable ? 'not-allowed' : 'pointer',
+                    userSelect: 'none',
+                    flex: '1 1 340px'
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={!isCable && Boolean(form.serialized)}
+                      onChange={(e) => !isCable && update('serialized', e.target.checked)}
+                      disabled={isCable}
+                      style={{
+                        accentColor: '#2563eb',
+                        width: '18px',
+                        height: '18px',
+                        marginTop: '2px',
+                        cursor: isCable ? 'not-allowed' : 'pointer'
+                      }}
+                    />
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '13.5px', fontWeight: 700, color: isCable ? '#991b1b' : (form.serialized ? '#1e3a8a' : '#1e293b') }}>
+                          {isCable
+                            ? 'Serial Numbers Disabled (Cables & Bulk Lengths)'
+                            : (form.serialized
+                                ? 'This Product Requires Serial Number (Mandatory Tracking)'
+                                : 'Standard Quantity Inventory (No Serial Numbers)')}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '12px', color: isCable ? '#b91c1c' : '#64748b', marginTop: '3px', lineHeight: '1.45' }}>
+                        {isCable
+                          ? 'Cables and spooled wires cannot have serial numbers. All cable inventory is strictly quantity and length-based.'
+                          : (form.serialized
+                              ? 'Serial numbers are strictly mandatory. Every unit received in PO (GRN), dispatched in Delivery Challans, and entered as opening stock must have a valid serial number.'
+                              : 'Standard bulk inventory without serial numbers. Inward and outward are tracked purely by numeric unit quantity (e.g. screws, brackets, accessories).')}
+                      </div>
+                    </div>
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      marginLeft: '8px',
-                      padding: '2px 10px',
                       fontSize: '11px',
                       fontWeight: 700,
-                      borderRadius: '9999px',
-                      background: '#fee2e2',
-                      color: '#b91c1c',
-                      border: '1px solid #fecaca'
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      background: isCable ? '#fee2e2' : (form.serialized ? '#dbeafe' : '#f1f5f9'),
+                      color: isCable ? '#991b1b' : (form.serialized ? '#1d4ed8' : '#64748b'),
+                      border: `1px solid ${isCable ? '#fca5a5' : (form.serialized ? '#bfdbfe' : '#cbd5e1')}`,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px'
                     }}>
-                      Disabled for Cables (No Serial Numbers)
+                      {isCable
+                        ? '🚫 LOCKED: CABLES NO SERIALS'
+                        : (form.serialized
+                            ? '✓ MANDATORY SERIAL TRACKING'
+                            : 'QUANTITY ONLY / NO SERIALS')}
                     </span>
-                  )}
-                </label>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', marginLeft: '24px' }}>
-                  {isCable
-                    ? 'Cables cannot have serial numbers. All cable inventory is strictly quantity and length-based.'
-                    : form.serialized
-                    ? 'Track individual units by unique computer-generated or manual serial numbers for loading products, stock in, goods receipt, delivery challans, and returns.'
-                    : 'Standard quantity-based inventory. No serial numbers will be requested or stored for this product.'}
+                  </div>
                 </div>
               </div>
 
@@ -1103,7 +1148,7 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
-                        Serial Numbers for Opening Stock ({Number(form.stock)} Required)
+                        Mandatory Serial Numbers for Opening Stock ({Number(form.stock)} Required)
                       </span>
                       <span style={{
                         fontSize: '11px',

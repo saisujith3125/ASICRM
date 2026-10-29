@@ -1614,21 +1614,71 @@ function StockModal({ branch, mode, form, setForm, onClose, onSave, saving, data
               disabled={false}
             />
           </div>
-          <div style={{ margin: '8px 0 16px 0', opacity: mode === 'edit' ? 0.75 : 1 }}>
-            <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: mode === 'edit' ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600, color: 'var(--text-color, #1e293b)' }}>
-              <input
-                type="checkbox"
-                checked={form.serialized !== false}
-                onChange={(e) => !mode === 'edit' && update('serialized', e.target.checked)}
-                disabled={mode === 'edit'}
-                style={{ width: '16px', height: '16px', cursor: mode === 'edit' ? 'not-allowed' : 'pointer', accentColor: '#2563eb' }}
-              />
-              Serialized Inventory Tracking (Requires unique serial numbers per unit)
-            </label>
-            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', marginLeft: '24px' }}>
-              {form.serialized !== false
-                ? 'Individual units are tracked by serial number for goods receipt, DC dispatch, and returns.'
-                : 'Standard quantity-based inventory. No serial numbers will be required or recorded.'}
+          <div style={{ margin: '10px 0 16px 0' }}>
+            <div style={{
+              padding: '12px 16px',
+              borderRadius: '8px',
+              background: form.serialized !== false ? '#eff6ff' : '#f8fafc',
+              border: `1.5px solid ${form.serialized !== false ? '#93c5fd' : '#e2e8f0'}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '10px',
+              opacity: mode === 'edit' ? 0.9 : 1
+            }}>
+              <label style={{
+                display: 'inline-flex',
+                alignItems: 'flex-start',
+                gap: '10px',
+                cursor: mode === 'edit' ? 'not-allowed' : 'pointer',
+                userSelect: 'none',
+                flex: '1 1 300px'
+              }}>
+                <input
+                  type="checkbox"
+                  checked={form.serialized !== false}
+                  onChange={(e) => mode !== 'edit' && update('serialized', e.target.checked)}
+                  disabled={mode === 'edit'}
+                  style={{
+                    accentColor: '#2563eb',
+                    width: '18px',
+                    height: '18px',
+                    marginTop: '2px',
+                    cursor: mode === 'edit' ? 'not-allowed' : 'pointer'
+                  }}
+                />
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: form.serialized !== false ? '#1e3a8a' : '#1e293b' }}>
+                    {form.serialized !== false
+                      ? 'This Product Requires Serial Number (Mandatory Tracking)'
+                      : 'Standard Quantity Inventory (No Serial Numbers)'}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', lineHeight: '1.4' }}>
+                    {form.serialized !== false
+                      ? 'Individual units are tracked by serial number for goods receipt, DC dispatch, and returns.'
+                      : 'Standard quantity-based inventory. No serial numbers will be required or recorded.'}
+                    {mode === 'edit' && (
+                      <span style={{ display: 'block', color: '#94a3b8', fontStyle: 'italic', marginTop: '2px' }}>
+                        (Serialization mode is locked after creation to preserve stock integrity)
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </label>
+              <span style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                background: form.serialized !== false ? '#dbeafe' : '#f1f5f9',
+                color: form.serialized !== false ? '#1d4ed8' : '#64748b',
+                border: `1px solid ${form.serialized !== false ? '#bfdbfe' : '#cbd5e1'}`
+              }}>
+                {form.serialized !== false ? '✓ MANDATORY SERIAL TRACKING' : 'QUANTITY ONLY / NO SERIALS'}
+              </span>
             </div>
           </div>
           <div className="stock-form-section"><div className="stock-form-section-title">5. QUOTATION INFORMATION</div></div><Field label="Product Details for Quotation" value={form.productDetails} onChange={(v) => update('productDetails', v)} disabled={mode === 'edit'} /><Field label="Product Link" value={form.productLink} onChange={(v) => update('productLink', v)} disabled={mode === 'edit'} />

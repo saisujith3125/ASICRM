@@ -338,15 +338,11 @@ export default function WarehouseView({ user }) {
       {/* 1. TOP HEADER & WAREHOUSE SELECTOR */}
       <div className="wh-header-bar">
         <div className="wh-header-info">
-          <div className="wh-header-badge">
-            <Building2 size={16} />
-            <span>WAREHOUSE FACILITY &amp; BAY COORDINATE SYSTEM</span>
-          </div>
           <h1 className="wh-page-title">Warehouse Storage &amp; Bin Hierarchy</h1>
-          <p className="wh-page-subtitle">
-            Medical-store &amp; high-density picking layout: trace every hardware unit to its exact
-            <strong> Floor › Rack › Shelf › Box (Bin)</strong> coordinate for rapid employee retrieval and dispatch.
-          </p>
+          <span className="wh-header-badge">
+            <Building2 size={13} />
+            <span>High-Density Bin Coordinate System</span>
+          </span>
         </div>
 
         <div className="wh-header-controls">
@@ -372,87 +368,82 @@ export default function WarehouseView({ user }) {
             onClick={loadWarehouseData}
             title="Refresh warehouse stock and bin allocations"
           >
-            <RefreshCw size={15} className={loading ? 'spin' : ''} />
-            Refresh
+            <RefreshCw size={13} className={loading ? 'spin' : ''} />
+            <span>Refresh</span>
           </button>
         </div>
       </div>
 
-      {/* 2. TOP FACILITY METRICS STRIP */}
+      {/* 2. TOP FACILITY METRICS STRIP (Sleek horizontal ribbon matching other pages) */}
       {activeWarehouse && (
-        <div className="wh-kpi-grid">
-          {/* Total Bins */}
-          <div className="wh-kpi-card total">
-            <div className="wh-kpi-icon total">
-              <Grid size={20} />
-            </div>
-            <div className="wh-kpi-details">
-              <span className="wh-kpi-label">Total Storage Bins</span>
-              <span className="wh-kpi-value">{activeWarehouse.totalBoxesCount || 0}</span>
-              <span className="wh-kpi-subtext">Across {activeWarehouse.racksCount || 0} Racks</span>
-            </div>
+        <div className="wh-kpi-ribbon" role="region" aria-label="Warehouse storage metrics">
+          <div className="wh-kpi-pill total">
+            <Grid size={14} className="wh-kpi-pill-icon" />
+            <span className="wh-kpi-pill-label">Total Bins:</span>
+            <strong className="wh-kpi-pill-val">{activeWarehouse.totalBoxesCount || 0}</strong>
+            <span className="wh-kpi-pill-sub">({activeWarehouse.racksCount || 0} Racks)</span>
           </div>
 
-          {/* Occupied Bins */}
-          <div className="wh-kpi-card occupied">
-            <div className="wh-kpi-icon occupied">
-              <Box size={20} />
-            </div>
-            <div className="wh-kpi-details">
-              <span className="wh-kpi-label">Occupied Bins</span>
-              <span className="wh-kpi-value">{activeWarehouse.occupiedBoxesCount || 0}</span>
-              <span className="wh-kpi-subtext">{activeWarehouse.occupancyRate || 0}% Capacity Used</span>
-            </div>
+          <div className="wh-kpi-pill occupied">
+            <Box size={14} className="wh-kpi-pill-icon" />
+            <span className="wh-kpi-pill-label">Occupied:</span>
+            <strong className="wh-kpi-pill-val">{activeWarehouse.occupiedBoxesCount || 0}</strong>
+            <span className="wh-kpi-pill-sub">({activeWarehouse.occupancyRate || 0}%)</span>
           </div>
 
-          {/* Empty Bins Available */}
-          <div className="wh-kpi-card empty">
-            <div className="wh-kpi-icon empty">
-              <Plus size={20} />
-            </div>
-            <div className="wh-kpi-details">
-              <span className="wh-kpi-label">Available Empty Bins</span>
-              <span className="wh-kpi-value">{activeWarehouse.emptyBoxesCount || 0}</span>
-              <span className="wh-kpi-subtext">Ready for Stock Allocation</span>
-            </div>
+          <div className="wh-kpi-pill empty">
+            <Plus size={14} className="wh-kpi-pill-icon" />
+            <span className="wh-kpi-pill-label">Available:</span>
+            <strong className="wh-kpi-pill-val">{activeWarehouse.emptyBoxesCount || 0}</strong>
           </div>
 
-          {/* On-Hand Stock in Facility */}
-          <div className="wh-kpi-card stock">
-            <div className="wh-kpi-icon stock">
-              <Package size={20} />
-            </div>
-            <div className="wh-kpi-details">
-              <span className="wh-kpi-label">Physical Stock Units</span>
-              <span className="wh-kpi-value">{(activeWarehouse.totalStockUnits || 0).toLocaleString()}</span>
-              <span className="wh-kpi-subtext">Units Inside Bins</span>
-            </div>
+          <div className="wh-kpi-pill stock">
+            <Package size={14} className="wh-kpi-pill-icon" />
+            <span className="wh-kpi-pill-label">Physical Units:</span>
+            <strong className="wh-kpi-pill-val">{(activeWarehouse.totalStockUnits || 0).toLocaleString()}</strong>
           </div>
 
-          {/* Inventory Valuation */}
-          <div className="wh-kpi-card valuation">
-            <div className="wh-kpi-icon valuation">
-              <DollarSign size={20} />
-            </div>
-            <div className="wh-kpi-details">
-              <span className="wh-kpi-label">Facility Valuation</span>
-              <span className="wh-kpi-value">{formatCurrency(activeWarehouse.totalValuation)}</span>
-              <span className="wh-kpi-subtext">{activeWarehouse.capacity || 'Storage Area'}</span>
-            </div>
+          <div className="wh-kpi-pill valuation">
+            <DollarSign size={14} className="wh-kpi-pill-icon" />
+            <span className="wh-kpi-pill-label">Valuation:</span>
+            <strong className="wh-kpi-pill-val">{formatCurrency(activeWarehouse.totalValuation)}</strong>
           </div>
         </div>
       )}
 
-      {/* 3. QUICK BIN LOCATOR SEARCH BAR */}
-      <div className="wh-locator-bar">
+      {/* 3. UNIFIED CONTROLS TOOLBAR: FLOOR TABS + QUICK BIN LOCATOR */}
+      <div className="wh-controls-toolbar">
+        {/* Left: Floor Selector Tabs */}
+        <div className="wh-floor-tabs-group">
+          <div className="wh-floor-tabs-label">
+            <Layers size={14} />
+            <span>Floor:</span>
+          </div>
+          <div className="wh-floor-tabs-list">
+            {(activeWarehouse?.layout?.floors || []).map((fl, flIdx) => (
+              <button
+                key={fl.id || flIdx}
+                type="button"
+                className={`wh-floor-tab-btn ${activeFloorId === fl.id ? 'active' : ''}`}
+                onClick={() => setActiveFloorId(fl.id)}
+              >
+                <span className="floor-dot" />
+                <span>{fl.name} ({fl.code})</span>
+                <span className="floor-rack-badge">{fl.racks?.length || 0} Racks</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Quick Bin Locator Search Form */}
         <form className="wh-locator-form" onSubmit={handleLocatorSearch}>
           <div className="wh-locator-input-wrap">
-            <Search size={18} className="wh-locator-icon" />
+            <Search size={14} className="wh-locator-icon" />
             <input
               ref={searchInputRef}
               type="text"
               className="wh-locator-input"
-              placeholder="Find Item / Quick Bin Locator: Scan or type Product Name, SKU, Camera Model, or Serial Number..."
+              placeholder="Quick Bin Locator: Scan or type SKU, Model, Serial..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -465,67 +456,51 @@ export default function WarehouseView({ user }) {
                   setSearchResult(null);
                   setHighlightedBoxId('');
                 }}
+                aria-label="Clear search"
               >
-                <X size={15} />
+                <X size={13} />
               </button>
             )}
           </div>
           <button type="submit" className="wh-locator-btn" disabled={searchLoading}>
-            <Search size={15} />
-            {searchLoading ? 'Locating...' : 'Locate Bin'}
+            <Search size={13} />
+            <span>{searchLoading ? 'Locating...' : 'Locate Bin'}</span>
           </button>
         </form>
-
-        {/* Search Result Banner */}
-        {searchResult && (
-          <div className={`wh-locator-result-banner ${searchResult.error ? 'error' : 'success'}`}>
-            {searchResult.error ? (
-              <>
-                <AlertTriangle size={18} />
-                <span>{searchResult.error}</span>
-              </>
-            ) : (
-              <>
-                <Check size={18} style={{ color: '#16a34a' }} />
-                <div className="wh-result-content">
-                  <strong>{searchResult.product?.name} ({searchResult.product?.code})</strong>
-                  <span className="wh-result-coord-tag">
-                    📍 Located at: <strong>{searchResult.fullCoordinateString}</strong>
-                  </span>
-                  <span className="wh-result-stock-tag">
-                    Stock: {searchResult.product?.stock} Units {searchResult.product?.serialized ? `(${searchResult.product?.serialNumbers?.length || 0} Serials)` : ''}
-                  </span>
-                </div>
-              </>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* 4. FLOOR SELECTOR TABS */}
-      {activeWarehouse?.layout?.floors && (
-        <div className="wh-floor-tabs-bar">
-          <div className="wh-floor-tabs-label">
-            <Layers size={16} />
-            <span>Select Facility Floor:</span>
-          </div>
-          <div className="wh-floor-tabs-list">
-            {activeWarehouse.layout.floors.map((fl, flIdx) => (
-              <button
-                key={fl.id || flIdx}
-                type="button"
-                className={`wh-floor-tab-btn ${activeFloorId === fl.id ? 'active' : ''}`}
-                onClick={() => setActiveFloorId(fl.id)}
-              >
-                <span className="floor-dot" />
-                {fl.name} ({fl.code})
-                <span className="floor-rack-badge">{fl.racks?.length || 0} Racks</span>
-              </button>
-            ))}
-          </div>
+      {/* Search Result Banner (Compact inline toast if present) */}
+      {searchResult && (
+        <div className={`wh-locator-result-banner ${searchResult.error ? 'error' : 'success'}`}>
+          {searchResult.error ? (
+            <>
+              <AlertTriangle size={15} />
+              <span>{searchResult.error}</span>
+            </>
+          ) : (
+            <>
+              <Check size={15} style={{ color: '#16a34a' }} />
+              <div className="wh-result-content">
+                <strong>{searchResult.product?.name} ({searchResult.product?.code})</strong>
+                <span className="wh-result-coord-tag">
+                  📍 Located at: <strong>{searchResult.fullCoordinateString}</strong>
+                </span>
+                <span className="wh-result-stock-tag">
+                  Stock: {searchResult.product?.stock} Units {searchResult.product?.serialized ? `(${searchResult.product?.serialNumbers?.length || 0} Serials)` : ''}
+                </span>
+              </div>
+            </>
+          )}
+          <button
+            type="button"
+            className="wh-result-close-btn"
+            onClick={() => setSearchResult(null)}
+            aria-label="Dismiss banner"
+          >
+            <X size={13} />
+          </button>
         </div>
       )}
-
       {/* 5. VISUAL RACKS & PHYSICAL SHELF GRID (WITH CUSTOM DESIGNED SCROLL) */}
       <div className="wh-bays-scroll-viewport custom-wh-scrollbar">
         {loading ? (
@@ -649,7 +624,7 @@ export default function WarehouseView({ user }) {
                               ) : (
                                 <div className="wh-box-empty-prompt">
                                   <span>Empty Bin</span>
-                                  <span className="wh-box-assign-hint">+ Click to Assign</span>
+                                  <span className="wh-box-assign-hint">+ Assign</span>
                                 </div>
                               )}
                             </div>

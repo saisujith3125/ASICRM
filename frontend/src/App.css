@@ -15796,7 +15796,8 @@ button.stocks-kpi-card { cursor:pointer; }
    ========================================================================== */
 
 /* 1. Content padding & page header */
-.crm-content-area:has(.crm-enquiry-page-container) {
+.crm-content-area:has(.crm-enquiry-page-container),
+.crm-content-area:has(.wh-page-wrapper) {
   padding: 12px 20px 14px !important;
 }
 
@@ -25980,12 +25981,14 @@ td.serial-dropdown-cell {
    - Fits on one screen (100vh lock)
    - Takes full length & width even when elements are less
    ========================================================================== */
-.crm-main-viewport:has(.crm-enquiry-page-container) {
+.crm-main-viewport:has(.crm-enquiry-page-container),
+.crm-main-viewport:has(.wh-page-wrapper) {
   overflow-y: hidden !important;
   overflow-x: hidden !important;
 }
 
-.crm-content-area:has(.crm-enquiry-page-container) {
+.crm-content-area:has(.crm-enquiry-page-container),
+.crm-content-area:has(.wh-page-wrapper) {
   flex: 1 1 auto !important;
   display: flex !important;
   flex-direction: column !important;

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Truck, Check, Pencil, RotateCcw, X } from 'lucide-react';
+import { Truck, Check, Pencil, RotateCcw, X, User } from 'lucide-react';
 import { apiFetch, apiUrl } from '../../api';
 import { DCStatusBadge, DCEmptyState } from './dcPrimitives';
 import { useTablePagination, TableFooter } from '../common/TableWorkspace';
@@ -125,84 +125,102 @@ export default function DcDispatchPage({ challans = [], user, onRefresh, onOpenD
   };
 
   return (
-    <div className="dc-page-container dc-dispatch-page">
-      {/* 1. Page Header */}
-      <div className="dc-page-header compact-header">
-        <div className="dc-header-left">
-          <h2 className="dc-page-title">DC Dispatch Management</h2>
-        </div>
+    <div className="crm-customer-page-container dc-page-container dc-dispatch-page">
+      {/* 1. Page Header matching Customer Directory */}
+      <div className="page-header-row customer-page-header">
+        <h1 className="page-title">DC Dispatch Management</h1>
       </div>
 
-      {error && <div className="crm-alert-box error" style={{ marginBottom: '8px', padding: '6px 12px' }}><span>{error}</span></div>}
-      {success && <div className="crm-alert-box success" style={{ marginBottom: '8px', padding: '6px 12px' }}><span>{success}</span></div>}
+      {error && (
+        <div className="crm-alert-box error" style={{ marginBottom: '8px', padding: '6px 12px' }}>
+          <span>{error}</span>
+        </div>
+      )}
+      {success && (
+        <div className="crm-alert-box success" style={{ marginBottom: '8px', padding: '6px 12px' }}>
+          <span>{success}</span>
+        </div>
+      )}
 
-      {/* 2. Compact Toolbar (Title Pill + Search) */}
-      <div className="dc-table-toolbar">
-        <div className="dc-toolbar-title-wrap">
-          <span className="dc-tab-pill active" style={{ cursor: 'default' }}>
-            Active Dispatches
-            <span className="dc-tab-count">
-              {filteredDispatchList.length}
+      {/* 2. Customer Directory-matched Toolbar Card */}
+      <div className="customer-toolbar-card dc-toolbar-card">
+        <div className="dc-toolbar-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: '1 1 auto', minWidth: 0 }}>
+          {/* Search Box matching Customer Directory */}
+          <div className="customer-search-input-wrap" style={{ maxWidth: '340px', minWidth: '220px', flex: '0 1 340px' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search DC No / Customer / Docket..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="customer-search-input-field"
+              aria-label="Search dispatches"
+            />
+            {search && (
+              <button
+                type="button"
+                className="clear-search-btn"
+                onClick={() => setSearch('')}
+                title="Clear search"
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* Active Dispatches Status Badge in Toolbar */}
+          <div className="dc-status-tabs" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span className="dc-filter-btn active" style={{ cursor: 'default' }}>
+              <span>Active Dispatches</span>
+              <span className="filter-count">{filteredDispatchList.length}</span>
             </span>
-          </span>
+          </div>
         </div>
 
-        <div className="dc-search-box-wrap">
-          <input
-            type="text"
-            className="crm-form-input search-input-field"
-            placeholder="Search DC No / Customer / Docket..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {search && (
-            <button
-              type="button"
-              className="clear-search-btn"
-              onClick={() => setSearch('')}
-              title="Clear search"
-            >
-              <X size={12} />
-            </button>
-          )}
+        {/* Right Toolbar Actions */}
+        <div className="dc-toolbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '0 0 auto' }}>
           {onRefresh && (
             <button
               type="button"
-              className="crm-btn-secondary compact"
+              className="crm-btn-secondary compact dc-refresh-btn"
               onClick={onRefresh}
               title="Refresh list"
             >
-              <RotateCcw size={12} />
+              <RotateCcw size={13} />
               <span>Refresh</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* 3. Main Viewport Table Card */}
-      <div className="settings-table-shell stocks-table-shell dc-dispatch-table-card dc-master-card">
+      {/* 3. Main Master Table Card matching Customer Directory Ledger */}
+      <div className="settings-table-shell stocks-table-shell customer-master-card" style={{ height: '100%' }}>
         <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-dispatch-table-body">
-          <table className="crm-master-table crm-data-table settings-table dc-table dc-dispatch-table dc-register-table">
+          <table className="settings-table customer-directory-table dc-table dc-dispatch-table">
             <colgroup>
               <col style={{ width: '15%' }} />
               <col style={{ width: '10%' }} />
-              <col style={{ width: '22%' }} />
+              <col style={{ width: '23%' }} />
               <col style={{ width: '12%' }} />
-              <col style={{ width: '15%' }} />
+              <col style={{ width: '16%' }} />
               <col style={{ width: '8%' }} />
-              <col style={{ width: '10%' }} />
+              <col style={{ width: '8%' }} />
               <col style={{ width: '8%' }} />
             </colgroup>
             <thead>
               <tr>
-                <th style={{ width: '12%' }}>DC NUMBER</th>
-                <th style={{ width: '10%' }}>DATE</th>
-                <th style={{ width: '22%' }}>CUSTOMER / CONSIGNEE</th>
-                <th style={{ width: '12%' }}>TRANSIT MODE</th>
-                <th style={{ width: '16%' }}>VEHICLE / DOCKET NO</th>
-                <th style={{ width: '8%', textAlign: 'center' }}>TOTAL UNITS</th>
-                <th style={{ width: '10%', textAlign: 'center' }}>STATUS</th>
-                <th style={{ width: '10%', textAlign: 'right' }}>ACTIONS</th>
+                <th className="col-priority-high">DC NUMBER</th>
+                <th className="col-priority-med">DATE</th>
+                <th className="col-priority-high">CUSTOMER / CONSIGNEE</th>
+                <th className="col-priority-low">TRANSIT MODE</th>
+                <th className="col-priority-low">VEHICLE / DOCKET NO</th>
+                <th className="col-priority-med" style={{ textAlign: 'center' }}>TOTAL UNITS</th>
+                <th className="col-priority-high" style={{ textAlign: 'center' }}>STATUS</th>
+                <th className="actions-col col-priority-high" style={{ textAlign: 'right' }}>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -211,51 +229,74 @@ export default function DcDispatchPage({ challans = [], user, onRefresh, onOpenD
               ) : (
                 paginatedDispatchList.map((dc) => (
                   <tr key={dc.challanId} className="table-data-row">
-                    <td className="cell-nowrap">
-                      <span className="master-code dc-code-badge">
-                        {dc.challanId}
-                      </span>
+                    <td data-label="DC NUMBER" className="cell-nowrap">
+                      {onOpenDoc ? (
+                        <button
+                          type="button"
+                          className="customer-id-pill master-code link-code-btn"
+                          onClick={() => onOpenDoc(dc)}
+                          title={`View DC Document ${dc.challanId}`}
+                        >
+                          {dc.challanId}
+                        </button>
+                      ) : (
+                        <span className="customer-id-pill master-code">
+                          {dc.challanId}
+                        </span>
+                      )}
                     </td>
-                    <td className="cell-nowrap">{formatDate(dc.deliveryDate || dc.createdAt)}</td>
-                    <td>
-                      <div className="dc-cell-truncate" title={dc.customerName}>
-                        <span style={{ fontWeight: 600, color: '#1e293b' }}>{dc.customerName}</span>
+                    <td data-label="DATE" className="cell-nowrap" style={{ fontSize: '13px', color: '#475569' }}>
+                      {formatDate(dc.deliveryDate || dc.createdAt)}
+                    </td>
+                    <td data-label="CUSTOMER / CONSIGNEE" className="cell-wrap">
+                      <div className="customer-name-cell">
+                        <span className="customer-company-title" title={dc.customerCompany || dc.customerName}>
+                          {dc.customerCompany || dc.customerName}
+                        </span>
+                        {(dc.contactPerson || (dc.customerName && dc.customerName !== dc.customerCompany)) && (
+                          <div className="customer-contact-sub">
+                            <User size={11} className="customer-sub-icon" />
+                            <span>{dc.contactPerson || (dc.customerName !== dc.customerCompany ? dc.customerName : '')}</span>
+                          </div>
+                        )}
                       </div>
                     </td>
-                    <td>
-                      <span className="dc-transit-tag">{dc.transitMode || 'Road Express'}</span>
-                    </td>
-                    <td>
-                      <span className="dc-cell-truncate" title={dc.dispatchDetails || 'Pending docket allocation'}>
-                        {dc.dispatchDetails || 'Pending docket allocation'}
+                    <td data-label="TRANSIT MODE" className="cell-nowrap">
+                      <span style={{ fontSize: '13px', color: '#334155', fontWeight: 500 }}>
+                        {dc.transitMode || 'Road Express'}
                       </span>
                     </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <span className="dc-items-count-badge">
+                    <td data-label="VEHICLE / DOCKET NO" className="cell-truncate" title={dc.dispatchDetails || dc.vehicleNo || dc.docketNo || '—'}>
+                      <span style={{ fontSize: '13px', color: '#475569' }}>
+                        {dc.dispatchDetails || dc.vehicleNo || dc.docketNo || '—'}
+                      </span>
+                    </td>
+                    <td data-label="TOTAL UNITS" style={{ textAlign: 'center' }}>
+                      <span className="count-badge active-count">
                         {Array.isArray(dc.items) ? dc.items.reduce((s, i) => s + Number(i.quantity || 1), 0) : 1}
                       </span>
                     </td>
-                    <td style={{ textAlign: 'center' }}>
+                    <td data-label="STATUS" style={{ textAlign: 'center' }}>
                       <DCStatusBadge status={dc.status || 'DISPATCHED'} />
                     </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div className="dc-actions">
+                    <td data-label="ACTIONS" className="actions-col" style={{ textAlign: 'right' }}>
+                      <div className="settings-row-actions" style={{ justifyContent: 'flex-end', gap: '6px' }}>
                         <button
                           type="button"
-                          className="dc-btn-action secondary"
+                          className="settings-row-action customer-action-btn dc-action-btn-secondary"
                           onClick={() => startEdit(dc)}
-                          title="Update transit &amp; vehicle details"
+                          title="Update transit & vehicle details"
                         >
-                          <Pencil size={12} />
+                          <Pencil size={11} />
                           <span>Edit Log</span>
                         </button>
                         <button
                           type="button"
-                          className="dc-btn-action primary"
+                          className="settings-row-action primary customer-action-btn dc-action-btn-primary"
                           onClick={() => markDelivered(dc)}
                           title="Mark as Delivered"
                         >
-                          <Check size={13} strokeWidth={2.5} />
+                          <Check size={12} strokeWidth={2.5} />
                           <span>Deliver</span>
                         </button>
                       </div>
@@ -265,7 +306,7 @@ export default function DcDispatchPage({ challans = [], user, onRefresh, onOpenD
               )}
               {filteredDispatchList.length > 0 && paginatedDispatchList.length < pageSize && (
                 Array.from({ length: pageSize - paginatedDispatchList.length }).map((_, fIdx) => (
-                  <tr key={`filler-${fIdx}`} className="table-filler-row" aria-hidden="true">
+                  <tr key={`filler-${fIdx}`} className="table-data-row table-filler-row" aria-hidden="true">
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
@@ -273,7 +314,7 @@ export default function DcDispatchPage({ challans = [], user, onRefresh, onOpenD
                     <td>&nbsp;</td>
                     <td style={{ textAlign: 'center' }}>&nbsp;</td>
                     <td style={{ textAlign: 'center' }}>&nbsp;</td>
-                    <td style={{ textAlign: 'right' }}>&nbsp;</td>
+                    <td className="actions-col" style={{ textAlign: 'right' }}>&nbsp;</td>
                   </tr>
                 ))
               )}

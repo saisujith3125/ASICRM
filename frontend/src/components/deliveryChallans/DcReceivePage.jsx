@@ -133,102 +133,121 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
     };
   }, [activeReceiverPopoverId]);
 
+  const receiveTabs = [
+    { key: 'ALL', label: 'All Deliveries', count: challans.length },
+    { key: 'PENDING', label: 'Pending Receipt', count: challans.filter((c) => c.status !== 'DELIVERED' && c.status !== 'RETURNED').length },
+    { key: 'DELIVERED', label: 'Acknowledged', count: challans.filter((c) => c.status === 'DELIVERED').length }
+  ];
+
   return (
-    <div className="dc-page-container dc-receive-page">
-      {/* 1. Page Header */}
-      <div className="dc-page-header compact-header">
-        <div className="dc-header-left">
-          <h2 className="dc-page-title">DC Receive &amp; Acknowledgment</h2>
-        </div>
+    <div className="crm-customer-page-container dc-page-container dc-receive-page">
+      {/* 1. Page Header matching Customer Directory */}
+      <div className="page-header-row customer-page-header">
+        <h1 className="page-title">DC Receive &amp; Acknowledgment</h1>
       </div>
 
-      {error && <div className="crm-alert-box error" style={{ marginBottom: '8px', padding: '6px 12px' }}><span>{error}</span></div>}
-      {success && <div className="crm-alert-box success" style={{ marginBottom: '8px', padding: '6px 12px' }}><span>{success}</span></div>}
+      {error && (
+        <div className="crm-alert-box error" style={{ marginBottom: '8px', padding: '6px 12px' }}>
+          <span>{error}</span>
+        </div>
+      )}
+      {success && (
+        <div className="crm-alert-box success" style={{ marginBottom: '8px', padding: '6px 12px' }}>
+          <span>{success}</span>
+        </div>
+      )}
 
-      {/* 2. Filter & Search Toolbar (Single horizontal row on desktop) */}
-      <div className="dc-table-toolbar">
-        <div className="dc-status-tabs">
-          {['ALL', 'PENDING', 'DELIVERED'].map((st) => (
-            <button
-              key={st}
-              type="button"
-              className={`dc-tab-pill ${statusFilter === st ? 'active' : ''}`}
-              onClick={() => setStatusFilter(st)}
-            >
-              {st === 'ALL' ? 'All Deliveries' : st === 'PENDING' ? 'Pending Receipt' : 'Acknowledged'}
-              <span className="dc-tab-count">
-                {st === 'ALL'
-                  ? challans.length
-                  : st === 'PENDING'
-                  ? challans.filter((c) => c.status !== 'DELIVERED' && c.status !== 'RETURNED').length
-                  : challans.filter((c) => c.status === 'DELIVERED').length}
-              </span>
-            </button>
-          ))}
+      {/* 2. Customer Directory-matched Toolbar Card */}
+      <div className="customer-toolbar-card dc-toolbar-card">
+        <div className="dc-toolbar-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: '1 1 auto', minWidth: 0 }}>
+          {/* Search Box matching Customer Directory */}
+          <div className="customer-search-input-wrap" style={{ maxWidth: '320px', minWidth: '220px', flex: '0 1 320px' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search DC No / Customer / Destination..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="customer-search-input-field"
+              aria-label="Search deliveries"
+            />
+            {search && (
+              <button
+                type="button"
+                className="clear-search-btn"
+                onClick={() => setSearch('')}
+                title="Clear search"
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* Status Tabs cleanly integrated */}
+          <div className="dc-status-tabs" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            {receiveTabs.map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                className={`dc-filter-btn ${statusFilter === t.key ? 'active' : ''}`}
+                onClick={() => setStatusFilter(t.key)}
+              >
+                <span>{t.label}</span>
+                <span className="filter-count">{t.count}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="dc-search-box-wrap">
-          <input
-            type="text"
-            className="crm-form-input search-input-field"
-            placeholder="Search DC No / Customer / Destination..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {search && (
-            <button
-              type="button"
-              className="clear-search-btn"
-              onClick={() => setSearch('')}
-              title="Clear search"
-            >
-              <X size={12} />
-            </button>
-          )}
+        {/* Right Toolbar Actions */}
+        <div className="dc-toolbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '0 0 auto' }}>
           {onRefresh && (
             <button
               type="button"
-              className="crm-btn-secondary compact"
+              className="crm-btn-secondary compact dc-refresh-btn"
               onClick={onRefresh}
               title="Refresh list"
             >
-              <RotateCcw size={12} />
+              <RotateCcw size={13} />
               <span>Refresh</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* 3. Main Viewport Table Card */}
-      <div className="settings-table-shell stocks-table-shell dc-table-card dc-receive-table-card dc-master-card">
-        <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-table-scroll-body dc-receive-table-body">
-          <table className="crm-master-table crm-data-table settings-table dc-table dc-receive-table dc-register-table">
+      {/* 3. Main Master Table Card matching Customer Directory Ledger */}
+      <div className="settings-table-shell stocks-table-shell customer-master-card" style={{ height: '100%' }}>
+        <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-receive-table-body">
+          <table className="settings-table customer-directory-table dc-table dc-receive-table">
             <colgroup>
-              <col className="col-dc-no" style={{ width: '15%' }} />
-              <col className="col-dc-date" style={{ width: '10%' }} />
-              <col className="col-customer" style={{ width: '23%' }} />
-              <col className="col-destination" style={{ width: '20%' }} />
-              <col className="col-receiver" style={{ width: '12%' }} />
-              <col className="col-status" style={{ width: '12%' }} />
-              <col className="col-actions" style={{ width: '8%' }} />
+              <col style={{ width: '15%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '23%' }} />
+              <col style={{ width: '20%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '10%' }} />
             </colgroup>
             <thead>
               <tr>
-                <th className="col-dc-no">DC NUMBER</th>
-                <th className="col-dc-date">DC DATE</th>
-                <th className="col-customer">CUSTOMER / CONSIGNEE</th>
-                <th className="col-destination">DESTINATION</th>
-                <th className="col-receiver">RECEIVER CONTACT</th>
-                <th className="col-status" style={{ textAlign: 'center' }}>STATUS</th>
-                <th className="col-actions" style={{ textAlign: 'right' }}>ACTIONS</th>
+                <th className="col-priority-high">DC NUMBER</th>
+                <th className="col-priority-med">DC DATE</th>
+                <th className="col-priority-high">CUSTOMER / CONSIGNEE</th>
+                <th className="col-priority-low">DESTINATION</th>
+                <th className="col-priority-low">RECEIVER CONTACT</th>
+                <th className="col-priority-high" style={{ textAlign: 'center' }}>STATUS</th>
+                <th className="actions-col col-priority-high" style={{ textAlign: 'right' }}>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
               {pagination.currentItems.length === 0 ? (
                 <DCEmptyState message={search.trim() ? `No delivery challans found matching "${search.trim()}".` : "No delivery challans available for receipt processing."} colSpan={7} />
               ) : (
-                <>
-                  {pagination.currentItems.map((dc, idx) => {
+                pagination.currentItems.map((dc, idx) => {
                   const destination = (dc.deliveryAddress || dc.customerAddress || dc.shippingAddress || dc.destination || '').trim();
                   const isPopoverOpen = activeReceiverPopoverId === dc.challanId;
                   const isNearBottom = idx >= filteredReceiveList.length - 2 && filteredReceiveList.length > 3;
@@ -237,27 +256,44 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
 
                   return (
                     <tr key={dc.challanId} className={`table-data-row ${isPopoverOpen ? 'has-popover-open' : ''}`}>
-                      <td className="cell-nowrap col-dc-no">
-                        <span className="master-code dc-code-badge">
-                          {dc.challanId}
-                        </span>
+                      <td data-label="DC NUMBER" className="cell-nowrap">
+                        {onOpenDoc ? (
+                          <button
+                            type="button"
+                            className="customer-id-pill master-code link-code-btn"
+                            onClick={() => onOpenDoc(dc)}
+                            title={`View DC Document ${dc.challanId}`}
+                          >
+                            {dc.challanId}
+                          </button>
+                        ) : (
+                          <span className="customer-id-pill master-code">
+                            {dc.challanId}
+                          </span>
+                        )}
                       </td>
-                      <td className="cell-nowrap col-dc-date">
+                      <td data-label="DC DATE" className="cell-nowrap" style={{ fontSize: '13px', color: '#475569' }}>
                         {formatDate(dc.deliveryDate || dc.createdAt)}
                       </td>
-                      <td className="col-customer">
-                        <div className="dc-cell-truncate" title={dc.customerName}>
-                          <strong style={{ fontWeight: 600, color: '#1e293b' }}>{dc.customerName}</strong>
-                        </div>
-                      </td>
-                      <td className="col-destination">
-                        <div className="dc-cell-truncate" title={destination || 'No address specified'}>
-                          <span style={{ fontSize: '12.5px', color: destination ? '#334155' : '#94a3b8' }}>
-                            {destination || '—'}
+                      <td data-label="CUSTOMER / CONSIGNEE" className="cell-wrap">
+                        <div className="customer-name-cell">
+                          <span className="customer-company-title" title={dc.customerCompany || dc.customerName}>
+                            {dc.customerCompany || dc.customerName}
                           </span>
+                          {(dc.contactPerson || (dc.customerName && dc.customerName !== dc.customerCompany)) && (
+                            <div className="customer-contact-sub">
+                              <User size={11} className="customer-sub-icon" />
+                              <span>{dc.contactPerson || (dc.customerName !== dc.customerCompany ? dc.customerName : '')}</span>
+                            </div>
+                          )}
                         </div>
                       </td>
-                      <td className="col-receiver">
+                      <td data-label="DESTINATION" className="cell-truncate" title={destination || 'No address specified'}>
+                        <span style={{ fontSize: '12.5px', color: destination ? '#334155' : '#94a3b8' }}>
+                          {destination || '—'}
+                        </span>
+                      </td>
+                      <td data-label="RECEIVER CONTACT">
                         {hasReceiver ? (
                           <div className="dc-receiver-cell-wrapper">
                             <button
@@ -324,17 +360,17 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
                           <span className="dc-cell-dash">—</span>
                         )}
                       </td>
-                      <td className="col-status">
+                      <td data-label="STATUS" style={{ textAlign: 'center' }}>
                         <DCStatusBadge status={dc.status || 'DISPATCHED'} />
                       </td>
-                      <td className="col-actions">
-                        <div className="dc-actions dc-receive-actions">
-                          {dc.status !== 'DELIVERED' && (
+                      <td data-label="ACTIONS" className="actions-col" style={{ textAlign: 'right' }}>
+                        <div className="settings-row-actions" style={{ justifyContent: 'flex-end', gap: '6px' }}>
+                          {dc.status !== 'DELIVERED' && dc.status !== 'RETURNED' && (
                             <button
                               type="button"
-                              className="dc-btn-action primary"
+                              className="settings-row-action primary customer-action-btn dc-action-btn-primary"
                               onClick={() => openReceiveModal(dc)}
-                              title="Record Receipt &amp; Customer Signature"
+                              title="Record Receipt & Customer Signature"
                             >
                               <Check size={12} strokeWidth={2.5} />
                               <span>Acknowledge</span>
@@ -342,7 +378,7 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
                           )}
                           <button
                             type="button"
-                            className="dc-btn-action secondary"
+                            className="settings-row-action customer-action-btn dc-action-btn-secondary"
                             onClick={() => onOpenDoc && onOpenDoc(dc)}
                             title="View printable Delivery Challan"
                           >
@@ -353,32 +389,31 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
                       </td>
                     </tr>
                   );
-                })}
-              </>
-            )}
-            {filteredReceiveList.length > 0 && pagination.currentItems.length < pagination.pageSize && (
-              Array.from({ length: pagination.pageSize - pagination.currentItems.length }).map((_, fIdx) => (
-                <tr key={`filler-${fIdx}`} className="table-filler-row" aria-hidden="true">
-                  <td className="col-dc-no">&nbsp;</td>
-                  <td className="col-dc-date">&nbsp;</td>
-                  <td className="col-customer">&nbsp;</td>
-                  <td className="col-destination">&nbsp;</td>
-                  <td className="col-receiver">&nbsp;</td>
-                  <td className="col-status" style={{ textAlign: 'center' }}>&nbsp;</td>
-                  <td className="col-actions" style={{ textAlign: 'right' }}>&nbsp;</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+                })
+              )}
+              {filteredReceiveList.length > 0 && pagination.currentItems.length < pagination.pageSize && (
+                Array.from({ length: pagination.pageSize - pagination.currentItems.length }).map((_, fIdx) => (
+                  <tr key={`filler-${fIdx}`} className="table-data-row table-filler-row" aria-hidden="true">
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                    <td className="actions-col" style={{ textAlign: 'right' }}>&nbsp;</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <TableFooter
+          {...pagination.footerProps}
+          recordLabel="deliveries"
+          singularLabel="delivery"
+          className="dc-table-footer dc-receive-footer"
+        />
       </div>
-      <TableFooter
-        {...pagination.footerProps}
-        recordLabel="deliveries"
-        singularLabel="delivery"
-        className="dc-table-footer dc-receive-footer"
-      />
-    </div>
 
       {/* Acknowledge Modal */}
       {receivingDc && (
@@ -420,7 +455,7 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
                     rows={2}
                     value={receiveRemarks}
                     onChange={(e) => setReceiveRemarks(e.target.value)}
-                    placeholder="Goods inspected and received in working condition."
+                    placeholder="e.g. Received intact by security gate with stamp."
                   />
                 </div>
               </div>
@@ -429,7 +464,7 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
                   Cancel
                 </button>
                 <button type="submit" className="crm-btn-primary" disabled={saving}>
-                  {saving ? 'Saving...' : '✓ Confirm & Mark Delivered'}
+                  {saving ? 'Confirming...' : 'Confirm Delivery'}
                 </button>
               </div>
             </form>

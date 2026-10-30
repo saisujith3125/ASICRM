@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, ClipboardList, Truck, PackageCheck, RotateCcw, Eye, ArrowRight } from 'lucide-react';
+import { Plus, ClipboardList, Truck, PackageCheck, RotateCcw, Eye, ArrowRight, User } from 'lucide-react';
 import { navigate } from '../../router';
 import { DCStatusBadge, DCEmptyState } from './dcPrimitives';
 import { useTablePagination, TableFooter } from '../common/TableWorkspace';
@@ -46,16 +46,14 @@ export default function DcOverview({ challans = [], onNavigateSubView, onOpenDoc
   };
 
   return (
-    <div className="delivery-challans-overview-page dc-page-container dc-overview-page">
-      {/* 1. Header Row */}
-      <div className="overview-header-row dc-page-header compact-header">
-        <div>
-          <h2 className="dc-page-title">Delivery Challans Overview</h2>
-        </div>
+    <div className="delivery-challans-module-wrapper dc-page-container dc-overview-page">
+      {/* 1. Header Row matching Customer Directory */}
+      <div className="page-header-row customer-page-header">
+        <h1 className="page-title">Delivery Challans Overview</h1>
         <div className="dc-header-actions">
           <button
             type="button"
-            className="crm-btn-primary compact"
+            className="crm-btn-primary compact add-customer-btn"
             onClick={() => goToNav('new')}
             title="Create New Delivery Challan"
           >
@@ -108,48 +106,49 @@ export default function DcOverview({ challans = [], onNavigateSubView, onOpenDoc
         </div>
       </div>
 
-      {/* 3. Recent Delivery Challans Table Card (Enterprise Full-height workspace) */}
-      <div className="settings-table-shell stocks-table-shell dc-overview-table-card dc-master-card">
-        <div className="recent-table-header dc-recent-header">
-          <div className="dc-recent-title-group">
-            <h3 className="dc-recent-title">Recent Delivery Challans</h3>
-            <span className="dc-recent-counter">
-              Showing {showingStart}-{showingEnd} of {totalRecords} {totalRecords === 1 ? 'challan' : 'challans'}
+      {/* 3. Recent Delivery Challans Table Card matching Customer Directory */}
+      <div className="settings-table-shell stocks-table-shell customer-master-card dc-overview-table-card" style={{ height: '100%' }}>
+        <div className="recent-table-header dc-recent-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 14px', borderBottom: '1px solid #e2e8f0', background: '#ffffff' }}>
+          <div className="dc-recent-title-group" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 className="dc-recent-title" style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Recent Delivery Challans</h3>
+            <span className="count-badge active-count" style={{ fontSize: '11px' }}>
+              {totalRecords}
             </span>
           </div>
           <button
             type="button"
-            className="dc-view-all-history-btn crm-btn-secondary compact"
+            className="settings-row-action customer-action-btn dc-action-btn-secondary"
             onClick={() => goToNav('history')}
             title="View full delivery challans history"
+            style={{ height: '28px', padding: '0 10px', gap: '6px' }}
           >
             <span>View All History</span>
-            <ArrowRight size={14} className="dc-view-all-icon" />
+            <ArrowRight size={13} />
           </button>
         </div>
 
         <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-overview-table-body">
-          <table className="crm-master-table crm-data-table settings-table dc-table dc-overview-table dc-register-table">
+          <table className="settings-table customer-directory-table dc-table dc-overview-table">
             <colgroup>
-              <col style={{ width: '15%' }} />
+              <col style={{ width: '14%' }} />
               <col style={{ width: '10%' }} />
-              <col style={{ width: '22%' }} />
+              <col style={{ width: '23%' }} />
               <col style={{ width: '13%' }} />
               <col style={{ width: '8%' }} />
-              <col style={{ width: '13%' }} />
-              <col style={{ width: '11%' }} />
+              <col style={{ width: '14%' }} />
+              <col style={{ width: '10%' }} />
               <col style={{ width: '8%' }} />
             </colgroup>
             <thead>
               <tr>
-                <th className="dc-col-number">DC NUMBER</th>
-                <th className="dc-col-date">DATE</th>
-                <th className="dc-col-customer">CUSTOMER / CONSIGNEE</th>
-                <th className="dc-col-order">LINKED ORDER</th>
-                <th className="dc-col-items" style={{ textAlign: 'center' }}>ITEMS</th>
-                <th className="dc-col-transit">TRANSIT MODE</th>
-                <th className="dc-col-status" style={{ textAlign: 'center' }}>STATUS</th>
-                <th className="dc-col-actions" style={{ textAlign: 'right' }}>ACTIONS</th>
+                <th className="col-priority-high">DC NUMBER</th>
+                <th className="col-priority-med">DATE</th>
+                <th className="col-priority-high">CUSTOMER / CONSIGNEE</th>
+                <th className="col-priority-low">LINKED ORDER</th>
+                <th className="col-priority-med" style={{ textAlign: 'center' }}>ITEMS</th>
+                <th className="col-priority-low">TRANSIT MODE</th>
+                <th className="col-priority-high" style={{ textAlign: 'center' }}>STATUS</th>
+                <th className="actions-col col-priority-high" style={{ textAlign: 'right' }}>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -170,50 +169,67 @@ export default function DcOverview({ challans = [], onNavigateSubView, onOpenDoc
               ) : (
                 currentRecords.map((dc) => (
                   <tr key={dc.challanId} className="table-data-row">
-                    <td className="dc-col-number" style={{ whiteSpace: 'nowrap' }}>
-                      <span className="master-code dc-code-badge">
-                        {dc.challanId}
-                      </span>
+                    <td data-label="DC NUMBER" className="cell-nowrap">
+                      {onOpenDoc ? (
+                        <button
+                          type="button"
+                          className="customer-id-pill master-code link-code-btn"
+                          onClick={() => onOpenDoc(dc)}
+                          title={`View DC Document ${dc.challanId}`}
+                        >
+                          {dc.challanId}
+                        </button>
+                      ) : (
+                        <span className="customer-id-pill master-code">
+                          {dc.challanId}
+                        </span>
+                      )}
                     </td>
-                    <td className="dc-col-date" style={{ whiteSpace: 'nowrap' }}>
+                    <td data-label="DATE" className="cell-nowrap" style={{ fontSize: '13px', color: '#475569' }}>
                       {formatDate(dc.deliveryDate || dc.createdAt)}
                     </td>
-                    <td className="dc-col-customer">
-                      <div className="dc-cell-truncate" title={dc.customerName}>
-                        <span style={{ fontWeight: 600, color: '#1e293b' }}>{dc.customerName}</span>
+                    <td data-label="CUSTOMER / CONSIGNEE" className="cell-wrap">
+                      <div className="customer-name-cell">
+                        <span className="customer-company-title" title={dc.customerCompany || dc.customerName}>
+                          {dc.customerCompany || dc.customerName}
+                        </span>
+                        {(dc.contactPerson || (dc.customerName && dc.customerName !== dc.customerCompany)) && (
+                          <div className="customer-contact-sub">
+                            <User size={11} className="customer-sub-icon" />
+                            <span>{dc.contactPerson || (dc.customerName !== dc.customerCompany ? dc.customerName : '')}</span>
+                          </div>
+                        )}
                       </div>
                     </td>
-                    <td className="dc-col-order" style={{ whiteSpace: 'nowrap' }}>
+                    <td data-label="LINKED ORDER" className="cell-nowrap">
                       {dc.orderId ? (
                         <span className="order-id-badge">{dc.orderId}</span>
                       ) : (
-                        <span style={{ color: '#94a3b8', fontSize: '11.5px' }}>Direct Delivery</span>
+                        <span style={{ color: '#94a3b8', fontSize: '12px' }}>Direct Delivery</span>
                       )}
                     </td>
-                    <td className="dc-col-items" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                      <span className="dc-items-count-badge">
-                        {Array.isArray(dc.items) ? dc.items.reduce((sum, i) => sum + Number(i.quantity || 1), 0) : 1} units
+                    <td data-label="ITEMS" style={{ textAlign: 'center' }}>
+                      <span className="count-badge active-count">
+                        {Array.isArray(dc.items) ? dc.items.reduce((sum, i) => sum + Number(i.quantity || 1), 0) : 1}
                       </span>
                     </td>
-                    <td className="dc-col-transit">
-                      <div className="dc-cell-truncate" title={dc.transitMode || 'Road Express'}>
-                        <span style={{ fontSize: '12px', color: '#475569' }}>
-                          {dc.transitMode || 'Road Express'}
-                        </span>
-                      </div>
+                    <td data-label="TRANSIT MODE" className="cell-nowrap">
+                      <span style={{ fontSize: '13px', color: '#334155', fontWeight: 500 }}>
+                        {dc.transitMode || 'Road Express'}
+                      </span>
                     </td>
-                    <td className="dc-col-status" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                    <td data-label="STATUS" style={{ textAlign: 'center' }}>
                       <DCStatusBadge status={dc.status} />
                     </td>
-                    <td className="dc-col-actions" style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                      <div className="dc-actions">
+                    <td data-label="ACTIONS" className="actions-col" style={{ textAlign: 'right' }}>
+                      <div className="settings-row-actions" style={{ justifyContent: 'flex-end', gap: '6px' }}>
                         <button
                           type="button"
-                          className="dc-btn-action secondary"
+                          className="settings-row-action customer-action-btn dc-action-btn-secondary"
                           onClick={() => onOpenDoc && onOpenDoc(dc)}
-                          title="View printable Delivery Challan"
+                          title="View Delivery Challan"
                         >
-                          <Eye size={13} />
+                          <Eye size={12} />
                           <span>View</span>
                         </button>
                       </div>
@@ -223,15 +239,15 @@ export default function DcOverview({ challans = [], onNavigateSubView, onOpenDoc
               )}
               {challans.length > 0 && currentRecords.length < pageSize && (
                 Array.from({ length: pageSize - currentRecords.length }).map((_, fIdx) => (
-                  <tr key={`filler-${fIdx}`} className="table-filler-row" aria-hidden="true">
-                    <td className="dc-col-number">&nbsp;</td>
-                    <td className="dc-col-date">&nbsp;</td>
-                    <td className="dc-col-customer">&nbsp;</td>
-                    <td className="dc-col-order">&nbsp;</td>
-                    <td className="dc-col-items" style={{ textAlign: 'center' }}>&nbsp;</td>
-                    <td className="dc-col-transit">&nbsp;</td>
-                    <td className="dc-col-status" style={{ textAlign: 'center' }}>&nbsp;</td>
-                    <td className="dc-col-actions" style={{ textAlign: 'right' }}>&nbsp;</td>
+                  <tr key={`filler-${fIdx}`} className="table-data-row table-filler-row" aria-hidden="true">
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                    <td style={{ textAlign: 'right' }}>&nbsp;</td>
                   </tr>
                 ))
               )}
@@ -239,7 +255,7 @@ export default function DcOverview({ challans = [], onNavigateSubView, onOpenDoc
           </table>
         </div>
 
-        {/* 5. Enterprise Table Footer */}
+        {/* 4. Enterprise Table Footer */}
         <TableFooter
           showingStart={showingStart}
           showingEnd={showingEnd}
@@ -249,7 +265,7 @@ export default function DcOverview({ challans = [], onNavigateSubView, onOpenDoc
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={goToPage}
-          className="dc-overview-footer"
+          className="customer-directory-footer dc-overview-footer"
         />
       </div>
     </div>

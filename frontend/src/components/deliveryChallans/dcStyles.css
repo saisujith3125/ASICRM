@@ -2682,3 +2682,336 @@
   -moz-appearance: textfield !important;
 }
 
+
+
+/* ==========================================================================
+   CUSTOMER DIRECTORY UNIFIED STYLING FOR DELIVERY CHALLANS MODULE
+   ========================================================================== */
+
+/* 1. Universal Customer Directory Toolbar Card */
+.delivery-challans-module-wrapper .customer-toolbar-card,
+.dc-page-container .customer-toolbar-card,
+.dc-toolbar-card {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  margin: 0 0 8px 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* 2. Search Input Wrap */
+.delivery-challans-module-wrapper .customer-search-input-wrap,
+.dc-page-container .customer-search-input-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+  height: 34px !important;
+  padding: 0 10px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  background: #f8fafc !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.15s ease, background-color 0.15s ease !important;
+}
+
+.delivery-challans-module-wrapper .customer-search-input-wrap:focus-within,
+.dc-page-container .customer-search-input-wrap:focus-within {
+  border-color: #3b82f6 !important;
+  background: #ffffff !important;
+}
+
+.delivery-challans-module-wrapper .customer-search-input-field,
+.dc-page-container .customer-search-input-field {
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 13px !important;
+  color: #1e293b !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.delivery-challans-module-wrapper .clear-search-btn,
+.dc-page-container .clear-search-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  padding: 0 2px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.delivery-challans-module-wrapper .clear-search-btn:hover,
+.dc-page-container .clear-search-btn:hover {
+  color: #475569 !important;
+}
+
+/* 3. Filter Buttons matching Customer Directory */
+.dc-filter-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+.dc-filter-btn:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+.dc-filter-btn.active {
+  background: #eff6ff !important;
+  border-color: #3b82f6 !important;
+  color: #1d4ed8 !important;
+  font-weight: 600 !important;
+}
+
+.dc-filter-btn .filter-count {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  padding: 0 5px !important;
+  border-radius: 9px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+.dc-filter-btn.active .filter-count {
+  background: #bfdbfe !important;
+  color: #1e40af !important;
+}
+
+/* 4. Monospace Code Badges */
+.delivery-challans-module-wrapper .customer-id-pill.master-code,
+.dc-page-container .customer-id-pill.master-code,
+.customer-id-pill.master-code {
+  font-family: var(--font-mono, monospace) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  background: #f1f5f9 !important;
+  padding: 2.5px 7px !important;
+  border-radius: 4px !important;
+  border: 1px solid #e2e8f0 !important;
+  display: inline-block !important;
+}
+
+button.customer-id-pill.master-code.link-code-btn {
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  text-decoration: none !important;
+}
+
+button.customer-id-pill.master-code.link-code-btn:hover {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: #1d4ed8 !important;
+}
+
+/* 5. Customer / Consignee Two-tier cell */
+.customer-name-cell {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  text-align: left !important;
+}
+
+.customer-company-title {
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  line-height: 1.3 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.customer-contact-sub {
+  font-size: 11px !important;
+  color: #64748b !important;
+  margin-top: 2px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.customer-sub-icon {
+  flex-shrink: 0 !important;
+  color: #94a3b8 !important;
+}
+
+/* 6. Count Badges */
+.delivery-challans-module-wrapper .count-badge,
+.dc-page-container .count-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 22px !important;
+  height: 22px !important;
+  padding: 0 6px !important;
+  border-radius: 11px !important;
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+.delivery-challans-module-wrapper .count-badge.active-count,
+.dc-page-container .count-badge.active-count {
+  background: #dbeafe !important;
+  color: #1e40af !important;
+}
+
+/* 7. Action Buttons */
+.delivery-challans-module-wrapper .settings-row-actions,
+.dc-page-container .settings-row-actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  width: 100% !important;
+}
+
+.delivery-challans-module-wrapper .settings-row-action.customer-action-btn,
+.dc-page-container .settings-row-action.customer-action-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  width: auto !important;
+  min-width: 48px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 0 8px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  border-radius: 5px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  text-decoration: none !important;
+}
+
+.delivery-challans-module-wrapper .settings-row-action.customer-action-btn:hover,
+.dc-page-container .settings-row-action.customer-action-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+.delivery-challans-module-wrapper .settings-row-action.customer-action-btn.dc-action-btn-primary,
+.dc-page-container .settings-row-action.customer-action-btn.dc-action-btn-primary {
+  border: 1px solid #1d4ed8 !important;
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.delivery-challans-module-wrapper .settings-row-action.customer-action-btn.dc-action-btn-primary:hover,
+.dc-page-container .settings-row-action.customer-action-btn.dc-action-btn-primary:hover {
+  background: #1d4ed8 !important;
+  border-color: #1e40af !important;
+  color: #ffffff !important;
+}
+
+/* 8. Table Sticky Header & Cells Alignment */
+.delivery-challans-module-wrapper .customer-directory-table thead th,
+.dc-page-container .customer-directory-table thead th {
+  height: 38px !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #475569 !important;
+  background: #f8fafc !important;
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  vertical-align: middle !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  box-sizing: border-box !important;
+}
+
+.delivery-challans-module-wrapper .customer-directory-table thead th:last-child,
+.dc-page-container .customer-directory-table thead th:last-child {
+  border-right: none !important;
+}
+
+.delivery-challans-module-wrapper .customer-directory-table tbody td,
+.dc-page-container .customer-directory-table tbody td {
+  padding: 4px 12px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  font-size: 13.5px !important;
+  line-height: 1.3 !important;
+  color: #1e293b !important;
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+  background: #ffffff !important;
+}
+
+.delivery-challans-module-wrapper .customer-directory-table tbody td:last-child,
+.dc-page-container .customer-directory-table tbody td:last-child {
+  border-right: none !important;
+}
+
+.delivery-challans-module-wrapper .customer-directory-table tbody tr:hover td,
+.dc-page-container .customer-directory-table tbody tr:hover td {
+  background-color: #f8fafc !important;
+}
+
+.delivery-challans-module-wrapper .customer-directory-table tbody tr.table-filler-row td,
+.dc-page-container .customer-directory-table tbody tr.table-filler-row td {
+  height: 44px !important;
+  min-height: 44px !important;
+  background: #ffffff !important;
+  color: transparent !important;
+  user-select: none !important;
+  pointer-events: none !important;
+  border-bottom: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+}
+
+.delivery-challans-module-wrapper .customer-directory-table tbody tr.table-filler-row td:last-child,
+.dc-page-container .customer-directory-table tbody tr.table-filler-row td:last-child {
+  border-right: none !important;
+}

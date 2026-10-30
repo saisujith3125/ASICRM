@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Eye, Printer, Search, X, RotateCcw, ChevronDown } from 'lucide-react';
+import { Plus, Eye, Printer, Search, X, RotateCcw, ChevronDown, User } from 'lucide-react';
 import { navigate } from '../../router';
 import { DCStatusBadge, DCEmptyState } from './dcPrimitives';
 import { useTablePagination, TableFooter } from '../common/TableWorkspace';
@@ -68,100 +68,115 @@ export default function DcHistoryPage({ challans = [], orders = [], user, onOpen
     resetDeps: [search, statusFilter]
   });
 
+  const historyTabs = [
+    { key: 'ALL', label: 'All Challans', count: challans.length },
+    { key: 'DISPATCHED', label: 'Dispatched', count: challans.filter((c) => c.status === 'DISPATCHED').length },
+    { key: 'DELIVERED', label: 'Delivered', count: challans.filter((c) => c.status === 'DELIVERED').length },
+    { key: 'RETURNED', label: 'Returned', count: challans.filter((c) => c.status === 'RETURNED').length }
+  ];
+
   return (
-    <div className="dc-page-container dc-history-page">
-      {/* 1. Page Header (Title + Primary Action) */}
-      <div className="dc-page-header compact-header">
-        <div className="dc-header-left">
-          <h2 className="dc-page-title">Delivery Challan History</h2>
+    <div className="crm-customer-page-container dc-page-container dc-history-page">
+      {/* 1. Page Header matching Customer Directory */}
+      <div className="page-header-row customer-page-header">
+        <h1 className="page-title">Delivery Challan History</h1>
+      </div>
+
+      {/* 2. Customer Directory-matched Toolbar Card */}
+      <div className="customer-toolbar-card dc-toolbar-card">
+        <div className="dc-toolbar-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: '1 1 auto', minWidth: 0 }}>
+          {/* Search Box matching Customer Directory */}
+          <div className="customer-search-input-wrap" style={{ maxWidth: '320px', minWidth: '220px', flex: '0 1 320px' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search DC No / Customer / Order / Serial..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="customer-search-input-field"
+              aria-label="Search challans"
+            />
+            {search && (
+              <button
+                type="button"
+                className="clear-search-btn"
+                onClick={() => setSearch('')}
+                title="Clear search"
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* Status Tabs cleanly integrated */}
+          <div className="dc-status-tabs" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            {historyTabs.map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                className={`dc-filter-btn ${statusFilter === t.key ? 'active' : ''}`}
+                onClick={() => setStatusFilter(t.key)}
+              >
+                <span>{t.label}</span>
+                <span className="filter-count">{t.count}</span>
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="dc-header-actions">
+
+        {/* Right Toolbar Actions */}
+        <div className="dc-toolbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '0 0 auto' }}>
+          {onRefresh && (
+            <button
+              type="button"
+              className="crm-btn-secondary compact dc-refresh-btn"
+              onClick={onRefresh}
+              title="Refresh list"
+            >
+              <RotateCcw size={13} />
+              <span>Refresh</span>
+            </button>
+          )}
           <button
             type="button"
-            className="crm-btn-primary compact"
+            className="crm-btn-primary add-customer-btn"
             onClick={() => navigate('/delivery-challans/new')}
             title="Create New Delivery Challan"
           >
             <Plus size={14} strokeWidth={2.5} />
-            <span>New DC</span>
+            <span>+ New DC</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Filter & Search Toolbar (Single horizontal row on desktop) */}
-      <div className="dc-table-toolbar">
-        <div className="dc-status-tabs">
-          {['ALL', 'DISPATCHED', 'DELIVERED', 'RETURNED'].map((st) => (
-            <button
-              key={st}
-              type="button"
-              className={`dc-tab-pill ${statusFilter === st ? 'active' : ''}`}
-              onClick={() => setStatusFilter(st)}
-            >
-              {st === 'ALL' ? 'All Challans' : st.charAt(0) + st.slice(1).toLowerCase()}
-              <span className="dc-tab-count">
-                {st === 'ALL' ? challans.length : challans.filter((c) => c.status === st).length}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        <div className="dc-search-box-wrap">
-          <input
-            type="text"
-            className="crm-form-input search-input-field"
-            placeholder="Search DC No / Customer / Order / Serial..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {search && (
-            <button
-              type="button"
-              className="clear-search-btn"
-              onClick={() => setSearch('')}
-              title="Clear search"
-            >
-              <X size={12} />
-            </button>
-          )}
-          {onRefresh && (
-            <button
-              type="button"
-              className="crm-btn-secondary compact"
-              onClick={onRefresh}
-              title="Refresh list"
-            >
-              <RotateCcw size={12} />
-              <span>Refresh</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* 3. Main Viewport Table Card */}
-      <div className="settings-table-shell stocks-table-shell dc-table-card dc-history-table-card dc-master-card">
-        <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-table-scroll-body dc-history-table-body">
-          <table className="crm-master-table crm-data-table settings-table dc-table dc-history-table dc-register-table">
+      {/* 3. Main Master Table Card matching Customer Directory Ledger */}
+      <div className="settings-table-shell stocks-table-shell customer-master-card" style={{ height: '100%' }}>
+        <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-history-table-body">
+          <table className="settings-table customer-directory-table dc-table dc-history-table">
             <colgroup>
               <col style={{ width: '15%' }} />
               <col style={{ width: '10%' }} />
-              <col style={{ width: '22%' }} />
+              <col style={{ width: '23%' }} />
               <col style={{ width: '12%' }} />
               <col style={{ width: '8%' }} />
               <col style={{ width: '12%' }} />
-              <col style={{ width: '11%' }} />
+              <col style={{ width: '10%' }} />
               <col style={{ width: '10%' }} />
             </colgroup>
             <thead>
               <tr>
-                <th>DC NUMBER</th>
-                <th>DATE</th>
-                <th>CUSTOMER / CONSIGNEE</th>
-                <th>SALES ORDER</th>
-                <th style={{ textAlign: 'center' }}>ITEMS</th>
-                <th>RECEIVER</th>
-                <th style={{ textAlign: 'center' }}>STATUS</th>
-                <th style={{ textAlign: 'right' }}>ACTIONS</th>
+                <th className="col-priority-high">DC NUMBER</th>
+                <th className="col-priority-med">DATE</th>
+                <th className="col-priority-high">CUSTOMER / CONSIGNEE</th>
+                <th className="col-priority-low">SALES ORDER</th>
+                <th className="col-priority-med" style={{ textAlign: 'center' }}>ITEMS</th>
+                <th className="col-priority-low">RECEIVER</th>
+                <th className="col-priority-high" style={{ textAlign: 'center' }}>STATUS</th>
+                <th className="actions-col col-priority-high" style={{ textAlign: 'right' }}>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -178,35 +193,54 @@ export default function DcHistoryPage({ challans = [], orders = [], user, onOpen
                     <React.Fragment key={dc.challanId}>
                       <tr className="table-data-row">
                         {/* DC Number */}
-                        <td className="cell-nowrap">
-                          <span className="master-code dc-code-badge">
-                            {dc.challanId}
-                          </span>
+                        <td data-label="DC NUMBER" className="cell-nowrap">
+                          {onOpenDoc ? (
+                            <button
+                              type="button"
+                              className="customer-id-pill master-code link-code-btn"
+                              onClick={() => onOpenDoc(dc)}
+                              title={`View DC Document ${dc.challanId}`}
+                            >
+                              {dc.challanId}
+                            </button>
+                          ) : (
+                            <span className="customer-id-pill master-code">
+                              {dc.challanId}
+                            </span>
+                          )}
                         </td>
 
                         {/* Date */}
-                        <td className="cell-nowrap">
+                        <td data-label="DATE" className="cell-nowrap" style={{ fontSize: '13px', color: '#475569' }}>
                           {formatDate(dc.deliveryDate || dc.createdAt)}
                         </td>
 
-                        {/* Customer / Consignee: Clean name only */}
-                        <td>
-                          <div className="dc-cell-truncate" title={dc.customerName}>
-                            <strong style={{ fontWeight: 600, color: '#1e293b' }}>{dc.customerName}</strong>
+                        {/* Customer / Consignee */}
+                        <td data-label="CUSTOMER / CONSIGNEE" className="cell-wrap">
+                          <div className="customer-name-cell">
+                            <span className="customer-company-title" title={dc.customerCompany || dc.customerName}>
+                              {dc.customerCompany || dc.customerName}
+                            </span>
+                            {(dc.contactPerson || (dc.customerName && dc.customerName !== dc.customerCompany)) && (
+                              <div className="customer-contact-sub">
+                                <User size={11} className="customer-sub-icon" />
+                                <span>{dc.contactPerson || (dc.customerName !== dc.customerCompany ? dc.customerName : '')}</span>
+                              </div>
+                            )}
                           </div>
                         </td>
 
                         {/* Sales Order */}
-                        <td className="cell-nowrap">
+                        <td data-label="SALES ORDER" className="cell-nowrap">
                           {dc.orderId ? (
-                            <span className="order-id-badge">{dc.orderId}</span>
+                            <span className="order-id-badge" style={{ fontSize: '11.5px' }}>{dc.orderId}</span>
                           ) : (
-                            <span style={{ color: '#94a3b8', fontSize: '11px', fontWeight: 500 }}>Standalone</span>
+                            <span style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 500 }}>Standalone</span>
                           )}
                         </td>
 
-                        {/* Compact Items Control */}
-                        <td className="cell-nowrap">
+                        {/* Items count button */}
+                        <td data-label="ITEMS" className="cell-nowrap" style={{ textAlign: 'center' }}>
                           <button
                             type="button"
                             className={`dc-compact-items-btn ${isExpanded ? 'open' : ''}`}
@@ -218,32 +252,32 @@ export default function DcHistoryPage({ challans = [], orders = [], user, onOpen
                             aria-expanded={isExpanded}
                           >
                             <span>{totalUnits} {totalUnits === 1 ? 'Item' : 'Items'}</span>
-                            <ChevronDown size={13} className={`dc-items-chevron ${isExpanded ? 'rotated' : ''}`} />
+                            <ChevronDown size={12} className={`dc-items-chevron ${isExpanded ? 'rotated' : ''}`} />
                           </button>
                         </td>
 
                         {/* Receiver */}
-                        <td>
-                          <span className="dc-cell-truncate" title={dc.receiverName || '—'}>
+                        <td data-label="RECEIVER" className="cell-truncate" title={dc.receiverName || '—'}>
+                          <span style={{ fontSize: '12.5px', color: dc.receiverName ? '#334155' : '#94a3b8' }}>
                             {dc.receiverName || '—'}
                           </span>
                         </td>
 
                         {/* Status */}
-                        <td style={{ textAlign: 'center' }}>
+                        <td data-label="STATUS" style={{ textAlign: 'center' }}>
                           <DCStatusBadge status={dc.status} />
                         </td>
 
                         {/* Actions */}
-                        <td style={{ textAlign: 'right' }}>
-                          <div className="dc-actions">
+                        <td data-label="ACTIONS" className="actions-col" style={{ textAlign: 'right' }}>
+                          <div className="settings-row-actions" style={{ justifyContent: 'flex-end', gap: '6px' }}>
                             <button
                               type="button"
-                              className="dc-btn-action secondary"
+                              className="settings-row-action customer-action-btn dc-action-btn-secondary"
                               onClick={() => onOpenDoc && onOpenDoc(dc)}
-                              title="View &amp; Print Delivery Challan"
+                              title="View & Print Delivery Challan"
                             >
-                              <Eye size={13} />
+                              <Eye size={12} />
                               <span>View</span>
                             </button>
                           </div>
@@ -257,7 +291,7 @@ export default function DcHistoryPage({ challans = [], orders = [], user, onOpen
                             <div className="dc-inline-items-panel">
                               <div className="dc-inline-items-header">
                                 <span className="dc-inline-items-heading">
-                                  Challan Items ({dc.items?.length || 0} Line {dc.items?.length === 1 ? 'Item' : 'Items'} · {totalUnits} Units Total)
+                                  Challan Items ({dc.items?.length || 0} Line {dc.items?.length === 1 ? 'Item' : 'Items'} • {totalUnits} Units Total)
                                 </span>
                               </div>
                               <div className="dc-inline-items-list">
@@ -311,7 +345,7 @@ export default function DcHistoryPage({ challans = [], orders = [], user, onOpen
               )}
               {filteredChallans.length > 0 && paginatedChallans.length < pageSize && (
                 Array.from({ length: pageSize - paginatedChallans.length }).map((_, fIdx) => (
-                  <tr key={`filler-${fIdx}`} className="table-filler-row" aria-hidden="true">
+                  <tr key={`filler-${fIdx}`} className="table-data-row table-filler-row" aria-hidden="true">
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
@@ -319,21 +353,19 @@ export default function DcHistoryPage({ challans = [], orders = [], user, onOpen
                     <td style={{ textAlign: 'center' }}>&nbsp;</td>
                     <td>&nbsp;</td>
                     <td style={{ textAlign: 'center' }}>&nbsp;</td>
-                    <td style={{ textAlign: 'right' }}>&nbsp;</td>
+                    <td className="actions-col" style={{ textAlign: 'right' }}>&nbsp;</td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
-
-        {/* Footer */}
         <TableFooter
           showingStart={showingStart}
           showingEnd={showingEnd}
           total={totalRecords}
-          recordLabel="delivery challans"
-          singularLabel="delivery challan"
+          recordLabel="challans"
+          singularLabel="challan"
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={goToPage}

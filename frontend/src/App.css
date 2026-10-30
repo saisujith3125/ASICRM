@@ -27479,15 +27479,40 @@ td.serial-dropdown-cell {
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px !important;
-  padding: 4px 12px !important;
+  padding: 4px 10px !important;
   height: 32px !important;
   min-height: 32px !important;
   border-radius: 6px !important;
-  border: 1px solid #2563eb !important;
-  background: #2563eb !important;
-  color: #ffffff !important;
-  font-size: 12.5px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #475569 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  box-sizing: border-box !important;
+}
+
+.dc-dispatch-page .dc-tab-pill.active {
+  border-color: #3b82f6 !important;
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
   font-weight: 600 !important;
+}
+
+.dc-dispatch-page .customer-toolbar-card,
+.dc-receive-page .customer-toolbar-card,
+.dc-history-page .customer-toolbar-card,
+.dc-return-page .customer-toolbar-card,
+.dc-overview-page .customer-toolbar-card {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  margin: 0 0 8px 0 !important;
   box-sizing: border-box !important;
 }
 

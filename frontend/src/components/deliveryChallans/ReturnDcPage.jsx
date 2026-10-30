@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Plus, Search, X, Eye, RotateCcw, Package, AlertCircle, ArrowRight, History, CheckCircle, Clock, FileCheck } from 'lucide-react';
+import { Plus, Search, X, Eye, RotateCcw, Package, AlertCircle, ArrowRight, History, CheckCircle, Clock, FileCheck, User } from 'lucide-react';
 import { navigate } from '../../router';
 import { DCStatusBadge } from './dcPrimitives';
 import { TableFooter, useTablePagination } from '../common/TableWorkspace';
@@ -119,62 +119,64 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
       }
     });
 
-    // Sort newest return transactions first
-    return txns.sort((a, b) => new Date(b.timestamp || b.returnDate || 0) - new Date(a.timestamp || a.returnDate || 0));
+    // Ascending sort by return sequence
+    return txns.sort((a, b) => {
+      const aVal = String(a.returnId || a.challanId || '');
+      const bVal = String(b.returnId || b.challanId || '');
+      const aNum = Number(aVal.match(/(\d+)$/)?.[1] || 0);
+      const bNum = Number(bVal.match(/(\d+)$/)?.[1] || 0);
+      if (aNum && bNum && aNum !== bNum) return aNum - bNum;
+      return aVal.localeCompare(bVal, undefined, { numeric: true });
+    });
   }, [processedChallans]);
 
-  // 3. Eligible for Return (remainingReturnableQty > 0) - Ascending order (1 above 2)
+  // 3. Eligible Challans: Dispatched/Delivered with remaining returnable quantity > 0
   const eligibleChallans = useMemo(() => {
     return processedChallans
-      .filter((c) => c.metrics.isEligibleForReturn)
+      .filter((dc) => dc.metrics.isEligibleForReturn)
       .sort((a, b) => {
-        const aVal = String(a.challanId || '');
-        const bVal = String(b.challanId || '');
-        const aNum = Number(aVal.match(/(\d+)$/)?.[1] || 0);
-        const bNum = Number(bVal.match(/(\d+)$/)?.[1] || 0);
+        const aNum = Number(String(a.challanId || '').match(/(\d+)$/)?.[1] || 0);
+        const bNum = Number(String(b.challanId || '').match(/(\d+)$/)?.[1] || 0);
         if (aNum && bNum && aNum !== bNum) return aNum - bNum;
-        return aVal.localeCompare(bVal, undefined, { numeric: true });
+        return String(a.challanId || '').localeCompare(String(b.challanId || ''), undefined, { numeric: true });
       });
   }, [processedChallans]);
 
-  // 4. Partially Returned (cumulativeReturnedQty > 0 && remainingReturnableQty > 0) - Ascending order (1 above 2)
+  // 4. Partially Returned Challans
   const partiallyReturnedChallans = useMemo(() => {
     return processedChallans
-      .filter((c) => c.metrics.cumulativeReturnedQty > 0 && c.metrics.remainingReturnableQty > 0)
+      .filter((dc) => dc.metrics.returnState === 'PARTIALLY_RETURNED')
       .sort((a, b) => {
-        const aVal = String(a.challanId || '');
-        const bVal = String(b.challanId || '');
-        const aNum = Number(aVal.match(/(\d+)$/)?.[1] || 0);
-        const bNum = Number(bVal.match(/(\d+)$/)?.[1] || 0);
+        const aNum = Number(String(a.challanId || '').match(/(\d+)$/)?.[1] || 0);
+        const bNum = Number(String(b.challanId || '').match(/(\d+)$/)?.[1] || 0);
         if (aNum && bNum && aNum !== bNum) return aNum - bNum;
-        return aVal.localeCompare(bVal, undefined, { numeric: true });
+        return String(a.challanId || '').localeCompare(String(b.challanId || ''), undefined, { numeric: true });
       });
   }, [processedChallans]);
 
-  // 5. Fully Returned (cumulativeReturnedQty > 0 && remainingReturnableQty === 0) - Ascending order (1 above 2)
+  // 5. Fully Returned Challans
   const fullyReturnedChallans = useMemo(() => {
     return processedChallans
-      .filter((c) => c.metrics.cumulativeReturnedQty > 0 && c.metrics.remainingReturnableQty === 0)
+      .filter((dc) => dc.metrics.returnState === 'FULLY_RETURNED')
       .sort((a, b) => {
-        const aVal = String(a.challanId || '');
-        const bVal = String(b.challanId || '');
-        const aNum = Number(aVal.match(/(\d+)$/)?.[1] || 0);
-        const bNum = Number(bVal.match(/(\d+)$/)?.[1] || 0);
+        const aNum = Number(String(a.challanId || '').match(/(\d+)$/)?.[1] || 0);
+        const bNum = Number(String(b.challanId || '').match(/(\d+)$/)?.[1] || 0);
         if (aNum && bNum && aNum !== bNum) return aNum - bNum;
-        return aVal.localeCompare(bVal, undefined, { numeric: true });
+        return String(a.challanId || '').localeCompare(String(b.challanId || ''), undefined, { numeric: true });
       });
   }, [processedChallans]);
 
-  // 6. Active list based on activeTab
+  // 6. Active list based on active tab
   const activeRawList = useMemo(() => {
     switch (activeTab) {
+      case 'history':
+        return historyTransactions;
       case 'eligible':
         return eligibleChallans;
       case 'partial':
         return partiallyReturnedChallans;
       case 'full':
         return fullyReturnedChallans;
-      case 'history':
       default:
         return historyTransactions;
     }
@@ -224,235 +226,142 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
   };
 
   return (
-    <div className="dc-page-container dc-return-page">
-      {/* 1. Page Header with Title and Subtitle */}
-      <div className="dc-page-header compact-header">
-        <div className="dc-header-left">
-          <h2 className="dc-page-title">Return DC Management</h2>
-          <p className="dc-page-subtitle" style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
-            Consignment return register, partial return tracking, and inventory restoration history.
-          </p>
-        </div>
+    <div className="delivery-challans-module-wrapper dc-page-container dc-return-page">
+      {/* 1. Header Row matching Customer Directory */}
+      <div className="page-header-row customer-page-header">
+        <h1 className="page-title">Return DC Management</h1>
       </div>
 
-      {/* 2. Main Dominant Returned Challans Register Card */}
-      <div className="settings-table-shell stocks-table-shell dc-return-register-card dc-master-card">
-        {/* Navigation Tabs Bar */}
-        <div className="dc-return-tabs-nav" style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid #e2e8f0', padding: '0 16px', background: '#f8fafc', gap: '8px' }}>
-          <button
-            type="button"
-            className={`dc-tab-btn ${activeTab === 'history' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('history');
-              setSearchTerm('');
-            }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '12px 14px',
-              border: 'none',
-              background: 'transparent',
-              fontSize: '13px',
-              fontWeight: activeTab === 'history' ? 700 : 500,
-              color: activeTab === 'history' ? '#2563eb' : '#64748b',
-              borderBottom: activeTab === 'history' ? '2px solid #2563eb' : '2px solid transparent',
-              cursor: 'pointer'
-            }}
-          >
-            <History size={14} />
-            <span>Return History</span>
-            <span
-              style={{
-                fontSize: '11px',
-                padding: '1px 6px',
-                borderRadius: '10px',
-                background: activeTab === 'history' ? '#dbeafe' : '#e2e8f0',
-                color: activeTab === 'history' ? '#1e40af' : '#475569',
-                fontWeight: 600
-              }}
-            >
-              {historyTransactions.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            className={`dc-tab-btn ${activeTab === 'eligible' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('eligible');
-              setSearchTerm('');
-            }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '12px 14px',
-              border: 'none',
-              background: 'transparent',
-              fontSize: '13px',
-              fontWeight: activeTab === 'eligible' ? 700 : 500,
-              color: activeTab === 'eligible' ? '#2563eb' : '#64748b',
-              borderBottom: activeTab === 'eligible' ? '2px solid #2563eb' : '2px solid transparent',
-              cursor: 'pointer'
-            }}
-          >
-            <Clock size={14} />
-            <span>Eligible for Return</span>
-            <span
-              style={{
-                fontSize: '11px',
-                padding: '1px 6px',
-                borderRadius: '10px',
-                background: activeTab === 'eligible' ? '#dbeafe' : '#e2e8f0',
-                color: activeTab === 'eligible' ? '#1e40af' : '#475569',
-                fontWeight: 600
-              }}
-            >
-              {eligibleChallans.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            className={`dc-tab-btn ${activeTab === 'partial' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('partial');
-              setSearchTerm('');
-            }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '12px 14px',
-              border: 'none',
-              background: 'transparent',
-              fontSize: '13px',
-              fontWeight: activeTab === 'partial' ? 700 : 500,
-              color: activeTab === 'partial' ? '#2563eb' : '#64748b',
-              borderBottom: activeTab === 'partial' ? '2px solid #2563eb' : '2px solid transparent',
-              cursor: 'pointer'
-            }}
-          >
-            <RotateCcw size={14} />
-            <span>Partially Returned</span>
-            <span
-              style={{
-                fontSize: '11px',
-                padding: '1px 6px',
-                borderRadius: '10px',
-                background: activeTab === 'partial' ? '#fef3c7' : '#e2e8f0',
-                color: activeTab === 'partial' ? '#92400e' : '#475569',
-                fontWeight: 600
-              }}
-            >
-              {partiallyReturnedChallans.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            className={`dc-tab-btn ${activeTab === 'full' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('full');
-              setSearchTerm('');
-            }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '12px 14px',
-              border: 'none',
-              background: 'transparent',
-              fontSize: '13px',
-              fontWeight: activeTab === 'full' ? 700 : 500,
-              color: activeTab === 'full' ? '#2563eb' : '#64748b',
-              borderBottom: activeTab === 'full' ? '2px solid #2563eb' : '2px solid transparent',
-              cursor: 'pointer'
-            }}
-          >
-            <CheckCircle size={14} />
-            <span>Fully Returned</span>
-            <span
-              style={{
-                fontSize: '11px',
-                padding: '1px 6px',
-                borderRadius: '10px',
-                background: activeTab === 'full' ? '#fee2e2' : '#e2e8f0',
-                color: activeTab === 'full' ? '#991b1b' : '#475569',
-                fontWeight: 600
-              }}
-            >
-              {fullyReturnedChallans.length}
-            </span>
-          </button>
-        </div>
-
-        {/* Register Toolbar: Title + Count on LEFT, Search + Initiate Return on RIGHT */}
-        <div className="dc-register-toolbar">
-          <div className="dc-register-toolbar-left">
-            <h3 className="dc-register-title">
-              {activeTab === 'history' && 'Historical Return Transactions'}
-              {activeTab === 'eligible' && 'Consignments Eligible for Return'}
-              {activeTab === 'partial' && 'Partially Returned Consignments'}
-              {activeTab === 'full' && 'Fully Returned Challans Register'}
-            </h3>
-            <span className="dc-register-count-pill">
-              {filteredList.length} {filteredList.length === 1 ? 'record' : 'records'}
-            </span>
+      {/* 2. Customer Directory-matched Toolbar Card */}
+      <div className="customer-toolbar-card dc-toolbar-card">
+        <div className="dc-toolbar-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: '1 1 auto', minWidth: 0, flexWrap: 'wrap' }}>
+          {/* Search Box matching Customer Directory */}
+          <div className="customer-search-input-wrap" style={{ maxWidth: '320px', minWidth: '200px', flex: '0 1 320px' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              placeholder={
+                activeTab === 'history'
+                  ? 'Search Return No / DC / Customer / Reason...'
+                  : 'Search DC No / Customer / Product...'
+              }
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="customer-search-input-field"
+              aria-label="Search returns"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                className="clear-search-btn"
+                onClick={() => setSearchTerm('')}
+                title="Clear search"
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
           </div>
 
-          <div className="dc-register-toolbar-right">
-            <div className="dc-register-search-wrapper">
-              <Search size={14} className="dc-register-search-icon" />
-              <input
-                type="text"
-                className="dc-register-search-input"
-                placeholder={
-                  activeTab === 'history'
-                    ? 'Search Return No / DC No / Customer / Reason...'
-                    : 'Search DC No / Customer / Product / SKU...'
-                }
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {searchTerm && (
-                <button
-                  type="button"
-                  className="dc-register-search-clear"
-                  onClick={() => setSearchTerm('')}
-                  title="Clear filter"
-                >
-                  <X size={13} />
-                </button>
-              )}
-            </div>
+          {/* Filter Tab Buttons matching Customer Directory */}
+          <div className="dc-status-tabs" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className={`dc-filter-btn ${activeTab === 'history' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('history');
+                setSearchTerm('');
+              }}
+            >
+              <History size={13} />
+              <span>Return History</span>
+              <span className="filter-count">{historyTransactions.length}</span>
+            </button>
 
             <button
               type="button"
-              className="crm-btn-primary dc-btn-initiate-return"
-              onClick={() => handleInitiateReturn()}
-              title="Initiate Return for an Active Delivery Challan"
+              className={`dc-filter-btn ${activeTab === 'eligible' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('eligible');
+                setSearchTerm('');
+              }}
             >
-              <Plus size={15} />
-              <span>Initiate Return</span>
+              <Clock size={13} />
+              <span>Eligible for Return</span>
+              <span className="filter-count">{eligibleChallans.length}</span>
+            </button>
+
+            <button
+              type="button"
+              className={`dc-filter-btn ${activeTab === 'partial' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('partial');
+                setSearchTerm('');
+              }}
+            >
+              <RotateCcw size={13} />
+              <span>Partially Returned</span>
+              <span className="filter-count">{partiallyReturnedChallans.length}</span>
+            </button>
+
+            <button
+              type="button"
+              className={`dc-filter-btn ${activeTab === 'full' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('full');
+                setSearchTerm('');
+              }}
+            >
+              <CheckCircle size={13} />
+              <span>Fully Returned</span>
+              <span className="filter-count">{fullyReturnedChallans.length}</span>
             </button>
           </div>
         </div>
 
-        {/* 3. Register Tables or Empty States */}
+        {/* Right Toolbar Actions */}
+        <div className="dc-toolbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '0 0 auto' }}>
+          {onRefresh && (
+            <button
+              type="button"
+              className="crm-btn-secondary compact dc-refresh-btn"
+              onClick={onRefresh}
+              title="Refresh list"
+            >
+              <RotateCcw size={13} />
+              <span>Refresh</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            className="crm-btn-primary compact add-customer-btn"
+            onClick={() => handleInitiateReturn()}
+            title="Initiate Return for an Active Delivery Challan"
+          >
+            <Plus size={14} />
+            <span>Initiate Return</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 3. Main Master Table Card matching Customer Directory Ledger */}
+      <div className="settings-table-shell stocks-table-shell customer-master-card" style={{ height: '100%' }}>
         {activeRawList.length === 0 ? (
-          <div className="dc-register-empty-state">
-            <div className="dc-empty-icon-wrap">
+          <div className="dc-register-empty-state" style={{ padding: '40px 20px', textAlign: 'center' }}>
+            <div className="dc-empty-icon-wrap" style={{ marginBottom: '12px' }}>
               <RotateCcw size={32} style={{ color: '#94a3b8' }} />
             </div>
-            <h4 className="dc-empty-title">
+            <h4 className="dc-empty-title" style={{ fontSize: '15px', fontWeight: 600, color: '#1e293b', margin: '0 0 6px 0' }}>
               {activeTab === 'history' && 'No return transactions recorded yet'}
               {activeTab === 'eligible' && 'No delivery challans currently eligible for return'}
               {activeTab === 'partial' && 'No partially returned challans'}
               {activeTab === 'full' && 'No fully returned challans yet'}
             </h4>
-            <p className="dc-empty-text">
+            <p className="dc-empty-text" style={{ fontSize: '13px', color: '#64748b', margin: '0 0 16px 0', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
               {activeTab === 'history' && 'Consignments with recorded returns or equipment handbacks will appear in this historical register.'}
               {activeTab === 'eligible' && 'All dispatched and delivered consignments have been fully returned or none are active.'}
               {activeTab === 'partial' && 'Consignments where only a portion of goods were returned will be listed here.'}
@@ -461,9 +370,8 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
             {activeTab !== 'full' && (
               <button
                 type="button"
-                className="crm-btn-primary"
+                className="crm-btn-primary compact"
                 onClick={() => handleInitiateReturn()}
-                style={{ marginTop: '8px' }}
               >
                 <Plus size={14} />
                 <span>Initiate Return</span>
@@ -471,43 +379,52 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
             )}
           </div>
         ) : filteredList.length === 0 ? (
-          <div className="dc-register-empty-state">
+          <div className="dc-register-empty-state" style={{ padding: '40px 20px', textAlign: 'center' }}>
             <AlertCircle size={28} style={{ color: '#94a3b8', marginBottom: '8px' }} />
-            <h4 className="dc-empty-title">No matching records</h4>
-            <p className="dc-empty-text">
+            <h4 className="dc-empty-title" style={{ fontSize: '15px', fontWeight: 600, color: '#1e293b', margin: '0 0 6px 0' }}>No matching records</h4>
+            <p className="dc-empty-text" style={{ fontSize: '13px', color: '#64748b', margin: '0 0 12px 0' }}>
               No entries match "<strong>{searchTerm}</strong>".
             </p>
             <button
               type="button"
-              className="crm-btn-secondary"
+              className="crm-btn-secondary compact"
               onClick={() => setSearchTerm('')}
-              style={{ marginTop: '8px' }}
             >
-              Clear Filter
+              Clear Search
             </button>
           </div>
         ) : activeTab === 'history' ? (
           /* TAB 1: RETURN HISTORY (Separate Transactions) */
-          <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-register-table-wrap dc-return-table-body">
-            <table className="dc-table dc-return-table dc-register-table crm-master-table">
+          <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-return-table-body">
+            <table className="settings-table customer-directory-table dc-table dc-return-table">
+              <colgroup>
+                <col style={{ width: '13%' }} />
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '19%' }} />
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '14%' }} />
+                <col style={{ width: '7%' }} />
+                <col style={{ width: '9%' }} />
+                <col style={{ width: '4%' }} />
+              </colgroup>
               <thead>
                 <tr>
-                  <th style={{ width: '13%' }}>RETURN NO</th>
-                  <th style={{ width: '12%' }}>ORIGINAL DC</th>
-                  <th style={{ width: '10%' }}>RETURN DATE</th>
-                  <th style={{ width: '18%' }}>CUSTOMER</th>
-                  <th style={{ width: '12%' }}>PURPOSE</th>
-                  <th style={{ width: '14%' }}>RETURN REASON</th>
-                  <th style={{ width: '7%', textAlign: 'center' }}>RETURNED</th>
-                  <th style={{ width: '12%', textAlign: 'center' }}>DOCUMENT</th>
-                  <th style={{ width: '8%', textAlign: 'center' }}>ACTIONS</th>
+                  <th className="col-priority-high">RETURN NO</th>
+                  <th className="col-priority-high">ORIGINAL DC</th>
+                  <th className="col-priority-med">RETURN DATE</th>
+                  <th className="col-priority-high">CUSTOMER / CONSIGNEE</th>
+                  <th className="col-priority-low">PURPOSE</th>
+                  <th className="col-priority-low">RETURN REASON</th>
+                  <th className="col-priority-med" style={{ textAlign: 'center' }}>RETURNED</th>
+                  <th className="col-priority-high" style={{ textAlign: 'center' }}>STATUS</th>
+                  <th className="actions-col col-priority-high" style={{ textAlign: 'right' }}>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
                 {pagination.currentItems.map((txn, idx) => {
                   const custName = txn.customerName || 'Valued Customer';
                   const comp = txn.company && txn.company !== custName ? txn.company : '';
-                  const fullCust = comp ? `${custName} (${comp})` : custName;
                   const reasonText = txn.reason || 'Equipment Return';
                   const rowKey = txn.returnId || txn.id;
                   const isReasonOpen = openReasonId === rowKey;
@@ -516,34 +433,47 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
                   return (
                     <tr key={rowKey} className={`table-data-row ${isReasonOpen ? 'has-open-popover' : ''}`}>
                       {/* RETURN NO */}
-                      <td className="cell-nowrap">
-                        <span className="master-code dc-code-badge" style={{ background: '#fef2f2', color: '#b91c1c', borderColor: '#fecaca' }}>
+                      <td data-label="RETURN NO" className="cell-nowrap">
+                        <button
+                          type="button"
+                          className="customer-id-pill master-code link-code-btn"
+                          onClick={() => handleViewReturnDoc(txn)}
+                          title={`View Return DC ${txn.returnId}`}
+                          style={{ background: '#fef2f2', color: '#b91c1c', borderColor: '#fecaca' }}
+                        >
                           {txn.returnId}
-                        </span>
+                        </button>
                       </td>
 
                       {/* ORIGINAL DC */}
-                      <td className="cell-nowrap">
-                        <span className="master-code dc-code-badge" style={{ background: '#f0fdf4', color: '#15803d', borderColor: '#bbf7d0' }}>
+                      <td data-label="ORIGINAL DC" className="cell-nowrap">
+                        <span className="customer-id-pill master-code" style={{ background: '#f0fdf4', color: '#15803d', borderColor: '#bbf7d0' }}>
                           {txn.originalChallanId}
                         </span>
                       </td>
 
-                      {/* DATE */}
-                      <td className="cell-nowrap" style={{ fontSize: '12px', color: '#475569' }}>
+                      {/* RETURN DATE */}
+                      <td data-label="RETURN DATE" className="cell-nowrap" style={{ fontSize: '13px', color: '#475569' }}>
                         {formatDate(txn.returnDate)}
                       </td>
 
                       {/* CUSTOMER */}
-                      <td title={fullCust}>
-                        <span className="dc-text-truncate" style={{ fontWeight: 600, color: '#1e293b' }}>
-                          {custName}
-                          {comp && <span style={{ fontWeight: 400, color: '#64748b', marginLeft: '4px' }}>({comp})</span>}
-                        </span>
+                      <td data-label="CUSTOMER / CONSIGNEE" className="cell-wrap">
+                        <div className="customer-name-cell">
+                          <span className="customer-company-title" title={comp || custName}>
+                            {comp || custName}
+                          </span>
+                          {(comp && comp !== custName) && (
+                            <div className="customer-contact-sub">
+                              <User size={11} className="customer-sub-icon" />
+                              <span>{custName}</span>
+                            </div>
+                          )}
+                        </div>
                       </td>
 
                       {/* PURPOSE */}
-                      <td>
+                      <td data-label="PURPOSE">
                         <span
                           className={`dc-purpose-badge ${txn.originalPurpose === 'Returnable / Temporary' ? 'returnable' : 'normal'}`}
                           style={{
@@ -561,7 +491,7 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
                       </td>
 
                       {/* RETURN REASON DROPDOWN */}
-                      <td className="dc-return-reason-cell">
+                      <td data-label="RETURN REASON" className="dc-return-reason-cell">
                         <div className="quotation-items-wrapper dc-return-reason-wrapper">
                           <button
                             type="button"
@@ -651,28 +581,23 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
                       </td>
 
                       {/* RETURNED */}
-                      <td style={{ textAlign: 'center' }}>
-                        <strong className="dc-qty-pill already-returned" style={{ fontWeight: 700 }}>
+                      <td data-label="RETURNED" style={{ textAlign: 'center' }}>
+                        <span className="count-badge active-count">
                           {txn.returnedUnits}
-                        </strong>
+                        </span>
                       </td>
 
-                      {/* DOCUMENT / STATUS */}
-                      <td style={{ textAlign: 'center' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-                          <span style={{ fontSize: '11px', fontWeight: 700, color: '#334155' }}>
-                            {txn.documentTitle}
-                          </span>
-                          <DCStatusBadge status={txn.status} />
-                        </div>
+                      {/* STATUS */}
+                      <td data-label="STATUS" style={{ textAlign: 'center' }}>
+                        <DCStatusBadge status={txn.status} />
                       </td>
 
                       {/* ACTIONS */}
-                      <td style={{ textAlign: 'center' }}>
-                        <div className="dc-actions" style={{ justifyContent: 'center' }}>
+                      <td data-label="ACTIONS" className="actions-col" style={{ textAlign: 'right' }}>
+                        <div className="settings-row-actions" style={{ justifyContent: 'flex-end', gap: '6px' }}>
                           <button
                             type="button"
-                            className="dc-btn-action secondary"
+                            className="settings-row-action customer-action-btn dc-action-btn-secondary"
                             onClick={() => handleViewReturnDoc(txn)}
                             title="View Return DC Document / PDF"
                           >
@@ -695,7 +620,7 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
                       <td>&nbsp;</td>
                       <td style={{ textAlign: 'center' }}>&nbsp;</td>
                       <td style={{ textAlign: 'center' }}>&nbsp;</td>
-                      <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                      <td style={{ textAlign: 'right' }}>&nbsp;</td>
                     </tr>
                   ))
                 )}
@@ -704,19 +629,30 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
           </div>
         ) : (
           /* TABS 2, 3, 4: CHALLAN SUMMARY VIEWS */
-          <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-register-table-wrap dc-return-table-body">
-            <table className="dc-table dc-return-table dc-register-table crm-master-table">
+          <div className="crm-table-scroll-wrap stocks-table-natural-wrap dc-return-table-body">
+            <table className="settings-table customer-directory-table dc-table dc-return-table">
+              <colgroup>
+                <col style={{ width: '13%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '21%' }} />
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '7%' }} />
+                <col style={{ width: '7%' }} />
+                <col style={{ width: '7%' }} />
+                <col style={{ width: '9%' }} />
+                <col style={{ width: '14%' }} />
+              </colgroup>
               <thead>
                 <tr>
-                  <th style={{ width: '12%' }}>DC NUMBER</th>
-                  <th style={{ width: '10%' }}>DATE</th>
-                  <th style={{ width: '20%' }}>CUSTOMER</th>
-                  <th style={{ width: '13%' }}>PURPOSE</th>
-                  <th style={{ width: '7%', textAlign: 'center' }}>SENT</th>
-                  <th style={{ width: '8%', textAlign: 'center' }}>RETURNED</th>
-                  <th style={{ width: '8%', textAlign: 'center' }}>REMAINING</th>
-                  <th style={{ width: '10%', textAlign: 'center' }}>STATUS</th>
-                  <th style={{ width: '12%', textAlign: 'center' }}>ACTIONS</th>
+                  <th className="col-priority-high">DC NUMBER</th>
+                  <th className="col-priority-med">DATE</th>
+                  <th className="col-priority-high">CUSTOMER / CONSIGNEE</th>
+                  <th className="col-priority-low">PURPOSE</th>
+                  <th className="col-priority-med" style={{ textAlign: 'center' }}>SENT</th>
+                  <th className="col-priority-med" style={{ textAlign: 'center' }}>RETURNED</th>
+                  <th className="col-priority-med" style={{ textAlign: 'center' }}>REMAINING</th>
+                  <th className="col-priority-high" style={{ textAlign: 'center' }}>STATUS</th>
+                  <th className="actions-col col-priority-high" style={{ textAlign: 'right' }}>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
@@ -724,32 +660,43 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
                   const m = dc.metrics;
                   const custName = dc.customerName || dc.receiverName || 'Valued Customer';
                   const comp = dc.company && dc.company !== custName ? dc.company : '';
-                  const fullCust = comp ? `${custName} (${comp})` : custName;
 
                   return (
                     <tr key={dc.challanId} className="table-data-row">
                       {/* DC NUMBER */}
-                      <td className="cell-nowrap">
-                        <span className="master-code dc-code-badge">
+                      <td data-label="DC NUMBER" className="cell-nowrap">
+                        <button
+                          type="button"
+                          className="customer-id-pill master-code link-code-btn"
+                          onClick={() => handleViewOriginalDc(dc)}
+                          title={`View DC ${dc.challanId}`}
+                        >
                           {dc.challanId}
-                        </span>
+                        </button>
                       </td>
 
                       {/* DATE */}
-                      <td className="cell-nowrap" style={{ fontSize: '12px', color: '#475569' }}>
+                      <td data-label="DATE" className="cell-nowrap" style={{ fontSize: '13px', color: '#475569' }}>
                         {formatDate(dc.deliveryDate)}
                       </td>
 
                       {/* CUSTOMER */}
-                      <td title={fullCust}>
-                        <span className="dc-text-truncate" style={{ fontWeight: 600, color: '#1e293b' }}>
-                          {custName}
-                          {comp && <span style={{ fontWeight: 400, color: '#64748b', marginLeft: '4px' }}>({comp})</span>}
-                        </span>
+                      <td data-label="CUSTOMER / CONSIGNEE" className="cell-wrap">
+                        <div className="customer-name-cell">
+                          <span className="customer-company-title" title={comp || custName}>
+                            {comp || custName}
+                          </span>
+                          {(comp && comp !== custName) && (
+                            <div className="customer-contact-sub">
+                              <User size={11} className="customer-sub-icon" />
+                              <span>{custName}</span>
+                            </div>
+                          )}
+                        </div>
                       </td>
 
                       {/* PURPOSE */}
-                      <td>
+                      <td data-label="PURPOSE">
                         <span
                           className={`dc-purpose-badge ${m.originalPurpose === 'Returnable / Temporary' ? 'returnable' : 'normal'}`}
                           style={{
@@ -767,39 +714,38 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
                       </td>
 
                       {/* SENT */}
-                      <td style={{ textAlign: 'center' }}>
-                        <span className="dc-qty-pill sent">{m.originalDeliveredQty}</span>
+                      <td data-label="SENT" style={{ textAlign: 'center' }}>
+                        <span className="count-badge">{m.originalDeliveredQty}</span>
                       </td>
 
                       {/* RETURNED */}
-                      <td style={{ textAlign: 'center' }}>
-                        <strong className="dc-qty-pill already-returned" style={{ fontWeight: 700 }}>
+                      <td data-label="RETURNED" style={{ textAlign: 'center' }}>
+                        <span className="count-badge active-count">
                           {m.cumulativeReturnedQty}
-                        </strong>
+                        </span>
                       </td>
 
                       {/* REMAINING */}
-                      <td style={{ textAlign: 'center' }}>
-                        <strong className={`dc-qty-pill remaining ${m.remainingReturnableQty > 0 ? 'amber' : 'green'}`} style={{ fontWeight: 700 }}>
+                      <td data-label="REMAINING" style={{ textAlign: 'center' }}>
+                        <span className={`count-badge ${m.remainingReturnableQty > 0 ? 'active-count' : ''}`}>
                           {m.remainingReturnableQty}
-                        </strong>
+                        </span>
                       </td>
 
                       {/* STATUS */}
-                      <td style={{ textAlign: 'center' }}>
+                      <td data-label="STATUS" style={{ textAlign: 'center' }}>
                         <DCStatusBadge status={m.statusBadge} />
                       </td>
 
                       {/* ACTIONS */}
-                      <td style={{ textAlign: 'center' }}>
-                        <div className="dc-actions" style={{ justifyContent: 'center', gap: '6px' }}>
+                      <td data-label="ACTIONS" className="actions-col" style={{ textAlign: 'right' }}>
+                        <div className="settings-row-actions" style={{ justifyContent: 'flex-end', gap: '6px' }}>
                           {m.isEligibleForReturn && (
                             <button
                               type="button"
-                              className="dc-btn-action primary"
+                              className="settings-row-action customer-action-btn dc-action-btn-primary"
                               onClick={() => handleInitiateReturn(dc.challanId)}
                               title="Return Remaining Units"
-                              style={{ padding: '3px 8px', fontSize: '11px' }}
                             >
                               <RotateCcw size={11} />
                               <span>Return</span>
@@ -807,10 +753,9 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
                           )}
                           <button
                             type="button"
-                            className="dc-btn-action secondary"
+                            className="settings-row-action customer-action-btn dc-action-btn-secondary"
                             onClick={() => handleViewOriginalDc(dc)}
                             title="View Original Delivery Challan"
-                            style={{ padding: '3px 8px', fontSize: '11px' }}
                           >
                             <Eye size={11} />
                             <span>View DC</span>
@@ -831,7 +776,7 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
                       <td style={{ textAlign: 'center' }}>&nbsp;</td>
                       <td style={{ textAlign: 'center' }}>&nbsp;</td>
                       <td style={{ textAlign: 'center' }}>&nbsp;</td>
-                      <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                      <td style={{ textAlign: 'right' }}>&nbsp;</td>
                     </tr>
                   ))
                 )}
@@ -844,7 +789,7 @@ export default function ReturnDcPage({ challans = [], user, onRefresh, onOpenDoc
           {...pagination.footerProps}
           recordLabel="records"
           singularLabel="record"
-          className="dc-table-footer dc-return-footer"
+          className="customer-directory-footer dc-table-footer"
         />
       </div>
     </div>

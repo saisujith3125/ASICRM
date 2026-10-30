@@ -86,7 +86,7 @@ export default function SerialTrackingView({ user, initialQuery = '', initialSta
     currentPage,
     totalPages,
     pageSize,
-    currentRows,
+    currentRecords: currentRows,
     showingStart,
     showingEnd,
     totalRecords,

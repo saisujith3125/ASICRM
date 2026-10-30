@@ -169,6 +169,44 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
     }
   };
 
+  const items = useMemo(() => (Array.isArray(po?.items) ? po.items : []), [po?.items]);
+
+  const tableTotals = useMemo(() => {
+    let ordQty = 0;
+    let recQty = 0;
+    let pendQty = 0;
+    let totalTax = 0;
+    let totalLine = 0;
+    let totalTaxable = 0;
+
+    items.forEach((it) => {
+      const ord = Number(it.orderedQty || 0);
+      const rec = Number(it.receivedQty || 0);
+      const pend = Math.max(0, ord - rec);
+      const rate = Number(it.rate || 0);
+      const gstRate = Number(it.gstRate || it.gst || 18);
+      const taxable = Number((ord * rate).toFixed(2));
+      const taxAmt = Number(it.tax !== undefined ? it.tax : ((taxable * gstRate) / 100).toFixed(2));
+      const lineVal = Number(it.valuationTotal || it.lineTotal || (taxable + taxAmt));
+
+      ordQty += ord;
+      recQty += rec;
+      pendQty += pend;
+      totalTaxable += taxable;
+      totalTax += taxAmt;
+      totalLine += lineVal;
+    });
+
+    return {
+      orderedQty: ordQty,
+      receivedQty: recQty,
+      pendingQty: pendQty,
+      taxable: totalTaxable,
+      tax: totalTax,
+      lineTotal: totalLine
+    };
+  }, [items]);
+
   if (loading) {
     return (
       <div className="po-container">
@@ -207,46 +245,9 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
     );
   }
 
-  const supplier = po.supplierSnapshot || {};
-  const items = Array.isArray(po.items) ? po.items : [];
-  const statusClass = String(po.status || 'draft').toLowerCase();
-  const canReceive = (po.status === 'SENT' || po.status === 'PARTIALLY_RECEIVED') && (po.totalPendingQty > 0);
-
-  const tableTotals = useMemo(() => {
-    let ordQty = 0;
-    let recQty = 0;
-    let pendQty = 0;
-    let totalTax = 0;
-    let totalLine = 0;
-    let totalTaxable = 0;
-
-    items.forEach((it) => {
-      const ord = Number(it.orderedQty || 0);
-      const rec = Number(it.receivedQty || 0);
-      const pend = Math.max(0, ord - rec);
-      const rate = Number(it.rate || 0);
-      const gstRate = Number(it.gstRate || it.gst || 18);
-      const taxable = Number((ord * rate).toFixed(2));
-      const taxAmt = Number(it.tax !== undefined ? it.tax : ((taxable * gstRate) / 100).toFixed(2));
-      const lineVal = Number(it.valuationTotal || it.lineTotal || (taxable + taxAmt));
-
-      ordQty += ord;
-      recQty += rec;
-      pendQty += pend;
-      totalTaxable += taxable;
-      totalTax += taxAmt;
-      totalLine += lineVal;
-    });
-
-    return {
-      orderedQty: ordQty,
-      receivedQty: recQty,
-      pendingQty: pendQty,
-      taxable: totalTaxable,
-      tax: totalTax,
-      lineTotal: totalLine
-    };
-  }, [items]);
+  const supplier = po?.supplierSnapshot || {};
+  const statusClass = String(po?.status || 'draft').toLowerCase();
+  const canReceive = (po?.status === 'SENT' || po?.status === 'PARTIALLY_RECEIVED') && (po?.totalPendingQty > 0);
 
   return (
     <div className="po-container purchase-order-page">

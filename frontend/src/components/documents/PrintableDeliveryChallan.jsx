@@ -505,7 +505,7 @@ export function DeliveryChallanConditionBox({ isReturnDocument, data }) {
   return (
     <div className="dc-condition-box">
       <div className="dc-condition-text">
-        {isReturnDocument ? 'Goods returned and verified into inventory' : 'Goods are delivered good conditions'}
+        {isReturnDocument ? 'Goods returned and verified into inventory' : 'Goods are delivered in good conditions'}
       </div>
       {(data.returnReason || data.remarks) && (
         <div className="dc-condition-remarks">

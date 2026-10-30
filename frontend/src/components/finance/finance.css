@@ -110,48 +110,70 @@
   border: 1px solid #fecaca;
 }
 
-/* KPI Cards Grid */
+/* KPI Cards Grid - Compact & Responsive to fit any screen */
 .finance-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 1280px) {
+  .finance-kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .finance-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 440px) {
+  .finance-kpi-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .finance-kpi-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 18px 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 72px;
 }
 
 .finance-kpi-card:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.06);
 }
 
 .finance-kpi-card.highlight-green {
-  border-left: 4px solid #10b981;
+  border-left: 3px solid #10b981;
 }
 
 .finance-kpi-card.highlight-blue {
-  border-left: 4px solid #2563eb;
+  border-left: 3px solid #2563eb;
 }
 
 .finance-kpi-card.highlight-amber {
-  border-left: 4px solid #f59e0b;
+  border-left: 3px solid #f59e0b;
 }
 
 .finance-kpi-card.highlight-red {
-  border-left: 4px solid #ef4444;
+  border-left: 3px solid #ef4444;
 }
 
 .finance-kpi-card.highlight-purple {
-  border-left: 4px solid #8b5cf6;
+  border-left: 3px solid #8b5cf6;
 }
 
 .finance-kpi-header {
@@ -159,50 +181,71 @@
   justify-content: space-between;
   align-items: center;
   color: #64748b;
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 10.5px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+  margin-bottom: 3px;
+  gap: 4px;
+}
+
+.finance-kpi-header span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .finance-kpi-value {
-  font-size: 26px;
+  font-size: 18px;
   font-weight: 800;
   color: #0f172a;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   font-family: inherit;
   letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .finance-kpi-subtext {
-  font-size: 12px;
+  font-size: 11px;
   color: #64748b;
   display: flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
-/* Revenue Leak Alert Banner */
+.finance-kpi-subtext span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Revenue Leak Alert Banner - Compact */
 .finance-leak-alert {
   background: #fffbeb;
   border: 1px solid #fde68a;
-  border-radius: 10px;
-  padding: 14px 18px;
-  margin-bottom: 24px;
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-bottom: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .finance-leak-alert-text {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   color: #92400e;
-  font-size: 13.5px;
+  font-size: 12.5px;
 }
 
 .finance-leak-alert-text strong {
@@ -210,12 +253,12 @@
 }
 
 .finance-btn-warning {
-  padding: 8px 16px;
+  padding: 5px 12px;
   background: #f59e0b;
   color: #ffffff;
   border: none;
-  border-radius: 8px;
-  font-size: 12.5px;
+  border-radius: 6px;
+  font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;

@@ -265,86 +265,89 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
             </div>
           )}
 
-          {/* TOP KPI CARDS */}
+          {/* TOP KPI CARDS - Compact Sleek View */}
           <div className="finance-kpi-grid">
             {/* Total Inflow Billed */}
-            <div className="finance-kpi-card highlight-green">
+            <div className="finance-kpi-card highlight-green" title="Total Inflow Billed">
               <div className="finance-kpi-header">
                 <span>Total Billed Inflow</span>
-                <ArrowDownRight size={18} style={{ color: '#10b981' }} />
+                <ArrowDownRight size={14} style={{ color: '#10b981', flexShrink: 0 }} />
               </div>
               <div className="finance-kpi-value">{formatCurrency(kpis.totalInflowBilled)}</div>
-              <div className="finance-kpi-subtext">
-                <span>{kpis.invoicesCount || 0} Invoices generated</span>
+              <div className="finance-kpi-subtext" title={`${kpis.invoicesCount || 0} Invoices generated`}>
+                <span>{kpis.invoicesCount || 0} Invoices</span>
               </div>
             </div>
 
             {/* Cash Collected */}
-            <div className="finance-kpi-card highlight-green">
+            <div className="finance-kpi-card highlight-green" title="Cash Collected (Paid)">
               <div className="finance-kpi-header">
-                <span>Cash Collected (Paid)</span>
-                <CheckCircle2 size={18} style={{ color: '#10b981' }} />
+                <span>Cash Collected</span>
+                <CheckCircle2 size={14} style={{ color: '#10b981', flexShrink: 0 }} />
               </div>
               <div className="finance-kpi-value">{formatCurrency(kpis.totalCashCollected)}</div>
-              <div className="finance-kpi-subtext">
-                <span>{kpis.paidInvoicesCount || 0} fully settled customer invoices</span>
+              <div
+                className="finance-kpi-subtext"
+                title={`${kpis.paidInvoicesCount || 0} settled customer invoices${Number(kpis.totalAdvanceCollected || 0) > 0 ? ` (+ ${formatCurrency(kpis.totalAdvanceCollected)} advances)` : ''}`}
+              >
+                <span>{kpis.paidInvoicesCount || 0} Invoices</span>
                 {Number(kpis.totalAdvanceCollected || 0) > 0 && (
-                  <div style={{ marginTop: '2px', color: '#047857', fontWeight: 600, fontSize: '11px' }}>
-                    + {formatCurrency(kpis.totalAdvanceCollected)} customer advances
-                  </div>
+                  <span style={{ color: '#047857', fontWeight: 600 }}>
+                    • +{formatCurrency(kpis.totalAdvanceCollected)} Adv
+                  </span>
                 )}
               </div>
             </div>
 
             {/* Accounts Receivable */}
-            <div className="finance-kpi-card highlight-amber">
+            <div className="finance-kpi-card highlight-amber" title="Accounts Receivable">
               <div className="finance-kpi-header">
-                <span>Accounts Receivable</span>
-                <Clock size={18} style={{ color: '#f59e0b' }} />
+                <span>Receivables</span>
+                <Clock size={14} style={{ color: '#f59e0b', flexShrink: 0 }} />
               </div>
               <div className="finance-kpi-value">{formatCurrency(kpis.totalReceivablesPending)}</div>
-              <div className="finance-kpi-subtext">
-                <span>{kpis.pendingInvoicesCount || 0} pending payment collections</span>
+              <div className="finance-kpi-subtext" title={`${kpis.pendingInvoicesCount || 0} pending payment collections`}>
+                <span>{kpis.pendingInvoicesCount || 0} Pending</span>
               </div>
             </div>
 
             {/* Total PO Outflow */}
-            <div className="finance-kpi-card highlight-red">
+            <div className="finance-kpi-card highlight-red" title="Committed PO Outflow">
               <div className="finance-kpi-header">
-                <span>Committed PO Outflow</span>
-                <ArrowUpRight size={18} style={{ color: '#ef4444' }} />
+                <span>PO Outflow</span>
+                <ArrowUpRight size={14} style={{ color: '#ef4444', flexShrink: 0 }} />
               </div>
               <div className="finance-kpi-value">{formatCurrency(kpis.totalOutflowCommitted)}</div>
-              <div className="finance-kpi-subtext">
-                <span>{kpis.posCount || 0} Purchase Orders issued to suppliers</span>
+              <div className="finance-kpi-subtext" title={`${kpis.posCount || 0} Purchase Orders issued to suppliers`}>
+                <span>{kpis.posCount || 0} POs issued</span>
               </div>
             </div>
 
             {/* Unbilled DC Exposure */}
-            <div className="finance-kpi-card highlight-amber">
+            <div className="finance-kpi-card highlight-amber" title="Unbilled DC Exposure">
               <div className="finance-kpi-header">
-                <span>Unbilled DC Exposure</span>
-                <AlertTriangle size={18} style={{ color: '#f59e0b' }} />
+                <span>Unbilled DC Exp.</span>
+                <AlertTriangle size={14} style={{ color: '#f59e0b', flexShrink: 0 }} />
               </div>
               <div className="finance-kpi-value" style={{ color: '#b45309' }}>
                 {formatCurrency(kpis.unbilledDcTotalValue)}
               </div>
-              <div className="finance-kpi-subtext">
-                <span>{kpis.unbilledDcCount || 0} DCs delivered waiting for invoicing</span>
+              <div className="finance-kpi-subtext" title={`${kpis.unbilledDcCount || 0} DCs delivered waiting for invoicing`}>
+                <span>{kpis.unbilledDcCount || 0} DCs unbilled</span>
               </div>
             </div>
 
             {/* Net Operating Cash Flow */}
-            <div className="finance-kpi-card highlight-blue">
+            <div className="finance-kpi-card highlight-blue" title="Net Operating Cash Flow">
               <div className="finance-kpi-header">
-                <span>Net Operating Cash Flow</span>
-                <TrendingUp size={18} style={{ color: '#2563eb' }} />
+                <span>Net Cash Flow</span>
+                <TrendingUp size={14} style={{ color: '#2563eb', flexShrink: 0 }} />
               </div>
               <div className="finance-kpi-value" style={{ color: kpis.netOperatingCashFlow >= 0 ? '#15803d' : '#b91c1c' }}>
                 {formatCurrency(kpis.netOperatingCashFlow)}
               </div>
-              <div className="finance-kpi-subtext">
-                <span>Gross Trading Margin: {formatCurrency(kpis.expectedTradingMargin)}</span>
+              <div className="finance-kpi-subtext" title={`Gross Trading Margin: ${formatCurrency(kpis.expectedTradingMargin)}`}>
+                <span>Margin: {formatCurrency(kpis.expectedTradingMargin)}</span>
               </div>
             </div>
           </div>

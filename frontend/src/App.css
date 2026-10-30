@@ -21461,8 +21461,8 @@ td.serial-dropdown-cell {
 
 .dc-recent-title-group {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  align-items: center;
+  gap: 8px;
 }
 
 @media (max-width: 1024px) {
@@ -27422,8 +27422,8 @@ td.serial-dropdown-cell {
 
 .dc-overview-page .dc-recent-title-group {
   display: flex !important;
-  flex-direction: column !important;
-  gap: 2px !important;
+  align-items: center !important;
+  gap: 8px !important;
   margin: 0 !important;
   padding: 0 !important;
 }

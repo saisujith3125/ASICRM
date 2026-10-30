@@ -108,19 +108,15 @@ export default function DcOverview({ challans = [], onNavigateSubView, onOpenDoc
 
       {/* 3. Recent Delivery Challans Table Card matching Customer Directory */}
       <div className="settings-table-shell stocks-table-shell customer-master-card dc-overview-table-card" style={{ height: '100%' }}>
-        <div className="recent-table-header dc-recent-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 14px', borderBottom: '1px solid #e2e8f0', background: '#ffffff' }}>
-          <div className="dc-recent-title-group" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <h3 className="dc-recent-title" style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Recent Delivery Challans</h3>
-            <span className="count-badge active-count" style={{ fontSize: '11px' }}>
-              {totalRecords}
-            </span>
+        <div className="recent-table-header dc-recent-header">
+          <div className="dc-recent-title-group">
+            <h3 className="dc-recent-title">Recent Delivery Challans</h3>
           </div>
           <button
             type="button"
-            className="settings-row-action customer-action-btn dc-action-btn-secondary"
+            className="dc-view-all-history-btn"
             onClick={() => goToNav('history')}
             title="View full delivery challans history"
-            style={{ height: '28px', padding: '0 10px', gap: '6px' }}
           >
             <span>View All History</span>
             <ArrowRight size={13} />

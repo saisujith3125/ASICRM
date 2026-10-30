@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { apiFetch, apiUrl } from '../../api';
 import { navigate } from '../../router';
+import WarehouseBoxDetailPage from './WarehouseBoxDetailPage';
 import './warehouse.css';
 
 function authHeaders(user) {
@@ -52,7 +53,7 @@ function formatCurrency(val) {
   return '₹' + num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default function WarehouseView({ user }) {
+export default function WarehouseView({ user, targetBoxId }) {
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
   const [activeFloorId, setActiveFloorId] = useState('');
@@ -157,6 +158,30 @@ export default function WarehouseView({ user }) {
     }
   }, [activeWarehouse]);
 
+  // Derive target box hierarchy context when navigating directly to a box URL
+  const activeBoxContext = useMemo(() => {
+    if (!targetBoxId || !Array.isArray(warehouses) || warehouses.length === 0) return null;
+    const clean = String(targetBoxId).trim().toLowerCase();
+    for (const wh of warehouses) {
+      for (const fl of (wh.layout?.floors || [])) {
+        for (const rk of (fl.racks || [])) {
+          for (const sh of (rk.shelves || [])) {
+            for (const bx of (sh.boxes || [])) {
+              if (
+                String(bx.id || '').toLowerCase() === clean ||
+                String(bx.code || '').toLowerCase() === clean ||
+                String(bx.name || '').toLowerCase() === clean
+              ) {
+                return { warehouse: wh, floor: fl, rack: rk, shelf: sh, box: bx };
+              }
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }, [warehouses, targetBoxId]);
+
   // Handle Search Locator (Scan / Type product SKU or serial)
   const handleLocatorSearch = async (e) => {
     if (e) e.preventDefault();
@@ -208,12 +233,9 @@ export default function WarehouseView({ user }) {
     }
   };
 
-  // Open inspection drawer for a box
-  const handleInspectBox = (bx, sh, rk, fl) => {
-    setSelectedBox(bx);
-    setSelectedShelf(sh);
-    setSelectedRack(rk);
-    setSelectedFloor(fl);
+  // Open dedicated page redirection for a box
+  const handleInspectBox = (bx) => {
+    navigate(`/warehouses/box/${encodeURIComponent(bx.id || bx.code || bx.name)}`);
   };
 
   // Copy helper
@@ -332,6 +354,29 @@ export default function WarehouseView({ user }) {
       setTransferLoading(false);
     }
   };
+
+  if (targetBoxId) {
+    if (loading) {
+      return (
+        <div className="wh-page-wrapper custom-wh-scrollbar">
+          <div className="wh-loading-card" style={{ margin: '60px auto', maxWidth: '500px' }}>
+            <RefreshCw size={28} className="spin" style={{ color: '#2563eb', margin: '0 auto 10px auto' }} />
+            <span>Loading storage bin details...</span>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <WarehouseBoxDetailPage
+        boxContext={activeBoxContext}
+        allWarehouses={warehouses}
+        catalogProducts={catalogProducts}
+        user={user}
+        onBack={() => navigate('/warehouses')}
+        onRefresh={loadWarehouseData}
+      />
+    );
+  }
 
   return (
     <div className="wh-page-wrapper custom-wh-scrollbar">
@@ -575,7 +620,7 @@ export default function WarehouseView({ user }) {
                               className={`wh-box-cubby ${
                                 isOccupied ? 'occupied' : 'empty'
                               } ${isHighlighted ? 'highlight-pulse' : ''} ${hasLowStock ? 'low-stock' : ''}`}
-                              onClick={() => handleInspectBox(bx, sh, rk, activeFloor)}
+                              onClick={() => handleInspectBox(bx)}
                               title={`Click to inspect Box: ${bx.name}`}
                             >
                               {/* Box Top Label */}
@@ -640,151 +685,7 @@ export default function WarehouseView({ user }) {
         )}
       </div>
 
-      {/* 6. INTERACTIVE BOX / BIN INSPECTION DRAWER */}
-      {selectedBox && (
-        <div className="wh-drawer-overlay" onClick={() => setSelectedBox(null)}>
-          <div className="wh-drawer-card custom-wh-scrollbar" onClick={(e) => e.stopPropagation()}>
-            {/* Drawer Header */}
-            <div className="wh-drawer-header">
-              <div className="wh-drawer-title-wrap">
-                <div className="wh-drawer-badge">
-                  <Box size={16} />
-                  <span>STORAGE BIN COORD: {selectedBox.code}</span>
-                </div>
-                <h2 className="wh-drawer-title">{selectedBox.name}</h2>
-                <span className="wh-drawer-coord-path">
-                  📍 {activeWarehouse?.name} › {selectedFloor?.name} › {selectedRack?.name} › {selectedShelf?.name} › {selectedBox.name}
-                </span>
-              </div>
 
-              <button
-                type="button"
-                className="wh-drawer-close-btn"
-                onClick={() => setSelectedBox(null)}
-                title="Close Drawer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Drawer Body */}
-            <div className="wh-drawer-body custom-wh-scrollbar">
-              {/* Coordinate Code Strip */}
-              <div className="wh-drawer-code-strip">
-                <div>
-                  <span className="wh-code-label">Full Location Identifier</span>
-                  <div className="wh-code-val mono">
-                    {activeWarehouse?.code}-{selectedRack?.code}-{selectedShelf?.code}-{selectedBox.code}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="wh-copy-code-btn"
-                  onClick={(e) =>
-                    handleCopy(
-                      `${activeWarehouse?.code}-${selectedRack?.code}-${selectedShelf?.code}-${selectedBox.code}`,
-                      e
-                    )
-                  }
-                  title="Copy location coordinate string"
-                >
-                  {copiedCode ? <Check size={13} style={{ color: '#16a34a' }} /> : <Copy size={13} />}
-                  <span>{copiedCode ? 'Copied' : 'Copy Code'}</span>
-                </button>
-              </div>
-
-              {/* Action Toolbar */}
-              <div className="wh-drawer-actions-row">
-                <button
-                  type="button"
-                  className="wh-btn wh-btn-primary"
-                  onClick={() => setShowAssignModal(true)}
-                >
-                  <Plus size={14} /> Assign New Product
-                </button>
-                {selectedBox.isOccupied && (
-                  <button
-                    type="button"
-                    className="wh-btn wh-btn-secondary"
-                    onClick={() => {
-                      setTransferProductId(selectedBox.assignedProducts?.[0]?.id || '');
-                      setShowTransferModal(true);
-                    }}
-                  >
-                    <Move size={14} /> Relocate Stock
-                  </button>
-                )}
-                <button
-                  type="button"
-                  className="wh-btn wh-btn-secondary"
-                  onClick={() => setShowQrPrintModal(true)}
-                  title="Print Bin Barcode/QR Adhesive Sticker"
-                >
-                  <Printer size={14} /> Print Bin Label
-                </button>
-              </div>
-
-              {/* Contained Products Section */}
-              <div className="wh-drawer-section">
-                <h4 className="wh-section-title">
-                  <Package size={15} /> Contained Inventory Products ({selectedBox.assignedProductsCount || 0})
-                </h4>
-
-                {!selectedBox.isOccupied || selectedBox.assignedProductsCount === 0 ? (
-                  <div className="wh-drawer-empty-box-notice">
-                    <Box size={32} style={{ color: '#94a3b8', margin: '0 auto 8px auto', display: 'block' }} />
-                    <strong>This Bin is Currently Empty</strong>
-                    <p>No products or serial units are assigned here yet. Use "Assign New Product" to stock this bin.</p>
-                  </div>
-                ) : (
-                  <div className="wh-drawer-products-list">
-                    {selectedBox.assignedProducts?.map((prod, pIdx) => (
-                      <div key={prod.id || pIdx} className="wh-drawer-product-card">
-                        <div className="wh-prod-card-top">
-                          <div>
-                            <strong className="wh-prod-card-name">{prod.name}</strong>
-                            <span className="wh-prod-card-code mono">SKU: {prod.code}</span>
-                          </div>
-                          <div className="wh-prod-card-stock">
-                            <span className="wh-prod-qty mono">{prod.stock} Units</span>
-                            <span className="wh-prod-val mono">{formatCurrency(prod.stock * prod.cost)}</span>
-                          </div>
-                        </div>
-
-                        {/* Serials List */}
-                        {prod.serialized && Array.isArray(prod.serialNumbers) && prod.serialNumbers.length > 0 && (
-                          <div className="wh-drawer-serials-box">
-                            <div className="wh-serials-box-title">
-                              <Tag size={12} /> Stored Serial Numbers ({prod.serialNumbers.length}):
-                            </div>
-                            <div className="wh-drawer-serial-tags-grid custom-wh-scrollbar">
-                              {prod.serialNumbers.map((sn, sIdx) => (
-                                <span
-                                  key={sIdx}
-                                  className="wh-drawer-sn-tag mono"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedBox(null);
-                                    navigate(`/serials?q=${encodeURIComponent(sn)}`);
-                                  }}
-                                  title="Click to track complete serial provenance & profit"
-                                >
-                                  {sn}
-                                  <ExternalLink size={10} style={{ marginLeft: '4px' }} />
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 7. ASSIGN PRODUCT TO BIN MODAL */}
       {showAssignModal && selectedBox && (

@@ -760,11 +760,31 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
 
   // WAREHOUSE FACILITY & BIN HIERARCHY ROUTE
   // /warehouses
-  // /warehouse
+  // /warehouses/box/:boxId
+  // /warehouses/bin/:binId
   if (section === 'warehouses' || section === 'warehouse') {
+    const isBox = sub === 'box' || sub === 'bin' || sub === 'boxes' || sub === 'bins';
+    let boxId = null;
+    if (isBox) {
+      const clean = (pathname || '').split(/[?#]/)[0].replace(/\/+$/, '');
+      const segments = clean.split('/').filter(Boolean);
+      if (segments.length >= 3) {
+        boxId = decodeURIComponent(segments.slice(2).join('/'));
+      }
+    }
+    let queryBoxId = null;
+    if (queryString) {
+      try {
+        const sp = new URLSearchParams(queryString);
+        queryBoxId = sp.get('box') || sp.get('boxId') || sp.get('bin') || null;
+      } catch {}
+    }
+    const targetBoxId = boxId || queryBoxId;
+
     return {
-      path: '/warehouses',
+      path: targetBoxId ? `/warehouses/box/${encodeURIComponent(targetBoxId)}` : '/warehouses',
       activeTab: 'warehouses',
+      warehouseBoxId: targetBoxId,
       activeCustomerId: null,
       activeEnquiryId: null,
       stockBranch: 'overview',

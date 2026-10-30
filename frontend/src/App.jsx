@@ -1606,7 +1606,7 @@ function CrmDashboard({
       hasPermission(user, 'Orders & Deals', 'View');
 
     if (canAccessWarehouse) {
-      content = <WarehouseView user={user} />;
+      content = <WarehouseView user={user} targetBoxId={routeState.warehouseBoxId} />;
     } else {
       content = <div className="crm-restricted-view" style={{ padding: '48px', textAlign: 'center' }}><h3>Access Restricted</h3><p>You do not have permission to view Warehouse Facility.</p></div>;
     }

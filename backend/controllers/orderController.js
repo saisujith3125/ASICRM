@@ -2640,6 +2640,13 @@ const createProforma = async (req, res) => {
     const finalEmail = customerEmail || matchedCustomer?.email || '';
     const finalContact = contactPerson || matchedCustomer?.contactPerson || finalCustName;
 
+    // Normalized delivery challan list in outer scope
+    const proformaDcList = Array.isArray(req.body.dcNos)
+      ? req.body.dcNos
+      : (Array.isArray(req.body.challanIds)
+          ? req.body.challanIds
+          : (dcNo ? String(dcNo).split(',').map((s) => s.trim()).filter(Boolean) : []));
+
     // Validate customer compatibility for linked documents
     const targetCustId = customerId || matchedCustomer?.id;
     if (targetCustId) {
@@ -2661,12 +2668,6 @@ const createProforma = async (req, res) => {
           });
         }
       }
-      const proformaDcList = Array.isArray(req.body.dcNos)
-        ? req.body.dcNos
-        : (Array.isArray(req.body.challanIds)
-            ? req.body.challanIds
-            : (dcNo ? String(dcNo).split(',').map((s) => s.trim()).filter(Boolean) : []));
-
       if (proformaDcList.length > 0) {
         for (const singleDcNo of proformaDcList) {
           const matchedDc = deliveryChallans.find((d) => d.challanId === singleDcNo || d.id === singleDcNo);
@@ -3025,11 +3026,17 @@ const updateProforma = async (req, res) => {
     if (orderDate !== undefined) proforma.orderDate = orderDate;
     if (customerPoNumber !== undefined) proforma.customerPoNumber = customerPoNumber;
     if (customerPoDate !== undefined) proforma.customerPoDate = customerPoDate;
-    if (req.body.dcNo !== undefined) {
-      proforma.dcNo = req.body.dcNo;
-      proforma.deliveryChallanId = req.body.dcNo;
+    const updatedDcList = req.body.dcNos !== undefined
+      ? (Array.isArray(req.body.dcNos) ? req.body.dcNos : (req.body.dcNos ? [req.body.dcNos] : []))
+      : (req.body.dcNo !== undefined ? (req.body.dcNo ? String(req.body.dcNo).split(',').map((s) => s.trim()).filter(Boolean) : []) : null);
+
+    if (updatedDcList !== null) {
+      proforma.dcNos = updatedDcList;
+      proforma.dcNo = updatedDcList.length > 0 ? updatedDcList.join(', ') : null;
+      proforma.deliveryChallanId = updatedDcList.length > 0 ? updatedDcList.join(', ') : null;
+    } else if (req.body.deliveryChallanId !== undefined) {
+      proforma.deliveryChallanId = req.body.deliveryChallanId;
     }
-    if (req.body.deliveryChallanId !== undefined) proforma.deliveryChallanId = req.body.deliveryChallanId;
     if (req.body.dcDate !== undefined) proforma.dcDate = req.body.dcDate;
     if (req.body.dispatchThrough !== undefined) proforma.dispatchThrough = req.body.dispatchThrough;
     if (req.body.dispatchDate !== undefined) proforma.dispatchDate = req.body.dispatchDate;
@@ -3178,6 +3185,7 @@ const reviseProforma = async (req, res) => {
       quotationNumber: req.body.quotationId || existing.quotationNumber || existing.quotationId || null,
       deliveryChallanId: req.body.dcNo !== undefined ? req.body.dcNo : existing.deliveryChallanId,
       dcNo: req.body.dcNo !== undefined ? req.body.dcNo : existing.dcNo,
+      dcNos: req.body.dcNos !== undefined ? (Array.isArray(req.body.dcNos) ? req.body.dcNos : [req.body.dcNos]) : (existing.dcNos || []),
       dcDate: req.body.dcDate !== undefined ? req.body.dcDate : existing.dcDate,
       dispatchThrough: req.body.dispatchThrough !== undefined ? req.body.dispatchThrough : existing.dispatchThrough,
       dispatchDate: req.body.dispatchDate !== undefined ? req.body.dispatchDate : existing.dispatchDate,

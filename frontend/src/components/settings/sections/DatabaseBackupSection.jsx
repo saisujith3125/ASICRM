@@ -971,7 +971,10 @@ export default function DatabaseBackupSection({ user, showToast }) {
             <button
               type="button"
               className="settings-btn settings-btn-primary"
-              onClick={() => handleCreateManualBackup()}
+              onClick={() => {
+                setManualTitle('Manual System Backup');
+                setIsManualModalOpen(true);
+              }}
               disabled={isBackingUp}
             >
               <Download size={15} style={{ marginRight: '6px' }} />

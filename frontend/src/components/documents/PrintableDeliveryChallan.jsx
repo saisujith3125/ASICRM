@@ -422,6 +422,7 @@ export function DeliveryChallanItemsTable({
           {items.map((item, idx) => {
             const qty = Number(item.quantity || item.deliveryQty || 1);
             const returnedQty = Number(item.returnedQty || 0);
+            const remainingQty = Number(item.remainingQty !== undefined ? item.remainingQty : Math.max(0, qty - returnedQty));
             const rawUnit = item.unit || item.returnStatus || 'Nos';
             const unit = (rawUnit === 'Piece' || rawUnit === 'piece') ? 'Nos' : rawUnit;
             let itemSerialsList = [];

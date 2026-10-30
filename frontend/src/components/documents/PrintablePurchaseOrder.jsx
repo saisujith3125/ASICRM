@@ -101,6 +101,9 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {},
     const ordTaxable = Math.max(0, ordRaw - ordDisc);
     const ordTax = (ordTaxable * gstRate) / 100;
     const ordLineTotal = ordTaxable + ordTax;
+    const orderedTaxable = ordTaxable;
+    const orderedTax = ordTax;
+    const orderedLineTotal = ordLineTotal;
 
     // Received Line calculations (Inward Fulfilled)
     const recRaw = rate * recd;

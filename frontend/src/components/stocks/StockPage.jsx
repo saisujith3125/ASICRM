@@ -8,6 +8,7 @@ import StockMovementDetailModal from './StockMovementDetailModal';
 import StockMovementHistoryModal from './StockMovementHistoryModal';
 import StockMovementPage from './StockMovementPage';
 import ProductHistoryView, { getProductStockStatus } from './ProductHistoryView';
+import ProductPriceHistoryPage from './ProductPriceHistoryPage';
 import { TableFooter, useTablePagination } from '../common/TableWorkspace';
 import { filterRecordsBySearch } from '../../utils/searchHelper';
 

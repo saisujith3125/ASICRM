@@ -547,7 +547,7 @@ export default function PurchaseOrderHistory({ user, onOpenPo }) {
                             type="button"
                             className="po-btn-icon"
                             onClick={() => {
-                              const matchedPo = purchaseOrders.find((p) => p.id === grn.purchaseOrderId || p.poNumber === grn.purchaseOrderId);
+                              const matchedPo = orders.find((p) => p.id === grn.purchaseOrderId || p.poNumber === grn.purchaseOrderId);
                               if (matchedPo) {
                                 setPreviewPo({ ...matchedPo, fulfillmentMode: 'RECEIVED_ONLY' });
                               } else {

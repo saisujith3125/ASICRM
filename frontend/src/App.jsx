@@ -1591,6 +1591,7 @@ function CrmDashboard({
       content = (
         <SerialTrackingView
           user={user}
+          activeSerialId={routeState.activeSerialId || null}
           initialQuery={routeState.serialQuery || ''}
           initialStatus={routeState.serialStatus || 'ALL'}
         />

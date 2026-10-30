@@ -675,7 +675,7 @@ const deleteCustomer = async (req, res) => {
     const force = req.query.force === 'true' || req.body?.force === true;
 
     if (isLinked && !force) {
-      return res.status(400).json({
+      return res.status(200).json({
         success: false,
         hasLinkedRecords: true,
         message: `Cannot delete customer "${customer.company || customer.name}" because they have existing linked commercial transactions (Enquiries, Quotations, Orders, or Invoices).`

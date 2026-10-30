@@ -184,7 +184,7 @@ export default function DcHistoryPage({ challans = [], orders = [], user, onOpen
               {filteredChallans.length === 0 ? (
                 <DCEmptyState message={search.trim() ? `No delivery challans found matching "${search.trim()}".` : "No delivery challans match your criteria."} colSpan={8} />
               ) : (
-                paginatedChallans.map((dc) => {
+                paginatedChallans.map((dc, idx) => {
                   const totalUnits = Array.isArray(dc.items)
                     ? dc.items.reduce((sum, it) => sum + Number(it.quantity || 1), 0)
                     : 0;

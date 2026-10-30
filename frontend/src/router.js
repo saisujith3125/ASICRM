@@ -740,14 +740,33 @@ export function parseRoute(pathname = (typeof window !== 'undefined' ? (window.l
 
   // SERIAL NUMBER TRACKING & PROVENANCE ROUTE
   // /serials
+  // /serials/:serialNumber
   // /serial-tracking
+  // /serial-tracking/:serialNumber
   if (section === 'serials' || section === 'serial-tracking') {
     const sp = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-    const initialQuery = sp ? (sp.get('q') || sp.get('search') || sp.get('sn') || '') : '';
+    const initialQuery = sp ? (sp.get('q') || sp.get('search') || '') : '';
     const initialStatus = sp ? (sp.get('status') || 'ALL') : 'ALL';
+
+    let activeSerialId = null;
+    if (sub && sub !== 'overview' && sub !== 'list') {
+      if (sub === 'detail' && action) {
+        const rawAction = pathname.split('/')[3] || action;
+        activeSerialId = decodeURIComponent(rawAction);
+      } else {
+        const rawSub = pathname.split('/')[2] || sub;
+        activeSerialId = decodeURIComponent(rawSub);
+      }
+    } else if (sp && sp.get('sn')) {
+      activeSerialId = sp.get('sn');
+    }
+
     return {
-      path: initialQuery ? `/serials?q=${encodeURIComponent(initialQuery)}` : '/serials',
+      path: activeSerialId
+        ? `/serials/${encodeURIComponent(activeSerialId)}`
+        : (initialQuery ? `/serials?q=${encodeURIComponent(initialQuery)}` : '/serials'),
       activeTab: 'serials',
+      activeSerialId: activeSerialId || null,
       serialQuery: initialQuery,
       serialStatus: initialStatus,
       activeCustomerId: null,

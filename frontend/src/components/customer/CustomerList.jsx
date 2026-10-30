@@ -214,39 +214,59 @@ export default function CustomerList({ user, onSelectCustomer, onCreateEnquiryFo
     }
   };
 
-  // Delete Customer handler with real backend persistence
+  // Delete Customer handler with real backend persistence and IIS fallback
   const handleDeleteCustomer = async (c) => {
     const custDisplayName = c.company || c.name || c.id;
     if (!window.confirm(`Are you sure you want to delete customer "${custDisplayName}"? This action cannot be undone.`)) return;
 
-    try {
-      const res = await apiFetch(apiUrl(`/api/customers/${encodeURIComponent(c.id)}`), {
-        method: 'DELETE',
-        headers: authHeaders(user)
+    const performDelete = async (isForce = false) => {
+      const q = isForce ? '?force=true' : '';
+      const payload = JSON.stringify({ force: isForce });
+      // 1. Try standard DELETE
+      try {
+        const res = await apiFetch(apiUrl(`/api/customers/${encodeURIComponent(c.id)}${q}`), {
+          method: 'DELETE',
+          headers: { ...authHeaders(user), 'x-http-method-override': 'DELETE' },
+          body: payload
+        });
+        const data = await res.json();
+        // If successful or explicitly returned validation/linked-records json
+        if (res.ok || (data && (data.hasLinkedRecords || data.message))) {
+          return { res, data };
+        }
+      } catch (err) {
+        console.warn('DELETE verb failed, trying POST /delete:', err);
+      }
+      // 2. Fallback to POST /:id/delete (IIS / WebDAV safe)
+      const resPost = await apiFetch(apiUrl(`/api/customers/${encodeURIComponent(c.id)}/delete${q}`), {
+        method: 'POST',
+        headers: authHeaders(user),
+        body: payload
       });
-      const data = await res.json();
+      const dataPost = await resPost.json();
+      return { res: resPost, data: dataPost };
+    };
 
-      if (res.ok && data.success) {
+    try {
+      const { res, data } = await performDelete(false);
+
+      if ((res.ok || res.status === 200) && data?.success) {
         setCustomers((prev) => prev.filter((item) => item.id !== c.id));
         setSuccessToast(`Customer "${custDisplayName}" deleted successfully.`);
         setTimeout(() => setSuccessToast(''), 3000);
-      } else if (data.hasLinkedRecords) {
+      } else if (data?.hasLinkedRecords) {
         if (window.confirm(`${data.message}\n\nDo you want to FORCE delete customer "${custDisplayName}" anyway?`)) {
-          const forceRes = await apiFetch(apiUrl(`/api/customers/${encodeURIComponent(c.id)}?force=true`), {
-            method: 'DELETE',
-            headers: authHeaders(user)
-          });
-          const forceData = await forceRes.json();
-          if (forceRes.ok && forceData.success) {
+          const { res: forceRes, data: forceData } = await performDelete(true);
+          if ((forceRes.ok || forceRes.status === 200) && forceData?.success) {
             setCustomers((prev) => prev.filter((item) => item.id !== c.id));
             setSuccessToast(`Customer "${custDisplayName}" force-deleted.`);
             setTimeout(() => setSuccessToast(''), 3000);
           } else {
-            alert(forceData.message || 'Failed to force delete customer.');
+            alert(forceData?.message || 'Failed to force delete customer.');
           }
         }
       } else {
-        alert(data.message || 'Failed to delete customer.');
+        alert(data?.message || 'Failed to delete customer.');
       }
     } catch (err) {
       console.error('Error deleting customer:', err);

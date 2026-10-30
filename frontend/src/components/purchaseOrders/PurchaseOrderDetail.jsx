@@ -30,6 +30,7 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
   const [error, setError] = useState('');
   const [showDocPreview, setShowDocPreview] = useState(false);
   const [previewMode, setPreviewMode] = useState('ALL');
+  const [previewHidePrices, setPreviewHidePrices] = useState(false);
 
   const grnSectionRef = useRef(null);
   const targetGrnRowRef = useRef(null);
@@ -342,10 +343,24 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
             className="crm-btn-secondary"
             onClick={() => {
               setPreviewMode('ALL');
+              setPreviewHidePrices(false);
               setShowDocPreview(true);
             }}
           >
             <Printer size={16} /> Print / PDF Document
+          </button>
+          <button
+            type="button"
+            className="crm-btn-secondary"
+            style={{ color: '#0369a1', borderColor: '#bae6fd', background: '#f0f9ff' }}
+            onClick={() => {
+              setPreviewMode('ALL');
+              setPreviewHidePrices(true);
+              setShowDocPreview(true);
+            }}
+            title="Print or view Purchase Order Vendor Copy"
+          >
+            <FileText size={16} /> Vendor Copy
           </button>
         </div>
       </div>
@@ -524,10 +539,11 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
                     <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600 }}>{idx + 1}</td>
                     <td style={{ textAlign: 'left' }}>
                       <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '13px' }}>{it.productName}</div>
-                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
-                        Code: <strong style={{ color: '#334155' }}>{it.productCode || '—'}</strong>
-                        {it.serialized ? <span style={{ color: '#059669', fontWeight: 600 }}> · Serialized</span> : ''}
-                      </div>
+                      {it.description ? (
+                        <div style={{ fontSize: '11.5px', color: '#475569', marginTop: '2px', whiteSpace: 'pre-wrap' }}>
+                          {it.description}
+                        </div>
+                      ) : null}
                     </td>
                     <td style={{ fontSize: '12px', color: '#475569', textAlign: 'left' }}>
                       {it.category || '—'}
@@ -874,16 +890,38 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
       {/* Document Print & PDF Modal */}
       {showDocPreview && (
         <DocumentPreviewModal
-          title={previewMode === 'RECEIVED_ONLY' ? 'Goods Receipt Note (GRN)' : 'Purchase Order'}
+          title={
+            previewMode === 'RECEIVED_ONLY'
+              ? 'Goods Receipt Note (GRN)'
+              : previewHidePrices
+              ? (po.status === 'PARTIALLY_RECEIVED'
+                  ? 'Purchase Order - Vendor Copy (Partial Delivery)'
+                  : po.status === 'RECEIVED'
+                  ? 'Purchase Order - Vendor Copy (Full Delivery)'
+                  : 'Purchase Order (Vendor Copy)')
+              : (po.status === 'PARTIALLY_RECEIVED'
+                  ? 'Purchase Order - Partial Delivery'
+                  : po.status === 'RECEIVED'
+                  ? 'Purchase Order - Full Delivery'
+                  : 'Purchase Order')
+          }
           docId={po.id || po.poNumber}
           docType="po"
           status={po.status}
-          filename={getPurchaseOrderFilename(po, previewMode)}
+          filename={
+            previewHidePrices
+              ? `PurchaseOrder_Vendor_${po.id || po.poNumber}.pdf`
+              : getPurchaseOrderFilename(po, previewMode)
+          }
           data={po}
-          onClose={() => setShowDocPreview(false)}
+          onClose={() => {
+            setShowDocPreview(false);
+            setPreviewHidePrices(false);
+          }}
         >
           <PrintablePurchaseOrder
             purchaseOrder={po}
+            hidePrices={previewHidePrices}
             defaultFulfillmentMode={previewMode}
           />
         </DocumentPreviewModal>

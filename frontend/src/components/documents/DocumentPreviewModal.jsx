@@ -175,7 +175,7 @@ export default function DocumentPreviewModal({
                     : (docType === 'quotation' || docType === 'qt'
                         ? 'OFFICIAL QUOTATION'
                         : (docType === 'po' || docType === 'purchase-order'
-                            ? 'PURCHASE ORDER'
+                            ? (title && title !== 'Document' ? title.toUpperCase() : 'PURCHASE ORDER')
                             : 'TAX INVOICE')))}
             </span>
             <span className="doc-preview-id">{docId}</span>

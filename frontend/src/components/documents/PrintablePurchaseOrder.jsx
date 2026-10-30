@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   useCompanyConfig,
   getMergedCompanySettings,
@@ -253,10 +253,46 @@ function PurchaseOrderWatermark({ comp }) {
 /**
  * 1. Top Document Title
  */
-function PurchaseOrderTitle({ hidePrices = false }) {
+function PurchaseOrderTitle({ hidePrices = false, doc = {} }) {
+  const totalOrdered = Number(doc?.totalOrderedQty || 0);
+  const totalReceived = Number(doc?.totalReceivedQty || 0);
+  const totalPending = Number(doc?.totalPendingQty || 0);
+  const statusUpper = String(doc?.status || '').toUpperCase().trim();
+
+  const isPartial =
+    statusUpper === 'PARTIALLY_RECEIVED' ||
+    statusUpper === 'PARTIAL' ||
+    (totalReceived > 0 && totalPending > 0);
+
+  const isFull =
+    statusUpper === 'RECEIVED' ||
+    statusUpper === 'COMPLETED' ||
+    statusUpper === 'FULL' ||
+    statusUpper === 'DELIVERED' ||
+    (totalOrdered > 0 && totalReceived >= totalOrdered && totalPending === 0);
+
+  let title = 'PURCHASE ORDER';
+  if (hidePrices) {
+    if (isPartial) {
+      title = 'PURCHASE ORDER - VENDOR COPY (PARTIAL DELIVERY)';
+    } else if (isFull) {
+      title = 'PURCHASE ORDER - VENDOR COPY (FULL DELIVERY)';
+    } else {
+      title = 'PURCHASE ORDER (VENDOR COPY)';
+    }
+  } else {
+    if (isPartial) {
+      title = 'PURCHASE ORDER - PARTIAL DELIVERY';
+    } else if (isFull) {
+      title = 'PURCHASE ORDER - FULL DELIVERY';
+    } else {
+      title = 'PURCHASE ORDER';
+    }
+  }
+
   return (
     <div className="doc-po-top-title">
-      {hidePrices ? 'PURCHASE ORDER (VENDOR COPY)' : 'PURCHASE ORDER'}
+      {title}
     </div>
   );
 }
@@ -268,6 +304,58 @@ function PurchaseOrderHeaderBox({ company, doc }) {
   const [imgFailed, setImgFailed] = useState(false);
   const logoUrl = company?.logoUrl || DEFAULT_ASI_LOGO;
   const logoDim = 106;
+
+  const totalOrdered = Number(doc?.totalOrderedQty || 0);
+  const totalReceived = Number(doc?.totalReceivedQty || 0);
+  const totalPending = Number(doc?.totalPendingQty || 0);
+  const statusUpper = String(doc?.status || '').toUpperCase().trim();
+
+  const isPartial =
+    statusUpper === 'PARTIALLY_RECEIVED' ||
+    statusUpper === 'PARTIAL' ||
+    (totalReceived > 0 && totalPending > 0);
+
+  const isFull =
+    statusUpper === 'RECEIVED' ||
+    statusUpper === 'COMPLETED' ||
+    statusUpper === 'FULL' ||
+    statusUpper === 'DELIVERED' ||
+    (totalOrdered > 0 && totalReceived >= totalOrdered && totalPending === 0);
+
+  let statusLabel = 'PENDING';
+  let statusColor = '#475569';
+  let statusBg = '#f8fafc';
+  let statusBorder = '#cbd5e1';
+  let statusIcon = '';
+
+  if (isFull) {
+    statusLabel = 'RECEIVED (FULL DELIVERY)';
+    statusColor = '#16a34a';
+    statusBg = '#f0fdf4';
+    statusBorder = '#86efac';
+    statusIcon = '✓ ';
+  } else if (isPartial) {
+    statusLabel = totalOrdered > 0
+      ? `PARTIALLY RECEIVED (${totalReceived}/${totalOrdered})`
+      : 'PARTIALLY RECEIVED';
+    statusColor = '#b45309';
+    statusBg = '#fffbeb';
+    statusBorder = '#fde68a';
+    statusIcon = '⚡ ';
+  } else if (statusUpper === 'ORDERED' || statusUpper === 'ISSUED' || statusUpper === 'SENT') {
+    statusLabel = statusUpper;
+    statusColor = '#2563eb';
+    statusBg = '#eff6ff';
+    statusBorder = '#bfdbfe';
+  } else if (statusUpper === 'CANCELLED') {
+    statusLabel = 'CANCELLED';
+    statusColor = '#dc2626';
+    statusBg = '#fef2f2';
+    statusBorder = '#fca5a5';
+    statusIcon = '✕ ';
+  } else if (statusUpper) {
+    statusLabel = statusUpper;
+  }
 
   return (
     <div className="doc-inv-header-box doc-po-header-box">
@@ -322,47 +410,7 @@ function PurchaseOrderHeaderBox({ company, doc }) {
       </div>
 
       {/* Right PO Metadata Pane */}
-      <div className="doc-inv-meta-pane doc-po-meta-pane" style={{ position: 'relative' }}>
-        {doc.status === 'RECEIVED' && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '6px',
-              right: '8px',
-              border: '2px solid #16a34a',
-              color: '#16a34a',
-              background: '#f0fdf4',
-              padding: '2px 8px',
-              borderRadius: '4px',
-              fontWeight: 800,
-              fontSize: '11px',
-              letterSpacing: '0.5px',
-              textTransform: 'uppercase'
-            }}
-          >
-            ✓ RECEIVED
-          </div>
-        )}
-        {doc.status === 'PARTIALLY_RECEIVED' && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '6px',
-              right: '8px',
-              border: '2px solid #d97706',
-              color: '#b45309',
-              background: '#fffbeb',
-              padding: '2px 8px',
-              borderRadius: '4px',
-              fontWeight: 800,
-              fontSize: '11px',
-              letterSpacing: '0.5px',
-              textTransform: 'uppercase'
-            }}
-          >
-            ⚡ PARTIAL
-          </div>
-        )}
+      <div className="doc-inv-meta-pane doc-po-meta-pane">
         <table className="doc-po-meta-table">
           <tbody>
             <tr>
@@ -380,6 +428,27 @@ function PurchaseOrderHeaderBox({ company, doc }) {
             <tr>
               <td className="doc-po-meta-label">Payment Terms :</td>
               <td className="doc-po-meta-val">{doc.paymentTerms}</td>
+            </tr>
+            <tr>
+              <td className="doc-po-meta-label">Received Status :</td>
+              <td className="doc-po-meta-val bold">
+                <span
+                  style={{
+                    display: 'inline-block',
+                    padding: '1.5px 6px',
+                    borderRadius: '3px',
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    color: statusColor,
+                    background: statusBg,
+                    border: `1px solid ${statusBorder}`,
+                    letterSpacing: '0.3px',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  {statusIcon}{statusLabel}
+                </span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -497,9 +566,6 @@ export function estimatePoItemHeight(item) {
   const name = (item.productName || '').toString();
   if (name.length > 40) {
     height += Math.floor(name.length / 40) * 16;
-  }
-  if (item.productCode) {
-    height += 16;
   }
   const desc = (item.description || '').toString();
   if (desc) {
@@ -680,14 +746,9 @@ function PurchaseOrderItemsTable({ items, financials, showTotals = true, hidePri
                 <td style={{ textAlign: 'center', fontWeight: 600 }}>{it.sl}</td>
                 <td style={{ textAlign: 'left' }}>
                   <div className="doc-po-item-name">{it.productName}</div>
-                  {it.productCode && (
-                    <div className="doc-po-item-code">
-                      Code: {it.productCode} {it.serialized ? '· Serialized Item' : ''}
-                    </div>
-                  )}
-                  {it.description && (
+                  {it.description ? (
                     <div className="doc-po-item-desc">{it.description}</div>
-                  )}
+                  ) : null}
                 </td>
                 <td style={{ textAlign: 'center', fontFamily: 'monospace' }}>{it.hsnSac}</td>
                 <td style={{ textAlign: 'center', fontWeight: 600 }}>{it.unit || 'Nos'}</td>
@@ -765,14 +826,9 @@ function PurchaseOrderItemsTable({ items, financials, showTotals = true, hidePri
               <td style={{ textAlign: 'center', fontWeight: 600 }}>{it.sl}</td>
               <td style={{ textAlign: 'left' }}>
                 <div className="doc-po-item-name">{it.productName}</div>
-                {it.productCode && (
-                  <div className="doc-po-item-code">
-                    Code: {it.productCode} {it.serialized ? '· Serialized Item' : ''}
-                  </div>
-                )}
-                {it.description && (
+                {it.description ? (
                   <div className="doc-po-item-desc">{it.description}</div>
-                )}
+                ) : null}
                 {it.serialized && it.serialNumbers.length > 0 && (
                   <div className="doc-po-item-serials">
                     <strong>Serials:</strong> {it.serialNumbers.join(', ')}
@@ -966,75 +1022,130 @@ function PurchaseOrderFooter({ pageNumber = 1, totalPages = 1 }) {
 /**
  * Canonical PrintablePurchaseOrder Component
  */
-export default function PrintablePurchaseOrder({ purchaseOrder, hidePrices = false }) {
+export default function PrintablePurchaseOrder({ purchaseOrder, po, hidePrices = false }) {
   const companyConfig = useCompanyConfig();
+  const rawPo = purchaseOrder || po;
 
-  const isHidePrices = hidePrices || Boolean(purchaseOrder?.hidePrices);
+  const [isVendorCopy, setIsVendorCopy] = useState(
+    Boolean(hidePrices) || Boolean(rawPo?.hidePrices) || Boolean(rawPo?.isVendorCopy)
+  );
+
+  useEffect(() => {
+    setIsVendorCopy(Boolean(hidePrices) || Boolean(rawPo?.hidePrices) || Boolean(rawPo?.isVendorCopy));
+  }, [hidePrices, rawPo]);
+
+  const isHidePrices = isVendorCopy;
 
   const doc = useMemo(() => {
-    return normalizePurchaseOrderDocument(purchaseOrder, companyConfig);
-  }, [purchaseOrder, companyConfig]);
+    return normalizePurchaseOrderDocument(rawPo, companyConfig);
+  }, [rawPo, companyConfig]);
 
   const pages = useMemo(() => {
     return paginatePurchaseOrder(doc, isHidePrices);
   }, [doc, isHidePrices]);
 
-  if (!purchaseOrder) {
+  if (!rawPo) {
     return <div className="doc-loading">No Purchase Order data provided.</div>;
   }
 
   const totalPages = pages.length;
 
   return (
-    <div className="doc-sheet-root doc-paged-root doc-po-root" id={`printable-po-content-${doc.poNumber}`}>
-      {pages.map((page) => (
-        <React.Fragment key={page.pageNumber}>
-          {page.pageNumber > 1 && (
-            <div className="doc-viewer-page-gap" aria-hidden="true">
-              <div className="doc-viewer-gap-line" />
-              <span className="doc-viewer-gap-badge">PAGE {page.pageNumber} OF {totalPages}</span>
-              <div className="doc-viewer-gap-line" />
-            </div>
-          )}
+    <div className="doc-po-viewer-container">
+      {/* Interactive Switcher for In-App Document Viewer (Hidden on Print & PDF) */}
+      <div
+        className="doc-po-mode-switcher doc-no-print"
+        data-html2canvas-ignore="true"
+      >
+        <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', marginRight: '4px' }}>
+          Document Version:
+        </span>
+        <button
+          type="button"
+          onClick={() => setIsVendorCopy(false)}
+          style={{
+            padding: '4px 12px',
+            fontSize: '12px',
+            fontWeight: !isHidePrices ? 800 : 600,
+            color: !isHidePrices ? '#1e40af' : '#64748b',
+            background: !isHidePrices ? '#dbeafe' : '#f8fafc',
+            border: `1px solid ${!isHidePrices ? '#93c5fd' : '#e2e8f0'}`,
+            borderRadius: '6px',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          📄 Standard PO (With Rates)
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsVendorCopy(true)}
+          style={{
+            padding: '4px 12px',
+            fontSize: '12px',
+            fontWeight: isHidePrices ? 800 : 600,
+            color: isHidePrices ? '#0369a1' : '#64748b',
+            background: isHidePrices ? '#e0f2fe' : '#f8fafc',
+            border: `1px solid ${isHidePrices ? '#7dd3fc' : '#e2e8f0'}`,
+            borderRadius: '6px',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          🏷️ Vendor Copy (Rates Hidden)
+        </button>
+      </div>
 
-          <div
-            className={`doc-paged-page ${page.pageNumber < totalPages ? 'doc-page-break' : ''}`}
-            data-page-num={page.pageNumber}
-          >
-            <PurchaseOrderWatermark comp={doc.company} />
+      <div className="doc-sheet-root doc-paged-root doc-po-root" id={`printable-po-content-${doc.poNumber}`}>
+        {pages.map((page) => (
+          <React.Fragment key={page.pageNumber}>
+            {page.pageNumber > 1 && (
+              <div className="doc-viewer-page-gap" aria-hidden="true">
+                <div className="doc-viewer-gap-line" />
+                <span className="doc-viewer-gap-badge">PAGE {page.pageNumber} OF {totalPages}</span>
+                <div className="doc-viewer-gap-line" />
+              </div>
+            )}
 
-            <div className="doc-paged-page-body">
-              {page.isPage1 ? (
-                <>
-                  <PurchaseOrderTitle hidePrices={isHidePrices} />
-                  <PurchaseOrderHeaderBox company={doc.company} doc={doc} />
-                  <VendorShippingSection supplier={doc.supplier} shipping={doc.shipping} />
-                </>
-              ) : null}
+            <div
+              className={`doc-paged-page ${page.pageNumber < totalPages ? 'doc-page-break' : ''}`}
+              data-page-num={page.pageNumber}
+            >
+              <PurchaseOrderWatermark comp={doc.company} />
 
-              <PurchaseOrderItemsTable
-                items={page.items}
-                financials={doc.financials}
-                showTotals={page.showTotals}
-                hidePrices={isHidePrices}
+              <div className="doc-paged-page-body">
+                {page.isPage1 ? (
+                  <>
+                    <PurchaseOrderTitle hidePrices={isHidePrices} doc={doc} />
+                    <PurchaseOrderHeaderBox company={doc.company} doc={doc} />
+                    <VendorShippingSection supplier={doc.supplier} shipping={doc.shipping} />
+                  </>
+                ) : null}
+
+                <PurchaseOrderItemsTable
+                  items={page.items}
+                  financials={doc.financials}
+                  showTotals={page.showTotals}
+                  hidePrices={isHidePrices}
+                />
+
+                {page.showBottomSection && (
+                  <>
+                    {!isHidePrices && <PurchaseOrderAmountInWords words={doc.financials.amountWords} />}
+                    <PurchaseOrderTermsBox terms={doc.terms} />
+                    <PurchaseOrderSignatures company={doc.company} />
+                  </>
+                )}
+              </div>
+
+              <PurchaseOrderFooter
+                pageNumber={page.pageNumber}
+                totalPages={totalPages}
               />
-
-              {page.showBottomSection && (
-                <>
-                  {!isHidePrices && <PurchaseOrderAmountInWords words={doc.financials.amountWords} />}
-                  <PurchaseOrderTermsBox terms={doc.terms} />
-                  <PurchaseOrderSignatures company={doc.company} />
-                </>
-              )}
             </div>
-
-            <PurchaseOrderFooter
-              pageNumber={page.pageNumber}
-              totalPages={totalPages}
-            />
-          </div>
-        </React.Fragment>
-      ))}
+          </React.Fragment>
+        ))}
+      </div>
     </div>
   );
 }

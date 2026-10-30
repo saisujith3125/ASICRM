@@ -617,7 +617,13 @@ export default function PurchaseOrdersView({ user, onNavigateCreate, onOpenPo, o
       {/* Document Print & PDF Preview Modal */}
       {previewPo && (
         <DocumentPreviewModal
-          title="Purchase Order"
+          title={
+            previewPo.status === 'PARTIALLY_RECEIVED'
+              ? 'Purchase Order - Partial Delivery'
+              : previewPo.status === 'RECEIVED'
+              ? 'Purchase Order - Full Delivery'
+              : 'Purchase Order'
+          }
           docId={previewPo.id || previewPo.poNumber}
           docType="po"
           status={previewPo.status}

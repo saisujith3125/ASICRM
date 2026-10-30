@@ -790,7 +790,7 @@
   padding: 10px 10px !important;
   border-bottom: 1px solid #cbd5e1 !important;
   border-right: 1px solid #cbd5e1 !important;
-  vertical-align: middle !important;
+  vertical-align: top !important;
   color: #1e293b;
 }
 
@@ -835,6 +835,28 @@
   border-color: #2563eb;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
   outline: none;
+}
+
+.po-table-input.po-item-desc-input {
+  height: auto !important;
+  min-height: 42px;
+  resize: vertical;
+  font-size: 12px !important;
+  line-height: 1.35;
+  padding: 5px 8px !important;
+  margin-top: 6px;
+  background-color: #f8fafc;
+  color: #334155;
+  border-radius: 5px;
+  border: 1px solid #cbd5e1;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.po-table-input.po-item-desc-input:focus {
+  background-color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
 }
 
 /* PO Line Items GST % Column & Select Box */

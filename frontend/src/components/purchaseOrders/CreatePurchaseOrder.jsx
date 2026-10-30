@@ -52,6 +52,7 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
       productId: '',
       productCode: '',
       productName: '',
+      description: '',
       unit: 'Nos',
       hsnSac: '',
       orderedQty: 1,
@@ -121,6 +122,7 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
                 productId: it.productId,
                 productCode: it.productCode,
                 productName: it.productName,
+                description: it.description || '',
                 unit: (it.unit && it.unit !== 'Piece') ? it.unit : 'Nos',
                 hsnSac: it.hsnSac || '',
                 orderedQty: Number(it.orderedQty || 1),
@@ -195,6 +197,7 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
           productId: '',
           productCode: '',
           productName: '',
+          description: '',
           unit: 'Nos',
           hsnSac: '',
           rate: 0,
@@ -235,6 +238,7 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
           productId: '',
           productCode: '',
           productName: '',
+          description: '',
           unit: 'Nos',
           hsnSac: '',
           orderedQty: 1,
@@ -272,6 +276,7 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
         productId: product.id,
         productCode: product.code,
         productName: product.name,
+        description: product.description || next[index].description || '',
         brand: product.brand || product.brandName || '',
         brandName: product.brand || product.brandName || '',
         unit: (product.unit && product.unit !== 'Piece') ? product.unit : 'Nos',
@@ -290,6 +295,7 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
           productId: '',
           productCode: '',
           productName: '',
+          description: '',
           unit: 'Nos',
           hsnSac: '',
           orderedQty: 1,
@@ -314,6 +320,7 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
           productId: '',
           productCode: '',
           productName: '',
+          description: '',
           unit: 'Nos',
           hsnSac: '',
           orderedQty: 1,
@@ -337,6 +344,7 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
         productId: '',
         productCode: '',
         productName: '',
+        description: '',
         unit: 'Nos',
         hsnSac: '',
         orderedQty: 1,
@@ -437,6 +445,7 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
           productId: it.productId,
           productCode: it.productCode,
           productName: it.productName,
+          description: (it.description || '').trim(),
           unit: it.unit,
           hsnSac: it.hsnSac,
           orderedQty: Number(it.orderedQty),
@@ -699,13 +708,20 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
               {items.map((item, idx) => (
                 <tr key={item.id || idx} className={`po-item-row ${item._highlight ? 'is-highlighted' : ''}`}>
                   <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600, fontSize: '12.5px' }}>{idx + 1}</td>
-                  <td>
+                  <td style={{ verticalAlign: 'top' }}>
                     <SearchableProductSelect
                       items={products}
                       selectedId={item.productId}
                       selectedName={item.productName}
                       onChange={(id, prod) => handleProductSelect(idx, id, prod)}
                       placeholder="Type or select product..."
+                    />
+                    <textarea
+                      className="po-table-input po-item-desc-input"
+                      rows={2}
+                      value={item.description || ''}
+                      onChange={(e) => updateItemField(idx, 'description', e.target.value)}
+                      placeholder="Product description / specifications (optional)..."
                     />
                   </td>
                   <td>

@@ -128,7 +128,7 @@ export function paginateDeliveryChallan(data) {
     // Calculate how many blank rows can safely fit without pushing the signature off the page
     const maxSafeFillerFit = Math.max(0, Math.floor(remainingSpace / 26));
     // Dynamic space rule: clamp empty lines so the signature block NEVER gets pushed off the page!
-    const blankRowsCount = Math.min(maxSafeFillerFit, Math.max(0, 4 - items.length));
+    const blankRowsCount = Math.min(maxSafeFillerFit, Math.max(0, 16 - items.length));
     return [{
       pageNumber: 1,
       items,
@@ -167,7 +167,7 @@ export function paginateDeliveryChallan(data) {
         currentItems.push(items[j]);
       }
       const remainingSpace = availableWithBottom - (currentHeightUsed + remainingHeight);
-      const safeFiller = Math.min(Math.max(0, Math.floor(remainingSpace / 26)), 2);
+      const safeFiller = Math.min(Math.max(0, Math.floor(remainingSpace / 26)), Math.max(0, 16 - currentItems.length));
       pages.push({
         pageNumber: pages.length + 1,
         items: currentItems,
@@ -207,7 +207,7 @@ export function paginateDeliveryChallan(data) {
       pageNumber: pages.length + 1,
       items: currentItems,
       startIndex: currentStartIndex,
-      blankRowsCount: canFitBottom ? Math.min(Math.max(0, Math.floor((availableWithBottom - currentHeightUsed) / 26)), 2) : 0,
+      blankRowsCount: canFitBottom ? Math.min(Math.max(0, Math.floor((availableWithBottom - currentHeightUsed) / 26)), Math.max(0, 16 - currentItems.length)) : 0,
       isPage1,
       showBottomSection: canFitBottom
     });

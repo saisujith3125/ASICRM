@@ -19,7 +19,8 @@ const {
   getNextQuotationIdPreview,
   getQuotationById,
   updateQuotationById,
-  updateQuotationStatus
+  updateQuotationStatus,
+  recordQuotationAdvance
 } = require('../controllers/enquiryController');
 
 // Middleware to normalize wildcard params to strings (handles IDs containing slashes like ENQ/001/2026, QTN/001/2026)
@@ -44,6 +45,10 @@ router.get('/quotation-queue', getQuotationQueue);
 
 // Quotation specific actions with wildcards
 router.patch('/quotation/{*quotationId}/status', normalizeParams, updateQuotationStatus);
+router.patch('/quotation/{*quotationId}/advance', normalizeParams, recordQuotationAdvance);
+router.post('/quotation/{*quotationId}/advance', normalizeParams, recordQuotationAdvance);
+router.patch('/quotations/{*quotationId}/advance', normalizeParams, recordQuotationAdvance);
+router.post('/quotations/{*quotationId}/advance', normalizeParams, recordQuotationAdvance);
 router.get('/quotation/{*quotationId}', normalizeParams, getQuotationById);
 router.put('/quotation/{*quotationId}', normalizeParams, updateQuotationById);
 router.put('/quotations/{*quotationId}', normalizeParams, updateQuotationById);

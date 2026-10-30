@@ -1910,6 +1910,113 @@ const updateQuotationStatus = (req, res) => {
 };
 
 /**
+ * PATCH /api/enquiries/quotation/:quotationId/advance
+ * POST /api/enquiries/quotation/:quotationId/advance
+ * Record advance payment received against an ACCEPTED quotation.
+ */
+const recordQuotationAdvance = (req, res) => {
+  try {
+    const adminUser = getCurrentUser(req);
+    const hasEditPermission = hasPermission(req, 'Quotations', 'Edit') ||
+                              hasPermission(req, 'Quotations', 'Approve') ||
+                              String(adminUser?.role || '').toUpperCase() === 'SUPER_ADMIN';
+
+    if (!hasEditPermission) {
+      return res.status(403).json({ success: false, message: 'You do not have permission to record advance payments for quotations.' });
+    }
+
+    const { quotationId } = req.params;
+    const cleanId = String(quotationId || '').trim();
+    const quotation = quotations.find((q) =>
+      String(q.quotationId || '').toUpperCase() === cleanId.toUpperCase() ||
+      String(q.id || '').toUpperCase() === cleanId.toUpperCase()
+    );
+
+    if (!quotation) {
+      return res.status(404).json({ success: false, message: `Quotation ${cleanId} not found.` });
+    }
+
+    const currentStatus = String(quotation.status || '').toUpperCase();
+    const allowedStatuses = ['ACCEPTED', 'CUSTOMER_ACCEPTED', 'CONFIRMED', 'CONVERTED'];
+    if (!allowedStatuses.includes(currentStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Advance payment can only be recorded for ACCEPTED quotations. Current status is "${quotation.status || 'PENDING'}".`
+      });
+    }
+
+    const { amount, paymentDate, paymentMode, referenceNo, notes } = req.body;
+    const parsedAmount = Number(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'Please enter a valid positive advance amount.' });
+    }
+
+    const quoteTotal = Number(quotation.grandTotal || quotation.amount || 0);
+    const existingAdvance = Number(quotation.advanceAmount || 0);
+    const remainingBalance = Math.max(0, quoteTotal - existingAdvance);
+
+    if (parsedAmount > remainingBalance + 0.01) {
+      return res.status(400).json({
+        success: false,
+        message: `Advance amount (₹${parsedAmount.toLocaleString('en-IN')}) cannot exceed remaining balance (₹${remainingBalance.toLocaleString('en-IN')}).`
+      });
+    }
+
+    const now = new Date().toISOString();
+    const paymentRecord = {
+      paymentId: `ADV-${Date.now()}`,
+      amount: Math.round(parsedAmount * 100) / 100,
+      paymentDate: paymentDate || now.split('T')[0],
+      paymentMode: paymentMode || 'Bank Transfer (NEFT/RTGS)',
+      referenceNo: String(referenceNo || '').trim(),
+      notes: String(notes || '').trim(),
+      recordedBy: adminUser ? adminUser.name : 'System',
+      recordedAt: now
+    };
+
+    if (!Array.isArray(quotation.advancePayments)) {
+      quotation.advancePayments = [];
+    }
+    quotation.advancePayments.push(paymentRecord);
+
+    const newAdvanceTotal = quotation.advancePayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    quotation.advanceAmount = Math.round(newAdvanceTotal * 100) / 100;
+    quotation.balanceAmount = Math.max(0, Math.round((quoteTotal - quotation.advanceAmount) * 100) / 100);
+    quotation.advanceStatus = quotation.balanceAmount <= 0 ? 'PAID' : (quotation.advanceAmount > 0 ? 'PARTIAL' : 'UNPAID');
+    quotation.updatedAt = now;
+    quotation.updatedBy = adminUser ? adminUser.name : 'System';
+
+    const enquiry = enquiries.find((e) => e.enquiryId === quotation.enquiryId);
+    if (enquiry) {
+      enquiry.lastAction = `Advance payment of ₹${parsedAmount.toLocaleString('en-IN')} recorded for ${quotation.quotationId}`;
+      enquiry.updatedAt = now;
+      if (!Array.isArray(enquiry.followUps)) enquiry.followUps = [];
+      enquiry.followUps.push({
+        id: `FU-${enquiry.enquiryId.replace('ENQ-', '')}-${enquiry.followUps.length + 1}`,
+        contactType: 'Advance Payment',
+        contactDate: now,
+        employee: quotation.updatedBy,
+        notes: `Advance payment recorded: ₹${parsedAmount.toLocaleString('en-IN')} via ${paymentRecord.paymentMode}${paymentRecord.referenceNo ? ` (Ref: ${paymentRecord.referenceNo})` : ''}. Total Advance: ₹${quotation.advanceAmount.toLocaleString('en-IN')}, Balance Due: ₹${quotation.balanceAmount.toLocaleString('en-IN')}.`,
+        outcome: `Advance Received: ₹${parsedAmount}`,
+        nextAction: quotation.balanceAmount <= 0 ? 'Full payment received' : 'Collect remaining balance upon order execution',
+        nextFollowUpDate: '',
+        createdAt: now
+      });
+    }
+
+    persistStore();
+    return res.status(200).json({
+      success: true,
+      message: `Advance payment of ₹${parsedAmount.toLocaleString('en-IN')} recorded successfully for quotation ${quotation.quotationId}.`,
+      data: quotation
+    });
+  } catch (error) {
+    console.error('Error in recordQuotationAdvance:', error);
+    return res.status(500).json({ success: false, message: 'Failed to record advance payment.' });
+  }
+};
+
+/**
  * POST /api/enquiries/:id/solve
  * LEGACY CASE RESOLUTION: order/lead linking path preserved for existing records.
  */
@@ -2184,5 +2291,6 @@ module.exports = {
   getNextQuotationIdPreview,
   getQuotationById,
   updateQuotationById,
-  updateQuotationStatus
+  updateQuotationStatus,
+  recordQuotationAdvance
 };

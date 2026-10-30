@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Eye, FileText, Check, X, Zap, Plus, Trash2, RefreshCw, MoreHorizontal, Copy, FilePlus } from 'lucide-react';
+import { Eye, FileText, Check, X, Zap, Plus, Trash2, RefreshCw, MoreHorizontal, Copy, FilePlus, CreditCard } from 'lucide-react';
+import RecordQuotationAdvanceModal from './RecordQuotationAdvanceModal';
 import { apiFetch, apiUrl } from '../../api';
 import { navigate } from '../../router';
 import DocumentPreviewModal from '../documents/DocumentPreviewModal';
@@ -109,6 +110,18 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
   const [openDropdownQuoteId, setOpenDropdownQuoteId] = useState(null);
   const [selectedQuoteForPdf, setSelectedQuoteForPdf] = useState(null);
   const [pdfLoadingQuoteId, setPdfLoadingQuoteId] = useState(null);
+  const [selectedQuoteForAdvance, setSelectedQuoteForAdvance] = useState(null);
+
+  const handleOpenAdvanceModal = (quote) => {
+    if (!quote) return;
+    const isAccepted = ['ACCEPTED', 'CUSTOMER_ACCEPTED', 'CONFIRMED'].includes(String(quote.status || '').toUpperCase());
+    const isConverted = quote.status === 'CONVERTED' || Boolean(quote.orderId);
+    if (!isAccepted && !isConverted) {
+      setError('Advance payment is strictly available only for ACCEPTED quotations.');
+      return;
+    }
+    setSelectedQuoteForAdvance(quote);
+  };
 
   // Global click-outside and Escape key listener for Actions dropdown
   useEffect(() => {
@@ -644,6 +657,13 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                       </td>
                       <td data-label="TOTAL AMOUNT" className="col-priority-high cell-nowrap" style={{ textAlign: 'right' }}>
                         <strong className="quotation-total-amt">{`₹${Number(quote.grandTotal || quote.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</strong>
+                        {Number(quote.advanceAmount) > 0 && (
+                          <div style={{ fontSize: '11px', color: '#059669', fontWeight: 600, marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '3px' }}>
+                            <span style={{ background: '#ecfdf5', color: '#047857', padding: '1px 6px', borderRadius: '4px', border: '1px solid #a7f3d0' }}>
+                              Adv: ₹{Number(quote.advanceAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                        )}
                       </td>
                       <td data-label="UPDATED" className="col-priority-low cell-nowrap" style={{ textAlign: 'center' }}>{formatDate(quote.updatedAt || quote.createdAt)}</td>
                       <td data-label="STATUS" className="col-priority-high cell-nowrap" style={{ textAlign: 'center' }}>
@@ -822,6 +842,23 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                                   </button>
                                 )}
 
+                                {/* Advance Amount - Strictly restricted to ACCEPTED or CONVERTED quotations */}
+                                {(isAccepted || isConverted) && (
+                                  <button
+                                    type="button"
+                                    className="dropdown-action-item success"
+                                    onClick={() => {
+                                      setOpenDropdownQuoteId(null);
+                                      handleOpenAdvanceModal(quote);
+                                    }}
+                                    role="menuitem"
+                                    title="Record advance payment received for this accepted quotation"
+                                  >
+                                    <CreditCard size={14} style={{ color: '#059669' }} />
+                                    <span style={{ color: '#047857', fontWeight: 600 }}>Advance Amount</span>
+                                  </button>
+                                )}
+
                                 {/* 7. Delete */}
                                 {can('Delete') && (
                                   <>
@@ -879,6 +916,22 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
             onPageChange={goToPage}
           />
         </div>
+
+      {/* Record Advance Payment Modal - Strictly for ACCEPTED quotations */}
+      {selectedQuoteForAdvance && (
+        <RecordQuotationAdvanceModal
+          isOpen={Boolean(selectedQuoteForAdvance)}
+          quotation={selectedQuoteForAdvance}
+          user={user}
+          onClose={() => setSelectedQuoteForAdvance(null)}
+          onSuccess={(updatedQuote) => {
+            setQuotations((prev) =>
+              prev.map((q) => (q.quotationId === updatedQuote.quotationId ? { ...q, ...updatedQuote } : q))
+            );
+            setSelectedQuoteForAdvance(null);
+          }}
+        />
+      )}
 
       {/* Official ASI Quotation PDF Preview & Download Modal - Only allowed for ACCEPTED or CONVERTED quotations */}
       {selectedQuoteForPdf && (selectedQuoteForPdf.status === 'ACCEPTED' || selectedQuoteForPdf.status === 'CONFIRMED' || selectedQuoteForPdf.status === 'CONVERTED' || Boolean(selectedQuoteForPdf.orderId)) && (

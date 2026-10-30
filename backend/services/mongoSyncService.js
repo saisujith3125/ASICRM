@@ -86,8 +86,18 @@ async function syncSettingsToMongo(companySettings) {
   }
 }
 
+async function deleteFromMongo(Model, keyField, keyValue) {
+  if (mongoose.connection.readyState !== 1 || !Model) return;
+  try {
+    await Model.deleteOne({ [keyField]: keyValue });
+  } catch (err) {
+    console.error(`[MONGO DELETE ERROR] ${Model?.modelName}:`, err.message);
+  }
+}
+
 module.exports = {
   syncStoreToMongo,
   syncStockToMongo,
-  syncSettingsToMongo
+  syncSettingsToMongo,
+  deleteFromMongo
 };

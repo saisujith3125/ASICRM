@@ -549,7 +549,8 @@ const persistStore = () => {
       dedupedEnquiries.push(item);
     }
   });
-  enquiries = dedupedEnquiries;
+  enquiries.length = 0;
+  enquiries.push(...dedupedEnquiries);
 
   // Enforce natural ascending sequence sort before writing (1 above 2)
   sortAllCollectionsAscending();
@@ -842,9 +843,24 @@ const generateSupplierId = () => {
 };
 
 const removeCustomerById = (customerId) => {
-  const index = customers.findIndex((customer) => customer.id === customerId);
+  const cleanId = String(customerId || '').trim().toUpperCase();
+  const index = customers.findIndex((customer) => String(customer.id || '').trim().toUpperCase() === cleanId);
   if (index >= 0) {
     customers.splice(index, 1);
+    persistStore();
+    return true;
+  }
+  return false;
+};
+
+const removeEnquiryById = (enquiryId) => {
+  const cleanId = String(enquiryId || '').trim().toUpperCase();
+  const index = enquiries.findIndex((enquiry) =>
+    String(enquiry.enquiryId || '').trim().toUpperCase() === cleanId ||
+    String(enquiry.id || '').trim().toUpperCase() === cleanId
+  );
+  if (index >= 0) {
+    enquiries.splice(index, 1);
     persistStore();
     return true;
   }
@@ -878,6 +894,7 @@ module.exports = {
   generateGrnId,
   generateSupplierId,
   removeCustomerById,
+  removeEnquiryById,
   persistStore
 };
 

@@ -6,6 +6,14 @@ import { navigate } from '../../router';
 import { useTablePagination, TableFooter } from '../common/TableWorkspace';
 import { filterRecordsBySearch } from '../../utils/searchHelper';
 
+function authHeaders(user) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (user?.id) headers['x-user-id'] = user.id;
+  if (user?.mobile) headers['x-user-mobile'] = user.mobile;
+  if (user?.email) headers['x-user-email'] = user.email;
+  return headers;
+}
+
 const ENQUIRY_SEARCH_EXTRACTORS = [
   (e) => e.enquiryId,
   (e) => e.customerName,
@@ -118,21 +126,35 @@ export default function EnquiryList({ user, onSelectEnquiry, onCreateEnquiry: _o
   const canDelete = hasPermission(user, 'Enquiries', 'Delete');
   const canCreateQuotation = hasPermission(user, 'Quotations', 'Create');
 
-  const handleDeleteEnquiry = (enq) => {
-    if (!window.confirm(`Are you sure you want to delete enquiry "${enq.enquiryId}"?`)) return;
-    setEnquiries((prev) => prev.filter((item) => item.enquiryId !== enq.enquiryId));
-    setMetrics((prev) => {
-      const statusKey = enq.status === 'NEW' ? 'new'
-        : enq.status === 'IN_PROGRESS' ? 'inProgress'
-        : enq.status === 'READY_FOR_QUOTATION' ? 'readyForQuotation'
-        : enq.status === 'NOT_RESPONDING' ? 'notResponding'
-        : enq.status === 'CLOSED' ? 'closed' : '';
-      return {
-        ...prev,
-        total: Math.max(0, (prev.total || 0) - 1),
-        ...(statusKey && prev[statusKey] ? { [statusKey]: Math.max(0, prev[statusKey] - 1) } : {})
-      };
-    });
+  const handleDeleteEnquiry = async (enq) => {
+    if (!window.confirm(`Are you sure you want to delete enquiry "${enq.enquiryId}"? This action cannot be undone.`)) return;
+    try {
+      const res = await apiFetch(apiUrl(`/api/enquiries/${encodeURIComponent(enq.enquiryId)}`), {
+        method: 'DELETE',
+        headers: authHeaders(user)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setEnquiries((prev) => prev.filter((item) => item.enquiryId !== enq.enquiryId));
+        setMetrics((prev) => {
+          const statusKey = enq.status === 'NEW' ? 'new'
+            : enq.status === 'IN_PROGRESS' ? 'inProgress'
+            : enq.status === 'READY_FOR_QUOTATION' ? 'readyForQuotation'
+            : enq.status === 'NOT_RESPONDING' ? 'notResponding'
+            : enq.status === 'CLOSED' ? 'closed' : '';
+          return {
+            ...prev,
+            total: Math.max(0, (prev.total || 0) - 1),
+            ...(statusKey && prev[statusKey] ? { [statusKey]: Math.max(0, prev[statusKey] - 1) } : {})
+          };
+        });
+      } else {
+        alert(data.message || 'Failed to delete enquiry.');
+      }
+    } catch (err) {
+      console.error('Error deleting enquiry:', err);
+      alert('Network error while deleting enquiry.');
+    }
   };
 
   // Live client-side filtering while typing combined with status and priority filters

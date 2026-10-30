@@ -5,6 +5,7 @@ const {
   getCustomerById,
   createCustomer,
   updateCustomer,
+  deleteCustomer,
   updateCustomerBranches,
   addCustomerBranch,
   updateCustomerBranch,
@@ -24,6 +25,8 @@ router.get('/:id/delivery-challans', getCustomerDeliveryChallans);
 router.get('/:id/invoices', getCustomerInvoices);
 router.post('/', createCustomer);
 router.put('/:id', updateCustomer);
+router.delete('/:id', deleteCustomer);
+router.post('/:id/delete', deleteCustomer);
 router.patch('/:id/branches', updateCustomerBranches);
 router.post('/:id/branches', addCustomerBranch);
 router.put('/:id/branches/:branchId', updateCustomerBranch);

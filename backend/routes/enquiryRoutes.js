@@ -10,6 +10,7 @@ const {
   getEnquiryById,
   createEnquiry,
   updateEnquiryDetails,
+  deleteEnquiry,
   addFollowUp,
   updateStatus,
   solveEnquiry,
@@ -60,5 +61,7 @@ router.put('/{*id}/quotation', normalizeParams, updateQuotation);
 router.post('/{*id}/solve', normalizeParams, solveEnquiry);
 router.put('/{*id}', normalizeParams, updateEnquiryDetails);
 router.get('/{*id}', normalizeParams, getEnquiryById);
+router.delete('/{*id}', normalizeParams, deleteEnquiry);
+router.post('/{*id}/delete', normalizeParams, deleteEnquiry);
 
 module.exports = router;

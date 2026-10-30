@@ -649,6 +649,66 @@ const getCustomerInvoices = (req, res) => {
   }
 };
 
+const deleteCustomer = async (req, res) => {
+  try {
+    if (!requirePermission(req, res, 'Customers', 'Delete')) return;
+    const { id } = req.params;
+    const cleanId = String(id || '').trim();
+    const index = customers.findIndex((item) => String(item.id || '').trim().toUpperCase() === cleanId.toUpperCase());
+    if (index === -1) {
+      return res.status(404).json({
+        success: false,
+        message: `Customer ${cleanId} not found.`
+      });
+    }
+
+    const customer = customers[index];
+
+    // Check for linked commercial transactions
+    const hasEnquiries = (enquiries || []).some((e) => e.customerId === customer.id || e.customerId === customer.name);
+    const hasOrders = (orders || []).some((o) => o.customerId === customer.id || o.customerId === customer.name);
+    const hasQuotations = (quotations || []).some((q) => matchCustomerToDocument(customer, q));
+    const hasChallans = (deliveryChallans || []).some((d) => matchCustomerToDocument(customer, d));
+    const hasInvoices = (invoices || []).some((i) => matchCustomerToDocument(customer, i));
+
+    const isLinked = hasEnquiries || hasOrders || hasQuotations || hasChallans || hasInvoices;
+    const force = req.query.force === 'true' || req.body?.force === true;
+
+    if (isLinked && !force) {
+      return res.status(400).json({
+        success: false,
+        hasLinkedRecords: true,
+        message: `Cannot delete customer "${customer.company || customer.name}" because they have existing linked commercial transactions (Enquiries, Quotations, Orders, or Invoices).`
+      });
+    }
+
+    const deletedName = customer.company || customer.name || customer.id;
+    customers.splice(index, 1);
+    persistStore();
+
+    try {
+      const { Customer } = require('../models');
+      const { deleteFromMongo } = require('../services/mongoSyncService');
+      if (Customer && deleteFromMongo) {
+        await deleteFromMongo(Customer, 'id', customer.id);
+      }
+    } catch (mErr) {
+      // Non-blocking fallback
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Customer "${deletedName}" deleted successfully.`
+    });
+  } catch (error) {
+    console.error('Error in deleteCustomer:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete customer.'
+    });
+  }
+};
+
 module.exports = {
   getCustomers,
   getCustomerById,
@@ -657,6 +717,7 @@ module.exports = {
   getCustomerInvoices,
   createCustomer,
   updateCustomer,
+  deleteCustomer,
   updateCustomerBranches,
   addCustomerBranch,
   updateCustomerBranch,

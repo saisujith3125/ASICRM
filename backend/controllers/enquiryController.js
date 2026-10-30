@@ -2095,6 +2095,76 @@ const solveEnquiry = (req, res) => {
   }
 };
 
+const deleteEnquiry = async (req, res) => {
+  try {
+    if (!requirePermission(req, res, 'Enquiries', 'Delete')) return;
+    const { id } = req.params;
+    const cleanId = String(id || '').trim();
+    const index = enquiries.findIndex((e) =>
+      String(e.enquiryId || '').trim().toUpperCase() === cleanId.toUpperCase() ||
+      String(e.id || '').trim().toUpperCase() === cleanId.toUpperCase()
+    );
+
+    if (index === -1) {
+      return res.status(404).json({
+        success: false,
+        message: `Enquiry ${cleanId} not found.`
+      });
+    }
+
+    const enquiry = enquiries[index];
+
+    // Check if converted to order
+    const isConverted = enquiry.status === 'CONVERTED' || Boolean(enquiry.orderId);
+    const force = req.query.force === 'true' || req.body?.force === true;
+
+    if (isConverted && !force) {
+      return res.status(400).json({
+        success: false,
+        hasLinkedRecords: true,
+        message: `Cannot delete enquiry "${enquiry.enquiryId}" because it has been converted into an active Order (${enquiry.orderId}).`
+      });
+    }
+
+    // Also remove associated unconverted quotation if any
+    let linkedQuotationId = enquiry.quotationId;
+    if (linkedQuotationId) {
+      const qIdx = (quotations || []).findIndex((q) => q.quotationId === linkedQuotationId);
+      if (qIdx !== -1) {
+        quotations.splice(qIdx, 1);
+      }
+    }
+
+    const deletedId = enquiry.enquiryId || enquiry.id;
+    enquiries.splice(index, 1);
+    persistStore();
+
+    try {
+      const { Enquiry, Quotation } = require('../models');
+      const { deleteFromMongo } = require('../services/mongoSyncService');
+      if (Enquiry && deleteFromMongo) {
+        await deleteFromMongo(Enquiry, 'enquiryId', deletedId);
+      }
+      if (linkedQuotationId && Quotation && deleteFromMongo) {
+        await deleteFromMongo(Quotation, 'quotationId', linkedQuotationId);
+      }
+    } catch (mErr) {
+      // Non-blocking fallback
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Enquiry "${deletedId}" deleted successfully.`
+    });
+  } catch (error) {
+    console.error('Error in deleteEnquiry:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete enquiry.'
+    });
+  }
+};
+
 module.exports = {
   getLeads,
   getQuotations,
@@ -2105,6 +2175,7 @@ module.exports = {
   getEnquiryById,
   createEnquiry,
   updateEnquiryDetails,
+  deleteEnquiry,
   addFollowUp,
   updateStatus,
   solveEnquiry,

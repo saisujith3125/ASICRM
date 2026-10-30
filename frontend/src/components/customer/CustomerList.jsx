@@ -5,6 +5,14 @@ import AddCustomerModal from './AddCustomerModal';
 import { useTablePagination, TableFooter } from '../common/TableWorkspace';
 import { filterRecordsBySearch } from '../../utils/searchHelper';
 
+function authHeaders(user) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (user?.id) headers['x-user-id'] = user.id;
+  if (user?.mobile) headers['x-user-mobile'] = user.mobile;
+  if (user?.email) headers['x-user-email'] = user.email;
+  return headers;
+}
+
 const CUSTOMER_SEARCH_EXTRACTORS = [
   (c) => c.id,
   (c) => c.name,
@@ -206,12 +214,44 @@ export default function CustomerList({ user, onSelectCustomer, onCreateEnquiryFo
     }
   };
 
-  // Delete Customer handler
-  const handleDeleteCustomer = (c) => {
-    if (!window.confirm(`Are you sure you want to delete customer "${c.name}"?`)) return;
-    setCustomers((prev) => prev.filter((item) => item.id !== c.id));
-    setSuccessToast(`Customer "${c.name}" removed.`);
-    setTimeout(() => setSuccessToast(''), 3000);
+  // Delete Customer handler with real backend persistence
+  const handleDeleteCustomer = async (c) => {
+    const custDisplayName = c.company || c.name || c.id;
+    if (!window.confirm(`Are you sure you want to delete customer "${custDisplayName}"? This action cannot be undone.`)) return;
+
+    try {
+      const res = await apiFetch(apiUrl(`/api/customers/${encodeURIComponent(c.id)}`), {
+        method: 'DELETE',
+        headers: authHeaders(user)
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setCustomers((prev) => prev.filter((item) => item.id !== c.id));
+        setSuccessToast(`Customer "${custDisplayName}" deleted successfully.`);
+        setTimeout(() => setSuccessToast(''), 3000);
+      } else if (data.hasLinkedRecords) {
+        if (window.confirm(`${data.message}\n\nDo you want to FORCE delete customer "${custDisplayName}" anyway?`)) {
+          const forceRes = await apiFetch(apiUrl(`/api/customers/${encodeURIComponent(c.id)}?force=true`), {
+            method: 'DELETE',
+            headers: authHeaders(user)
+          });
+          const forceData = await forceRes.json();
+          if (forceRes.ok && forceData.success) {
+            setCustomers((prev) => prev.filter((item) => item.id !== c.id));
+            setSuccessToast(`Customer "${custDisplayName}" force-deleted.`);
+            setTimeout(() => setSuccessToast(''), 3000);
+          } else {
+            alert(forceData.message || 'Failed to force delete customer.');
+          }
+        }
+      } else {
+        alert(data.message || 'Failed to delete customer.');
+      }
+    } catch (err) {
+      console.error('Error deleting customer:', err);
+      alert('Network error while deleting customer.');
+    }
   };
 
   return (

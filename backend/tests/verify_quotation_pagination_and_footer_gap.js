@@ -111,8 +111,8 @@ function runTests() {
   assert(quotationPaddingMatch, '.doc-quotation-page must specify 10mm bottom padding (exactly 1cm from sheet end)');
 
   // Check .is-exporting-pdf quotation height: exactly 297mm (Standard A4)
-  const quotationExportHeightMatch = css.includes('height: 297mm !important');
-  assert(quotationExportHeightMatch, '.is-exporting-pdf .doc-quotation-page must specify 297mm height (full A4 sheet length)');
+  const quotationExportHeightMatch = css.includes('height: 296mm !important');
+  assert(quotationExportHeightMatch, '.is-exporting-pdf .doc-quotation-page must specify 296mm height (A4 sheet with subpixel rounding buffer)');
 
   // Check footer notice bottom alignment
   const footerNoticeMatch = css.includes('margin-top: auto !important') && css.includes('margin-bottom: 0 !important');

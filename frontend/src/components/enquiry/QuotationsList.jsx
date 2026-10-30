@@ -399,34 +399,67 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
     <div className="crm-quotation-page-container quotation-directory-page">
       {error && quotations.length === 0 && <div className="crm-alert-box error" style={{ marginBottom: '12px' }}><span>{error}</span><button className="crm-btn-secondary compact" onClick={load} style={{ marginLeft: '12px' }}>Retry</button></div>}
 
-      <section className="quotation-workspace-bar" aria-label="Quotations controls">
-        <div className="quotation-workspace-title">
-          <h1>Quotations</h1>
-          <p>Track proposals, customer decisions, and conversions.</p>
-        </div>
+      {/* 1. Clean Page Header matching Customer Directory */}
+      <div className="page-header-row customer-page-header quotation-page-header" style={{ marginBottom: '8px' }}>
+        <h1 className="page-title">Quotations</h1>
+      </div>
 
-        <div className="quotation-workspace-controls">
-          <label className="quotation-search-box quotation-workspace-search">
-            <svg className="quotation-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search quotations..." aria-label="Search quotations" type="text" />
-            {query && <button type="button" className="quotation-search-clear clear-search-btn" onClick={() => setQuery('')} aria-label="Clear quotation search">×</button>}
-          </label>
-
-          <div className="quotation-status-filter" role="group" aria-label="Quotation status">
-            {['ALL', 'AWAITING', 'ACCEPTED', 'CONVERTED', 'REJECTED'].map((st) => (
+      {/* 2. Sleek Toolbar Card matching Customer Directory */}
+      <div className="customer-toolbar-card quotation-toolbar-card">
+        <div className="quotation-toolbar-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: '1 1 auto', minWidth: 0 }}>
+          <div className="customer-search-input-wrap" style={{ maxWidth: '300px', minWidth: '220px', flex: '0 1 300px' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search quotations by ID, customer..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="customer-search-input-field"
+              aria-label="Search quotations"
+            />
+            {query && (
               <button
-                key={st}
                 type="button"
-                className={`crm-btn-secondary compact ${statusFilter === st ? 'active' : ''}`}
-                style={statusFilter === st ? { background: '#2563eb', color: '#fff', borderColor: '#2563eb' } : {}}
-                onClick={() => setStatusFilter(st)}
+                className="clear-search-btn"
+                onClick={() => setQuery('')}
+                title="Clear search"
+                aria-label="Clear search"
               >
-                {st === 'AWAITING' ? 'PENDING' : st}
+                ✕
               </button>
-            ))}
+            )}
           </div>
 
-          <button type="button" className="crm-btn-secondary compact quotation-refresh-btn" onClick={load} disabled={loading} aria-label="Refresh quotations" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <div className="quotation-status-filter" role="group" aria-label="Quotation status" style={{ display: 'inline-flex', gap: '4px', flexWrap: 'nowrap' }}>
+            {['ALL', 'AWAITING', 'ACCEPTED', 'CONVERTED', 'REJECTED'].map((st) => {
+              const isActive = statusFilter === st;
+              return (
+                <button
+                  key={st}
+                  type="button"
+                  className={`crm-btn-secondary compact ${isActive ? 'active' : ''}`}
+                  style={isActive ? { background: '#2563eb', color: '#fff', borderColor: '#2563eb', fontWeight: 600 } : { fontWeight: 500 }}
+                  onClick={() => setStatusFilter(st)}
+                >
+                  {st === 'AWAITING' ? 'PENDING' : st}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="quotation-toolbar-right" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          <button
+            type="button"
+            className="crm-btn-secondary compact quotation-refresh-btn"
+            onClick={load}
+            disabled={loading}
+            title="Refresh quotations"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', height: '34px' }}
+          >
             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
             <span>Refresh</span>
           </button>
@@ -434,7 +467,7 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
           {can('Create') && (
             <button
               type="button"
-              className="quotation-topbar-create-btn"
+              className="crm-btn-primary add-customer-btn quotation-topbar-create-btn"
               onClick={() => {
                 try {
                   sessionStorage.removeItem('asicrm_quotation_draft_direct');
@@ -443,29 +476,26 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                 } catch (e) {}
                 navigate('/quotations/new');
               }}
-              title="Create new quotation"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', height: '34px' }}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              <span>Create Quotation</span>
+              <Plus size={15} />
+              <span>+ Create Quotation</span>
             </button>
           )}
         </div>
-      </section>
+      </div>
 
       <div className="settings-table-shell stocks-table-shell quotation-master-card">
         <div className="crm-table-scroll-wrap stocks-table-natural-wrap crm-table-viewport">
           <table className="settings-table quotation-settings-table quotation-register-table">
             <colgroup>
-              <col style={{ width: '14%' }} />
-              <col style={{ width: '20%' }} />
-              <col style={{ width: '12%' }} />
-              <col style={{ width: '7%' }} />
+              <col style={{ width: '15%' }} />
+              <col style={{ width: '23%' }} />
+              <col style={{ width: '8%' }} />
               <col style={{ width: '13%' }} />
               <col style={{ width: '11%' }} />
-              <col style={{ width: '14%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '12%' }} />
               <col style={{ width: '9%' }} />
             </colgroup>
             <thead>
@@ -508,24 +538,32 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                           style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
                           onClick={() => onOpenQuotation(quote.enquiryId, quote.quotationId)}
                         >
-                          <span className="master-code quotation-code-badge">{quote.quotationId || '—'}</span>
+                          <span className="customer-id-pill master-code quotation-code-badge" style={{ textDecoration: 'none' }}>{quote.quotationId || '—'}</span>
                         </button>
                       </td>
-                      <td data-label="CUSTOMER" className="col-priority-high quotation-customer-cell">
-                        <a
-                          href={`/customers/${encodeURIComponent(quote.customerId)}`}
-                          className="customer-table-link customer-name-link"
-                          style={{ textDecoration: 'none' }}
-                          title={quote.customerName || ''}
-                          onClick={(e) => {
-                            if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
-                              e.preventDefault();
-                              onNavigateCustomer?.(quote.customerId);
-                            }
-                          }}
-                        >
-                          {quote.customerName}
-                        </a>
+                      <td data-label="CUSTOMER" className="col-priority-high quotation-customer-cell cell-wrap">
+                        <div>
+                          <a
+                            href={`/customers/${encodeURIComponent(quote.customerId)}`}
+                            className="customer-table-link customer-name-link"
+                            style={{ textDecoration: 'none', fontWeight: 600, color: '#0f172a' }}
+                            title={quote.customerName || ''}
+                            onClick={(e) => {
+                              if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
+                                e.preventDefault();
+                                onNavigateCustomer?.(quote.customerId);
+                              }
+                            }}
+                          >
+                            {quote.customerName}
+                          </a>
+                          {quote.contactPerson && (
+                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                              <span style={{ fontSize: '10px' }}>👤</span>
+                              <span>{quote.contactPerson}</span>
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td data-label="ENQUIRY ID" className="col-priority-med cell-nowrap">
                         {quote.enquiryId ? (

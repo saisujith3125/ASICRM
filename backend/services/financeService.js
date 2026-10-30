@@ -18,7 +18,7 @@ function readCrmData() {
   } catch (err) {
     console.error('[FINANCE SERVICE] Error reading crm-data.json:', err.message);
   }
-  return { invoices: [], deliveryChallans: [], purchaseOrders: [], orders: [] };
+  return { invoices: [], deliveryChallans: [], purchaseOrders: [], orders: [], quotations: [], enquiries: [] };
 }
 
 function readStocksData() {
@@ -35,6 +35,26 @@ function readStocksData() {
 /**
  * Filter data by financial year, quarter, or date range
  */
+function getAllQuotations(crm) {
+  const list = [];
+  const seen = new Set();
+  (crm.quotations || []).forEach((q) => {
+    if (q.quotationId && !seen.has(q.quotationId)) {
+      seen.add(q.quotationId);
+      list.push(q);
+    }
+  });
+  (crm.enquiries || []).forEach((e) => {
+    (e.quotations || []).forEach((q) => {
+      if (q.quotationId && !seen.has(q.quotationId)) {
+        seen.add(q.quotationId);
+        list.push(q);
+      }
+    });
+  });
+  return list;
+}
+
 function applyDateFilter(items, dateField, filters = {}) {
   if (!Array.isArray(items)) return [];
   const { startDate, endDate, financialYear, quarter } = filters;
@@ -110,6 +130,94 @@ function getFinanceSummary(filters = {}) {
       pendingInvoicesCount++;
     }
   });
+
+  // Customer Advances Calculations (Quotations & Orders Mobilization Deposits)
+  let totalAdvanceCollected = 0;
+  let advanceCount = 0;
+  const advanceEntries = [];
+  const seenPaymentIds = new Set();
+
+  const allQuotes = getAllQuotations(crm);
+  allQuotes.forEach((q) => {
+    if (Number(q.advanceAmount || 0) > 0) {
+      if (Array.isArray(q.advancePayments) && q.advancePayments.length > 0) {
+        q.advancePayments.forEach((p) => {
+          const pId = p.paymentId || `ADV-${q.quotationId}-${p.paymentDate || ''}-${p.amount}`;
+          if (!seenPaymentIds.has(pId)) {
+            seenPaymentIds.add(pId);
+            const amt = Number(p.amount || 0);
+            totalAdvanceCollected += amt;
+            advanceCount++;
+            advanceEntries.push({
+              id: pId,
+              date: p.paymentDate || p.recordedAt || q.updatedAt || q.createdAt,
+              type: 'ADVANCE_INFLOW',
+              docType: 'Quotation Advance',
+              referenceId: q.quotationId,
+              orderId: q.orderId || null,
+              partyName: q.customerName || q.customerCompany || 'Customer',
+              description: `Advance received on Quotation ${q.quotationId}${p.referenceNo ? ' (Ref: ' + p.referenceNo + ')' : ''}`,
+              amount: amt,
+              direction: 'INFLOW',
+              paymentMode: p.paymentMode || 'Bank Transfer',
+              status: 'COLLECTED'
+            });
+          }
+        });
+      } else {
+        const amt = Number(q.advanceAmount || 0);
+        const pId = `ADV-${q.quotationId}`;
+        if (!seenPaymentIds.has(pId)) {
+          seenPaymentIds.add(pId);
+          totalAdvanceCollected += amt;
+          advanceCount++;
+          advanceEntries.push({
+            id: pId,
+            date: q.updatedAt || q.createdAt,
+            type: 'ADVANCE_INFLOW',
+            docType: 'Quotation Advance',
+            referenceId: q.quotationId,
+            orderId: q.orderId || null,
+            partyName: q.customerName || q.customerCompany || 'Customer',
+            description: `Advance received on Quotation ${q.quotationId}`,
+            amount: amt,
+            direction: 'INFLOW',
+            paymentMode: 'Bank Transfer',
+            status: 'COLLECTED'
+          });
+        }
+      }
+    }
+  });
+
+  // Include standalone orders with advances
+  (crm.orders || []).forEach((o) => {
+    if (Number(o.advanceAmount || 0) > 0 && !o.quotationId) {
+      const amt = Number(o.advanceAmount || 0);
+      const pId = `ADV-${o.orderId}`;
+      if (!seenPaymentIds.has(pId)) {
+        seenPaymentIds.add(pId);
+        totalAdvanceCollected += amt;
+        advanceCount++;
+        advanceEntries.push({
+          id: pId,
+          date: o.createdAt,
+          type: 'ADVANCE_INFLOW',
+          docType: 'Order Advance',
+          referenceId: o.orderId,
+          partyName: o.customerName || o.company || 'Customer',
+          description: `Advance received on Order ${o.orderId}`,
+          amount: amt,
+          direction: 'INFLOW',
+          paymentMode: 'Bank Transfer',
+          status: 'COLLECTED'
+        });
+      }
+    }
+  });
+
+  // Actual cash collected includes both settled invoices and customer advances
+  totalCashCollected += totalAdvanceCollected;
 
   // Outflow Calculations (Supplier Purchase Orders)
   let totalPoCommittedAmount = 0;
@@ -237,12 +345,19 @@ function getFinanceSummary(filters = {}) {
     });
   });
 
+  // Advance inflows added to master timeline
+  advanceEntries.forEach((adv) => {
+    timeline.push(adv);
+  });
+
   timeline.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
   return {
     kpis: {
       totalInflowBilled: Number(totalInvoicedAmount.toFixed(2)),
+      totalAdvanceCollected: Number(totalAdvanceCollected.toFixed(2)),
       totalCashCollected: Number(totalCashCollected.toFixed(2)),
+      advanceCount,
       totalReceivablesPending: Number(totalReceivablesPending.toFixed(2)),
       invoicesCount: invoices.length,
       paidInvoicesCount,

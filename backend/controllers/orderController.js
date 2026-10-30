@@ -2166,14 +2166,30 @@ const createInvoice = (req, res) => {
       branch: liveCompany.branch || 'ANNA NAGAR, CHENNAI'
     };
 
+    // Upstream Quotation & Order Advance Adjustment
+    const rawAdvance = Number(order?.advanceAmount !== undefined ? order.advanceAmount : (quotation?.advanceAmount || 0));
+    const advanceAdjusted = rawAdvance > 0 ? Math.min(rawAdvance, finalGrandTotal) : 0;
+    const balanceDue = Math.max(0, Number((finalGrandTotal - advanceAdjusted).toFixed(2)));
+
+    let finalPaymentStatus = paymentStatus;
+    if (!finalPaymentStatus) {
+      if (balanceDue === 0 && advanceAdjusted > 0) {
+        finalPaymentStatus = 'PAID';
+      } else if (advanceAdjusted > 0) {
+        finalPaymentStatus = 'PARTIAL';
+      } else {
+        finalPaymentStatus = 'PENDING';
+      }
+    }
+
     const newInvoice = {
       invoiceId,
       orderId: order ? order.orderId : (dcIdList.length > 0 ? `ORD-${dcIdList[0].replace('DC-', '')}` : (challanId ? `ORD-${challanId.replace('DC-', '')}` : `ORD-INV-${invoiceId.replace('INV-', '')}`)),
       challanId: dcIdList.length > 0 ? dcIdList.join(', ') : (challanId || (order?.challanIds && order.challanIds[0]) || (dc?.challanId || null)),
       challanIds: dcIdList.length > 0 ? dcIdList : (challanId ? [challanId] : []),
       challanDate: dc ? (dc.deliveryDate || dc.createdAt.slice(0, 10)) : '',
-      enquiryId: order?.enquiryId || '',
-      quotationId: order?.quotationId || '',
+      enquiryId: order?.enquiryId || quotation?.enquiryId || '',
+      quotationId: order?.quotationId || quotation?.quotationId || '',
       quotationDate: quotation?.createdAt ? quotation.createdAt.slice(0, 10) : '',
       poNumber: cleanPoNumber,
       poDate: cleanPoDate,
@@ -2206,10 +2222,12 @@ const createInvoice = (req, res) => {
       taxTotal: finalGst,
       calculatedTotal,
       grandTotal: finalGrandTotal,
+      advanceAdjusted,
+      balanceDue,
       status: status || 'ISSUED',
       stockDeducted: invoiceStockDeducted,
-      paymentStatus: paymentStatus || 'PENDING',
-      paymentMode: paymentMode || 'Bank Transfer',
+      paymentStatus: finalPaymentStatus,
+      paymentMode: paymentMode || (advanceAdjusted > 0 ? (order?.advancePayments?.[0]?.paymentMode || 'Bank Transfer') : 'Bank Transfer'),
       remarks: remarks ? remarks.trim() : (dc ? `Billing against Delivery Challan ${dc.challanId}` : ''),
       items: processedItems,
       bankDetails: finalBankDetails,

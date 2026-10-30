@@ -288,6 +288,11 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
               <div className="finance-kpi-value">{formatCurrency(kpis.totalCashCollected)}</div>
               <div className="finance-kpi-subtext">
                 <span>{kpis.paidInvoicesCount || 0} fully settled customer invoices</span>
+                {Number(kpis.totalAdvanceCollected || 0) > 0 && (
+                  <div style={{ marginTop: '2px', color: '#047857', fontWeight: 600, fontSize: '11px' }}>
+                    + {formatCurrency(kpis.totalAdvanceCollected)} customer advances
+                  </div>
+                )}
               </div>
             </div>
 
@@ -384,8 +389,8 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
                         <td style={{ whiteSpace: 'nowrap' }}>{item.date ? item.date.slice(0, 10) : '-'}</td>
                         <td>
                           {item.direction === 'INFLOW' && (
-                            <span className="flow-badge inflow">
-                              <ArrowDownRight size={12} /> Customer Inflow
+                            <span className={`flow-badge inflow ${item.type === 'ADVANCE_INFLOW' ? 'advance' : ''}`}>
+                              <ArrowDownRight size={12} /> {item.type === 'ADVANCE_INFLOW' ? 'Customer Advance' : 'Customer Inflow'}
                             </span>
                           )}
                           {item.direction === 'OUTFLOW' && (
@@ -400,7 +405,19 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
                           )}
                         </td>
                         <td>
-                          <strong>{item.referenceId}</strong>
+                          {item.type === 'ADVANCE_INFLOW' ? (
+                            <button
+                              type="button"
+                              className="link-code-btn"
+                              style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', color: '#047857', borderRadius: '4px', padding: '1px 6px', fontWeight: 700, cursor: 'pointer', fontSize: '11px' }}
+                              onClick={() => navigate('/quotations')}
+                              title={`View Quotation ${item.referenceId}`}
+                            >
+                              {item.referenceId}
+                            </button>
+                          ) : (
+                            <strong>{item.referenceId}</strong>
+                          )}
                         </td>
                         <td>{item.partyName}</td>
                         <td style={{ color: '#64748b', fontSize: '12.5px' }}>{item.description}</td>

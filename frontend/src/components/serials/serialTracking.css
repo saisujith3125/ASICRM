@@ -399,16 +399,32 @@
 }
 
 .serial-table-scroll-container {
-  overflow-x: auto;
+  overflow-x: hidden;
   width: 100%;
 }
 
 .serial-master-table {
-  width: 100%;
-  border-collapse: collapse;
+  width: 100% !important;
+  max-width: 100% !important;
+  border-collapse: collapse !important;
+  table-layout: fixed !important;
   text-align: left;
-  font-size: 13px;
-  min-width: 1200px;
+  font-size: 13.5px;
+  min-width: 0 !important;
+}
+
+.table-data-row.table-filler-row td {
+  height: 48px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  border-right: 1px solid var(--crm-table-border, #cbd5e1) !important;
+  padding: 0 14px !important;
+  pointer-events: none !important;
+  background: #ffffff !important;
+  user-select: none !important;
+}
+
+.table-data-row.table-filler-row td:last-child {
+  border-right: none !important;
 }
 
 .serial-master-table th {
@@ -1363,4 +1379,198 @@
   .serial-step-connector {
     display: none;
   }
+}
+
+
+/* ==========================================================================
+   REACTIVE SERIAL BUTTON BADGE (TABLE CELL)
+   ========================================================================== */
+.serial-sn-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.serial-sn-badge-btn:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px -1px rgba(37, 99, 235, 0.15);
+}
+
+.serial-sn-badge-btn:active {
+  transform: translateY(0);
+}
+
+.serial-sn-badge-btn .serial-sn-icon {
+  color: #64748b;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.serial-sn-badge-btn:hover .serial-sn-icon {
+  color: #2563eb;
+}
+
+.serial-sn-badge-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.serial-sn-badge-btn .serial-sn-ext-icon {
+  color: #94a3b8;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: all 0.15s ease;
+}
+
+.serial-sn-badge-btn:hover .serial-sn-ext-icon {
+  color: #2563eb;
+  opacity: 1;
+  transform: translate(1px, -1px);
+}
+
+/* ==========================================================================
+   MODAL 6-BOX COMMERCIAL & MOVEMENT SUMMARY GRID
+   ========================================================================== */
+.serial-modal-metrics-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
+
+.serial-metrics-card-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.serial-modal-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 840px) {
+  .serial-modal-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .serial-modal-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.serial-modal-metric-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.15s ease;
+}
+
+.serial-modal-metric-box:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.serial-modal-metric-box.highlight {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.metric-box-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.metric-box-val-main {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 3px;
+  line-height: 1.25;
+}
+
+.metric-box-val-main.cost {
+  color: #15803d;
+}
+
+.metric-box-val-main.sale {
+  color: #2563eb;
+}
+
+.metric-box-val-main.positive {
+  color: #15803d;
+}
+
+.metric-box-val-main.negative {
+  color: #dc2626;
+}
+
+.metric-box-sub {
+  font-size: 11.5px;
+  color: #475569;
+  line-height: 1.35;
+}
+
+.metric-link {
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.metric-link.po {
+  color: #2563eb;
+}
+
+.metric-link.dc {
+  color: #d97706;
+}
+
+.metric-link.invoice {
+  color: #15803d;
+}
+
+.metric-link:hover {
+  opacity: 0.85;
+}
+
+.metric-date-sub {
+  color: #94a3b8;
+  font-size: 11px;
 }

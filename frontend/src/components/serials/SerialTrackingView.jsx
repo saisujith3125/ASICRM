@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { apiFetch, apiUrl } from '../../api';
 import { navigate } from '../../router';
+import { useTablePagination, TableFooter } from '../common/TableWorkspace';
 import './serialTracking.css';
 
 function authHeaders(user) {
@@ -79,8 +80,23 @@ export default function SerialTrackingView({ user, initialQuery = '', initialSta
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState(initialQuery || '');
   const [statusFilter, setStatusFilter] = useState(initialStatus || 'ALL');
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 25;
+
+  // Enterprise Table Pagination (dynamic viewport page size + filler rows)
+  const {
+    currentPage,
+    totalPages,
+    pageSize,
+    currentRows,
+    showingStart,
+    showingEnd,
+    totalRecords,
+    goToPage
+  } = useTablePagination(serials, {
+    rowHeight: 48,
+    resetDeps: [statusFilter, searchQuery]
+  });
+
+  const setCurrentPage = goToPage;
 
   // Selected Serial for Detailed Modal Inspection
   const [selectedSerial, setSelectedSerial] = useState(null);
@@ -170,19 +186,24 @@ export default function SerialTrackingView({ user, initialQuery = '', initialSta
     setTimeout(() => setCopiedSn(''), 2000);
   };
 
+  // Keyboard Escape listener to dismiss modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && selectedSerial) {
+        setSelectedSerial(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedSerial]);
+
   // Quick preset button click
   const handleSampleClick = (sn) => {
     setSearchQuery(sn);
     handleInspectSerial(sn);
   };
 
-  // Client-side pagination
-  const paginatedSerials = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return serials.slice(startIndex, startIndex + pageSize);
-  }, [serials, currentPage, pageSize]);
-
-  const totalPages = Math.ceil(serials.length / pageSize) || 1;
+  
 
   return (
     <div className="serial-tracking-container">
@@ -404,66 +425,36 @@ export default function SerialTrackingView({ user, initialQuery = '', initialSta
       )}
 
       {/* 4. MASTER SERIAL DIRECTORY TABLE */}
-      <div className="serial-table-card">
-        <div className="serial-table-meta-bar">
-          <div className="serial-table-count">
-            Showing <strong>{serials.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}</strong> to{' '}
-            <strong>{Math.min(currentPage * pageSize, serials.length)}</strong> of{' '}
-            <strong>{serials.length.toLocaleString()}</strong> serial units
-          </div>
-          {totalPages > 1 && (
-            <div className="serial-pagination-controls">
-              <button
-                type="button"
-                className="serial-page-btn"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              >
-                Previous
-              </button>
-              <span className="serial-page-indicator">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                type="button"
-                className="serial-page-btn"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="serial-table-scroll-container">
-          <table className="serial-master-table">
+      <div className="settings-table-shell stocks-table-shell crm-table-workspace serial-table-card serials-master-card">
+        <div className="crm-table-scroll-wrap stocks-table-natural-wrap crm-table-viewport serial-table-scroll-container">
+          <table className="crm-master-table crm-data-table settings-table serial-master-table serials-register-table">
+            <colgroup>
+              <col style={{ width: '5%' }} />
+              <col style={{ width: '25%' }} />
+              <col style={{ width: '40%' }} />
+              <col style={{ width: '18%' }} />
+              <col style={{ width: '12%' }} />
+            </colgroup>
             <thead>
               <tr>
-                <th style={{ width: '45px', textAlign: 'center' }}>#</th>
-                <th style={{ width: '185px' }}>Serial Number</th>
-                <th style={{ width: '220px' }}>Product / SKU</th>
-                <th style={{ width: '150px' }}>Lifecycle Status</th>
-                <th style={{ width: '200px' }}>Inward PO &amp; Supplier</th>
-                <th style={{ width: '115px', textAlign: 'right' }}>Inward Cost</th>
-                <th style={{ width: '200px' }}>Outward DC &amp; Customer</th>
-                <th style={{ width: '140px' }}>Invoice Ref</th>
-                <th style={{ width: '115px', textAlign: 'right' }}>Selling Price</th>
-                <th style={{ width: '145px', textAlign: 'right' }}>Unit Gross Profit</th>
-                <th style={{ width: '90px', textAlign: 'center' }}>Action</th>
+                <th style={{ width: '5%', textAlign: 'center' }}>#</th>
+                <th style={{ width: '25%' }}>Serial Number</th>
+                <th style={{ width: '40%' }}>Product / SKU</th>
+                <th style={{ width: '18%', textAlign: 'center' }}>Lifecycle Status</th>
+                <th style={{ width: '12%', textAlign: 'center' }}>Action</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={11} className="serial-table-empty">
+                <tr className="empty-row">
+                  <td colSpan={5} className="serial-table-empty">
                     <RefreshCw size={24} className="spin" style={{ color: '#2563eb', margin: '0 auto 8px auto', display: 'block' }} />
                     Loading serialized hardware records...
                   </td>
                 </tr>
               ) : serials.length === 0 ? (
-                <tr>
-                  <td colSpan={11} className="serial-table-empty">
+                <tr className="empty-row">
+                  <td colSpan={5} className="serial-table-empty">
                     <Barcode size={32} style={{ color: '#94a3b8', margin: '0 auto 8px auto', display: 'block' }} />
                     <strong>No serial numbers found matching your query.</strong>
                     <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
@@ -472,30 +463,39 @@ export default function SerialTrackingView({ user, initialQuery = '', initialSta
                   </td>
                 </tr>
               ) : (
-                paginatedSerials.map((item, index) => {
-                  const globalIdx = (currentPage - 1) * pageSize + index + 1;
+                currentRows.map((item, index) => {
+                  const rowNumber = (currentPage - 1) * pageSize + index + 1;
                   const isStock = item.status === 'IN_STOCK';
                   const isUnbilled = item.status === 'DISPATCHED_UNBILLED';
                   const isBilled = item.status === 'BILLED_ACTIVE';
-                  const hasProfit = item.financials && item.financials.unitGrossProfit > 0;
 
                   return (
                     <tr
                       key={item.serialNumber || index}
-                      className="serial-table-row"
+                      className="table-data-row serial-table-row"
                       onClick={() => handleInspectSerial(item.serialNumber)}
                     >
                       {/* 1. Index */}
-                      <td style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
-                        {globalIdx}
+                      <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600 }}>
+                        {rowNumber}
                       </td>
 
-                      {/* 2. Serial Number with copy */}
+                      {/* 2. Serial Number with reactive badge & copy */}
                       <td>
                         <div className="serial-sn-cell">
-                          <span className="serial-sn-badge mono" title={item.serialNumber}>
-                            {item.serialNumber}
-                          </span>
+                          <button
+                            type="button"
+                            className="serial-sn-badge-btn mono"
+                            title="Click to view complete serial lifecycle, PO, DC, Invoice & Profit details"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleInspectSerial(item.serialNumber);
+                            }}
+                          >
+                            <Barcode size={13} className="serial-sn-icon" />
+                            <span>{item.serialNumber}</span>
+                            <ExternalLink size={12} className="serial-sn-ext-icon" />
+                          </button>
                           <button
                             type="button"
                             className="serial-sn-copy-btn"
@@ -522,190 +522,61 @@ export default function SerialTrackingView({ user, initialQuery = '', initialSta
                         </div>
                       </td>
 
-                      {/* 4. Status Badge */}
-                      <td>
+                      {/* 4. Lifecycle Status Badge */}
+                      <td style={{ textAlign: 'center' }}>
                         <span className={`serial-status-badge ${isStock ? 'stock' : (isUnbilled ? 'unbilled' : 'billed')}`}>
                           <span className="status-dot" />
                           {item.statusLabel || item.status}
                         </span>
                       </td>
 
-                      {/* 5. Inward PO & Supplier */}
-                      <td>
-                        <div className="serial-inward-cell">
-                          <div className="serial-po-ref-line">
-                            <span
-                              className="serial-link-text po"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate('/purchase-orders/history');
-                              }}
-                              title="View Purchase Order History"
-                            >
-                              {item.inward?.poNumber || 'PO Not Stamped'}
-                            </span>
-                            {item.inward?.grnReference && (
-                              <span className="serial-grn-tag">({item.inward.grnReference})</span>
-                            )}
-                          </div>
-                          <span className="serial-supplier-name" title={item.inward?.supplierName}>
-                            {item.inward?.supplierName || '—'}
-                          </span>
-                          <span className="serial-date-text">
-                            Rec: {formatDate(item.inward?.receivedDate)}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* 6. Inward Cost */}
-                      <td style={{ textAlign: 'right' }}>
-                        <span className="serial-cost-val mono">
-                          {formatCurrency(item.inward?.inwardCostPrice)}
-                        </span>
-                      </td>
-
-                      {/* 7. Outward DC & Customer */}
-                      <td>
-                        {item.outward ? (
-                          <div className="serial-outward-cell">
-                            <span
-                              className="serial-link-text dc"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate('/delivery-challans/history');
-                              }}
-                              title="View Delivery Challan History"
-                            >
-                              {item.outward.dcNumber || 'DC Linked'}
-                            </span>
-                            <span className="serial-customer-name" title={item.outward.customerName}>
-                              {item.outward.customerName || '—'}
-                            </span>
-                            <span className="serial-date-text">
-                              Disp: {formatDate(item.outward.dispatchDate)}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="serial-muted-dash">—</span>
-                        )}
-                      </td>
-
-                      {/* 8. Invoice Ref */}
-                      <td>
-                        {item.outward?.invoiceNumber ? (
-                          <span
-                            className="serial-link-text invoice"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate('/orders/invoices');
-                            }}
-                            title="View Sales Invoices"
-                          >
-                            {item.outward.invoiceNumber}
-                          </span>
-                        ) : item.outward ? (
-                          <span className="serial-pending-invoice-badge">
-                            ⚡ Pending Inv
-                          </span>
-                        ) : (
-                          <span className="serial-muted-dash">—</span>
-                        )}
-                      </td>
-
-                      {/* 9. Selling Price */}
-                      <td style={{ textAlign: 'right' }}>
-                        {item.outward?.sellingPrice ? (
-                          <span className="serial-sale-val mono">
-                            {formatCurrency(item.outward.sellingPrice)}
-                          </span>
-                        ) : (
-                          <span className="serial-muted-dash">—</span>
-                        )}
-                      </td>
-
-                      {/* 10. Unit Gross Profit */}
-                      <td style={{ textAlign: 'right' }}>
-                        {item.financials?.unitGrossProfit ? (
-                          <div className="serial-profit-cell">
-                            <span className={`serial-profit-val mono ${hasProfit ? 'positive' : 'negative'}`}>
-                              {formatCurrency(item.financials.unitGrossProfit)}
-                            </span>
-                            {item.financials.markupPercent > 0 && (
-                              <span className="serial-markup-pill">
-                                +{item.financials.markupPercent}%
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="serial-muted-dash">—</span>
-                        )}
-                      </td>
-
-                      {/* 11. Actions */}
+                      {/* 5. Action */}
                       <td style={{ textAlign: 'center' }}>
                         <button
                           type="button"
                           className="serial-inspect-btn"
-                          title="View Complete Serial Provenance & Movement Audit"
+                          title="View Inward PO, Outward DC, Invoice & Profit Details"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleInspectSerial(item.serialNumber);
                           }}
                         >
-                          <Eye size={14} />
-                          Inspect
+                          <Eye size={13} />
+                          <span>Inspect</span>
                         </button>
                       </td>
                     </tr>
                   );
                 })
               )}
+
+              {/* Table Filler Rows (fills card height so it takes the full page cleanly like Image 2) */}
+              {!loading && currentRows.length > 0 && currentRows.length < pageSize && (
+                Array.from({ length: pageSize - currentRows.length }).map((_, fIdx) => (
+                  <tr key={`filler-${fIdx}`} className="table-data-row table-filler-row" aria-hidden="true">
+                    <td style={{ textAlign: 'center' }}>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
-        {/* Bottom Pagination */}
-        {totalPages > 1 && (
-          <div className="serial-table-footer-pagination">
-            <span className="serial-page-indicator">
-              Page {currentPage} of {totalPages} ({serials.length} total units)
-            </span>
-            <div className="serial-pagination-buttons">
-              <button
-                type="button"
-                className="serial-page-btn"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(1)}
-              >
-                First
-              </button>
-              <button
-                type="button"
-                className="serial-page-btn"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              >
-                Previous
-              </button>
-              <button
-                type="button"
-                className="serial-page-btn"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              >
-                Next
-              </button>
-              <button
-                type="button"
-                className="serial-page-btn"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(totalPages)}
-              >
-                Last
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Standard ASICRM Table Workspace Footer */}
+        <TableFooter
+          showingStart={showingStart}
+          showingEnd={showingEnd}
+          total={totalRecords}
+          singularLabel="serial unit"
+          recordLabel="serial units"
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={goToPage}
+        />
       </div>
 
       {/* 5. SERIAL PROVENANCE INSPECTION MODAL */}
@@ -800,6 +671,168 @@ export default function SerialTrackingView({ user, initialQuery = '', initialSta
                           <span className="prod-tag mono">HSN/SAC: {selectedSerial.product?.hsnSac}</span>
                         )}
                         <span className="prod-tag">Serialization: Strict Unique Key</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Commercial & Movement Summary Grid (All 6 Values from Table) */}
+                  <div className="serial-modal-metrics-card">
+                    <div className="serial-metrics-card-header">
+                      <DollarSign size={15} />
+                      <span>Commercial &amp; Movement Summary</span>
+                    </div>
+                    <div className="serial-modal-metrics-grid">
+                      {/* 1. Inward PO & Supplier */}
+                      <div className="serial-modal-metric-box">
+                        <div className="metric-box-label">
+                          <ArrowDownRight size={13} style={{ color: '#2563eb' }} />
+                          <span>Inward PO &amp; Supplier</span>
+                        </div>
+                        <div className="metric-box-val-main">
+                          {selectedSerial.inward?.poNumber ? (
+                            <span
+                              className="metric-link po"
+                              onClick={() => {
+                                setSelectedSerial(null);
+                                navigate('/purchase-orders/history');
+                              }}
+                              title="Navigate to Purchase Orders"
+                            >
+                              {selectedSerial.inward.poNumber}
+                            </span>
+                          ) : (
+                            <span className="text-muted">PO Not Linked</span>
+                          )}
+                        </div>
+                        <div className="metric-box-sub">
+                          {selectedSerial.inward?.supplierName || '—'}
+                          {selectedSerial.inward?.receivedDate && (
+                            <span className="metric-date-sub"> • {formatDate(selectedSerial.inward.receivedDate)}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* 2. Inward Cost */}
+                      <div className="serial-modal-metric-box">
+                        <div className="metric-box-label">
+                          <Tag size={13} style={{ color: '#16a34a' }} />
+                          <span>Inward Cost</span>
+                        </div>
+                        <div className="metric-box-val-main cost mono">
+                          {formatCurrency(selectedSerial.inward?.inwardCostPrice || selectedSerial.financials?.inwardCost || 0)}
+                        </div>
+                        <div className="metric-box-sub text-muted">
+                          {selectedSerial.inward?.grnReference ? `GRN: ${selectedSerial.inward.grnReference}` : 'Unit Base Procurement Cost'}
+                        </div>
+                      </div>
+
+                      {/* 3. Outward DC & Customer */}
+                      <div className="serial-modal-metric-box">
+                        <div className="metric-box-label">
+                          <Truck size={13} style={{ color: '#d97706' }} />
+                          <span>Outward DC &amp; Customer</span>
+                        </div>
+                        <div className="metric-box-val-main">
+                          {selectedSerial.outward?.dcNumber ? (
+                            <span
+                              className="metric-link dc"
+                              onClick={() => {
+                                setSelectedSerial(null);
+                                navigate('/delivery-challans/history');
+                              }}
+                              title="Navigate to Delivery Challans"
+                            >
+                              {selectedSerial.outward.dcNumber}
+                            </span>
+                          ) : (
+                            <span style={{ color: '#059669', fontWeight: 700 }}>In Warehouse Stock</span>
+                          )}
+                        </div>
+                        <div className="metric-box-sub">
+                          {selectedSerial.outward?.customerName ? (
+                            <>
+                              {selectedSerial.outward.customerName}
+                              {selectedSerial.outward.dispatchDate && (
+                                <span className="metric-date-sub"> • {formatDate(selectedSerial.outward.dispatchDate)}</span>
+                              )}
+                            </>
+                          ) : (
+                            <span className="text-muted">Awaiting Dispatch Allocation</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* 4. Invoice Ref */}
+                      <div className="serial-modal-metric-box">
+                        <div className="metric-box-label">
+                          <CheckCircle2 size={13} style={{ color: '#7c3aed' }} />
+                          <span>Invoice Ref</span>
+                        </div>
+                        <div className="metric-box-val-main">
+                          {selectedSerial.outward?.invoiceNumber ? (
+                            <span
+                              className="metric-link invoice"
+                              onClick={() => {
+                                setSelectedSerial(null);
+                                navigate('/orders/invoices');
+                              }}
+                              title="Navigate to Sales Invoices"
+                            >
+                              {selectedSerial.outward.invoiceNumber}
+                            </span>
+                          ) : selectedSerial.outward ? (
+                            <span className="serial-pending-invoice-badge">⚡ Pending Sales Invoice</span>
+                          ) : (
+                            <span className="text-muted">Unbilled (In Stock)</span>
+                          )}
+                        </div>
+                        <div className="metric-box-sub text-muted">
+                          {selectedSerial.outward?.isBilled ? 'Settled & Realized' : (selectedSerial.outward ? 'Goods with Customer' : 'Vault Inventory')}
+                        </div>
+                      </div>
+
+                      {/* 5. Selling Price */}
+                      <div className="serial-modal-metric-box">
+                        <div className="metric-box-label">
+                          <DollarSign size={13} style={{ color: '#2563eb' }} />
+                          <span>Selling Price</span>
+                        </div>
+                        <div className="metric-box-val-main sale mono">
+                          {selectedSerial.outward?.sellingPrice ? formatCurrency(selectedSerial.outward.sellingPrice) : '—'}
+                        </div>
+                        <div className="metric-box-sub text-muted">
+                          {selectedSerial.outward?.sellingPrice ? 'Agreed Billing Rate' : 'Not Yet Invoiced'}
+                        </div>
+                      </div>
+
+                      {/* 6. Unit Gross Profit */}
+                      <div className="serial-modal-metric-box highlight">
+                        <div className="metric-box-label">
+                          <TrendingUp size={13} style={{ color: '#16a34a' }} />
+                          <span>Unit Gross Profit</span>
+                        </div>
+                        <div
+                          className={`metric-box-val-main mono ${
+                            selectedSerial.financials?.unitGrossProfit > 0
+                              ? 'positive'
+                              : selectedSerial.financials?.unitGrossProfit < 0
+                              ? 'negative'
+                              : ''
+                          }`}
+                        >
+                          {selectedSerial.financials?.unitGrossProfit !== undefined && selectedSerial.outward
+                            ? formatCurrency(selectedSerial.financials.unitGrossProfit)
+                            : '—'}
+                        </div>
+                        <div className="metric-box-sub">
+                          {selectedSerial.financials?.markupPercent ? (
+                            <span className="serial-markup-pill">+{selectedSerial.financials.markupPercent}% Markup</span>
+                          ) : selectedSerial.outward ? (
+                            <span className="text-muted">0.00% Margin</span>
+                          ) : (
+                            <span className="text-muted">Pending Realization</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

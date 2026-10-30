@@ -404,10 +404,10 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
         <h1 className="page-title">Quotations</h1>
       </div>
 
-      {/* 2. Sleek Toolbar Card matching Customer Directory */}
-      <div className="customer-toolbar-card quotation-toolbar-card">
-        <div className="quotation-toolbar-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: '1 1 auto', minWidth: 0 }}>
-          <div className="customer-search-input-wrap" style={{ maxWidth: '300px', minWidth: '220px', flex: '0 1 300px' }}>
+      {/* 2. Sleek Toolbar Card */}
+      <div className="quotation-toolbar-card">
+        <div className="quotation-toolbar-left">
+          <div className="quotation-search-input-wrap">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" aria-hidden="true">
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -417,7 +417,7 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
               placeholder="Search quotations by ID, customer..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="customer-search-input-field"
+              className="quotation-search-input-field"
               aria-label="Search quotations"
             />
             {query && (
@@ -433,15 +433,14 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
             )}
           </div>
 
-          <div className="quotation-status-filter" role="group" aria-label="Quotation status" style={{ display: 'inline-flex', gap: '4px', flexWrap: 'nowrap' }}>
+          <div className="quotation-status-filter" role="group" aria-label="Quotation status filter">
             {['ALL', 'AWAITING', 'ACCEPTED', 'CONVERTED', 'REJECTED'].map((st) => {
               const isActive = statusFilter === st;
               return (
                 <button
                   key={st}
                   type="button"
-                  className={`crm-btn-secondary compact ${isActive ? 'active' : ''}`}
-                  style={isActive ? { background: '#2563eb', color: '#fff', borderColor: '#2563eb', fontWeight: 600 } : { fontWeight: 500 }}
+                  className={`quotation-filter-btn ${isActive ? 'active' : ''}`}
                   onClick={() => setStatusFilter(st)}
                 >
                   {st === 'AWAITING' ? 'PENDING' : st}
@@ -451,14 +450,13 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
           </div>
         </div>
 
-        <div className="quotation-toolbar-right" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+        <div className="quotation-toolbar-right">
           <button
             type="button"
-            className="crm-btn-secondary compact quotation-refresh-btn"
+            className="crm-btn-secondary quotation-refresh-btn"
             onClick={load}
             disabled={loading}
             title="Refresh quotations"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', height: '34px' }}
           >
             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
             <span>Refresh</span>
@@ -467,7 +465,7 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
           {can('Create') && (
             <button
               type="button"
-              className="crm-btn-primary add-customer-btn quotation-topbar-create-btn"
+              className="crm-btn-primary quotation-create-btn"
               onClick={() => {
                 try {
                   sessionStorage.removeItem('asicrm_quotation_draft_direct');
@@ -476,26 +474,24 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                 } catch (e) {}
                 navigate('/quotations/new');
               }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', height: '34px' }}
             >
-              <Plus size={15} />
-              <span>+ Create Quotation</span>
+              <Plus size={14} />
+              <span>Create Quotation</span>
             </button>
           )}
         </div>
       </div>
-
       <div className="settings-table-shell stocks-table-shell quotation-master-card">
         <div className="crm-table-scroll-wrap stocks-table-natural-wrap crm-table-viewport">
           <table className="settings-table quotation-settings-table quotation-register-table">
             <colgroup>
-              <col style={{ width: '15%' }} />
-              <col style={{ width: '23%' }} />
-              <col style={{ width: '8%' }} />
               <col style={{ width: '13%' }} />
-              <col style={{ width: '11%' }} />
-              <col style={{ width: '9%' }} />
+              <col style={{ width: '23%' }} />
               <col style={{ width: '12%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '10%' }} />
               <col style={{ width: '9%' }} />
             </colgroup>
             <thead>
@@ -534,11 +530,11 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                       <td data-label="QUOTATION ID" className="col-priority-high cell-nowrap">
                         <button
                           type="button"
-                          className="enquiry-id-link"
-                          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}
+                          className="quotation-id-btn"
                           onClick={() => onOpenQuotation(quote.enquiryId, quote.quotationId)}
+                          title="View / Edit quotation"
                         >
-                          <span className="customer-id-pill master-code quotation-code-badge" style={{ textDecoration: 'none' }}>{quote.quotationId || '—'}</span>
+                          <span className="quotation-code-badge">{quote.quotationId || '—'}</span>
                         </button>
                       </td>
                       <td data-label="CUSTOMER" className="col-priority-high quotation-customer-cell cell-wrap">
@@ -569,15 +565,16 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                         {quote.enquiryId ? (
                           <a
                             href={`/enquiries/${encodeURIComponent(quote.enquiryId)}`}
-                            className="enquiry-id-link"
+                            className="quotation-enquiry-link"
                             onClick={(e) => {
                               if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
                                 e.preventDefault();
                                 navigate(`/enquiries/${encodeURIComponent(quote.enquiryId)}`);
                               }
                             }}
+                            title={`View linked Enquiry ${quote.enquiryId}`}
                           >
-                            {quote.enquiryId}
+                            <span className="quotation-enquiry-badge">{quote.enquiryId}</span>
                           </a>
                         ) : (
                           <span style={{ color: '#94a3b8' }}>—</span>
@@ -646,7 +643,7 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
                         )}
                       </td>
                       <td data-label="TOTAL AMOUNT" className="col-priority-high cell-nowrap" style={{ textAlign: 'right' }}>
-                        <strong>{`₹${Number(quote.grandTotal || quote.amount || 0).toLocaleString('en-IN')}`}</strong>
+                        <strong className="quotation-total-amt">{`₹${Number(quote.grandTotal || quote.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</strong>
                       </td>
                       <td data-label="UPDATED" className="col-priority-low cell-nowrap" style={{ textAlign: 'center' }}>{formatDate(quote.updatedAt || quote.createdAt)}</td>
                       <td data-label="STATUS" className="col-priority-high cell-nowrap" style={{ textAlign: 'center' }}>

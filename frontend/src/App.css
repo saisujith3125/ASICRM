@@ -11529,13 +11529,13 @@ button.stocks-kpi-card { cursor:pointer; }
 .quotation-directory-page .quotation-list-card .crm-data-table{table-layout:fixed;font-size:11.5px}
 .quotation-directory-page .quotation-list-card .crm-data-table th{padding:8px 10px;font-size:9.5px;white-space:nowrap}
 .quotation-directory-page .quotation-list-card .crm-data-table td{padding:8px 10px;line-height:1.25;vertical-align:middle}
-.quotation-directory-page .quotation-register-table th:nth-child(1),.quotation-directory-page .quotation-register-table td:nth-child(1){width:15%!important;min-width:145px!important;text-align:left!important}
+.quotation-directory-page .quotation-register-table th:nth-child(1),.quotation-directory-page .quotation-register-table td:nth-child(1){width:13%!important;min-width:130px!important;text-align:left!important}
 .quotation-directory-page .quotation-register-table th:nth-child(2),.quotation-directory-page .quotation-register-table td:nth-child(2){width:23%!important;min-width:190px!important;text-align:left!important}
-.quotation-directory-page .quotation-register-table th:nth-child(3),.quotation-directory-page .quotation-register-table td:nth-child(3){width:8%!important;min-width:80px!important;text-align:left!important}
-.quotation-directory-page .quotation-register-table th:nth-child(4),.quotation-directory-page .quotation-register-table td:nth-child(4){width:13%!important;min-width:115px!important;text-align:center!important}
-.quotation-directory-page .quotation-register-table th:nth-child(5),.quotation-directory-page .quotation-register-table td:nth-child(5){width:11%!important;min-width:105px!important;text-align:right!important}
-.quotation-directory-page .quotation-register-table th:nth-child(6),.quotation-directory-page .quotation-register-table td:nth-child(6){width:9%!important;min-width:85px!important;text-align:center!important}
-.quotation-directory-page .quotation-register-table th:nth-child(7),.quotation-directory-page .quotation-register-table td:nth-child(7){width:12%!important;min-width:110px!important;text-align:center!important}
+.quotation-directory-page .quotation-register-table th:nth-child(3),.quotation-directory-page .quotation-register-table td:nth-child(3){width:12%!important;min-width:115px!important;text-align:left!important}
+.quotation-directory-page .quotation-register-table th:nth-child(4),.quotation-directory-page .quotation-register-table td:nth-child(4){width:10%!important;min-width:95px!important;text-align:center!important}
+.quotation-directory-page .quotation-register-table th:nth-child(5),.quotation-directory-page .quotation-register-table td:nth-child(5){width:13%!important;min-width:120px!important;text-align:right!important}
+.quotation-directory-page .quotation-register-table th:nth-child(6),.quotation-directory-page .quotation-register-table td:nth-child(6){width:10%!important;min-width:95px!important;text-align:center!important}
+.quotation-directory-page .quotation-register-table th:nth-child(7),.quotation-directory-page .quotation-register-table td:nth-child(7){width:10%!important;min-width:100px!important;text-align:center!important}
 .quotation-directory-page .quotation-register-table th:nth-child(8),.quotation-directory-page .quotation-register-table td:nth-child(8){width:9%!important;min-width:90px!important;text-align:right!important}
 .quotation-directory-page .quotation-register-table td:nth-child(2) .customer-table-link{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .quotation-directory-page .quotation-row-actions{gap:4px!important;justify-content:flex-end!important;align-items:center!important;flex-wrap:nowrap!important;padding-right:2px!important}
@@ -26678,25 +26678,13 @@ td.serial-dropdown-cell {
   box-sizing: border-box !important;
 }
 
-.crm-quotation-page-container .quotation-workspace-bar {
+/* 1. Header Row */
+.crm-quotation-page-container .page-header-row {
   flex: 0 0 auto !important;
-  margin: 0 0 8px 0 !important;
-  padding: 6px 12px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 12px !important;
-  background-color: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 8px !important;
-  box-sizing: border-box !important;
+  margin: 0 0 6px 0 !important;
 }
 
-.crm-quotation-page-container .quotation-workspace-title {
-  flex: 0 0 auto !important;
-}
-
-.crm-quotation-page-container .quotation-workspace-title h1 {
+.crm-quotation-page-container .page-title {
   font-size: 19px !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
@@ -26704,43 +26692,258 @@ td.serial-dropdown-cell {
   margin: 0 !important;
 }
 
-.crm-quotation-page-container .quotation-workspace-title p {
-  display: none !important;
-}
-
-.crm-quotation-page-container .quotation-workspace-controls {
-  flex: 1 1 auto !important;
+/* 2. Sleek Toolbar Card */
+.crm-quotation-page-container .quotation-toolbar-card {
+  flex: 0 0 auto !important;
   display: flex !important;
   align-items: center !important;
-  justify-content: flex-end !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  margin: 0 0 8px 0 !important;
+  box-sizing: border-box !important;
+  flex-wrap: nowrap !important;
+}
+
+.crm-quotation-page-container .quotation-toolbar-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  flex-wrap: nowrap !important;
+}
+
+.crm-quotation-page-container .quotation-search-input-wrap {
+  display: flex !important;
+  align-items: center !important;
   gap: 8px !important;
-}
-
-.crm-quotation-page-container .quotation-workspace-search {
+  flex: 0 1 320px !important;
+  min-width: 220px !important;
   height: 34px !important;
-  min-height: 34px !important;
-}
-
-.crm-quotation-page-container .quotation-workspace-search input {
-  height: 34px !important;
-  font-size: 13.5px !important;
-}
-
-.crm-quotation-page-container .quotation-status-filter .crm-btn-secondary {
-  height: 32px !important;
-  min-height: 32px !important;
   padding: 0 10px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  background: #f8fafc !important;
+  box-sizing: border-box !important;
+  transition: all 0.15s ease !important;
+}
+
+.crm-quotation-page-container .quotation-search-input-wrap:focus-within {
+  border-color: #2563eb !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) !important;
+}
+
+.crm-quotation-page-container .quotation-search-input-field {
+  width: 100% !important;
+  min-width: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: 13px !important;
+  color: #0f172a !important;
+  padding: 0 !important;
+}
+
+.crm-quotation-page-container .clear-search-btn {
+  background: none !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  padding: 0 4px !important;
+}
+
+.crm-quotation-page-container .clear-search-btn:hover {
+  color: #475569 !important;
+}
+
+.crm-quotation-page-container .quotation-status-filter {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  flex-wrap: nowrap !important;
+}
+
+.crm-quotation-page-container .quotation-filter-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  border-radius: 6px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  color: #475569 !important;
   font-size: 12px !important;
   font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  white-space: nowrap !important;
 }
 
-.crm-quotation-page-container .quotation-refresh-btn,
-.crm-quotation-page-container .quotation-create-btn {
-  height: 32px !important;
-  min-height: 32px !important;
+.crm-quotation-page-container .quotation-filter-btn:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.crm-quotation-page-container .quotation-filter-btn.active {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.25) !important;
+}
+
+.crm-quotation-page-container .quotation-toolbar-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+  flex-wrap: nowrap !important;
+}
+
+.crm-quotation-page-container .quotation-refresh-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  height: 34px !important;
   padding: 0 12px !important;
+  border-radius: 6px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
   font-size: 12.5px !important;
   font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.crm-quotation-page-container .quotation-refresh-btn:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+.crm-quotation-page-container .quotation-create-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  height: 34px !important;
+  padding: 0 14px !important;
+  border-radius: 6px !important;
+  border: 1px solid transparent !important;
+  background: #2563eb !important;
+  color: #ffffff !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.25) !important;
+}
+
+.crm-quotation-page-container .quotation-create-btn:hover {
+  background: #1d4ed8 !important;
+}
+
+/* 3. Table Badges & Cell Enhancements */
+.crm-quotation-page-container .quotation-id-btn {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  display: inline-block !important;
+}
+
+.crm-quotation-page-container .quotation-code-badge {
+  font-family: var(--font-mono, monospace) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  border: 1px solid #e2e8f0 !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+  transition: all 0.15s ease !important;
+}
+
+.crm-quotation-page-container .quotation-id-btn:hover .quotation-code-badge {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: #2563eb !important;
+}
+
+.crm-quotation-page-container .customer-name-link {
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #2563eb !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease !important;
+}
+
+.crm-quotation-page-container .customer-name-link:hover {
+  text-decoration: underline !important;
+  color: #1d4ed8 !important;
+}
+
+.crm-quotation-page-container .quotation-enquiry-link {
+  text-decoration: none !important;
+  display: inline-block !important;
+}
+
+.crm-quotation-page-container .quotation-enquiry-badge {
+  font-family: var(--font-mono, monospace) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #2563eb !important;
+  background: #eff6ff !important;
+  border: 1px solid #bfdbfe !important;
+  padding: 2.5px 7px !important;
+  border-radius: 4px !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+  transition: all 0.15s ease !important;
+}
+
+.crm-quotation-page-container .quotation-enquiry-link:hover .quotation-enquiry-badge {
+  background: #dbeafe !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+}
+
+.crm-quotation-page-container .quotation-items-trigger {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 2.5px 8px !important;
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 5px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.crm-quotation-page-container .quotation-items-trigger:hover,
+.crm-quotation-page-container .quotation-items-trigger.active {
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+}
+
+.crm-quotation-page-container .quotation-total-amt {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  font-family: var(--font-mono, monospace) !important;
 }
 
 /* Master Table Card */

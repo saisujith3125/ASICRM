@@ -865,10 +865,10 @@
 .dc-receiver-compact-pill {
   width: 100%;
   height: 28px;
-  padding: 0 7px;
+  padding: 0 8px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 4px;
+  border-radius: 5px;
   font-family: inherit;
   font-size: 11.5px;
   font-weight: 500;
@@ -876,7 +876,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 4px;
+  gap: 5px;
   cursor: pointer;
   box-sizing: border-box;
   transition: all 0.15s ease;
@@ -906,7 +906,7 @@
 .dc-receiver-pill-arrow {
   flex-shrink: 0;
   color: #64748b;
-  transition: transform 0.15s ease;
+  transition: transform 0.18s ease;
 }
 
 .dc-receiver-compact-pill.is-open .dc-receiver-pill-arrow {
@@ -914,32 +914,25 @@
   color: #1d4ed8;
 }
 
-.dc-receiver-popover {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  width: 100%;
-  min-width: 155px;
-  max-width: 165px;
+/* Receiver Popover Portal - Rendered directly to document.body, always on top */
+.dc-receiver-popover-portal {
+  position: fixed;
+  width: 275px;
   background: #ffffff;
   border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.15), 0 1px 3px rgba(15, 23, 42, 0.08);
-  padding: 8px 10px;
-  z-index: 1000;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.22), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+  padding: 10px 12px;
+  z-index: 99999;
   box-sizing: border-box;
   animation: dcPopoverFadeIn 0.15s ease-out;
-}
-
-.dc-receiver-popover.popover-up {
-  top: auto;
-  bottom: calc(100% + 4px);
+  pointer-events: auto;
 }
 
 @keyframes dcPopoverFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-3px);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
@@ -947,20 +940,35 @@
   }
 }
 
+.dc-receiver-popover-portal.popover-up {
+  /* shown above anchor */
+}
+
 .dc-receiver-popover-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 5px;
-  margin-bottom: 5px;
+  padding-bottom: 7px;
+  margin-bottom: 7px;
   border-bottom: 1px solid #f1f5f9;
 }
 
+.dc-popover-header-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dc-popover-user-icon {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
 .dc-popover-title-text {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #64748b;
+  letter-spacing: 0.03em;
+  color: #1e293b;
   text-transform: uppercase;
 }
 
@@ -969,11 +977,12 @@
   border: none;
   color: #94a3b8;
   cursor: pointer;
-  padding: 2px;
-  display: flex;
+  padding: 3px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 3px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
   line-height: 1;
 }
 
@@ -985,34 +994,132 @@
 .dc-popover-content {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 7px;
 }
 
 .dc-popover-field {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
 .dc-popover-field-label {
   font-size: 9.5px;
   font-weight: 600;
   text-transform: uppercase;
-  color: #94a3b8;
-  letter-spacing: 0.02em;
+  color: #64748b;
+  letter-spacing: 0.03em;
+}
+
+.dc-popover-receiver-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
 }
 
 .dc-popover-field-value {
-  font-size: 11.5px;
-  color: #1e293b;
+  font-size: 12px;
+  color: #334155;
   line-height: 1.35;
   word-break: break-word;
-  white-space: normal;
 }
 
 .dc-popover-field-value.highlight {
   font-weight: 600;
   color: #0f172a;
+  font-size: 12.5px;
+}
+
+.dc-popover-challan-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.dc-popover-phone-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #f8fafc;
+  padding: 4px 8px;
+  border-radius: 5px;
+  border: 1px solid #e2e8f0;
+}
+
+.dc-popover-phone-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.dc-popover-phone-link:hover {
+  text-decoration: underline;
+  color: #1d4ed8;
+}
+
+.dc-popover-phone-icon {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.dc-popover-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dc-popover-copy-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.dc-popover-customer-row,
+.dc-popover-dest-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.dc-popover-sub-icon {
+  color: #64748b;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.dc-popover-sub-icon.dest {
+  color: #ef4444;
+}
+
+.dc-popover-destination-text {
+  font-size: 11.5px;
+  color: #475569;
+  background: #f8fafc;
+  padding: 3px 6px;
+  border-radius: 4px;
+  border: 1px solid #f1f5f9;
+  line-height: 1.35;
+  word-break: break-word;
 }
 
 /* 6. Status Badge Sizing */

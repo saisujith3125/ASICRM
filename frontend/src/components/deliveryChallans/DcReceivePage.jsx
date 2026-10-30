@@ -1,5 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { PackageCheck, Check, Eye, RotateCcw, X, ChevronDown, Phone, User } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { PackageCheck, Check, Eye, RotateCcw, X, ChevronDown, Phone, User, Copy, Building2, MapPin } from 'lucide-react';
 import { apiFetch, apiUrl } from '../../api';
 import { DCStatusBadge, DCEmptyState } from './dcPrimitives';
 import { TableFooter, useTablePagination } from '../common/TableWorkspace';
@@ -13,6 +14,182 @@ function authHeaders(user) {
   };
 }
 
+
+/**
+ * Receiver Contact Portal Popover
+ * Rendered directly into document.body to prevent table row / container overflow clipping
+ */
+function ReceiverContactPopover({ dc, anchorEl, onClose }) {
+  const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0, showAbove: false });
+  const [copied, setCopied] = useState(false);
+  const popoverRef = useRef(null);
+
+  const phone = dc?.receiverContact || dc?.contactNumber || dc?.phone || dc?.mobile || '';
+  const customerName = dc?.customerCompany || dc?.customerName || '';
+  const contactPerson = dc?.contactPerson || '';
+  const destination = (dc?.deliveryAddress || dc?.customerAddress || dc?.shippingAddress || dc?.destination || '').trim();
+
+  const updatePosition = () => {
+    if (!anchorEl) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const popoverHeight = 220;
+    const popoverWidth = 275;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const showAbove = spaceBelow < popoverHeight && rect.top > popoverHeight;
+
+    const top = showAbove ? rect.top - 6 : rect.bottom + 6;
+    let left = rect.left;
+    if (left + popoverWidth > window.innerWidth - 12) {
+      left = Math.max(12, window.innerWidth - popoverWidth - 12);
+    }
+
+    setPopoverPos({ top, left, showAbove });
+  };
+
+  useEffect(() => {
+    updatePosition();
+    const handleScrollOrResize = () => updatePosition();
+    window.addEventListener('scroll', handleScrollOrResize, true);
+    window.addEventListener('resize', handleScrollOrResize);
+    return () => {
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
+  }, [anchorEl]);
+
+  useEffect(() => {
+    const handlePointerDown = (e) => {
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(e.target) &&
+        anchorEl &&
+        !anchorEl.contains(e.target)
+      ) {
+        onClose();
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown, true);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown, true);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [anchorEl, onClose]);
+
+  const handleCopyPhone = (e) => {
+    e.stopPropagation();
+    if (!phone) return;
+    try {
+      navigator.clipboard.writeText(phone);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
+
+  return createPortal(
+    <div
+      ref={popoverRef}
+      className={`dc-receiver-popover-portal ${popoverPos.showAbove ? 'popover-up' : ''}`}
+      style={{
+        position: 'fixed',
+        top: `${popoverPos.top}px`,
+        left: `${popoverPos.left}px`,
+        transform: popoverPos.showAbove ? 'translateY(-100%)' : 'none',
+        zIndex: 99999
+      }}
+      onClick={(e) => e.stopPropagation()}
+      role="dialog"
+      aria-label="Receiver Contact Details"
+    >
+      <div className="dc-receiver-popover-header">
+        <div className="dc-popover-header-title">
+          <User size={13} className="dc-popover-user-icon" />
+          <span className="dc-popover-title-text">Receiver Contact</span>
+        </div>
+        <button
+          type="button"
+          className="dc-popover-close-btn"
+          onClick={onClose}
+          aria-label="Close"
+          title="Close details"
+        >
+          <X size={12} />
+        </button>
+      </div>
+
+      <div className="dc-popover-content">
+        <div className="dc-popover-field">
+          <span className="dc-popover-field-label">Receiver Name</span>
+          <div className="dc-popover-receiver-name-row">
+            <span className="dc-popover-field-value highlight">{dc.receiverName}</span>
+            {dc.challanId && (
+              <span className="dc-popover-challan-badge">{dc.challanId}</span>
+            )}
+          </div>
+        </div>
+
+        {phone && (
+          <div className="dc-popover-field">
+            <span className="dc-popover-field-label">Contact / Phone</span>
+            <div className="dc-popover-phone-row">
+              <a href={`tel:${phone}`} className="dc-popover-phone-link" title="Call receiver">
+                <Phone size={11} className="dc-popover-phone-icon" />
+                <span>{phone}</span>
+              </a>
+              <button
+                type="button"
+                className="dc-popover-copy-btn"
+                onClick={handleCopyPhone}
+                title={copied ? 'Copied to clipboard' : 'Copy phone number'}
+              >
+                {copied ? <Check size={11} style={{ color: '#10b981' }} /> : <Copy size={11} />}
+                <span>{copied ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {contactPerson && contactPerson !== dc.receiverName && (
+          <div className="dc-popover-field">
+            <span className="dc-popover-field-label">Contact Person</span>
+            <span className="dc-popover-field-value">{contactPerson}</span>
+          </div>
+        )}
+
+        {customerName && (
+          <div className="dc-popover-field">
+            <span className="dc-popover-field-label">Customer / Consignee</span>
+            <div className="dc-popover-customer-row">
+              <Building2 size={11} className="dc-popover-sub-icon" />
+              <span className="dc-popover-field-value">{customerName}</span>
+            </div>
+          </div>
+        )}
+
+        {destination && (
+          <div className="dc-popover-field">
+            <span className="dc-popover-field-label">Destination Address</span>
+            <div className="dc-popover-dest-row">
+              <MapPin size={11} className="dc-popover-sub-icon dest" />
+              <span className="dc-popover-destination-text">{destination}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDoc }) {
   const [receivingDc, setReceivingDc] = useState(null);
   const [receiverName, setReceiverName] = useState('');
@@ -23,7 +200,7 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [activeReceiverPopoverId, setActiveReceiverPopoverId] = useState(null);
+  const [activePopover, setActivePopover] = useState(null);
 
   const filteredReceiveList = useMemo(() => {
     let list = [...challans];
@@ -107,31 +284,10 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
     }
   };
 
-  // Dismiss receiver popover on outside click or Escape key
+  // Close popover when pagination or search changes
   useEffect(() => {
-    if (!activeReceiverPopoverId) return;
-
-    const handleClickOutside = (e) => {
-      if (!e.target.closest('.dc-receiver-cell-wrapper')) {
-        setActiveReceiverPopoverId(null);
-      }
-    };
-
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        setActiveReceiverPopoverId(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [activeReceiverPopoverId]);
+    setActivePopover(null);
+  }, [search, statusFilter, pagination.currentPage]);
 
   const receiveTabs = [
     { key: 'ALL', label: 'All Deliveries', count: challans.length },
@@ -249,10 +405,8 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
               ) : (
                 pagination.currentItems.map((dc, idx) => {
                   const destination = (dc.deliveryAddress || dc.customerAddress || dc.shippingAddress || dc.destination || '').trim();
-                  const isPopoverOpen = activeReceiverPopoverId === dc.challanId;
-                  const isNearBottom = idx >= filteredReceiveList.length - 2 && filteredReceiveList.length > 3;
+                  const isPopoverOpen = activePopover?.id === dc.challanId;
                   const hasReceiver = Boolean(dc.receiverName && dc.receiverName.trim());
-                  const phone = dc.receiverContact || dc.contactNumber || '';
 
                   return (
                     <tr key={dc.challanId} className={`table-data-row ${isPopoverOpen ? 'has-popover-open' : ''}`}>
@@ -301,7 +455,8 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
                               className={`dc-receiver-compact-pill ${isPopoverOpen ? 'is-open' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setActiveReceiverPopoverId((prev) => (prev === dc.challanId ? null : dc.challanId));
+                                const target = e.currentTarget;
+                                setActivePopover((prev) => (prev?.id === dc.challanId ? null : { id: dc.challanId, el: target, dc }));
                               }}
                               aria-expanded={isPopoverOpen}
                               aria-haspopup="dialog"
@@ -310,51 +465,6 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
                               <span className="dc-receiver-pill-name">{dc.receiverName}</span>
                               <ChevronDown size={11} className="dc-receiver-pill-arrow" />
                             </button>
-
-                            {isPopoverOpen && (
-                              <div
-                                className={`dc-receiver-popover ${isNearBottom ? 'popover-up' : ''}`}
-                                onClick={(e) => e.stopPropagation()}
-                                role="dialog"
-                                aria-label="Receiver Contact Details"
-                              >
-                                <div className="dc-receiver-popover-header">
-                                  <span className="dc-popover-title-text">Receiver Contact</span>
-                                  <button
-                                    type="button"
-                                    className="dc-popover-close-btn"
-                                    onClick={() => setActiveReceiverPopoverId(null)}
-                                    aria-label="Close"
-                                  >
-                                    <X size={11} />
-                                  </button>
-                                </div>
-                                <div className="dc-popover-content">
-                                  <div className="dc-popover-field">
-                                    <span className="dc-popover-field-label">Name / Person</span>
-                                    <span className="dc-popover-field-value highlight">{dc.receiverName}</span>
-                                  </div>
-                                  {phone && (
-                                    <div className="dc-popover-field">
-                                      <span className="dc-popover-field-label">Contact / Phone</span>
-                                      <span className="dc-popover-field-value">{phone}</span>
-                                    </div>
-                                  )}
-                                  {dc.contactPerson && dc.contactPerson !== dc.receiverName && (
-                                    <div className="dc-popover-field">
-                                      <span className="dc-popover-field-label">Contact Person</span>
-                                      <span className="dc-popover-field-value">{dc.contactPerson}</span>
-                                    </div>
-                                  )}
-                                  {dc.customerName && (
-                                    <div className="dc-popover-field">
-                                      <span className="dc-popover-field-label">Customer / Consignee</span>
-                                      <span className="dc-popover-field-value">{dc.customerName}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
                           </div>
                         ) : (
                           <span className="dc-cell-dash">—</span>
@@ -470,6 +580,15 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
             </form>
           </div>
         </div>
+      )}
+
+      {/* Receiver Contact Popover rendered directly into document.body to avoid table overflow clipping */}
+      {activePopover && activePopover.el && typeof document !== 'undefined' && (
+        <ReceiverContactPopover
+          dc={activePopover.dc}
+          anchorEl={activePopover.el}
+          onClose={() => setActivePopover(null)}
+        />
       )}
     </div>
   );

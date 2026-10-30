@@ -5,6 +5,7 @@ import { DCStatusBadge, DCEmptyState } from './dcPrimitives';
 import { useTablePagination, TableFooter } from '../common/TableWorkspace';
 import { filterRecordsBySearch } from '../../utils/searchHelper';
 import { formatDate } from '../../utils/dateUtils';
+import TableItemsPopover from '../common/TableItemsPopover';
 
 function authHeaders(user) {
   return {
@@ -218,7 +219,7 @@ export default function DcDispatchPage({ challans = [], user, onRefresh, onOpenD
                 <th className="col-priority-high">CUSTOMER / CONSIGNEE</th>
                 <th className="col-priority-low">TRANSIT MODE</th>
                 <th className="col-priority-low">VEHICLE / DOCKET NO</th>
-                <th className="col-priority-med" style={{ textAlign: 'center' }}>TOTAL UNITS</th>
+                <th className="col-priority-med" style={{ textAlign: 'center' }}>ITEMS</th>
                 <th className="col-priority-high" style={{ textAlign: 'center' }}>STATUS</th>
                 <th className="actions-col col-priority-high" style={{ textAlign: 'right' }}>ACTIONS</th>
               </tr>
@@ -227,7 +228,7 @@ export default function DcDispatchPage({ challans = [], user, onRefresh, onOpenD
               {filteredDispatchList.length === 0 ? (
                 <DCEmptyState message={search.trim() ? `No active dispatches found matching "${search.trim()}".` : "No active dispatches currently pending."} colSpan={8} />
               ) : (
-                paginatedDispatchList.map((dc) => (
+                paginatedDispatchList.map((dc, idx) => (
                   <tr key={dc.challanId} className="table-data-row">
                     <td data-label="DC NUMBER" className="cell-nowrap">
                       {onOpenDoc ? (
@@ -271,10 +272,11 @@ export default function DcDispatchPage({ challans = [], user, onRefresh, onOpenD
                         {dc.dispatchDetails || dc.vehicleNo || dc.docketNo || '—'}
                       </span>
                     </td>
-                    <td data-label="TOTAL UNITS" style={{ textAlign: 'center' }}>
-                      <span className="count-badge active-count">
-                        {Array.isArray(dc.items) ? dc.items.reduce((s, i) => s + Number(i.quantity || 1), 0) : 1}
-                      </span>
+                    <td data-label="ITEMS" className="quotation-items-cell" style={{ textAlign: 'center' }}>
+                      <TableItemsPopover
+                        items={dc.items}
+                        isNearBottom={idx >= paginatedDispatchList.length - 2}
+                      />
                     </td>
                     <td data-label="STATUS" style={{ textAlign: 'center' }}>
                       <DCStatusBadge status={dc.status || 'DISPATCHED'} />

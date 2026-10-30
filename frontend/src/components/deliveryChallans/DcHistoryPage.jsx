@@ -5,6 +5,7 @@ import { DCStatusBadge, DCEmptyState } from './dcPrimitives';
 import { useTablePagination, TableFooter } from '../common/TableWorkspace';
 import { filterRecordsBySearch } from '../../utils/searchHelper';
 import { formatDate } from '../../utils/dateUtils';
+import TableItemsPopover from '../common/TableItemsPopover';
 
 export default function DcHistoryPage({ challans = [], orders = [], user, onOpenDoc, onRefresh }) {
   const [search, setSearch] = useState('');
@@ -239,21 +240,17 @@ export default function DcHistoryPage({ challans = [], orders = [], user, onOpen
                           )}
                         </td>
 
-                        {/* Items count button */}
-                        <td data-label="ITEMS" className="cell-nowrap" style={{ textAlign: 'center' }}>
-                          <button
-                            type="button"
-                            className={`dc-compact-items-btn ${isExpanded ? 'open' : ''}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleExpand(dc.challanId);
+                        {/* Items Popover matching standard */}
+                        <td data-label="ITEMS" className="cell-nowrap quotation-items-cell" style={{ textAlign: 'center' }}>
+                          <TableItemsPopover
+                            items={dc.items}
+                            isNearBottom={idx >= (paginatedChallans?.length || 10) - 2}
+                            onItemClick={(it) => {
+                              if (Array.isArray(it.serialNumbers) && it.serialNumbers[0]) {
+                                navigate(`/serials?q=${encodeURIComponent(it.serialNumbers[0])}`);
+                              }
                             }}
-                            title={isExpanded ? 'Hide items' : 'View all items'}
-                            aria-expanded={isExpanded}
-                          >
-                            <span>{totalUnits} {totalUnits === 1 ? 'Item' : 'Items'}</span>
-                            <ChevronDown size={12} className={`dc-items-chevron ${isExpanded ? 'rotated' : ''}`} />
-                          </button>
+                          />
                         </td>
 
                         {/* Receiver */}
@@ -284,61 +281,7 @@ export default function DcHistoryPage({ challans = [], orders = [], user, onOpen
                         </td>
                       </tr>
 
-                      {/* Inline Expanded Items Row */}
-                      {isExpanded && (
-                        <tr className="dc-inline-expanded-row">
-                          <td colSpan={8} className="dc-inline-expanded-td">
-                            <div className="dc-inline-items-panel">
-                              <div className="dc-inline-items-header">
-                                <span className="dc-inline-items-heading">
-                                  Challan Items ({dc.items?.length || 0} Line {dc.items?.length === 1 ? 'Item' : 'Items'} • {totalUnits} Units Total)
-                                </span>
-                              </div>
-                              <div className="dc-inline-items-list">
-                                {Array.isArray(dc.items) && dc.items.length > 0 ? (
-                                  dc.items.map((it, idx) => (
-                                    <div key={idx} className="dc-inline-item-card">
-                                      <div className="dc-inline-item-top">
-                                        <div className="dc-inline-item-title">
-                                          <span className="dc-inline-item-qty">{it.quantity || 1} ×</span>
-                                          <span className="dc-inline-item-name">{it.productName || it.name || 'Product'}</span>
-                                        </div>
-                                        <div className="dc-inline-item-meta">
-                                          <span className="dc-inline-item-sku">SKU: {it.productCode || it.productId || '—'}</span>
-                                          {it.unit && <span className="dc-inline-item-unit">Unit: {it.unit}</span>}
-                                        </div>
-                                      </div>
-                                      {Array.isArray(it.serialNumbers) && it.serialNumbers.length > 0 && (
-                                        <div className="dc-inline-serials-container">
-                                          <div className="dc-inline-serials-label">Serial Numbers:</div>
-                                          <div className="dc-inline-serials-list">
-                                            {it.serialNumbers.map((sn, sIdx) => (
-                                              <span
-                                                key={sIdx}
-                                                className="dc-inline-serial-badge"
-                                                title={`Click to track complete serial lifecycle: ${sn}`}
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  navigate(`/serials?q=${encodeURIComponent(sn)}`);
-                                                }}
-                                                style={{ cursor: 'pointer' }}
-                                              >
-                                                {sn}
-                                              </span>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  ))
-                                ) : (
-                                  <div className="dc-inline-item-empty">No items recorded in this challan.</div>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
+
                     </React.Fragment>
                   );
                 })

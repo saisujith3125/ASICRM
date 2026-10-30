@@ -6,6 +6,7 @@ import { DCStatusBadge, DCEmptyState } from './dcPrimitives';
 import { TableFooter, useTablePagination } from '../common/TableWorkspace';
 import { filterRecordsBySearch } from '../../utils/searchHelper';
 import { formatDate } from '../../utils/dateUtils';
+import TableItemsPopover from '../common/TableItemsPopover';
 
 function authHeaders(user) {
   return {
@@ -393,6 +394,7 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
                 <th className="col-priority-high">DC NUMBER</th>
                 <th className="col-priority-med">DC DATE</th>
                 <th className="col-priority-high">CUSTOMER / CONSIGNEE</th>
+                <th className="col-priority-med" style={{ textAlign: 'center' }}>ITEMS</th>
                 <th className="col-priority-low">DESTINATION</th>
                 <th className="col-priority-low">RECEIVER CONTACT</th>
                 <th className="col-priority-high" style={{ textAlign: 'center' }}>STATUS</th>
@@ -401,7 +403,7 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
             </thead>
             <tbody>
               {pagination.currentItems.length === 0 ? (
-                <DCEmptyState message={search.trim() ? `No delivery challans found matching "${search.trim()}".` : "No delivery challans available for receipt processing."} colSpan={7} />
+                <DCEmptyState message={search.trim() ? `No delivery challans found matching "${search.trim()}".` : "No delivery challans available for receipt processing."} colSpan={8} />
               ) : (
                 pagination.currentItems.map((dc, idx) => {
                   const destination = (dc.deliveryAddress || dc.customerAddress || dc.shippingAddress || dc.destination || '').trim();
@@ -441,6 +443,12 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
                             </div>
                           )}
                         </div>
+                      </td>
+                      <td data-label="ITEMS" className="quotation-items-cell" style={{ textAlign: 'center' }}>
+                        <TableItemsPopover
+                          items={dc.items}
+                          isNearBottom={idx >= pagination.currentItems.length - 2}
+                        />
                       </td>
                       <td data-label="DESTINATION" className="cell-truncate" title={destination || 'No address specified'}>
                         <span style={{ fontSize: '12.5px', color: destination ? '#334155' : '#94a3b8' }}>
@@ -504,6 +512,7 @@ export default function DcReceivePage({ challans = [], user, onRefresh, onOpenDo
               {filteredReceiveList.length > 0 && pagination.currentItems.length < pagination.pageSize && (
                 Array.from({ length: pagination.pageSize - pagination.currentItems.length }).map((_, fIdx) => (
                   <tr key={`filler-${fIdx}`} className="table-data-row table-filler-row" aria-hidden="true">
+                    <td>&nbsp;</td>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>

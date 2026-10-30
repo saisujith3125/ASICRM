@@ -14,6 +14,7 @@ import { getInvoiceFilename, getDcFilename, getProformaFilename, generateInvoice
 import { amountInWords } from '../documents/documentFormatters';
 import { useTablePagination, TableFooter } from '../common/TableWorkspace';
 import { filterRecordsBySearch } from '../../utils/searchHelper';
+import TableItemsPopover from '../common/TableItemsPopover';
 
 const ORDER_SEARCH_EXTRACTORS = [
   (o) => o.orderId,
@@ -861,17 +862,15 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
                     </tr>
                   ) : (
                     <>
-                      {ordersPagination.currentRecords.map((o) => {
+                      {ordersPagination.currentRecords.map((o, idx) => {
                         const linkedDcs = challans.filter((c) => c.orderId === o.orderId);
                         const linkedInvs = invoices.filter((i) => i.orderId === o.orderId);
                         const hasDc = linkedDcs.length > 0;
                         const hasInv = linkedInvs.length > 0;
                         const isCompleted = !o.status || o.status.toUpperCase() === 'COMPLETED' || o.status.toUpperCase() === 'CLOSED';
-                        const orderItemsList = parseOrderItems(o.items);
-                        const isExpanded = expandedOrderId === o.orderId;
 
                         return (
-                          <tr key={o.orderId} className={`table-data-row ${isExpanded ? 'row-items-expanded' : ''}`}>
+                          <tr key={o.orderId} className="table-data-row">
                             <td className="order-col-customer" data-label="Customer" style={{ textAlign: 'left' }}>
                               <a
                                 className="order-customer-name"
@@ -911,40 +910,11 @@ export default function OrdersView({ user, initialSubView = 'orders', activeDocI
                             <td className="order-col-amount" data-label="Amount (₹)" style={{ textAlign: 'right' }}>
                               <span className="order-amount-text">₹{Number(o.amount).toLocaleString('en-IN')}</span>
                             </td>
-                            <td className="order-col-items" data-label="Items" style={{ textAlign: 'center' }}>
-                              <div className="order-items-cell-wrap">
-                                {orderItemsList.length === 0 ? (
-                                  <span className="order-items-empty">—</span>
-                                ) : (
-                                  <>
-                                    <button
-                                      type="button"
-                                      className={`order-items-toggle-btn ${isExpanded ? 'active' : ''}`}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setExpandedOrderId((prev) => (prev === o.orderId ? null : o.orderId));
-                                      }}
-                                      aria-expanded={isExpanded}
-                                      title={isExpanded ? 'Collapse items' : 'View items'}
-                                    >
-                                      <span>{orderItemsList.length} {orderItemsList.length === 1 ? 'Item' : 'Items'}</span>
-                                      <span className="order-items-toggle-arrow" aria-hidden="true">
-                                        {isExpanded ? '▲' : '▼'}
-                                      </span>
-                                    </button>
-
-                                    {isExpanded && (
-                                      <div className="order-items-dropdown-list">
-                                        {orderItemsList.map((itemStr, idx) => (
-                                          <div key={idx} className="order-expanded-item-row" title={itemStr}>
-                                            {itemStr}
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-                              </div>
+                            <td className="order-col-items quotation-items-cell" data-label="Items" style={{ textAlign: 'center' }}>
+                              <TableItemsPopover
+                                items={o.items}
+                                isNearBottom={idx >= ordersPagination.currentRecords.length - 2}
+                              />
                             </td>
                             <td className="order-col-status" data-label="Status" style={{ textAlign: 'center' }}>
                               <span className={`order-status-badge ${isCompleted ? 'completed' : 'other'}`}>

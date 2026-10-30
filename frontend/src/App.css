@@ -16278,6 +16278,9 @@ button.stocks-kpi-card { cursor:pointer; }
 .proforma-management-table tr:has(.quotation-items-popover),
 .invoice-calc-card tr.has-open-popover,
 .invoice-calc-card tr:has(.serial-dropdown-popover),
+.orders-data-table tr:has(.quotation-items-popover),
+.dc-table tr:has(.quotation-items-popover),
+table tr:has(.quotation-items-popover),
 table tr.has-open-popover {
   position: relative !important;
   z-index: 99 !important;
@@ -16289,6 +16292,9 @@ table tr.has-open-popover {
 .dc-return-table td.dc-return-reason-cell,
 .po-overview-page td.po-items-cell,
 .po-history-page td.po-items-cell,
+.orders-data-table td.order-col-items,
+.dc-table td.quotation-items-cell,
+td.quotation-items-cell,
 td.serial-dropdown-cell {
   position: relative !important;
   overflow: visible !important;

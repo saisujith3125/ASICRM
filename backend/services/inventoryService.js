@@ -500,6 +500,12 @@ function deductStock({
     const stockBefore = Number(prod.stock || 0);
     prod.stock = Math.max(0, stockBefore - qty);
 
+    const eventName = referenceType === 'DELIVERY_CHALLAN' ? 'Delivery Challan' : 'Sales Invoice';
+    const unitRate = item.unitRate !== undefined ? Number(item.unitRate) : (item.rate !== undefined ? Number(item.rate) : (item.price !== undefined ? Number(item.price) : Number(prod.dealerPrice || prod.cost || 0)));
+    const gstRate = item.gstRate !== undefined ? Number(item.gstRate) : (item.gst !== undefined ? Number(item.gst) : Number(prod.gst || 0));
+    const taxAmount = item.taxAmount !== undefined ? Number(item.taxAmount) : (item.tax !== undefined ? Number(item.tax) : Number((qty * unitRate * (gstRate / 100)).toFixed(2)));
+    const totalValue = item.totalValue !== undefined ? Number(item.totalValue) : Number((qty * unitRate).toFixed(2));
+
     let serials = [];
     if (isSerialized) {
       serials = Array.isArray(item.serialNumbers) ? item.serialNumbers.map((s) => String(s).trim()) : [];
@@ -528,12 +534,6 @@ function deductStock({
       prod.serialNumbers = [];
       serials = [];
     }
-
-    const eventName = referenceType === 'DELIVERY_CHALLAN' ? 'Delivery Challan' : 'Sales Invoice';
-    const unitRate = item.unitRate !== undefined ? Number(item.unitRate) : (item.rate !== undefined ? Number(item.rate) : (item.price !== undefined ? Number(item.price) : Number(prod.dealerPrice || prod.cost || 0)));
-    const gstRate = item.gstRate !== undefined ? Number(item.gstRate) : (item.gst !== undefined ? Number(item.gst) : Number(prod.gst || 0));
-    const taxAmount = item.taxAmount !== undefined ? Number(item.taxAmount) : (item.tax !== undefined ? Number(item.tax) : Number((qty * unitRate * (gstRate / 100)).toFixed(2)));
-    const totalValue = item.totalValue !== undefined ? Number(item.totalValue) : Number((qty * unitRate).toFixed(2));
 
     const txnRecord = {
       id: `TXN-${referenceType}-${referenceId}-${prod.code || prod.id}`,

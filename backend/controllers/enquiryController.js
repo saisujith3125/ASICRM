@@ -932,7 +932,7 @@ const getQuotations = (req, res) => {
     if (!requirePermission(req, res, 'Quotations', 'View')) return;
     const stockProducts = getStockProducts();
     const stockBrands = getStockBrands();
-    const list = quotations.map((quote) => {
+    let list = quotations.map((quote) => {
       const enquiry = enquiries.find((item) => item.enquiryId === quote.enquiryId);
       const customer = customers.find((item) => item.id === quote.customerId);
       const enrichedItems = (quote.items || []).map((it) => enrichQuotationItemBrand(it, stockProducts, stockBrands));
@@ -964,6 +964,7 @@ const getQuotations = (req, res) => {
         (q) => q.quotationId,
         (q) => q.quotationNumber,
         (q) => q.quoteNumber,
+        (q) => q.subject,
         (q) => q.customerId,
         (q) => q.customerName,
         (q) => q.customerCompany,
@@ -1402,7 +1403,7 @@ const createQuotation = (req, res) => {
       return res.status(403).json({ success: false, message: 'You do not have permission to create quotations.' });
     }
 
-    const { amount, item, validUntil, remarks, items, status: requestedStatus, customerId, showDiscount, roundOffTotal, showStock, termsAndConditions, terms, notes, headerTitle } = req.body;
+    const { amount, item, subject, validUntil, remarks, items, status: requestedStatus, customerId, showDiscount, roundOffTotal, showStock, termsAndConditions, terms, notes, headerTitle } = req.body;
     const enquiry = enquiries.find((e) => e.enquiryId === req.params.id);
 
     if (!enquiry) return res.status(404).json({ success: false, message: `Enquiry ${req.params.id} not found.` });
@@ -1455,6 +1456,9 @@ const createQuotation = (req, res) => {
       enquiryId: enquiry.enquiryId,
       customerId: finalCustId,
       customerName: finalCustName,
+      subject: (subject !== undefined && String(subject).trim())
+        ? String(subject).trim()
+        : String(enquiry.productsInterested || enquiry.requirement || enquiry.description || enquiry.title || '').trim(),
       amount: parsed.grandTotal,
       item: parsed.summaryText,
       items: parsed.parsedItems,
@@ -1485,6 +1489,7 @@ const createQuotation = (req, res) => {
     delete enquiry.pendingQuotationId;
     enquiry.quotationAmount = parsed.grandTotal;
     enquiry.quotationItem = parsed.summaryText;
+    enquiry.quotationSubject = quotation.subject;
     enquiry.quotationValidUntil = quotation.validUntil;
     enquiry.quotationRemarks = quotation.remarks;
     enquiry.status = 'QUOTATION_ISSUED';
@@ -1543,6 +1548,7 @@ const createStandaloneQuotation = (req, res) => {
       items,
       amount,
       item,
+      subject,
       validUntil,
       remarks,
       additionalNotes,
@@ -1629,6 +1635,9 @@ const createStandaloneQuotation = (req, res) => {
       customerId: cust.id,
       customerName: cust.name,
       customerCompany: cust.company || '',
+      subject: (subject !== undefined && String(subject).trim())
+        ? String(subject).trim()
+        : (linkedEnquiry ? String(linkedEnquiry.productsInterested || linkedEnquiry.requirement || linkedEnquiry.description || linkedEnquiry.title || '').trim() : ''),
       amount: parsed.grandTotal,
       item: parsed.summaryText,
       items: parsed.parsedItems,
@@ -1662,6 +1671,7 @@ const createStandaloneQuotation = (req, res) => {
       linkedEnquiry.customerId = cust.id;
       linkedEnquiry.customerName = cust.name;
       linkedEnquiry.quotationId = quotation.quotationId;
+      linkedEnquiry.quotationSubject = quotation.subject;
       delete linkedEnquiry.pendingQuotationId;
       linkedEnquiry.quotationAmount = parsed.grandTotal;
       linkedEnquiry.quotationItem = parsed.summaryText;
@@ -1720,7 +1730,7 @@ const updateQuotationById = (req, res) => {
       return res.status(400).json({ success: false, message: 'A converted quotation cannot be edited.' });
     }
 
-    const { amount, item, validUntil, remarks, items, customerId, status: requestedStatus, showDiscount, roundOffTotal, termsAndConditions, terms, notes, headerTitle } = req.body;
+    const { amount, item, subject, validUntil, remarks, items, customerId, status: requestedStatus, showDiscount, roundOffTotal, termsAndConditions, terms, notes, headerTitle } = req.body;
     const parsed = parseQuotationLineItems(items, amount, item, { showDiscount, roundOffTotal });
     if (parsed.error) {
       return res.status(400).json({ success: false, message: parsed.error });
@@ -1742,6 +1752,7 @@ const updateQuotationById = (req, res) => {
     quotation.grandTotal = parsed.grandTotal;
     quotation.showDiscount = parsed.showDiscount;
     quotation.roundOffTotal = parsed.roundOffTotal;
+    if (subject !== undefined) quotation.subject = String(subject).trim();
     if (validUntil !== undefined) quotation.validUntil = validUntil;
     if (remarks !== undefined) quotation.remarks = String(remarks).trim();
     if (notes !== undefined) quotation.notes = String(notes).trim();
@@ -1768,6 +1779,7 @@ const updateQuotationById = (req, res) => {
         enquiry.customerName = quotation.customerName;
       }
       enquiry.quotationAmount = quotation.grandTotal;
+      if (quotation.subject !== undefined) enquiry.quotationSubject = quotation.subject;
       enquiry.quotationItem = quotation.item;
       enquiry.quotationValidUntil = quotation.validUntil;
       enquiry.quotationRemarks = quotation.remarks;

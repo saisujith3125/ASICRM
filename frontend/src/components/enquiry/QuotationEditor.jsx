@@ -111,6 +111,7 @@ export default function QuotationEditor({
   const [persistedQuotationId, setPersistedQuotationId] = useState(propQuotationId || '');
   const [quotationStatus, setQuotationStatus] = useState('READY_FOR_QUOTATION');
   const [quotationDate, setQuotationDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [subject, setSubject] = useState('');
   const [validUntilDate, setValidUntilDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() + 30);
@@ -480,6 +481,7 @@ export default function QuotationEditor({
             setQuotationDate(quote.createdAt ? quote.createdAt.split('T')[0] : new Date().toISOString().split('T')[0]);
             if (quote.validUntil) setValidUntilDate(quote.validUntil.split('T')[0]);
             setRemarks(quote.remarks || quote.notes || '');
+            setSubject(quote.subject || quote.requirement || quote.title || '');
             const loadedTerms = quote.termsAndConditions !== undefined
               ? quote.termsAndConditions
               : (Array.isArray(quote.terms) ? quote.terms.join('\n') : (quote.terms || ''));
@@ -535,6 +537,8 @@ export default function QuotationEditor({
             setEnquiry(enqRecord);
             setSelectedEnquiryId(enqRecord.enquiryId);
             setSelectedCustomerId(enqRecord.customerId);
+            const initialEnqSub = enqRecord.quotation?.subject || enqRecord.productsInterested || enqRecord.requirement || enqRecord.description || enqRecord.title || '';
+            if (initialEnqSub) setSubject(initialEnqSub);
 
             // Set initial master snapshot
             setHeaderTitle(masterDefaultHeader);
@@ -619,6 +623,7 @@ export default function QuotationEditor({
               if (copyData.includeInstallationCharges !== undefined) setIncludeInstallationCharges(Boolean(copyData.includeInstallationCharges));
               if (copyData.notes) setRemarks(copyData.notes);
               if (copyData.terms) setTermsAndConditions(copyData.terms);
+              if (copyData.subject) setSubject(copyData.subject);
 
               if (Array.isArray(copyData.items) && copyData.items.length > 0) {
                 const clonedItems = mapToLineItems(copyData.items, {
@@ -684,6 +689,9 @@ export default function QuotationEditor({
                 }
                 if (typeof draft.headerTitle === 'string') {
                   setHeaderTitle(draft.headerTitle);
+                }
+                if (typeof draft.subject === 'string') {
+                  setSubject(draft.subject);
                 }
                 if (draft.validUntilDate) {
                   setValidUntilDate(draft.validUntilDate);
@@ -868,6 +876,19 @@ export default function QuotationEditor({
     };
   }, [mode, propEnquiryId, propQuotationId, user?.id]);
 
+  // Active linked enquiry and requirement for Subject auto-fetch badge & restore
+  const activeLinkedEnquiry = useMemo(() => {
+    if (selectedEnquiryId) {
+      return customerEnquiries.find((e) => e.enquiryId === selectedEnquiryId) || allEnquiries.find((e) => e.enquiryId === selectedEnquiryId) || enquiry;
+    }
+    return enquiry || null;
+  }, [selectedEnquiryId, customerEnquiries, allEnquiries, enquiry]);
+
+  const linkedEnquiryRequirement = useMemo(() => {
+    if (!activeLinkedEnquiry) return '';
+    return (activeLinkedEnquiry.productsInterested || activeLinkedEnquiry.requirement || activeLinkedEnquiry.description || activeLinkedEnquiry.title || '').trim();
+  }, [activeLinkedEnquiry]);
+
   // Customer branches and conditional branch/enquiry logic
   const customerBranches = useMemo(() => {
     return Array.isArray(selectedCustomer?.branches) ? selectedCustomer.branches : [];
@@ -923,6 +944,7 @@ export default function QuotationEditor({
         setTermsAndConditions(masterDefaultsRef.current.terms || '');
         setHeaderTitle(masterDefaultsRef.current.header || 'QUOTATION');
       }
+      setSubject('');
       setShowDiscount(false);
       setRoundOffTotal(false);
       setShowStock(false);
@@ -1016,6 +1038,7 @@ export default function QuotationEditor({
         termsAndConditions,
         headerTitle,
         validUntilDate,
+        subject,
         quotationNumber,
         showDiscount,
         roundOffTotal,
@@ -1156,6 +1179,7 @@ export default function QuotationEditor({
           termsAndConditions,
           headerTitle,
           validUntilDate,
+          subject,
           quotationNumber,
           showDiscount,
           roundOffTotal,
@@ -1165,7 +1189,7 @@ export default function QuotationEditor({
         sessionStorage.setItem(draftKey, JSON.stringify(draftData));
       } catch (e) {}
     }
-  }, [lineItems, remarks, termsAndConditions, headerTitle, validUntilDate, selectedCustomerId, selectedCustomer, selectedEnquiryId, mode, propEnquiryId, propQuotationId, quotationNumber, loading, isConverted, isSaved, quotationStatus, showDiscount, roundOffTotal, showStock]);
+  }, [lineItems, remarks, termsAndConditions, headerTitle, validUntilDate, subject, selectedCustomerId, selectedCustomer, selectedEnquiryId, mode, propEnquiryId, propQuotationId, quotationNumber, loading, isConverted, isSaved, quotationStatus, showDiscount, roundOffTotal, showStock]);
 
   // Line item manipulation
   const handleProductSelect = (rowId, productId, selectedItem = null) => {
@@ -1526,7 +1550,7 @@ export default function QuotationEditor({
       customerCity: selectedCustomer?.city || '',
       customerState: selectedCustomer?.state || '',
       customerPincode: selectedCustomer?.pincode || '',
-      subject: enquiry?.requirement || enquiry?.title || (!/prices\s+quoted\s+are\s+valid|taxes\s+extra/i.test(String(remarks || '')) ? remarks : '') || (lineItems[0]?.productName ? `Proposal for ${lineItems[0].productName}` : 'Proposal for Commercial Offer'),
+      subject: subject.trim() || enquiry?.requirement || enquiry?.title || (!/prices\s+quoted\s+are\s+valid|taxes\s+extra/i.test(String(remarks || '')) ? remarks : '') || (lineItems[0]?.productName ? `Proposal for ${lineItems[0].productName}` : 'Proposal for Commercial Offer'),
       showDiscount,
       roundOffTotal,
       showStock,
@@ -1562,7 +1586,7 @@ export default function QuotationEditor({
       terms: termsAndConditions,
       headerTitle: headerTitle || 'QUOTATION'
     };
-  }, [quotationNumber, quotationDate, quotationStatus, validUntilDate, selectedCustomer, enquiry, remarks, termsAndConditions, headerTitle, lineItems, totals, showDiscount, roundOffTotal, showStock]);
+  }, [quotationNumber, quotationDate, quotationStatus, validUntilDate, subject, selectedCustomer, enquiry, remarks, termsAndConditions, headerTitle, lineItems, totals, showDiscount, roundOffTotal, showStock]);
 
   // Back Navigation
   const handleBack = () => {
@@ -1805,6 +1829,7 @@ export default function QuotationEditor({
         customerId: selectedCustomerId,
         enquiryId: selectedEnquiryId || undefined,
         source: selectedEnquiryId ? 'ENQUIRY' : 'DIRECT',
+        subject: subject.trim(),
         items: validItems.map((it) => ({
           productId: it.productId,
           productCode: it.productCode,
@@ -2244,7 +2269,17 @@ export default function QuotationEditor({
                         <select
                           className="quotation-control-select"
                           value={selectedEnquiryId}
-                          onChange={(e) => setSelectedEnquiryId(e.target.value)}
+                          onChange={(e) => {
+                            const nextEnqId = e.target.value;
+                            setSelectedEnquiryId(nextEnqId);
+                            if (nextEnqId) {
+                              const found = customerEnquiries.find((enq) => enq.enquiryId === nextEnqId) || allEnquiries.find((enq) => enq.enquiryId === nextEnqId);
+                              if (found) {
+                                const enqSub = (found.productsInterested || found.requirement || found.description || found.title || '').trim();
+                                if (enqSub) setSubject(enqSub);
+                              }
+                            }
+                          }}
                           style={{ height: '32px', padding: '0 8px', fontSize: '12.5px', borderRadius: '5px', border: '1px solid #cbd5e1', background: '#ffffff', color: '#0f172a' }}
                         >
                           <option value="">— None (Standalone Quotation) —</option>
@@ -2260,6 +2295,112 @@ export default function QuotationEditor({
                 )}
               </div>
             )}
+          </div>
+
+          {/* Quotation Subject / Proposal Heading Box */}
+          <div
+            className="quotation-subject-box"
+            style={{
+              marginBottom: '14px',
+              padding: '12px 16px',
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <label style={{ fontSize: '12.5px', fontWeight: 600, color: '#1e293b', margin: 0 }}>
+                  Subject / Proposal Heading
+                </label>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>
+                  (Appears on official quotation as <strong>SUB : ...</strong>)
+                </span>
+              </div>
+              {linkedEnquiryRequirement ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px' }}>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    background: '#eff6ff',
+                    color: '#1d4ed8',
+                    border: '1px solid #bfdbfe',
+                    fontWeight: 600
+                  }}>
+                    ⚡ Auto-fetched from Enquiry {selectedEnquiryId || (enquiry && enquiry.enquiryId)}
+                  </span>
+                  {subject !== linkedEnquiryRequirement && !isConverted && canManage && (
+                    <button
+                      type="button"
+                      onClick={() => setSubject(linkedEnquiryRequirement)}
+                      title="Reset to original enquiry requirement text"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#2563eb',
+                        fontSize: '11.5px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        padding: 0,
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      Reset to Enquiry Subject
+                    </button>
+                  )}
+                </div>
+              ) : null}
+            </div>
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                type="text"
+                className="quotation-subject-input"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="e.g. Supply, Installation & Commissioning of IP CCTV Cameras & Biometric System"
+                disabled={isConverted || !canManage}
+                style={{
+                  width: '100%',
+                  height: '38px',
+                  padding: subject && !isConverted && canManage ? '0 32px 0 12px' : '0 12px',
+                  fontSize: '13px',
+                  color: '#0f172a',
+                  background: (isConverted || !canManage) ? '#f8fafc' : '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+              {subject && !isConverted && canManage && (
+                <button
+                  type="button"
+                  onClick={() => setSubject('')}
+                  title="Clear subject"
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    padding: '2px 6px',
+                    lineHeight: 1
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Products Table Toolbar (Installation charges, Discount toggle, Round-off toggle, Show stock, Add Product to Master) */}

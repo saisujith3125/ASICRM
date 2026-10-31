@@ -188,6 +188,7 @@ export default function QuotationsList({ user, onOpenQuotation, onNavigateCustom
         includeInstallationCharges: Boolean(fullQuote.includeInstallationCharges),
         showDiscount: Boolean(fullQuote.showDiscount),
         roundOffTotal: Boolean(fullQuote.roundOffTotal),
+        subject: fullQuote.subject || fullQuote.requirement || fullQuote.title || '',
         notes: fullQuote.notes || fullQuote.remarks || '',
         terms: fullQuote.terms || fullQuote.termsAndConditions || ''
       };

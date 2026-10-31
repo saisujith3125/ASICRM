@@ -49,11 +49,11 @@ function enrichPurchaseOrder(po) {
   let fullPendingTax = 0;
 
   const enrichedItems = items.map((item) => {
-    const ord = Number(item.orderedQty || 0);
+    const ord = Number(item.orderedQty !== undefined ? item.orderedQty : (item.quantity !== undefined ? item.quantity : (item.qty || 0)));
     const rec = Number(item.receivedQty || 0);
     const pend = Math.max(0, ord - rec);
-    const rate = Number(item.rate || 0);
-    const gstRate = Number(item.gstRate || 18);
+    const rate = Number(item.unitRate !== undefined ? item.unitRate : (item.rate !== undefined ? item.rate : (item.unitPrice || item.price || item.costPrice || 0)));
+    const gstRate = Number(item.gstRate !== undefined ? item.gstRate : (item.gst || item.taxRate || 18));
 
     const ordTaxable = Number((ord * rate).toFixed(2));
     const ordTax = Number(((ordTaxable * gstRate) / 100).toFixed(2));
@@ -76,6 +76,13 @@ function enrichPurchaseOrder(po) {
     return {
       ...item,
       orderedQty: ord,
+      quantity: ord,
+      rate: rate,
+      unitRate: rate,
+      gstRate: gstRate,
+      taxableValue: Number(item.taxableValue !== undefined && item.taxableValue > 0 ? item.taxableValue : (item.totalValue !== undefined && item.totalValue > 0 ? item.totalValue : ordTaxable)),
+      tax: Number(item.tax !== undefined && item.tax > 0 ? item.tax : (item.taxAmount !== undefined && item.taxAmount > 0 ? item.taxAmount : ordTax)),
+      taxAmount: Number(item.taxAmount !== undefined && item.taxAmount > 0 ? item.taxAmount : (item.tax !== undefined && item.tax > 0 ? item.tax : ordTax)),
       receivedQty: rec,
       pendingQty: pend,
       receivedTaxable: recTaxable,
@@ -914,11 +921,11 @@ function receiveGoods(req, res) {
     let poOrderedTax = 0;
     let poActualCost = 0;
     po.items.forEach((it) => {
-      const q = Number(it.orderedQty || 0);
-      const r = Number(it.rate || 0);
+      const q = Number(it.orderedQty !== undefined ? it.orderedQty : (it.quantity !== undefined ? it.quantity : (it.qty || 0)));
+      const r = Number(it.unitRate !== undefined ? it.unitRate : (it.rate !== undefined ? it.rate : (it.unitPrice || it.price || it.costPrice || 0)));
       const gst = Number(it.gst || it.gstRate || 18);
-      const itemTaxable = Number((q * r).toFixed(2));
-      const itemTax = Number(((itemTaxable * gst) / 100).toFixed(2));
+      const itemTaxable = Number(it.taxableValue !== undefined && it.taxableValue > 0 ? it.taxableValue : (it.totalValue !== undefined && it.totalValue > 0 ? it.totalValue : (q * r).toFixed(2)));
+      const itemTax = Number(it.tax !== undefined && item.tax > 0 ? it.tax : (it.taxAmount !== undefined && item.taxAmount > 0 ? item.taxAmount : ((itemTaxable * gst) / 100).toFixed(2)));
       poOrderedSubtotal += itemTaxable;
       poOrderedTax += itemTax;
       poActualCost += Number(it.actualCostTotal || 0);
@@ -941,7 +948,7 @@ function receiveGoods(req, res) {
     po.grandTotal = Math.round(poOrderedSubtotal + poOrderedTax);
 
     // Determine updated PO status
-    const allReceived = po.items.every((it) => (Number(it.orderedQty || 0) - Number(it.receivedQty || 0)) <= 0);
+    const allReceived = po.items.every((it) => (Number(it.orderedQty !== undefined ? it.orderedQty : (it.quantity !== undefined ? it.quantity : (it.qty || 0))) - Number(it.receivedQty || 0)) <= 0);
     po.status = allReceived ? 'RECEIVED' : 'PARTIALLY_RECEIVED';
     po.updatedAt = new Date().toISOString();
 

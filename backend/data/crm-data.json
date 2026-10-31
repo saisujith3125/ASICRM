@@ -726,7 +726,12 @@
           "gstRate": 18,
           "taxAmount": 8100,
           "totalValue": 45000,
-          "receivedQty": 10
+          "receivedQty": 10,
+          "orderedQty": 10,
+          "rate": 4500,
+          "taxableValue": 45000,
+          "tax": 8100,
+          "lineTotal": 53100
         }
       ],
       "subtotal": 45000,

@@ -5190,7 +5190,7 @@
 
 .doc-po-terms-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1.15fr 0.95fr 1.9fr;
   gap: 8px;
   margin-bottom: 4px;
 }

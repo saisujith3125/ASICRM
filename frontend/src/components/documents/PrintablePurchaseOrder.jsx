@@ -84,17 +84,17 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
   let computedDiscount = 0;
 
   const items = rawItems.map((it, idx) => {
-    const qty = Number(it.orderedQty || it.quantity || it.qty || 0);
+    const qty = Number(it.orderedQty !== undefined ? it.orderedQty : (it.quantity !== undefined ? it.quantity : (it.qty || 0)));
     const recQty = Number(it.receivedQty || 0);
     const pendQty = Math.max(0, qty - recQty);
-    const rate = Number(it.rate || it.unitPrice || 0);
-    const gstRate = Number(it.gstRate || it.gst || it.taxRate || 18);
+    const rate = Number(it.unitRate !== undefined ? it.unitRate : (it.rate !== undefined ? it.rate : (it.unitPrice || it.price || it.costPrice || 0)));
+    const gstRate = Number(it.gstRate !== undefined ? it.gstRate : (it.gst !== undefined ? it.gst : (it.taxRate || 18)));
     const discountPct = Number(it.discountPercent || it.discountPct || it.discount || 0);
     const rawVal = rate * qty;
     const discountAmount = Number(it.discountAmount !== undefined ? it.discountAmount : (rawVal * discountPct) / 100);
-    const taxableValue = Number(it.taxableValue !== undefined ? it.taxableValue : (rawVal - discountAmount));
-    const tax = Number(it.tax !== undefined ? it.tax : (taxableValue * gstRate) / 100);
-    const lineTotal = Number(it.lineTotal !== undefined ? it.lineTotal : (taxableValue + tax));
+    const taxableValue = Number(it.taxableValue !== undefined && it.taxableValue > 0 ? it.taxableValue : (it.totalValue !== undefined && it.totalValue > 0 ? it.totalValue : (rawVal - discountAmount)));
+    const tax = Number(it.tax !== undefined && it.tax > 0 ? it.tax : (it.taxAmount !== undefined && it.taxAmount > 0 ? it.taxAmount : (taxableValue * gstRate) / 100));
+    const lineTotal = Number(it.lineTotal !== undefined && it.lineTotal > 0 ? it.lineTotal : (taxableValue + tax));
 
     totalQty += qty;
     totalReceivedQty += recQty;
@@ -119,15 +119,18 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
       description: (it.description || '').toString().trim(),
       hsnSac: hsn,
       orderedQty: qty,
+      quantity: qty,
       receivedQty: recQty,
       pendingQty: pendQty,
       unit: ((it.unit && it.unit !== 'Piece') ? it.unit : 'Nos').toString().trim(),
       rate,
+      unitRate: rate,
       discountPercent: discountPct,
       discountAmount,
       taxableValue,
       gstRate,
       tax,
+      taxAmount: tax,
       lineTotal,
       serialized: Boolean(it.serialized || it.isSerialized),
       serialNumbers: Array.isArray(it.serialNumbers) ? it.serialNumbers : [],
@@ -136,13 +139,17 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
   });
 
   const subtotal = Number(poData.subtotal !== undefined ? poData.subtotal : computedSubtotal.toFixed(2));
-  const cgst = Number(poData.cgst || 0);
-  const sgst = Number(poData.sgst || 0);
-  const igst = Number(poData.igst || 0);
+  let cgst = Number(poData.cgst || 0);
+  let sgst = Number(poData.sgst || 0);
+  let igst = Number(poData.igst || 0);
 
   let taxTotal = cgst + sgst + igst;
   if (taxTotal <= 0) {
-    taxTotal = Number(poData.tax !== undefined ? poData.tax : computedTax.toFixed(2));
+    taxTotal = Number(poData.tax !== undefined ? poData.tax : (poData.taxAmount !== undefined ? poData.taxAmount : computedTax.toFixed(2)));
+    if (taxTotal > 0) {
+      cgst = Number((taxTotal / 2).toFixed(2));
+      sgst = Number((taxTotal / 2).toFixed(2));
+    }
   }
 
   const grossTotal = Math.round((subtotal + taxTotal) * 100) / 100;
@@ -900,7 +907,7 @@ function PurchaseOrderItemsTable({ items, financials, showTotals = true, hidePri
                 </div>
               </td>
               <td style={{ textAlign: 'right', fontFamily: 'monospace', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                ₹ {formatPlainNumber(it.lineTotal)}
+                ₹ {formatPlainNumber(it.taxableValue)}
               </td>
             </tr>
           ))}
@@ -950,7 +957,7 @@ function PurchaseOrderItemsTable({ items, financials, showTotals = true, hidePri
 
               {/* Grand Total Row */}
               <tr className="doc-po-total-row">
-                <td colSpan="3" className="doc-po-total-label">TOTAL PURCHASE ORDER</td>
+                <td colSpan="3" className="doc-po-total-label">TOTAL PURCHASE ORDER :</td>
                 <td style={{ textAlign: 'center', fontWeight: 800 }}>{totalQty}</td>
                 <td colSpan="1"></td>
                 <td colSpan="2" className="doc-po-total-val" style={{ fontFamily: 'monospace', whiteSpace: 'nowrap' }}>

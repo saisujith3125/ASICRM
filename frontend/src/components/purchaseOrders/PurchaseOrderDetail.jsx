@@ -181,13 +181,13 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
     let totalTaxable = 0;
 
     items.forEach((it) => {
-      const ord = Number(it.orderedQty || 0);
+      const ord = Number(it.orderedQty !== undefined ? it.orderedQty : (it.quantity !== undefined ? it.quantity : (it.qty || 0)));
       const rec = Number(it.receivedQty || 0);
       const pend = Math.max(0, ord - rec);
-      const rate = Number(it.rate || 0);
+      const rate = Number(it.unitRate !== undefined ? it.unitRate : (it.rate !== undefined ? it.rate : (it.unitPrice || it.price || it.costPrice || 0)));
       const gstRate = Number(it.gstRate || it.gst || 18);
-      const taxable = Number((ord * rate).toFixed(2));
-      const taxAmt = Number(it.tax !== undefined ? it.tax : ((taxable * gstRate) / 100).toFixed(2));
+      const taxable = Number(it.taxableValue !== undefined && it.taxableValue > 0 ? it.taxableValue : (it.totalValue !== undefined && it.totalValue > 0 ? it.totalValue : (ord * rate).toFixed(2)));
+      const taxAmt = Number(it.tax !== undefined && it.tax > 0 ? it.tax : (it.taxAmount !== undefined && it.taxAmount > 0 ? it.taxAmount : ((taxable * gstRate) / 100).toFixed(2)));
       const lineVal = Number(it.valuationTotal || it.lineTotal || (taxable + taxAmt));
 
       ordQty += ord;
@@ -531,13 +531,13 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
             </thead>
             <tbody>
               {items.map((it, idx) => {
-                const ord = Number(it.orderedQty || 0);
+                const ord = Number(it.orderedQty !== undefined ? it.orderedQty : (it.quantity !== undefined ? it.quantity : (it.qty || 0)));
                 const rec = Number(it.receivedQty || 0);
                 const pend = Math.max(0, ord - rec);
-                const rate = Number(it.rate || 0);
+                const rate = Number(it.unitRate !== undefined ? it.unitRate : (it.rate !== undefined ? it.rate : (it.unitPrice || it.price || it.costPrice || 0)));
                 const gstRate = Number(it.gstRate || it.gst || 18);
-                const taxable = Number((ord * rate).toFixed(2));
-                const taxAmt = Number(it.tax !== undefined ? it.tax : ((taxable * gstRate) / 100).toFixed(2));
+                const taxable = Number(it.taxableValue !== undefined && it.taxableValue > 0 ? it.taxableValue : (it.totalValue !== undefined && it.totalValue > 0 ? it.totalValue : (ord * rate).toFixed(2)));
+                const taxAmt = Number(it.tax !== undefined && it.tax > 0 ? it.tax : (it.taxAmount !== undefined && it.taxAmount > 0 ? it.taxAmount : ((taxable * gstRate) / 100).toFixed(2)));
                 const lineTotalVal = Number(it.valuationTotal || it.lineTotal || (taxable + taxAmt));
 
                 return (

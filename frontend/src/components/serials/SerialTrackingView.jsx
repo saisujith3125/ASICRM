@@ -120,7 +120,12 @@ export default function SerialTrackingView({ user, initialQuery = '', initialSta
         });
         const json = await res.json();
         if (res.ok && json.success) {
-          setActiveSerialData(json.data);
+          const serialPayload = json.data || (json.serialNumber ? json : null);
+          if (serialPayload) {
+            setActiveSerialData(serialPayload);
+          } else {
+            setActiveSerialError(`Serial ${activeSerialId} details could not be parsed.`);
+          }
         } else {
           setActiveSerialError(json?.message || `Serial ${activeSerialId} details not found.`);
         }
@@ -336,7 +341,10 @@ export default function SerialTrackingView({ user, initialQuery = '', initialSta
                           headers: authHeaders(user)
                         });
                         const json = await res.json();
-                        if (res.ok && json.success) setActiveSerialData(json.data);
+                        if (res.ok && json.success) {
+                          const refreshedPayload = json.data || (json.serialNumber ? json : null);
+                          if (refreshedPayload) setActiveSerialData(refreshedPayload);
+                        }
                       } finally {
                         setActiveSerialLoading(false);
                       }
@@ -737,7 +745,21 @@ export default function SerialTrackingView({ user, initialQuery = '', initialSta
               </button>
             </div>
           </div>
-        ) : null}
+        ) : (
+          <div className="serial-page-error-card">
+            <AlertTriangle size={36} style={{ color: '#d97706', margin: '0 auto 16px auto' }} />
+            <h3>No Record Found for Serial {activeSerialId}</h3>
+            <p>The serial number could not be located in current warehouse inventory or past transactions.</p>
+            <button
+              type="button"
+              className="serial-action-btn primary"
+              style={{ marginTop: '20px', display: 'inline-flex' }}
+              onClick={() => navigate('/serials')}
+            >
+              <ArrowLeft size={15} /> Back to Serial Register
+            </button>
+          </div>
+        )}
       </div>
     );
   }

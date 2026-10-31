@@ -38,7 +38,7 @@ function getSerialByNumber(req, res) {
       return res.status(404).json(result);
     }
 
-    return res.status(200).json(result);
+    return res.status(200).json({ success: true, data: result, ...result });
   } catch (error) {
     console.error('Error in getSerialByNumber:', error);
     return res.status(500).json({ success: false, message: 'Failed to retrieve serial details.' });

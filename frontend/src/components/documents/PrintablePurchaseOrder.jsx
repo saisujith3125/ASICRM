@@ -130,7 +130,8 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
       tax,
       lineTotal,
       serialized: Boolean(it.serialized || it.isSerialized),
-      serialNumbers: Array.isArray(it.serialNumbers) ? it.serialNumbers : []
+      serialNumbers: Array.isArray(it.serialNumbers) ? it.serialNumbers : [],
+      warehouseLocation: it.warehouseLocation || null
     };
   });
 
@@ -605,6 +606,9 @@ export function estimatePoItemHeight(item) {
     const sStr = item.serialNumbers.join(', ');
     height += Math.max(16, Math.ceil(sStr.length / 40) * 15);
   }
+  if (item.warehouseLocation) {
+    height += 16;
+  }
   return Math.max(34, height);
 }
 
@@ -779,6 +783,11 @@ function PurchaseOrderItemsTable({ items, financials, showTotals = true, hidePri
                   {it.description ? (
                     <div className="doc-po-item-desc">{it.description}</div>
                   ) : null}
+                  {it.warehouseLocation && (
+                    <div className="doc-po-item-location" style={{ fontSize: '9px', color: '#475569', marginTop: '2px' }}>
+                      📍 <strong>Inward Location:</strong> {it.warehouseLocation.warehouseName || it.warehouseLocation.warehouseId || ''} {it.warehouseLocation.binLocation ? `(${it.warehouseLocation.binLocation})` : it.warehouseLocation.box ? `(${it.warehouseLocation.rack} › ${it.warehouseLocation.box})` : ''}
+                    </div>
+                  )}
                 </td>
                 <td style={{ textAlign: 'center', fontFamily: 'monospace' }}>{it.hsnSac}</td>
                 <td style={{ textAlign: 'center', fontWeight: 600 }}>{it.unit || 'Nos'}</td>
@@ -862,6 +871,11 @@ function PurchaseOrderItemsTable({ items, financials, showTotals = true, hidePri
                 {it.serialized && it.serialNumbers.length > 0 && (
                   <div className="doc-po-item-serials">
                     <strong>Serials:</strong> {it.serialNumbers.join(', ')}
+                  </div>
+                )}
+                {it.warehouseLocation && (
+                  <div className="doc-po-item-location" style={{ fontSize: '9px', color: '#475569', marginTop: '2px' }}>
+                    📍 <strong>Inward Location:</strong> {it.warehouseLocation.warehouseName || it.warehouseLocation.warehouseId || ''} {it.warehouseLocation.binLocation ? `(${it.warehouseLocation.binLocation})` : it.warehouseLocation.box ? `(${it.warehouseLocation.rack} › ${it.warehouseLocation.box})` : ''}
                   </div>
                 )}
               </td>

@@ -819,7 +819,8 @@ function receiveGoods(req, res) {
         productName: poItem.productName,
         receiveNow,
         unitRate: itemRate,
-        serialNumbers: serials
+        serialNumbers: serials,
+        warehouseLocation: recItem.warehouseLocation || null
       });
     }
 
@@ -827,10 +828,12 @@ function receiveGoods(req, res) {
       return res.status(400).json({ success: false, message: 'Please enter a receive quantity greater than 0 for at least one item.' });
     }
 
-    // 2. Generate deterministic GRN ID
+    // 2. Generate deterministic GRN ID & extract warehouse
     const grnId = generateGrnId();
     const receiptDateStr = receivedDate || new Date().toISOString().slice(0, 10);
     const receiver = String(receivedBy || req.user?.name || 'Store Officer').trim();
+    const warehouseId = String(req.body.warehouseId || 'WH-001').trim();
+    const warehouseName = String(req.body.warehouseName || 'Main Central Hub').trim();
 
     // 3. Atomically add physical stock via inventoryService
     const inventoryResult = inventoryService.addStock({
@@ -843,7 +846,8 @@ function receiveGoods(req, res) {
         unitRate: l.unitRate,
         gstRate: Number(l.poItem.gst || l.poItem.gstRate || 0),
         taxAmount: Number((l.receiveNow * l.unitRate * (Number(l.poItem.gst || l.poItem.gstRate || 0) / 100)).toFixed(2)),
-        totalValue: Number((l.receiveNow * l.unitRate).toFixed(2))
+        totalValue: Number((l.receiveNow * l.unitRate).toFixed(2)),
+        warehouseLocation: l.warehouseLocation
       })),
       referenceType: 'GOODS_RECEIPT',
       referenceId: grnId,
@@ -852,6 +856,8 @@ function receiveGoods(req, res) {
       partyName: po.supplierSnapshot?.companyName || 'Supplier',
       supplierId: po.supplierId || po.supplierSnapshot?.id || null,
       supplierName: po.supplierSnapshot?.companyName,
+      warehouseId,
+      warehouseName,
       remarks: notes || `Received against ${po.id}`,
       user: req.user
     });
@@ -871,13 +877,19 @@ function receiveGoods(req, res) {
       }
 
       // Record this delivery batch
+      if (line.warehouseLocation) {
+        item.warehouseLocation = line.warehouseLocation;
+      }
       if (!Array.isArray(item.receiptBatches)) item.receiptBatches = [];
       item.receiptBatches.push({
         grnId,
         date: receiptDateStr,
         quantity: line.receiveNow,
         unitRate: line.unitRate,
-        totalValue: Number((line.receiveNow * line.unitRate).toFixed(2))
+        totalValue: Number((line.receiveNow * line.unitRate).toFixed(2)),
+        warehouseId,
+        warehouseName,
+        warehouseLocation: line.warehouseLocation || null
       });
 
       // Highest Price Rule: find maximum unit rate across all received batches
@@ -945,6 +957,8 @@ function receiveGoods(req, res) {
       supplierName: po.supplierSnapshot?.companyName || 'Supplier',
       receivedDate: receiptDateStr,
       receivedBy: receiver,
+      warehouseId,
+      warehouseName,
       deliveryType: deliveryType,
       items: processedLines.map((l) => ({
         productId: l.productId,
@@ -952,7 +966,8 @@ function receiveGoods(req, res) {
         productName: l.productName,
         quantity: l.receiveNow,
         receiveNow: l.receiveNow,
-        serialNumbers: l.serialNumbers
+        serialNumbers: l.serialNumbers,
+        warehouseLocation: l.warehouseLocation || null
       })),
       totalReceivedQty: totalReceiveNow,
       notes: notes || '',

@@ -240,6 +240,8 @@ function addStock({
   supplierName,
   customerId,
   customerName,
+  warehouseId,
+  warehouseName,
   remarks,
   user
 }) {
@@ -303,7 +305,8 @@ function addStock({
       unitRate,
       gstRate,
       taxAmount,
-      totalValue
+      totalValue,
+      warehouseLocation: item.warehouseLocation || null
     });
   }
 
@@ -317,9 +320,32 @@ function addStock({
   const recordedTransactions = [];
 
   for (const mutation of plannedMutations) {
-    const { product, quantity, serialNumbers, txnId, unitRate, gstRate, taxAmount, totalValue } = mutation;
+    const { product, quantity, serialNumbers, txnId, unitRate, gstRate, taxAmount, totalValue, warehouseLocation } = mutation;
     const stockBefore = Number(product.stock || 0);
     product.stock = stockBefore + quantity;
+
+    if (warehouseLocation || warehouseId) {
+      const whId = warehouseLocation?.warehouseId || warehouseId || 'WH-001';
+      const whName = warehouseLocation?.warehouseName || warehouseName || 'Main Central Hub';
+      const floor = warehouseLocation?.floor || 'Floor 1';
+      const rack = warehouseLocation?.rack || 'Rack A';
+      const shelf = warehouseLocation?.shelf || 'Shelf 1';
+      const box = warehouseLocation?.box || 'Box 01';
+      const binLocation = warehouseLocation?.binLocation || `${whName} › ${floor} › ${rack} › ${shelf} › ${box}`;
+      const locationCode = warehouseLocation?.locationCode || `${whId}-${box}`;
+
+      product.warehouseLocation = {
+        warehouseId: whId,
+        warehouseName: whName,
+        floor,
+        rack,
+        shelf,
+        box,
+        binLocation,
+        locationCode,
+        updatedAt: new Date().toISOString()
+      };
+    }
 
     if (serialNumbers.length > 0) {
       if (!Array.isArray(product.serialNumbers)) product.serialNumbers = [];
@@ -345,6 +371,8 @@ function addStock({
           poReference: poReference || null,
           supplierName: party,
           inwardCost: unitRate || Number(product.cost || 0),
+          warehouse: warehouseLocation?.warehouseName || warehouseName || 'Main Central Hub',
+          location: warehouseLocation?.locationCode || null,
           status: 'IN_STOCK'
         };
       });
@@ -393,6 +421,10 @@ function addStock({
       supplierName: referenceType === 'RETURN_DC' ? null : (supplierName || party),
       customerId: customerId || null,
       customerName: referenceType === 'RETURN_DC' ? (partyName || 'Customer') : null,
+      warehouseId: warehouseLocation?.warehouseId || warehouseId || 'WH-001',
+      warehouseName: warehouseLocation?.warehouseName || warehouseName || 'Main Central Hub',
+      locationCode: warehouseLocation?.locationCode || product.warehouseLocation?.locationCode || null,
+      binLocation: warehouseLocation?.binLocation || product.warehouseLocation?.binLocation || null,
       serialNumbers: serialNumbers,
       notes: remarks || '',
       remarks: remarks || `${eventName} for ${party} under reference ${referenceId}${poReference ? ` (PO: ${poReference})` : ''}`,

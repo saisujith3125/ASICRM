@@ -49,6 +49,12 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
   const [receivedBy, setReceivedBy] = useState(() => user?.name || 'Store Officer');
   const [notes, setNotes] = useState('');
 
+  // Payment on Receipt State
+  const [paymentOption, setPaymentOption] = useState('batch'); // 'batch', 'custom', 'credit'
+  const [paymentNow, setPaymentNow] = useState('');
+  const [paymentMode, setPaymentMode] = useState('Bank Transfer');
+  const [paymentRef, setPaymentRef] = useState('');
+
   // Per-item receive state: { [productId]: { receiveNow: number, serialNumbers: string[] } }
   const [receiveInputs, setReceiveInputs] = useState({});
 
@@ -168,6 +174,37 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
 
   const isPartialDelivery = totalInwardNow > 0 && !isFullDelivery;
 
+  const poGrandTotal = Number(po?.grandTotal || 0);
+  const poAdvancePaid = Number(po?.advanceAmount || 0);
+  const poTotalPaid = Number(po?.totalPaid || po?.advanceAmount || 0);
+  const poRemainingBalance = Math.max(0, poGrandTotal - poTotalPaid);
+
+  const currentBatchInwardValue = useMemo(() => {
+    if (!po?.items) return 0;
+    let sum = 0;
+    for (const it of po.items) {
+      const pId = it.productId || it.productCode;
+      const inp = receiveInputs[pId];
+      const recNow = Number(inp?.receiveNow || 0);
+      const rate = Number(inp?.unitRate !== undefined ? inp.unitRate : it.rate || 0);
+      const gst = Number(it.gstRate || it.gst || 18);
+      const lineTaxable = recNow * rate;
+      const lineTax = (lineTaxable * gst) / 100;
+      sum += (lineTaxable + lineTax);
+    }
+    return Math.round(sum);
+  }, [po?.items, receiveInputs]);
+
+  useEffect(() => {
+    if (poRemainingBalance <= 0) {
+      setPaymentOption('credit');
+      setPaymentNow('0');
+    } else if (paymentOption === 'batch') {
+      const suggested = Math.min(currentBatchInwardValue, poRemainingBalance);
+      setPaymentNow(suggested > 0 ? String(suggested) : '');
+    }
+  }, [currentBatchInwardValue, poRemainingBalance, paymentOption]);
+
   const handleFillAllPending = () => {
     if (!po?.items) return;
     const nextInputs = { ...receiveInputs };
@@ -280,6 +317,16 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
       return;
     }
 
+    const numPaymentNow = paymentOption === 'credit' ? 0 : Number(paymentNow || 0);
+    if (numPaymentNow < 0) {
+      setErrorMsg('Payment amount cannot be negative.');
+      return;
+    }
+    if (numPaymentNow > poRemainingBalance) {
+      setErrorMsg(`Payment amount (₹${numPaymentNow.toLocaleString('en-IN')}) cannot exceed remaining PO balance (₹${poRemainingBalance.toLocaleString('en-IN')}).`);
+      return;
+    }
+
     setSubmitting(true);
     try {
       if (po.status === 'DRAFT') {
@@ -300,7 +347,10 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
           receivedDate,
           receivedBy,
           notes,
-          items: itemsToReceive
+          items: itemsToReceive,
+          paymentNow: numPaymentNow,
+          paymentMode: numPaymentNow > 0 ? paymentMode : 'Credit',
+          paymentRef: numPaymentNow > 0 ? paymentRef.trim() : null
         })
       });
 
@@ -859,6 +909,160 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
               <div style={{ fontSize: '12px', color: '#15803d', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '8px 12px', borderRadius: '6px', maxWidth: '580px', lineHeight: 1.4 }}>
                 🛡️ <strong>Profit Protection Rule:</strong> If rates increase across delivery batches (e.g. 6 @ ₹400 and 2 @ ₹500), valuation of all units benchmarks at the <strong>highest received unit rate (₹500/unit)</strong> to protect against selling margin loss.
               </div>
+            </div>
+
+            {/* Section 3: Payment & Settlement on Receipt */}
+            <div
+              className="po-payment-settlement-card"
+              style={{
+                marginTop: '20px',
+                padding: '18px 20px',
+                borderRadius: '8px',
+                background: '#f8fafc',
+                border: '1.5px solid #cbd5e1'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
+                    💳 3. Payment &amp; Settlement on Receipt
+                  </span>
+                  <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '4px', background: '#dbeafe', color: '#1d4ed8' }}>
+                    Procurement Inward Payment
+                  </span>
+                </div>
+
+                {/* PO Payment Status Summary */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', fontSize: '12px' }}>
+                  <span style={{ color: '#64748b' }}>
+                    PO Total: <strong style={{ color: '#0f172a' }}>₹{poGrandTotal.toLocaleString('en-IN')}</strong>
+                  </span>
+                  <span style={{ color: '#64748b' }}>
+                    Already Paid: <strong style={{ color: '#16a34a' }}>₹{poTotalPaid.toLocaleString('en-IN')}</strong>
+                    {poAdvancePaid > 0 && <span style={{ fontSize: '10.5px', color: '#64748b' }}> (Adv: ₹{poAdvancePaid.toLocaleString('en-IN')})</span>}
+                  </span>
+                  <span style={{ color: '#64748b' }}>
+                    Remaining Due: <strong style={{ color: '#1e3a8a' }}>₹{poRemainingBalance.toLocaleString('en-IN')}</strong>
+                  </span>
+                </div>
+              </div>
+
+              {poRemainingBalance <= 0 ? (
+                <div style={{ padding: '12px 16px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '6px', color: '#047857', fontSize: '12.5px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>✓</span>
+                  <span>This Purchase Order has already been fully paid (₹{poGrandTotal.toLocaleString('en-IN')}). No payment required on goods receipt.</span>
+                </div>
+              ) : (
+                <>
+                  {/* Payment Option Selector */}
+                  <div style={{ display: 'flex', gap: '16px', marginBottom: '14px', flexWrap: 'wrap' }}>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#1e293b' }}>
+                      <input
+                        type="radio"
+                        name="paymentOption"
+                        value="batch"
+                        checked={paymentOption === 'batch'}
+                        onChange={() => {
+                          setPaymentOption('batch');
+                          const suggested = Math.min(currentBatchInwardValue, poRemainingBalance);
+                          setPaymentNow(suggested > 0 ? String(suggested) : '');
+                        }}
+                      />
+                      <span>Pay Current Batch Total (₹{Math.min(currentBatchInwardValue, poRemainingBalance).toLocaleString('en-IN')})</span>
+                    </label>
+
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#1e293b' }}>
+                      <input
+                        type="radio"
+                        name="paymentOption"
+                        value="custom"
+                        checked={paymentOption === 'custom'}
+                        onChange={() => setPaymentOption('custom')}
+                      />
+                      <span>Pay Custom Amount</span>
+                    </label>
+
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '12.5px', fontWeight: 600, color: '#64748b' }}>
+                      <input
+                        type="radio"
+                        name="paymentOption"
+                        value="credit"
+                        checked={paymentOption === 'credit'}
+                        onChange={() => {
+                          setPaymentOption('credit');
+                          setPaymentNow('0');
+                        }}
+                      />
+                      <span>No Payment Now (Pay Later on Credit - ₹0.00)</span>
+                    </label>
+                  </div>
+
+                  {/* Payment Inputs Grid */}
+                  {paymentOption !== 'credit' && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px', alignItems: 'flex-start' }}>
+                      <div className="po-form-group" style={{ margin: 0 }}>
+                        <label style={{ fontSize: '12px', fontWeight: 600 }}>Amount to Pay for This Receipt (₹) *</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max={poRemainingBalance}
+                          value={paymentNow}
+                          onChange={(e) => setPaymentNow(e.target.value)}
+                          placeholder="e.g. 9000"
+                          style={{ fontWeight: 700, fontSize: '13.5px', fontFamily: 'monospace' }}
+                        />
+                      </div>
+
+                      <div className="po-form-group" style={{ margin: 0 }}>
+                        <label style={{ fontSize: '12px', fontWeight: 600 }}>Payment Mode</label>
+                        <select
+                          value={paymentMode}
+                          onChange={(e) => setPaymentMode(e.target.value)}
+                        >
+                          <option value="Bank Transfer">Bank Transfer (NEFT/RTGS/IMPS)</option>
+                          <option value="UPI">UPI / QR Code</option>
+                          <option value="Cheque">Cheque</option>
+                          <option value="Cash">Cash</option>
+                        </select>
+                      </div>
+
+                      <div className="po-form-group" style={{ margin: 0 }}>
+                        <label style={{ fontSize: '12px', fontWeight: 600 }}>Transaction / Cheque / UTR Ref</label>
+                        <input
+                          type="text"
+                          value={paymentRef}
+                          onChange={(e) => setPaymentRef(e.target.value)}
+                          placeholder="e.g. UTR987654321 or Cheque #501"
+                        />
+                      </div>
+
+                      <div style={{
+                        padding: '10px 14px',
+                        borderRadius: '6px',
+                        background: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        gap: '4px'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#64748b' }}>
+                          <span>Remaining Before:</span>
+                          <span style={{ fontWeight: 600, color: '#0f172a' }}>₹{poRemainingBalance.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#64748b' }}>
+                          <span>Paying on Receipt:</span>
+                          <span style={{ fontWeight: 700, color: '#16a34a' }}>- ₹{(Number(paymentNow) || 0).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 700, borderTop: '1px dashed #cbd5e1', paddingTop: '4px', marginTop: '2px', color: '#1e3a8a' }}>
+                          <span>Remaining Balance:</span>
+                          <span>₹{Math.max(0, poRemainingBalance - (Number(paymentNow) || 0)).toLocaleString('en-IN')}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
 
             <div style={{ marginTop: '20px' }} className="po-form-group">

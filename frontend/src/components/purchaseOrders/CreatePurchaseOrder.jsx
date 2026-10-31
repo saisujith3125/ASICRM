@@ -37,6 +37,9 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
   const [orderDate, setOrderDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState('');
   const [paymentTerms, setPaymentTerms] = useState('Net 30 Days');
+  const [advanceAmount, setAdvanceAmount] = useState('');
+  const [advancePaymentMode, setAdvancePaymentMode] = useState('Bank Transfer');
+  const [advancePaymentRef, setAdvancePaymentRef] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState(
     'Plot No. 10A, Perumal Kovil Street, Sivabootham, Vanagaram, Chennai - 600095'
   );
@@ -113,6 +116,11 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
             if (existingPo.orderDate) setOrderDate(existingPo.orderDate);
             if (existingPo.expectedDeliveryDate) setExpectedDeliveryDate(existingPo.expectedDeliveryDate);
             if (existingPo.paymentTerms) setPaymentTerms(existingPo.paymentTerms);
+            if (existingPo.advanceAmount != null && existingPo.advanceAmount > 0) {
+              setAdvanceAmount(String(existingPo.advanceAmount));
+            }
+            if (existingPo.advancePaymentMode) setAdvancePaymentMode(existingPo.advancePaymentMode);
+            if (existingPo.advancePaymentRef) setAdvancePaymentRef(existingPo.advancePaymentRef);
             if (existingPo.deliveryAddress) setDeliveryAddress(existingPo.deliveryAddress);
             if (existingPo.termsAndConditions) setTermsAndConditions(existingPo.termsAndConditions);
             if (existingPo.remarks) setRemarks(existingPo.remarks);
@@ -434,6 +442,17 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
       return;
     }
 
+    const isAdvanceTerm = /advance/i.test(paymentTerms);
+    const numAdvance = isAdvanceTerm ? Number(advanceAmount || 0) : 0;
+    if (isAdvanceTerm && numAdvance < 0) {
+      setErrorMsg('Advance amount cannot be negative.');
+      return;
+    }
+    if (isAdvanceTerm && numAdvance > calculations.grandTotal) {
+      setErrorMsg(`Advance amount (₹${numAdvance.toLocaleString('en-IN')}) cannot exceed Grand Total (₹${calculations.grandTotal.toLocaleString('en-IN')}).`);
+      return;
+    }
+
     setSaving(true);
     try {
       const payload = {
@@ -456,6 +475,10 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
           serialized: it.serialized
         })),
         paymentTerms,
+        advanceAmount: isAdvanceTerm ? numAdvance : 0,
+        advancePaymentMode: isAdvanceTerm ? advancePaymentMode : null,
+        advancePaymentRef: isAdvanceTerm ? advancePaymentRef.trim() : null,
+        balanceAmount: isAdvanceTerm ? Math.max(0, calculations.grandTotal - numAdvance) : calculations.grandTotal,
         deliveryAddress,
         termsAndConditions,
         remarks,
@@ -602,7 +625,17 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
             <label>Payment Terms</label>
             <select
               value={paymentTerms}
-              onChange={(e) => setPaymentTerms(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setPaymentTerms(val);
+                if (/100%\s*advance/i.test(val)) {
+                  setAdvanceAmount(calculations.grandTotal > 0 ? String(calculations.grandTotal) : '');
+                } else if (/50%/i.test(val)) {
+                  setAdvanceAmount(calculations.grandTotal > 0 ? String(Math.round(calculations.grandTotal * 0.5)) : '');
+                } else if (!/advance/i.test(val)) {
+                  setAdvanceAmount('');
+                }
+              }}
             >
               <option value="Immediate Payment">Immediate Payment</option>
               <option value="Net 15 Days">Net 15 Days</option>
@@ -610,6 +643,7 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
               <option value="Net 45 Days">Net 45 Days</option>
               <option value="Advance 50% + Balance on Delivery">Advance 50% + Balance on Delivery</option>
               <option value="100% Advance">100% Advance</option>
+              <option value="Custom Advance + Balance on Delivery">Custom Advance + Balance on Delivery</option>
             </select>
           </div>
 
@@ -622,6 +656,126 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
             />
           </div>
         </div>
+
+        {/advance/i.test(paymentTerms) && (
+          <div
+            className="po-advance-payment-box"
+            style={{
+              marginTop: '12px',
+              padding: '16px 18px',
+              borderRadius: '8px',
+              background: '#f8fafc',
+              border: '1.5px solid #cbd5e1',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                  💵 Advance Payment Details
+                </span>
+                <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '4px', background: '#dbeafe', color: '#1d4ed8' }}>
+                  Advance Terms Active
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <button
+                  type="button"
+                  onClick={() => setAdvanceAmount(calculations.grandTotal > 0 ? String(Math.round(calculations.grandTotal * 0.25)) : '')}
+                  style={{ fontSize: '11px', padding: '3px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer' }}
+                >
+                  25% (₹{Math.round(calculations.grandTotal * 0.25).toLocaleString('en-IN')})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAdvanceAmount(calculations.grandTotal > 0 ? String(Math.round(calculations.grandTotal * 0.5)) : '')}
+                  style={{ fontSize: '11px', padding: '3px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer' }}
+                >
+                  50% (₹{Math.round(calculations.grandTotal * 0.5).toLocaleString('en-IN')})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAdvanceAmount(calculations.grandTotal > 0 ? String(calculations.grandTotal) : '')}
+                  style={{ fontSize: '11px', padding: '3px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer' }}
+                >
+                  100% (₹{calculations.grandTotal.toLocaleString('en-IN')})
+                </button>
+                {advanceAmount && (
+                  <button
+                    type="button"
+                    onClick={() => setAdvanceAmount('')}
+                    style={{ fontSize: '11px', padding: '3px 8px', borderRadius: '4px', border: '1px solid #fca5a5', background: '#fee2e2', color: '#991b1b', cursor: 'pointer' }}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px', alignItems: 'flex-start' }}>
+              <div className="po-form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600 }}>Advance Amount to Pay (₹) *</label>
+                <input
+                  type="number"
+                  min="0"
+                  max={calculations.grandTotal || undefined}
+                  value={advanceAmount}
+                  onChange={(e) => setAdvanceAmount(e.target.value)}
+                  placeholder="e.g. 2100 or 25000"
+                  style={{ fontWeight: 700, fontSize: '13.5px', fontFamily: 'monospace' }}
+                />
+              </div>
+
+              <div className="po-form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600 }}>Payment Mode</label>
+                <select
+                  value={advancePaymentMode}
+                  onChange={(e) => setAdvancePaymentMode(e.target.value)}
+                >
+                  <option value="Bank Transfer">Bank Transfer (NEFT/RTGS/IMPS)</option>
+                  <option value="UPI">UPI / QR Code</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Pending">Payment Pending</option>
+                </select>
+              </div>
+
+              <div className="po-form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600 }}>Transaction / UTR Reference</label>
+                <input
+                  type="text"
+                  value={advancePaymentRef}
+                  onChange={(e) => setAdvancePaymentRef(e.target.value)}
+                  placeholder="e.g. UTR123456789 or Cheque #104"
+                />
+              </div>
+
+              <div style={{
+                padding: '10px 14px',
+                borderRadius: '6px',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                gap: '4px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#64748b' }}>
+                  <span>PO Grand Total:</span>
+                  <span style={{ fontWeight: 600, color: '#0f172a' }}>₹{calculations.grandTotal.toLocaleString('en-IN')}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#64748b' }}>
+                  <span>Advance Deducted:</span>
+                  <span style={{ fontWeight: 700, color: '#16a34a' }}>- ₹{(Number(advanceAmount) || 0).toLocaleString('en-IN')}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 700, borderTop: '1px dashed #cbd5e1', paddingTop: '4px', marginTop: '2px', color: '#1e3a8a' }}>
+                  <span>Balance Due on Delivery:</span>
+                  <span>₹{Math.max(0, calculations.grandTotal - (Number(advanceAmount) || 0)).toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Items Table Card */}

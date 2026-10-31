@@ -473,6 +473,12 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
               <strong>{po.paymentTerms || 'Net 30 Days'}</strong>
             </div>
             <div className="po-detail-field">
+              <span>Payment Status</span>
+              <strong style={{ color: Number(po.totalPaid || 0) >= Number(po.grandTotal || 0) && Number(po.grandTotal || 0) > 0 ? '#15803d' : (Number(po.totalPaid || 0) > 0 ? '#b45309' : '#0f172a') }}>
+                {Number(po.totalPaid || 0) >= Number(po.grandTotal || 0) && Number(po.grandTotal || 0) > 0 ? 'Fully Paid' : (Number(po.totalPaid || 0) > 0 ? `Paid ₹${Number(po.totalPaid || 0).toLocaleString('en-IN')} (Due: ₹${Number(po.balanceAmount !== undefined ? po.balanceAmount : Math.max(0, (po.grandTotal || 0) - (po.totalPaid || 0))).toLocaleString('en-IN')})` : 'Unpaid (Due on Terms)')}
+              </strong>
+            </div>
+            <div className="po-detail-field">
               <span>Delivery Address</span>
               <strong style={{ fontSize: '12px' }}>{po.deliveryAddress}</strong>
             </div>
@@ -717,6 +723,74 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
             )}
           </div>
         </div>
+      </div>
+
+      {/* Payment & Settlement History Card */}
+      <div className="po-editor-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+          <div className="po-section-title" style={{ margin: 0, border: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>💳 Payment &amp; Settlement History</span>
+            <span style={{
+              fontSize: '11.5px',
+              fontWeight: 700,
+              padding: '2px 8px',
+              borderRadius: '4px',
+              background: Number(po.totalPaid || 0) >= Number(po.grandTotal || 0) && Number(po.grandTotal || 0) > 0 ? '#dcfce7' : (Number(po.totalPaid || 0) > 0 ? '#fef3c7' : '#f1f5f9'),
+              color: Number(po.totalPaid || 0) >= Number(po.grandTotal || 0) && Number(po.grandTotal || 0) > 0 ? '#15803d' : (Number(po.totalPaid || 0) > 0 ? '#b45309' : '#64748b'),
+              border: `1px solid ${Number(po.totalPaid || 0) >= Number(po.grandTotal || 0) && Number(po.grandTotal || 0) > 0 ? '#86efac' : (Number(po.totalPaid || 0) > 0 ? '#fde68a' : '#cbd5e1')}`
+            }}>
+              {Number(po.totalPaid || 0) >= Number(po.grandTotal || 0) && Number(po.grandTotal || 0) > 0 ? '✓ Fully Paid' : (Number(po.totalPaid || 0) > 0 ? `Partially Paid (₹${Number(po.totalPaid || 0).toLocaleString('en-IN')})` : 'Unpaid')}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '16px', fontSize: '13px' }}>
+            <span>Total Paid: <strong style={{ color: '#16a34a' }}>₹{Number(po.totalPaid || 0).toLocaleString('en-IN')}</strong></span>
+            <span>Balance Due: <strong style={{ color: '#1e3a8a' }}>₹{Number(po.balanceAmount !== undefined ? po.balanceAmount : Math.max(0, (po.grandTotal || 0) - (po.totalPaid || 0))).toLocaleString('en-IN')}</strong></span>
+          </div>
+        </div>
+
+        {Array.isArray(po.payments) && po.payments.length > 0 ? (
+          <table className="po-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '12px' }}>Payment Ref</th>
+                <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '12px' }}>Date</th>
+                <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '12px' }}>Type</th>
+                <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '12px' }}>Mode</th>
+                <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '12px' }}>Reference / UTR</th>
+                <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: '12px' }}>Amount (₹)</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '12px' }}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {po.payments.map((pay, pIdx) => (
+                <tr key={pay.id || pIdx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '8px 12px', fontSize: '12.5px', fontFamily: 'monospace', fontWeight: 600 }}>{pay.id || `PAY-${pIdx + 1}`}</td>
+                  <td style={{ padding: '8px 12px', fontSize: '12.5px' }}>{formatDate(pay.date)}</td>
+                  <td style={{ padding: '8px 12px', fontSize: '12.5px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', background: pay.type === 'ADVANCE' ? '#eff6ff' : '#f0fdf4', color: pay.type === 'ADVANCE' ? '#1d4ed8' : '#166534' }}>
+                      {pay.type === 'ADVANCE' ? 'Advance Payment' : 'GRN Receipt Payment'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '8px 12px', fontSize: '12.5px' }}>{pay.mode || 'Bank Transfer'}</td>
+                  <td style={{ padding: '8px 12px', fontSize: '12.5px', color: '#64748b' }}>{pay.reference || '—'}</td>
+                  <td style={{ padding: '8px 12px', fontSize: '12.5px', textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>
+                    ₹{Number(pay.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </td>
+                  <td style={{ padding: '8px 12px', fontSize: '12px', textAlign: 'center' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', background: '#dcfce7', color: '#15803d' }}>
+                      PAID
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div style={{ padding: '16px', background: '#f8fafc', borderRadius: '6px', textAlign: 'center', color: '#64748b', fontSize: '13px' }}>
+            No payments recorded yet for this Purchase Order. Payments can be recorded during Goods Receipt (GRN) or as an advance upon PO creation.
+          </div>
+        )}
       </div>
 
       {/* Goods Receipt History (GRNs) Card */}

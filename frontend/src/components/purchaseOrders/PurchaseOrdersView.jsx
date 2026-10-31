@@ -529,6 +529,21 @@ export default function PurchaseOrdersView({ user, onNavigateCreate, onOpenPo, o
                         <span className={`po-status-badge ${statusClass}`}>
                           {String(po.status || 'DRAFT').replace('_', ' ')}
                         </span>
+                        {Number(po.totalPaid || 0) > 0 && (
+                          <div style={{ marginTop: '4px' }}>
+                            <span style={{
+                              fontSize: '10.5px',
+                              fontWeight: 700,
+                              padding: '1px 6px',
+                              borderRadius: '4px',
+                              background: Number(po.totalPaid || 0) >= Number(po.grandTotal || 0) ? '#dcfce7' : '#eff6ff',
+                              color: Number(po.totalPaid || 0) >= Number(po.grandTotal || 0) ? '#15803d' : '#1d4ed8',
+                              border: `1px solid ${Number(po.totalPaid || 0) >= Number(po.grandTotal || 0) ? '#86efac' : '#bfdbfe'}`
+                            }}>
+                              {Number(po.totalPaid || 0) >= Number(po.grandTotal || 0) ? 'PAID' : `PAID ₹${Number(po.totalPaid).toLocaleString('en-IN')}`}
+                            </span>
+                          </div>
+                        )}
                       </td>
                       <td className="po-col-actions" style={{ textAlign: 'right' }}>
                         <div className="po-actions" style={{ justifyContent: 'flex-end' }}>

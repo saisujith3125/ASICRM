@@ -319,7 +319,10 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
               </div>
               <div className="finance-kpi-value">{formatCurrency(kpis.totalOutflowCommitted)}</div>
               <div className="finance-kpi-subtext" title={`${kpis.posCount || 0} Purchase Orders issued to suppliers`}>
-                <span>{kpis.posCount || 0} POs issued</span>
+                <span>
+                  {kpis.posCount || 0} POs issued
+                  {Number(kpis.totalPoPaidAmount || 0) > 0 && ` • ₹${Number(kpis.totalPoPaidAmount).toLocaleString('en-IN')} Paid`}
+                </span>
               </div>
             </div>
 
@@ -397,8 +400,8 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
                             </span>
                           )}
                           {item.direction === 'OUTFLOW' && (
-                            <span className="flow-badge outflow">
-                              <ArrowUpRight size={12} /> Supplier Outflow
+                            <span className={`flow-badge outflow ${item.type === 'PO_ADVANCE_OUTFLOW' ? 'advance' : ''}`}>
+                              <ArrowUpRight size={12} /> {item.docType || 'Supplier Outflow'}
                             </span>
                           )}
                           {item.direction === 'UNBILLED' && (

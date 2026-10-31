@@ -92,6 +92,26 @@ function enrichPurchaseOrder(po) {
   const receivedGrandTotal = Math.round(fullReceivedSubtotal + fullReceivedTax);
   const pendingGrandTotal = Math.round(fullPendingSubtotal + fullPendingTax);
 
+  const finalGrandTotal = Number(po.grandTotal !== undefined ? po.grandTotal : orderedGrandTotal);
+  const advanceAmount = Number(po.advanceAmount || 0);
+  const payments = Array.isArray(po.payments) && po.payments.length > 0
+    ? po.payments
+    : (advanceAmount > 0 ? [{
+        id: `PAY-ADV-${po.id || po.purchaseOrderId}`,
+        date: po.orderDate || po.createdAt,
+        type: 'ADVANCE',
+        amount: advanceAmount,
+        mode: po.advancePaymentMode || 'Bank Transfer',
+        reference: po.advancePaymentRef || '',
+        status: 'PAID',
+        createdAt: po.createdAt || new Date().toISOString()
+      }] : []);
+  const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+  const balanceAmount = Math.max(0, finalGrandTotal - totalPaid);
+  const paymentStatus = totalPaid >= finalGrandTotal && finalGrandTotal > 0
+    ? 'PAID'
+    : (totalPaid > 0 ? 'PARTIALLY_PAID' : 'UNPAID');
+
   return {
     ...po,
     items: enrichedItems,
@@ -108,7 +128,12 @@ function enrichPurchaseOrder(po) {
     receivedGrandTotal,
     pendingSubtotal: Number(fullPendingSubtotal.toFixed(2)),
     pendingTaxTotal: Number(fullPendingTax.toFixed(2)),
-    pendingGrandTotal
+    pendingGrandTotal,
+    advanceAmount,
+    payments,
+    totalPaid,
+    balanceAmount,
+    paymentStatus
   };
 }
 
@@ -357,6 +382,21 @@ function createPurchaseOrder(req, res) {
       roundOff: Number(roundOff !== undefined ? roundOff : finalRoundOff),
       grandTotal: Number(grandTotal !== undefined ? grandTotal : finalGrandTotal),
       paymentTerms: String(paymentTerms || 'Net 30 Days').trim(),
+      advanceAmount: Number(req.body.advanceAmount || 0),
+      advancePaymentMode: req.body.advancePaymentMode || null,
+      advancePaymentRef: req.body.advancePaymentRef || null,
+      totalPaid: Number(req.body.advanceAmount || 0),
+      balanceAmount: Math.max(0, Number(grandTotal !== undefined ? grandTotal : finalGrandTotal) - Number(req.body.advanceAmount || 0)),
+      payments: Number(req.body.advanceAmount || 0) > 0 ? [{
+        id: `PAY-ADV-${poId}`,
+        date: orderDate || new Date().toISOString().slice(0, 10),
+        type: 'ADVANCE',
+        amount: Number(req.body.advanceAmount || 0),
+        mode: req.body.advancePaymentMode || 'Bank Transfer',
+        reference: req.body.advancePaymentRef || '',
+        status: 'PAID',
+        createdAt: new Date().toISOString()
+      }] : [],
       deliveryAddress: String(deliveryAddress || 'Plot No. 10A, Perumal Kovil Street, Sivabootham, Vanagaram, Chennai - 600095').trim(),
       termsAndConditions: String(termsAndConditions || 'Standard Purchase Terms: Goods subject to inspection on receipt. Defective or damaged items will be returned at supplier cost.').trim(),
       remarks: String(remarks || '').trim(),
@@ -524,6 +564,33 @@ function updatePurchaseOrder(req, res) {
     if (orderDate) po.orderDate = orderDate;
     if (expectedDeliveryDate !== undefined) po.expectedDeliveryDate = expectedDeliveryDate;
     if (paymentTerms !== undefined) po.paymentTerms = paymentTerms;
+    if (req.body.advanceAmount !== undefined) {
+      const adv = Number(req.body.advanceAmount || 0);
+      po.advanceAmount = adv;
+      if (req.body.advancePaymentMode) po.advancePaymentMode = req.body.advancePaymentMode;
+      if (req.body.advancePaymentRef !== undefined) po.advancePaymentRef = req.body.advancePaymentRef;
+
+      if (!Array.isArray(po.payments)) po.payments = [];
+      const advIdx = po.payments.findIndex((p) => p.type === 'ADVANCE');
+      if (adv > 0) {
+        const advRecord = {
+          id: advIdx >= 0 ? po.payments[advIdx].id : `PAY-ADV-${po.id || po.purchaseOrderId}`,
+          date: po.orderDate || new Date().toISOString().slice(0, 10),
+          type: 'ADVANCE',
+          amount: adv,
+          mode: po.advancePaymentMode || 'Bank Transfer',
+          reference: po.advancePaymentRef || '',
+          status: 'PAID',
+          createdAt: advIdx >= 0 ? po.payments[advIdx].createdAt : new Date().toISOString()
+        };
+        if (advIdx >= 0) po.payments[advIdx] = advRecord;
+        else po.payments.unshift(advRecord);
+      } else if (advIdx >= 0) {
+        po.payments.splice(advIdx, 1);
+      }
+      po.totalPaid = po.payments.reduce((s, p) => s + Number(p.amount || 0), 0);
+      po.balanceAmount = Math.max(0, Number(po.grandTotal || 0) - po.totalPaid);
+    }
     if (deliveryAddress !== undefined) po.deliveryAddress = deliveryAddress;
     if (termsAndConditions !== undefined) po.termsAndConditions = termsAndConditions;
     if (remarks !== undefined) po.remarks = remarks;
@@ -847,6 +914,46 @@ function receiveGoods(req, res) {
     };
 
     goodsReceipts.push(grnRecord);
+
+    // Process optional payment on goods receipt
+    const paymentNow = Number(req.body.paymentNow || 0);
+    const paymentMode = String(req.body.paymentMode || 'Bank Transfer').trim();
+    const paymentRef = String(req.body.paymentRef || '').trim();
+    const paymentNotes = String(req.body.paymentNotes || '').trim();
+
+    if (!Array.isArray(po.payments)) {
+      po.payments = Number(po.advanceAmount || 0) > 0 ? [{
+        id: `PAY-ADV-${po.id || po.purchaseOrderId}`,
+        date: po.orderDate || receiptDateStr,
+        type: 'ADVANCE',
+        amount: Number(po.advanceAmount || 0),
+        mode: po.advancePaymentMode || 'Bank Transfer',
+        reference: po.advancePaymentRef || '',
+        status: 'PAID',
+        createdAt: po.createdAt || new Date().toISOString()
+      }] : [];
+    }
+
+    if (paymentNow > 0) {
+      const payRecord = {
+        id: `PAY-GRN-${grnId}`,
+        grnId: grnId,
+        date: receiptDateStr,
+        type: 'GRN_PAYMENT',
+        amount: paymentNow,
+        mode: paymentMode,
+        reference: paymentRef,
+        notes: paymentNotes,
+        status: 'PAID',
+        createdAt: new Date().toISOString()
+      };
+      po.payments.push(payRecord);
+      grnRecord.payment = payRecord;
+    }
+
+    const totalPaid = po.payments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+    po.totalPaid = totalPaid;
+    po.balanceAmount = Math.max(0, Number(po.grandTotal || 0) - totalPaid);
 
     // 6. Persist CRM Store
     persistStore();

@@ -201,6 +201,8 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
     totalOrderedQty: totalQty,
     totalReceivedQty: poData.totalReceivedQty !== undefined ? Number(poData.totalReceivedQty) : totalReceivedQty,
     totalPendingQty: poData.totalPendingQty !== undefined ? Number(poData.totalPendingQty) : totalPendingQty,
+    advanceAmount: Number(poData.advanceAmount || 0),
+    balanceAmount: Number(poData.balanceAmount || 0),
     financials: {
       totalQty,
       totalOrderedQty: totalQty,
@@ -217,6 +219,8 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
     },
     terms: {
       paymentTerms,
+      advanceAmount: Number(poData.advanceAmount || 0),
+      balanceAmount: Number(poData.balanceAmount || 0),
       deliveryDue,
       deliveryAddress,
       termsAndConditions: (poData.termsAndConditions || '').toString().trim(),
@@ -429,6 +433,19 @@ function PurchaseOrderHeaderBox({ company, doc }) {
               <td className="doc-po-meta-label">Payment Terms :</td>
               <td className="doc-po-meta-val">{doc.paymentTerms}</td>
             </tr>
+            {Number(doc?.advanceAmount || 0) > 0 && (
+              <tr>
+                <td className="doc-po-meta-label">Advance Paid :</td>
+                <td className="doc-po-meta-val bold" style={{ color: '#15803d' }}>
+                  ₹{Number(doc.advanceAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {Number(doc.balanceAmount || 0) > 0 && (
+                    <span style={{ fontSize: '10px', color: '#475569', fontWeight: 600, marginLeft: '6px' }}>
+                      (Due: ₹{Number(doc.balanceAmount).toLocaleString('en-IN')})
+                    </span>
+                  )}
+                </td>
+              </tr>
+            )}
             <tr>
               <td className="doc-po-meta-label">Received Status :</td>
               <td className="doc-po-meta-val bold">
@@ -945,6 +962,11 @@ function PurchaseOrderTermsBox({ terms }) {
       <div className="doc-po-terms-grid">
         <div className="doc-po-term-item">
           <strong>Payment Terms:</strong> {terms.paymentTerms || 'Net 30 Days'}
+          {Number(terms.advanceAmount || 0) > 0 && (
+            <span style={{ marginLeft: '8px', color: '#15803d', fontWeight: 600 }}>
+              (Advance: ₹{Number(terms.advanceAmount).toLocaleString('en-IN')} • Due: ₹{Number(terms.balanceAmount || 0).toLocaleString('en-IN')})
+            </span>
+          )}
         </div>
         <div className="doc-po-term-item">
           <strong>Delivery Due:</strong> {terms.deliveryDue}

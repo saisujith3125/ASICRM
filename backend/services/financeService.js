@@ -221,6 +221,7 @@ function getFinanceSummary(filters = {}) {
 
   // Outflow Calculations (Supplier Purchase Orders)
   let totalPoCommittedAmount = 0;
+  let totalPoPaidAmount = 0;
   let totalPoTaxable = 0;
   let totalGstPaid = 0;
   let totalPayablesPending = 0;
@@ -234,7 +235,14 @@ function getFinanceSummary(filters = {}) {
     const igst = Number(po.igst || 0);
     const gstTotal = cgst + sgst + igst;
 
+    const payments = Array.isArray(po.payments) && po.payments.length > 0
+      ? po.payments
+      : (Number(po.advanceAmount || 0) > 0 ? [{ amount: Number(po.advanceAmount) }] : []);
+    const paid = payments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+    const balance = Math.max(0, grandTotal - paid);
+
     totalPoCommittedAmount += grandTotal;
+    totalPoPaidAmount += paid;
     totalPoTaxable += subtotal;
     totalGstPaid += gstTotal;
 
@@ -244,7 +252,7 @@ function getFinanceSummary(filters = {}) {
     }
     // Estimated pending payables for POs not cancelled
     if (status !== 'CANCELLED') {
-      totalPayablesPending += grandTotal;
+      totalPayablesPending += balance;
     }
   });
 
@@ -316,18 +324,64 @@ function getFinanceSummary(filters = {}) {
   });
 
   pos.forEach((po) => {
-    timeline.push({
-      id: po.id || po.purchaseOrderId,
-      date: po.orderDate || po.createdAt,
-      type: 'PO_OUTFLOW',
-      docType: 'Purchase Order',
-      referenceId: po.id || po.purchaseOrderId,
-      partyName: po.supplierSnapshot?.companyName || 'Supplier',
-      description: `Procurement from ${po.supplierSnapshot?.companyName || 'Supplier'}`,
-      amount: Number(po.grandTotal || 0),
-      direction: 'OUTFLOW',
-      status: po.status || 'ORDERED'
-    });
+    const payments = Array.isArray(po.payments) && po.payments.length > 0
+      ? po.payments
+      : (Number(po.advanceAmount || 0) > 0 ? [{
+          id: `PAY-ADV-${po.id || po.purchaseOrderId}`,
+          date: po.orderDate || po.createdAt,
+          type: 'ADVANCE',
+          amount: Number(po.advanceAmount),
+          mode: po.advancePaymentMode || 'Bank Transfer',
+          status: 'PAID'
+        }] : []);
+
+    if (payments.length > 0) {
+      payments.forEach((pay) => {
+        timeline.push({
+          id: pay.id,
+          date: pay.date || po.orderDate || po.createdAt,
+          type: pay.type === 'ADVANCE' ? 'PO_ADVANCE_OUTFLOW' : 'PO_RECEIPT_OUTFLOW',
+          docType: pay.type === 'ADVANCE' ? 'Supplier Advance' : 'Supplier Outflow',
+          referenceId: po.id || po.purchaseOrderId,
+          partyName: po.supplierSnapshot?.companyName || 'Supplier',
+          description: pay.type === 'ADVANCE'
+            ? `Advance payment on PO ${po.id || po.purchaseOrderId}`
+            : `Receipt payment on PO ${po.id || po.purchaseOrderId}${pay.grnId ? ` (${pay.grnId})` : ''}`,
+          amount: Number(pay.amount || 0),
+          direction: 'OUTFLOW',
+          status: 'PAID'
+        });
+      });
+      const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      const remaining = Math.max(0, Number(po.grandTotal || 0) - totalPaid);
+      if (remaining > 0 && po.status !== 'CANCELLED') {
+        timeline.push({
+          id: `DUE-${po.id || po.purchaseOrderId}`,
+          date: po.expectedDeliveryDate || po.orderDate || po.createdAt,
+          type: 'PO_OUTFLOW',
+          docType: 'Purchase Order',
+          referenceId: po.id || po.purchaseOrderId,
+          partyName: po.supplierSnapshot?.companyName || 'Supplier',
+          description: `Payable Balance on ${po.id || po.purchaseOrderId} (${po.paymentTerms || 'Net 30 Days'})`,
+          amount: remaining,
+          direction: 'OUTFLOW',
+          status: po.status || 'ORDERED'
+        });
+      }
+    } else {
+      timeline.push({
+        id: po.id || po.purchaseOrderId,
+        date: po.orderDate || po.createdAt,
+        type: 'PO_OUTFLOW',
+        docType: 'Purchase Order',
+        referenceId: po.id || po.purchaseOrderId,
+        partyName: po.supplierSnapshot?.companyName || 'Supplier',
+        description: `Procurement from ${po.supplierSnapshot?.companyName || 'Supplier'}`,
+        amount: Number(po.grandTotal || 0),
+        direction: 'OUTFLOW',
+        status: po.status || 'ORDERED'
+      });
+    }
   });
 
   unbilledChallansList.forEach((dc) => {
@@ -364,6 +418,7 @@ function getFinanceSummary(filters = {}) {
       pendingInvoicesCount,
 
       totalOutflowCommitted: Number(totalPoCommittedAmount.toFixed(2)),
+      totalPoPaidAmount: Number(totalPoPaidAmount.toFixed(2)),
       totalPayablesPending: Number(totalPayablesPending.toFixed(2)),
       posCount: pos.length,
       receivedPosCount,

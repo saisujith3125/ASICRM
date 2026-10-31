@@ -1202,7 +1202,7 @@ function createEntity(req, res, type) {
     const unit = (!rawUnit || rawUnit === 'Piece' || rawUnit === 'piece') ? 'Nos' : rawUnit;
     const allowedUnits = getAllowedProductUnits();
     if (!allowedUnits.has(unit) && (!unit || unit.length > 50)) return res.status(400).json({ success: false, message: 'Please provide a valid product unit.' });
-    const openingStock = Number(body.stock || 0);
+    let openingStock = Number(body.stock || 0);
     const alertQuantity = Number(body.alertQuantity || 0);
     const createdAt = new Date().toISOString();
     const isCable = isCableProduct(
@@ -1213,8 +1213,14 @@ function createEntity(req, res, type) {
     const isSerialized = isCable ? false : (body.serialized !== undefined ? Boolean(body.serialized) : true);
     let initialSerials = [];
     if (isSerialized) {
-      if (Array.isArray(body.serialNumbers) && body.serialNumbers.length === openingStock) {
-        initialSerials = body.serialNumbers.map((s) => String(s).trim()).filter(Boolean);
+      const providedSerials = Array.isArray(body.serialNumbers)
+        ? body.serialNumbers.map((s) => String(s).trim()).filter(Boolean)
+        : [];
+      if (providedSerials.length > 0) {
+        initialSerials = providedSerials;
+        if (openingStock !== providedSerials.length) {
+          openingStock = providedSerials.length;
+        }
       } else if (openingStock > 0) {
         initialSerials = generateComputerSerialNumbers({ code, serialNumbers: [] }, openingStock, data);
       }
@@ -1313,7 +1319,7 @@ function updateEntity(req, res, type) {
     const gst = Number(body.gst ?? current.gst ?? 0);
     const rawUnit = String(body.unit ?? current.unit ?? '').trim();
     const unit = (!rawUnit || rawUnit === 'Piece' || rawUnit === 'piece') ? 'Nos' : rawUnit;
-    const nextStock = Number(body.stock ?? current.stock ?? 0);
+    let nextStock = Number(body.stock ?? current.stock ?? 0);
     const nextAlertQuantity = Number(body.alertQuantity ?? current.alertQuantity ?? 0);
     const allowedUnits = getAllowedProductUnits();
     if (!allowedUnits.has(unit) && (!unit || unit.length > 50)) return res.status(400).json({ success: false, message: 'Please provide a valid product unit.' });
@@ -1327,9 +1333,15 @@ function updateEntity(req, res, type) {
     const isSerialized = isCable ? false : (body.serialized !== undefined ? Boolean(body.serialized) : Boolean(current.serialized));
     let updatedSerials = [];
     if (isSerialized) {
-      if (Array.isArray(body.serialNumbers) && body.serialNumbers.length === nextStock) {
-        updatedSerials = body.serialNumbers.map((s) => String(s).trim()).filter(Boolean);
-      } else {
+      const providedSerials = Array.isArray(body.serialNumbers)
+        ? body.serialNumbers.map((s) => String(s).trim()).filter(Boolean)
+        : [];
+      if (providedSerials.length > 0) {
+        updatedSerials = providedSerials;
+        if (nextStock !== providedSerials.length) {
+          nextStock = providedSerials.length;
+        }
+      } else if (nextStock > 0) {
         const existing = Array.isArray(current.serialNumbers) ? current.serialNumbers : [];
         if (existing.length < nextStock) {
           const needed = nextStock - existing.length;
@@ -1338,6 +1350,8 @@ function updateEntity(req, res, type) {
         } else {
           updatedSerials = existing.slice(0, nextStock);
         }
+      } else {
+        updatedSerials = [];
       }
     } else {
       updatedSerials = [];

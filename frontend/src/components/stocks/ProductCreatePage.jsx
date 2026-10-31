@@ -109,7 +109,13 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
   const [codeError, setCodeError] = useState('');
   const [saved, setSaved] = useState(false);
   const [quickModal, setQuickModal] = useState(null);
-  const [serialNumbersText, setSerialNumbersText] = useState('');
+  const [serialNumbersText, setSerialNumbersText] = useState(() => {
+    if (Array.isArray(initialValues?.serialNumbers) && initialValues.serialNumbers.length > 0) {
+      return initialValues.serialNumbers.join('\n');
+    }
+    return '';
+  });
+  const [showAllSerialsPreview, setShowAllSerialsPreview] = useState(false);
 
   const companyConfig = useCompanyConfig(user);
 
@@ -296,6 +302,9 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                 serialized: found.serialized !== undefined ? Boolean(found.serialized) : true,
                 isIGSTApplicable: Boolean(found.isIGSTApplicable)
               });
+              if (Array.isArray(found.serialNumbers) && found.serialNumbers.length > 0) {
+                setSerialNumbersText(found.serialNumbers.join('\n'));
+              }
             } else {
               setError(`Product "${productId}" not found.`);
             }
@@ -319,6 +328,9 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
               const matched = (current.id ? (json.data?.products || []).find((p) => String(p.id) === String(current.id)) : null) ||
                 (current.code ? (json.data?.products || []).find((p) => String(p.code).trim().toUpperCase() === String(current.code).trim().toUpperCase()) : null);
               if (matched) {
+                if (Array.isArray(matched.serialNumbers) && matched.serialNumbers.length > 0) {
+                  setSerialNumbersText(matched.serialNumbers.join('\n'));
+                }
                 const cost = Number(matched.cost || 0);
                 const dealer = Number(matched.dealerPrice || 0);
                 const mrp = Number(matched.mrp || 0);
@@ -439,12 +451,84 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
       .filter(Boolean);
   }, [serialNumbersText]);
 
-  const handleAutoGenerateSerials = () => {
-    const qty = parseInt(form.stock, 10) || 0;
-    if (qty <= 0) return;
+  const serialAnalysis = useMemo(() => {
+    const seen = new Map();
+    const duplicates = [];
+    parsedSerials.forEach((sn, idx) => {
+      const norm = sn.toLowerCase();
+      if (seen.has(norm)) {
+        duplicates.push({ serial: sn, firstIndex: seen.get(norm), duplicateIndex: idx });
+      } else {
+        seen.set(norm, idx);
+      }
+    });
+
+    const stockNum = parseInt(form.stock, 10) || 0;
+    const serialCount = parsedSerials.length;
+    const hasDuplicates = duplicates.length > 0;
+    const isMatched = stockNum > 0 && serialCount === stockNum && !hasDuplicates;
+    const isShortfall = stockNum > 0 && serialCount < stockNum;
+    const isExcess = stockNum > 0 && serialCount > stockNum;
+    const isUnsetStock = stockNum === 0 && serialCount > 0;
+    const isBothZero = stockNum === 0 && serialCount === 0;
+
+    return {
+      stockNum,
+      serialCount,
+      duplicates,
+      hasDuplicates,
+      isMatched,
+      isShortfall,
+      isExcess,
+      isUnsetStock,
+      isBothZero,
+      shortfallCount: Math.max(0, stockNum - serialCount),
+      excessCount: Math.max(0, serialCount - stockNum)
+    };
+  }, [parsedSerials, form.stock]);
+
+  const handleSerialNumbersTextChange = (e) => {
+    const val = e.target.value;
+    setSerialNumbersText(val);
+    const parsed = val.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+    const currentStock = parseInt(form.stock, 10) || 0;
+    // Bidirectional sync: if opening stock is empty, 0, or was previously synced to serials count, keep opening stock updated
+    if (form.stock === '' || currentStock === 0 || form.stock === String(parsedSerials.length)) {
+      setForm((prev) => ({ ...prev, stock: parsed.length > 0 ? String(parsed.length) : '' }));
+    }
+  };
+
+  const handleAutoGenerateSerials = async () => {
+    let qty = parseInt(form.stock, 10) || 0;
+    if (qty <= 0) {
+      qty = 1;
+      setForm((prev) => ({ ...prev, stock: '1' }));
+    }
     const code = String(form.code || 'ASI-01').trim().toUpperCase();
+    try {
+      const res = await apiFetch(apiUrl(`/api/stocks/products/generate-serials?code=${encodeURIComponent(code)}&qty=${qty}`), {
+        headers: headers(user)
+      });
+      const json = await res.json();
+      if (json && json.success && Array.isArray(json.serialNumbers) && json.serialNumbers.length > 0) {
+        setSerialNumbersText(json.serialNumbers.join('\n'));
+        return;
+      }
+    } catch {
+      // Fallback to client-side sequential generator
+    }
     const generated = Array.from({ length: qty }, (_, i) => `${code}-SN-${1001 + i}`);
     setSerialNumbersText(generated.join('\n'));
+  };
+
+  const handleSyncStockToSerials = () => {
+    if (parsedSerials.length > 0) {
+      setForm((prev) => ({ ...prev, stock: String(parsedSerials.length) }));
+    }
+  };
+
+  const handleClearSerials = () => {
+    setSerialNumbersText('');
   };
 
   const costNum = Number(form.cost || 0);
@@ -618,35 +702,41 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
     setSaving(true);
     setError('');
     try {
-      const finalStock = form.stock !== '' && !isNaN(Number(form.stock))
+      let finalStock = form.stock !== '' && !isNaN(Number(form.stock))
         ? Number(form.stock)
         : (existingMatch ? Number(existingMatch.stock || 0) : 0);
       const finalAlertQuantity = form.alertQuantity !== '' && !isNaN(Number(form.alertQuantity))
         ? Number(form.alertQuantity)
         : (existingMatch ? Number(existingMatch.alertQuantity || 0) : 10);
 
+      // Auto-sync stock with parsed serial numbers if serial numbers were entered directly but opening stock was 0 or blank
+      if (!isCable && form.serialized && parsedSerials.length > 0 && finalStock === 0) {
+        finalStock = parsedSerials.length;
+      }
+
       let finalSerials = [];
-      if (!isCable && form.serialized && !isExistingProduct && finalStock > 0) {
-        if (parsedSerials.length === finalStock) {
-          const seen = new Set();
-          for (const sn of parsedSerials) {
-            const snUpper = sn.toUpperCase();
-            if (seen.has(snUpper)) {
-              setError(`Duplicate serial number "${sn}" entered. Serial numbers must be unique.`);
-              setSaving(false);
-              return;
-            }
-            seen.add(snUpper);
+      if (!isCable && form.serialized) {
+        if (serialAnalysis.hasDuplicates) {
+          const dupNames = Array.from(new Set(serialAnalysis.duplicates.map((d) => d.serial))).join(', ');
+          setError(`Duplicate serial number(s) detected: ${dupNames}. Each unit must have a unique serial number.`);
+          setSaving(false);
+          return;
+        }
+
+        if (finalStock > 0) {
+          if (parsedSerials.length === finalStock) {
+            finalSerials = parsedSerials;
+          } else if (parsedSerials.length === 0) {
+            setError(`Product requires mandatory serial numbers. Opening stock is set to ${finalStock}. Please enter or auto-generate ${finalStock} serial number(s).`);
+            setSaving(false);
+            return;
+          } else {
+            setError(`Serial count mismatch: ${parsedSerials.length} serial number(s) entered, but Opening Stock is ${finalStock}. Please enter exactly ${finalStock} serial numbers or click "Set Opening Stock to ${parsedSerials.length}".`);
+            setSaving(false);
+            return;
           }
-          finalSerials = parsedSerials;
-        } else if (parsedSerials.length === 0) {
-          setError(`Product requires mandatory serial numbers. Please enter exactly ${finalStock} serial number(s) or click "Auto-Generate Serial Numbers".`);
-          setSaving(false);
-          return;
         } else {
-          setError(`Product requires mandatory serial numbers. Exactly ${finalStock} serial number(s) are required for opening stock (currently entered: ${parsedSerials.length}).`);
-          setSaving(false);
-          return;
+          finalSerials = [];
         }
       }
 
@@ -1136,68 +1226,329 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                 </div>
               </div>
 
-              {!isCable && form.serialized && !isExistingProduct && Number(form.stock) > 0 && (
-                <div className="form-field-group" style={{
-                  gridColumn: 'span 2',
-                  marginTop: '4px',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  background: '#f8fafc',
-                  border: '1.5px solid #e2e8f0'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
-                        Mandatory Serial Numbers for Opening Stock ({Number(form.stock)} Required)
+              {!isCable && Boolean(form.serialized) && (
+                <div
+                  className="form-field-group serial-numbers-box-container"
+                  style={{
+                    gridColumn: 'span 2',
+                    marginTop: '8px',
+                    padding: '16px 18px',
+                    borderRadius: '10px',
+                    background: '#ffffff',
+                    border: `1.5px solid ${serialAnalysis.hasDuplicates ? '#fca5a5' : (serialAnalysis.isMatched ? '#86efac' : '#bfdbfe')}`,
+                    boxShadow: '0 2px 8px -2px rgba(37,99,235,0.08)'
+                  }}
+                >
+                  {/* Top Bar: Title, Count Badge, Action Buttons */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '10px',
+                      flexWrap: 'wrap',
+                      gap: '10px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        <span>🏷️</span>
+                        <span>Serial Numbers for Opening Stock</span>
                       </span>
-                      <span style={{
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        padding: '2px 8px',
-                        borderRadius: '6px',
-                        background: parsedSerials.length === Number(form.stock) ? '#dcfce7' : '#fef3c7',
-                        color: parsedSerials.length === Number(form.stock) ? '#15803d' : '#b45309'
-                      }}>
-                        {parsedSerials.length} / {Number(form.stock)} Entered
-                      </span>
+
+                      {/* Live Count Analysis Badge */}
+                      {serialAnalysis.hasDuplicates ? (
+                        <span
+                          style={{
+                            fontSize: '11.5px',
+                            fontWeight: 700,
+                            padding: '3px 10px',
+                            borderRadius: '6px',
+                            background: '#fee2e2',
+                            color: '#991b1b',
+                            border: '1px solid #fca5a5',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          ❌ {serialAnalysis.duplicates.length} Duplicate Serial{serialAnalysis.duplicates.length > 1 ? 's' : ''} Detected
+                        </span>
+                      ) : serialAnalysis.isMatched ? (
+                        <span
+                          style={{
+                            fontSize: '11.5px',
+                            fontWeight: 700,
+                            padding: '3px 10px',
+                            borderRadius: '6px',
+                            background: '#dcfce7',
+                            color: '#15803d',
+                            border: '1px solid #86efac',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          ✓ {serialAnalysis.serialCount} / {serialAnalysis.stockNum} Units Matched
+                        </span>
+                      ) : serialAnalysis.isShortfall ? (
+                        <span
+                          style={{
+                            fontSize: '11.5px',
+                            fontWeight: 700,
+                            padding: '3px 10px',
+                            borderRadius: '6px',
+                            background: '#fef3c7',
+                            color: '#b45309',
+                            border: '1px solid #fde68a',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          ⚡ {serialAnalysis.serialCount} / {serialAnalysis.stockNum} Entered ({serialAnalysis.shortfallCount} Missing)
+                        </span>
+                      ) : serialAnalysis.isExcess ? (
+                        <span
+                          style={{
+                            fontSize: '11.5px',
+                            fontWeight: 700,
+                            padding: '3px 10px',
+                            borderRadius: '6px',
+                            background: '#ffedd5',
+                            color: '#c2410c',
+                            border: '1px solid #fed7aa',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          ⚠️ {serialAnalysis.serialCount} / {serialAnalysis.stockNum} Entered ({serialAnalysis.excessCount} Excess)
+                        </span>
+                      ) : serialAnalysis.isUnsetStock ? (
+                        <span
+                          style={{
+                            fontSize: '11.5px',
+                            fontWeight: 700,
+                            padding: '3px 10px',
+                            borderRadius: '6px',
+                            background: '#eff6ff',
+                            color: '#1d4ed8',
+                            border: '1px solid #bfdbfe',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          📌 {serialAnalysis.serialCount} Entered (Stock: 0)
+                        </span>
+                      ) : (
+                        <span
+                          style={{
+                            fontSize: '11.5px',
+                            fontWeight: 600,
+                            padding: '3px 10px',
+                            borderRadius: '6px',
+                            background: '#f1f5f9',
+                            color: '#64748b',
+                            border: '1px solid #cbd5e1'
+                          }}
+                        >
+                          0 Units • Direct Entry or Auto-Generate
+                        </span>
+                      )}
                     </div>
-                    <button
-                      type="button"
-                      onClick={handleAutoGenerateSerials}
-                      className="crm-btn-secondary compact"
+
+                    {/* Action Buttons */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      {serialAnalysis.serialCount > 0 && serialAnalysis.serialCount !== serialAnalysis.stockNum && (
+                        <button
+                          type="button"
+                          onClick={handleSyncStockToSerials}
+                          className="crm-btn-secondary compact"
+                          style={{
+                            fontSize: '11.5px',
+                            fontWeight: 600,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            background: '#f0fdf4',
+                            borderColor: '#86efac',
+                            color: '#166534'
+                          }}
+                          title="Click to set Opening Stock count to match entered serial numbers"
+                        >
+                          🔄 Set Opening Stock to {serialAnalysis.serialCount}
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={handleAutoGenerateSerials}
+                        className="crm-btn-secondary compact"
+                        style={{
+                          fontSize: '11.5px',
+                          fontWeight: 600,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          background: '#eff6ff',
+                          borderColor: '#93c5fd',
+                          color: '#1d4ed8'
+                        }}
+                        title="Auto-generate sequential serial numbers based on product code"
+                      >
+                        ⚡ Auto-Generate {serialAnalysis.stockNum > 0 ? `${serialAnalysis.stockNum} ` : ''}Serial{serialAnalysis.stockNum === 1 ? '' : 's'}
+                      </button>
+
+                      {serialAnalysis.serialCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleClearSerials}
+                          className="crm-btn-secondary compact"
+                          style={{
+                            fontSize: '11.5px',
+                            fontWeight: 600,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            background: '#fff',
+                            borderColor: '#cbd5e1',
+                            color: '#64748b'
+                          }}
+                          title="Clear serial numbers"
+                        >
+                          🗑️ Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px 0', lineHeight: '1.45' }}>
+                    Type or paste serial numbers below (one per line or separated by commas). The serial number count works bidirectionally with Opening Stock.
+                  </p>
+
+                  {/* Duplicate Alert Banner */}
+                  {serialAnalysis.hasDuplicates && (
+                    <div
                       style={{
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        background: '#eff6ff',
-                        borderColor: '#93c5fd',
-                        color: '#1d4ed8'
+                        marginBottom: '10px',
+                        padding: '10px 14px',
+                        borderRadius: '6px',
+                        background: '#fef2f2',
+                        border: '1px solid #fca5a5',
+                        color: '#991b1b',
+                        fontSize: '12.5px',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '8px'
                       }}
                     >
-                      ⚡ Auto-Generate Serial Numbers
-                    </button>
-                  </div>
-                  <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 8px 0' }}>
-                    Enter serial numbers manually (one per line or comma-separated) or click <strong>Auto-Generate</strong> for computer-generated serial numbers.
-                  </p>
+                      <span style={{ fontSize: '14px' }}>⚠️</span>
+                      <div style={{ lineHeight: '1.4' }}>
+                        <strong>Duplicate Serial Numbers:</strong> Each unit must have a unique serial number. Duplicates detected: <code>{Array.from(new Set(serialAnalysis.duplicates.map((d) => d.serial))).join(', ')}</code>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Serial Numbers Textarea */}
                   <textarea
                     rows={4}
                     value={serialNumbersText}
-                    onChange={(e) => setSerialNumbersText(e.target.value)}
-                    placeholder={`${form.code || 'ASI-01'}-SN-1001\n${form.code || 'ASI-01'}-SN-1002\n...`}
+                    onChange={handleSerialNumbersTextChange}
+                    placeholder={`${form.code || 'ASI-01'}-SN-1001\n${form.code || 'ASI-01'}-SN-1002\n${form.code || 'ASI-01'}-SN-1003`}
                     style={{
                       width: '100%',
                       padding: '10px 12px',
                       fontFamily: 'Consolas, Monaco, "Courier New", monospace',
                       fontSize: '13px',
+                      lineHeight: '1.5',
                       borderRadius: '6px',
-                      border: '1px solid #cbd5e1',
+                      border: `1.5px solid ${serialAnalysis.hasDuplicates ? '#fca5a5' : (serialAnalysis.isMatched ? '#86efac' : '#cbd5e1')}`,
                       outline: 'none',
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      background: '#fafafa',
+                      transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
                     }}
                   />
+
+                  {/* Bottom Analysis & Chips Preview */}
+                  {serialAnalysis.serialCount > 0 && (
+                    <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e2e8f0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#475569' }}>
+                          Serial Numbers Preview ({serialAnalysis.serialCount} units entered):
+                        </span>
+                        {serialAnalysis.serialCount > 16 && (
+                          <button
+                            type="button"
+                            onClick={() => setShowAllSerialsPreview((prev) => !prev)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#2563eb',
+                              fontSize: '11.5px',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              padding: '0'
+                            }}
+                          >
+                            {showAllSerialsPreview ? '▲ Show fewer (first 16)' : `▼ Show all (${serialAnalysis.serialCount})`}
+                          </button>
+                        )}
+                      </div>
+
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '6px',
+                          maxHeight: showAllSerialsPreview ? '220px' : '100px',
+                          overflowY: 'auto',
+                          padding: '2px'
+                        }}
+                      >
+                        {(showAllSerialsPreview ? parsedSerials : parsedSerials.slice(0, 16)).map((sn, idx) => {
+                          const isDup = serialAnalysis.duplicates.some((d) => d.serial.toLowerCase() === sn.toLowerCase());
+                          return (
+                            <span
+                              key={`${sn}-${idx}`}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                padding: '3px 8px',
+                                borderRadius: '5px',
+                                fontSize: '11.5px',
+                                fontFamily: 'Consolas, Monaco, monospace',
+                                fontWeight: 600,
+                                background: isDup ? '#fee2e2' : '#f8fafc',
+                                color: isDup ? '#991b1b' : '#334155',
+                                border: `1px solid ${isDup ? '#fca5a5' : '#cbd5e1'}`
+                              }}
+                            >
+                              <span style={{ fontSize: '10px', color: isDup ? '#ef4444' : '#94a3b8' }}>#{idx + 1}</span>
+                              <span>{sn}</span>
+                              {isDup && <span title="Duplicate serial number">⚠️</span>}
+                            </span>
+                          );
+                        })}
+                        {!showAllSerialsPreview && parsedSerials.length > 16 && (
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              color: '#64748b',
+                              fontStyle: 'italic',
+                              alignSelf: 'center',
+                              paddingLeft: '4px'
+                            }}
+                          >
+                            +{parsedSerials.length - 16} more units...
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

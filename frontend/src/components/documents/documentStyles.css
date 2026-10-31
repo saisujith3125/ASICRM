@@ -4070,7 +4070,7 @@
 .quotation-watermark {
   position: absolute;
   top: 50%;
-  left: 106mm;
+  left: 50%;
   transform: translate(-50%, -50%);
   width: 440px;
   max-width: 60%;
@@ -4451,7 +4451,7 @@
   font-size: 12px !important;
   letter-spacing: 0.01em !important;
   color: #000000 !important;
-  background: #ffffff !important; /* Crisp white cell background */
+  background: transparent !important; /* Transparent cell background allows watermark to flow continuously */
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   box-sizing: border-box !important;
@@ -4466,7 +4466,7 @@
   line-height: 1.35 !important;
   color: #000000 !important;
   font-size: 12px !important;
-  background: #ffffff !important; /* Crisp white cell background */
+  background: transparent !important; /* Transparent cell background allows watermark to flow continuously */
   box-sizing: border-box !important;
   overflow: hidden !important;
 }
@@ -4569,13 +4569,13 @@
   line-height: 28px !important;
   padding: 0 !important;
   border: 1px solid #9ca3af !important;
-  background: #ffffff !important;
+  background: transparent !important;
 }
 
 .quotation-total-row td {
   border: 1px solid #9ca3af !important;
   padding: 5px 6px !important;
-  background: #ffffff !important;
+  background: transparent !important;
 }
 
 .quotation-total-row .quotation-total-blank {
@@ -4613,7 +4613,7 @@
 .quotation-total-ref-row td {
   border: 1px solid #9ca3af !important;
   padding: 6px 8px !important;
-  background: #ffffff !important;
+  background: transparent !important;
   color: #000000 !important;
 }
 
@@ -4642,7 +4642,7 @@
 .quotation-grand-total-ref-row td {
   border-top: 1.5px solid #9ca3af !important;
   border-bottom: 1.5px solid #9ca3af !important;
-  background: #ffffff !important;
+  background: transparent !important;
 }
 
 .quotation-grand-total-ref-row .quotation-grand-total-label {
@@ -4664,7 +4664,7 @@
   border: 1px solid #9ca3af !important;
   border-top: 1.5px solid #9ca3af !important;
   padding: 6px 8px !important;
-  background: #ffffff !important;
+  background: transparent !important;
   color: #000000 !important;
   font-size: 12px !important;
   line-height: 1.35 !important;

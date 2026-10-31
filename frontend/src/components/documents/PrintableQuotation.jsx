@@ -529,7 +529,7 @@ export function QuotationHeader({ model }) {
   const logoWidth = Number(model.comp?.quotationLogoSize || 152);
   // Natural aspect ratio: master logo asset is 511x507 (1:1.008). Height aligns with the first Mobile contact line (~150px)
   const logoHeight = Math.min(152, Math.round(logoWidth * (507 / 511)));
-  const logoUrl = model.comp?.logoUrl;
+  const logoUrl = model.comp?.logoUrl || DEFAULT_ASI_LOGO;
   const hasMasterLogo = Boolean(logoUrl && !imgFailed);
 
   const mobiles = useMemo(() => {
@@ -993,27 +993,35 @@ export default function PrintableQuotation({ data, customSettings }) {
     return paginateQuotation(model);
   }, [data, model]);
 
+  // Helper for dynamic font scaling on large enterprise amounts (up to 10 Crores)
+  const getAmountFontSize = (val) => {
+    const num = Math.abs(Number(val) || 0);
+    if (num >= 10000000) return '10.5px'; // 1 Crore to 10 Crores+
+    if (num >= 1000000) return '11px';   // 10 Lakhs to 99 Lakhs
+    return '12px';                        // Standard
+  };
+
   const columns = useMemo(() => {
     if (model.showDiscount) {
       return [
-        { key: 'slNo', label: 'SL.No', width: '6.5%', align: 'center' },
-        { key: 'description', label: 'Description', width: '30%', align: 'left' },
-        { key: 'hsn', label: 'HSN Code', width: '9.5%', align: 'center' },
-        { key: 'unitPrice', label: 'UnitPrice', width: '12%', align: 'center' },
-        { key: 'quantity', label: 'Qty', width: '7%', align: 'center' },
-        { key: 'discount', label: 'Discount', width: '11%', align: 'center' },
-        { key: 'tax', label: 'Tax', width: '11%', align: 'center' },
-        { key: 'amount', label: 'Amount', width: '13%', align: 'center' }
+        { key: 'slNo', label: 'SL.No', width: '5%', align: 'center' },
+        { key: 'description', label: 'Description', width: '27%', align: 'left' },
+        { key: 'hsn', label: 'HSN Code', width: '8%', align: 'center' },
+        { key: 'unitPrice', label: 'UnitPrice', width: '14%', align: 'center' },
+        { key: 'quantity', label: 'Qty', width: '6%', align: 'center' },
+        { key: 'discount', label: 'Discount', width: '10%', align: 'center' },
+        { key: 'tax', label: 'Tax', width: '13%', align: 'center' },
+        { key: 'amount', label: 'Amount', width: '17%', align: 'center' }
       ];
     }
     return [
-      { key: 'slNo', label: 'SL.No', width: '7%', align: 'center' },
-      { key: 'description', label: 'Description', width: '36.5%', align: 'left' },
-      { key: 'hsn', label: 'HSN Code', width: '10%', align: 'center' },
-      { key: 'unitPrice', label: 'UnitPrice', width: '12%', align: 'center' },
-      { key: 'quantity', label: 'Qty', width: '9%', align: 'center' },
-      { key: 'tax', label: 'Tax', width: '12.5%', align: 'center' },
-      { key: 'amount', label: 'Amount', width: '13%', align: 'center' }
+      { key: 'slNo', label: 'SL.No', width: '5%', align: 'center' },
+      { key: 'description', label: 'Description', width: '32%', align: 'left' },
+      { key: 'hsn', label: 'HSN Code', width: '8.5%', align: 'center' },
+      { key: 'unitPrice', label: 'UnitPrice', width: '15.5%', align: 'center' },
+      { key: 'quantity', label: 'Qty', width: '6%', align: 'center' },
+      { key: 'tax', label: 'Tax', width: '14%', align: 'center' },
+      { key: 'amount', label: 'Amount', width: '19%', align: 'center' }
     ];
   }, [model.showDiscount]);
 
@@ -1097,7 +1105,7 @@ export default function PrintableQuotation({ data, customSettings }) {
                             <td className="quotation-hsn-cell" style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
                               {it.hsn || '—'}
                             </td>
-                            <td className="quotation-numeric-cell quotation-price-cell" style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                            <td className="quotation-numeric-cell quotation-price-cell" style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap', fontFamily: 'monospace', fontSize: getAmountFontSize(it.unitPrice) }}>
                               ₹ {formatPlainNumber(it.unitPrice)}
                             </td>
                             <td className="quotation-qty-cell" style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
@@ -1115,11 +1123,11 @@ export default function PrintableQuotation({ data, customSettings }) {
                                 )}
                               </td>
                             )}
-                            <td className="quotation-numeric-cell quotation-tax-cell" style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
-                              <div>₹ {formatPlainNumber(it.lineTax)}</div>
+                            <td className="quotation-numeric-cell quotation-tax-cell" style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap', fontFamily: 'monospace' }}>
+                              <div style={{ fontSize: getAmountFontSize(it.lineTax) }}>₹ {formatPlainNumber(it.lineTax)}</div>
                               <div className="tax-rate-sub">({it.isIGSTApplicable ? 'IGST' : 'GST'}{it.gstRate}%)</div>
                             </td>
-                            <td className="quotation-numeric-cell quotation-amount-cell" style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                            <td className="quotation-numeric-cell quotation-amount-cell" style={{ textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap', fontFamily: 'monospace', fontSize: getAmountFontSize(it.taxableAmount) }}>
                               ₹ {formatPlainNumber(it.taxableAmount)}
                             </td>
                           </tr>
@@ -1180,7 +1188,7 @@ export default function PrintableQuotation({ data, customSettings }) {
                                   <td colSpan={columns.length - 1} className="quotation-total-ref-label-cell quotation-grand-total-label">
                                     TOTAL AMOUNT
                                   </td>
-                                  <td className="quotation-total-ref-val-cell quotation-grand-total-val">
+                                  <td className="quotation-total-ref-val-cell quotation-grand-total-val" style={{ fontFamily: 'monospace', fontSize: getAmountFontSize(model.finalTotal) }}>
                                     ₹ {formatPlainNumber(model.finalTotal)}
                                   </td>
                                 </tr>
@@ -1207,7 +1215,7 @@ export default function PrintableQuotation({ data, customSettings }) {
                                   <td colSpan={columns.length - 1} className="quotation-total-ref-label-cell quotation-grand-total-label">
                                     TOTAL AMOUNT
                                   </td>
-                                  <td className="quotation-total-ref-val-cell quotation-grand-total-val">
+                                  <td className="quotation-total-ref-val-cell quotation-grand-total-val" style={{ fontFamily: 'monospace', fontSize: getAmountFontSize(model.finalTotal) }}>
                                     ₹ {formatPlainNumber(model.finalTotal)}
                                   </td>
                                 </tr>

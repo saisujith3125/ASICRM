@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   ArrowLeft,
   Box,
@@ -19,7 +19,8 @@ import {
   RefreshCw,
   Building2,
   AlertTriangle,
-  X
+  X,
+  Info
 } from 'lucide-react';
 import { apiFetch, apiUrl } from '../../api';
 import { navigate } from '../../router';
@@ -60,6 +61,11 @@ export default function WarehouseBoxDetailPage({
   const [copiedSerial, setCopiedSerial] = useState('');
   const [serialFilter, setSerialFilter] = useState('');
   const [selectedProductForSerials, setSelectedProductForSerials] = useState(null);
+
+  // Serial Info Modal state ("i" button / popup)
+  const [serialModalProduct, setSerialModalProduct] = useState(null);
+  const [serialModalSearch, setSerialModalSearch] = useState('');
+  const [modalCopiedSerial, setModalCopiedSerial] = useState('');
 
   // Modals state
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -139,6 +145,68 @@ export default function WarehouseBoxDetailPage({
     setCopiedSerial('ALL');
     setTimeout(() => setCopiedSerial(''), 1800);
   };
+
+  // Serial Info Modal Handlers
+  const openSerialsModal = (prod) => {
+    setSerialModalProduct(prod);
+    setSerialModalSearch('');
+    setModalCopiedSerial('');
+  };
+
+  const closeSerialsModal = () => {
+    setSerialModalProduct(null);
+    setSerialModalSearch('');
+    setModalCopiedSerial('');
+  };
+
+  const handleCopyModalSingleSerial = (sn, e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (!sn) return;
+    navigator.clipboard?.writeText(String(sn).trim());
+    setModalCopiedSerial(sn);
+    setTimeout(() => setModalCopiedSerial(''), 1800);
+  };
+
+  const handleCopyModalAllSerials = (serials, e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (!serials || serials.length === 0) return;
+    const text = serials.join(', ');
+    navigator.clipboard?.writeText(text);
+    setModalCopiedSerial('ALL');
+    setTimeout(() => setModalCopiedSerial(''), 2000);
+  };
+
+  // Close modal on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (serialModalProduct) closeSerialsModal();
+        if (showAssignModal) setShowAssignModal(false);
+        if (showTransferModal) setShowTransferModal(false);
+        if (showQrPrintModal) setShowQrPrintModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [serialModalProduct, showAssignModal, showTransferModal, showQrPrintModal]);
+
+  // Derived serials for active modal
+  const modalSerials = useMemo(() => {
+    if (!serialModalProduct) return [];
+    return Array.isArray(serialModalProduct.serialNumbers)
+      ? serialModalProduct.serialNumbers
+      : (typeof serialModalProduct.serialNumbers === 'string' && serialModalProduct.serialNumbers.trim()
+          ? serialModalProduct.serialNumbers.split(',').map(s => s.trim()).filter(Boolean)
+          : []);
+  }, [serialModalProduct]);
+
+  const filteredModalSerials = useMemo(() => {
+    if (!serialModalSearch.trim()) return modalSerials;
+    const q = serialModalSearch.toLowerCase().trim();
+    return modalSerials.filter((sn) => String(sn).toLowerCase().includes(q));
+  }, [modalSerials, serialModalSearch]);
+
+  const isLargeModal = modalSerials.length > 10;
 
   // Assign product submit
   const handleAssignSubmit = async (e) => {
@@ -466,155 +534,87 @@ export default function WarehouseBoxDetailPage({
                 </thead>
                 <tbody>
                   {assignedProducts.map((prod, pIdx) => {
-                    const prodSerials = Array.isArray(prod.serialNumbers) ? prod.serialNumbers : [];
+                    const prodSerials = Array.isArray(prod.serialNumbers)
+                      ? prod.serialNumbers
+                      : (typeof prod.serialNumbers === 'string' && prod.serialNumbers.trim()
+                          ? prod.serialNumbers.split(',').map(s => s.trim()).filter(Boolean)
+                          : []);
                     const hasSerials = prod.serialized && prodSerials.length > 0;
-                    const isSelected = selectedProductForSerials === prod.id || (!selectedProductForSerials && pIdx === 0);
 
                     return (
-                      <React.Fragment key={prod.id || pIdx}>
-                        <tr className={`wh-table-row ${isSelected ? 'row-active' : ''}`}>
-                          <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600 }}>{pIdx + 1}</td>
-                          <td>
-                            <div className="wh-prod-name-cell">
-                              <strong className="wh-prod-primary-name">{prod.name}</strong>
-                              {prod.isLowStock && (
-                                <span className="wh-low-stock-alert">Low Stock Alert</span>
-                              )}
-                            </div>
-                          </td>
-                          <td>
-                            <div className="wh-sku-tag mono">{prod.code}</div>
-                            {prod.serialized && (
-                              <span className="wh-serialized-badge">Serialized Unit</span>
+                      <tr key={prod.id || pIdx} className="wh-table-row">
+                        <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600 }}>{pIdx + 1}</td>
+                        <td>
+                          <div className="wh-prod-name-cell">
+                            <strong className="wh-prod-primary-name">{prod.name}</strong>
+                            {prod.isLowStock && (
+                              <span className="wh-low-stock-alert">Low Stock Alert</span>
                             )}
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            <span className="wh-stock-badge mono">{prod.stock} Units</span>
-                          </td>
-                          <td style={{ textAlign: 'right', color: '#475569' }} className="mono">
-                            {formatCurrency(prod.cost)}
-                          </td>
-                          <td style={{ textAlign: 'right', color: '#047857', fontWeight: 700 }} className="mono">
-                            {formatCurrency(prod.stock * prod.cost)}
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
-                              {hasSerials && (
+                          </div>
+                        </td>
+                        <td>
+                          <div className="wh-sku-tag mono">{prod.code}</div>
+                          {prod.serialized && (
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                              <span className="wh-serialized-badge">Serialized Unit</span>
+                              {hasSerials ? (
                                 <button
                                   type="button"
-                                  className={`wh-table-action-pill ${selectedProductForSerials === prod.id ? 'active' : ''}`}
-                                  onClick={() => setSelectedProductForSerials(selectedProductForSerials === prod.id ? null : prod.id)}
-                                  title="Toggle Serial Numbers Tray"
+                                  className="wh-serial-info-icon-btn"
+                                  onClick={() => openSerialsModal(prod)}
+                                  title={`View ${prodSerials.length} serial numbers for ${prod.name}`}
+                                  aria-label="View Serial Numbers Info"
                                 >
-                                  <Tag size={12} />
-                                  <span>{prodSerials.length} Serials</span>
+                                  <Info size={12} />
                                 </button>
+                              ) : (
+                                <span
+                                  className="wh-serial-info-icon-btn disabled"
+                                  title="No serials currently in this bin"
+                                >
+                                  <Info size={12} />
+                                </span>
                               )}
+                            </div>
+                          )}
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <span className="wh-stock-badge mono">{prod.stock} Units</span>
+                        </td>
+                        <td style={{ textAlign: 'right', color: '#475569' }} className="mono">
+                          {formatCurrency(prod.cost)}
+                        </td>
+                        <td style={{ textAlign: 'right', color: '#047857', fontWeight: 700 }} className="mono">
+                          {formatCurrency(prod.stock * prod.cost)}
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
+                            {hasSerials && (
                               <button
                                 type="button"
-                                className="wh-table-action-btn"
-                                onClick={() => {
-                                  setTransferProductId(prod.id);
-                                  setShowTransferModal(true);
-                                }}
-                                title="Relocate this product to another bin"
+                                className="wh-table-action-pill wh-serial-info-pill"
+                                onClick={() => openSerialsModal(prod)}
+                                title={`View and manage ${prodSerials.length} serial numbers in popup`}
                               >
-                                <Move size={12} />
-                                <span>Move</span>
+                                <Info size={12} />
+                                <span>{prodSerials.length} Serials</span>
                               </button>
-                            </div>
-                          </td>
-                        </tr>
-
-                        {/* Expandable Stored Serial Numbers Tray for This Product */}
-                        {hasSerials && (
-                          <tr className="wh-serials-expand-row">
-                            <td colSpan={7} style={{ padding: 0 }}>
-                              <div className="wh-detail-serials-tray">
-                                <div className="wh-serials-tray-header">
-                                  <div className="wh-serials-title-row">
-                                    <Tag size={13} style={{ color: '#7c3aed' }} />
-                                    <strong style={{ fontSize: '12px', color: '#334155' }}>
-                                      Stored Serial Numbers for "{prod.name}" ({prodSerials.length} Units):
-                                    </strong>
-                                  </div>
-
-                                  <div className="wh-serials-tray-controls">
-                                    <div className="wh-serials-search-wrap">
-                                      <Search size={12} style={{ color: '#94a3b8' }} />
-                                      <input
-                                        type="text"
-                                        className="wh-serials-search-input"
-                                        placeholder="Filter serials..."
-                                        value={selectedProductForSerials === prod.id ? serialFilter : ''}
-                                        onChange={(e) => {
-                                          setSelectedProductForSerials(prod.id);
-                                          setSerialFilter(e.target.value);
-                                        }}
-                                      />
-                                      {serialFilter && selectedProductForSerials === prod.id && (
-                                        <button
-                                          type="button"
-                                          className="wh-serials-search-clear"
-                                          onClick={() => setSerialFilter('')}
-                                        >
-                                          <X size={11} />
-                                        </button>
-                                      )}
-                                    </div>
-
-                                    <button
-                                      type="button"
-                                      className="wh-btn wh-btn-secondary compact"
-                                      onClick={(e) => handleCopyAllSerials(prodSerials, e)}
-                                      title="Copy all serials to clipboard"
-                                    >
-                                      {copiedSerial === 'ALL' ? (
-                                        <Check size={12} style={{ color: '#16a34a' }} />
-                                      ) : (
-                                        <Copy size={12} />
-                                      )}
-                                      <span>{copiedSerial === 'ALL' ? 'All Copied' : 'Copy All'}</span>
-                                    </button>
-                                  </div>
-                                </div>
-
-                                <div className="wh-serials-pills-grid custom-wh-scrollbar">
-                                  {prodSerials
-                                    .filter((sn) =>
-                                      selectedProductForSerials === prod.id && serialFilter
-                                        ? String(sn).toLowerCase().includes(serialFilter.toLowerCase())
-                                        : true
-                                    )
-                                    .map((sn, sIdx) => (
-                                      <div
-                                        key={sIdx}
-                                        className="wh-sn-detail-pill mono"
-                                        onClick={() => navigate(`/serials?q=${encodeURIComponent(sn)}`)}
-                                        title="Click to track complete serial provenance & sales order in Serial Tracking"
-                                      >
-                                        <span className="wh-sn-text">{sn}</span>
-                                        <button
-                                          type="button"
-                                          className="wh-sn-copy-icon"
-                                          onClick={(e) => handleCopySingleSerial(sn, e)}
-                                          title="Copy serial number"
-                                        >
-                                          {copiedSerial === sn ? (
-                                            <Check size={11} style={{ color: '#16a34a' }} />
-                                          ) : (
-                                            <Copy size={11} />
-                                          )}
-                                        </button>
-                                        <ExternalLink size={10} className="wh-sn-ext" />
-                                      </div>
-                                    ))}
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
+                            )}
+                            <button
+                              type="button"
+                              className="wh-table-action-btn"
+                              onClick={() => {
+                                setTransferProductId(prod.id);
+                                setShowTransferModal(true);
+                              }}
+                              title="Relocate this product to another bin"
+                            >
+                              <Move size={12} />
+                              <span>Move</span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
                     );
                   })}
                 </tbody>
@@ -624,7 +624,164 @@ export default function WarehouseBoxDetailPage({
         )}
       </div>
 
-      {/* 6. ASSIGN NEW PRODUCT MODAL */}
+      {/* 6. DEDICATED SERIAL NUMBERS POPUP MODAL ("i" button popup) */}
+      {serialModalProduct && (
+        <div className="wh-modal-overlay" onClick={closeSerialsModal}>
+          <div
+            className={`wh-modal-dialog wh-serials-modal-dialog ${isLargeModal ? 'large-dialog' : 'compact-dialog'}`}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="serial-modal-title"
+          >
+            {/* Modal Header */}
+            <div className="wh-modal-header wh-serials-modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="wh-serials-modal-icon-badge">
+                  <Info size={18} style={{ color: '#2563eb' }} />
+                </div>
+                <div>
+                  <h3 id="serial-modal-title" style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>{serialModalProduct.name}</span>
+                    <span className="wh-serials-modal-count-badge">
+                      {modalSerials.length} {modalSerials.length === 1 ? 'Serial Unit' : 'Serial Units'}
+                    </span>
+                  </h3>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                    📍 <strong>Storage Coordinate:</strong> {box.name} ({box.code}) • {rack?.name} › {shelf?.name}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="wh-modal-close"
+                onClick={closeSerialsModal}
+                title="Close (Esc)"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="wh-modal-body wh-serials-modal-body">
+              {/* Search & Actions Toolbar */}
+              <div className="wh-serials-modal-toolbar">
+                <div className="wh-serials-modal-search">
+                  <Search size={14} style={{ color: '#94a3b8' }} />
+                  <input
+                    type="text"
+                    placeholder="Search serial number..."
+                    value={serialModalSearch}
+                    onChange={(e) => setSerialModalSearch(e.target.value)}
+                    autoFocus
+                  />
+                  {serialModalSearch && (
+                    <button
+                      type="button"
+                      className="wh-serials-search-clear"
+                      onClick={() => setSerialModalSearch('')}
+                      title="Clear search"
+                    >
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+                    {filteredModalSerials.length} of {modalSerials.length}
+                  </span>
+                  <button
+                    type="button"
+                    className="wh-btn wh-btn-secondary compact"
+                    onClick={(e) => handleCopyModalAllSerials(filteredModalSerials, e)}
+                    title="Copy all visible serial numbers to clipboard"
+                  >
+                    {modalCopiedSerial === 'ALL' ? (
+                      <Check size={13} style={{ color: '#16a34a' }} />
+                    ) : (
+                      <Copy size={13} />
+                    )}
+                    <span>{modalCopiedSerial === 'ALL' ? 'All Copied!' : 'Copy All'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Serials Grid */}
+              {filteredModalSerials.length === 0 ? (
+                <div className="wh-serials-modal-empty">
+                  <Search size={32} style={{ color: '#cbd5e1', marginBottom: '8px' }} />
+                  <div style={{ fontWeight: 600, color: '#475569', fontSize: '13px' }}>
+                    No serial numbers match "{serialModalSearch}"
+                  </div>
+                  <button
+                    type="button"
+                    className="wh-btn wh-btn-secondary compact"
+                    style={{ marginTop: '10px' }}
+                    onClick={() => setSerialModalSearch('')}
+                  >
+                    Clear Filter
+                  </button>
+                </div>
+              ) : (
+                <div className={`wh-serials-modal-grid custom-wh-scrollbar ${isLargeModal ? 'grid-multi-col' : 'grid-compact'}`}>
+                  {filteredModalSerials.map((sn, sIdx) => {
+                    const isCopied = modalCopiedSerial === sn;
+                    return (
+                      <div
+                        key={sIdx}
+                        className="wh-serial-card"
+                        onClick={() => navigate(`/serials?q=${encodeURIComponent(sn)}`)}
+                        title="Click to track complete serial provenance & sales order in Serial Tracking"
+                      >
+                        <div className="wh-serial-card-num mono">{sn}</div>
+                        <div className="wh-serial-card-meta">
+                          <span className="wh-serial-card-status">● In Bin Stock</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <button
+                              type="button"
+                              className="wh-serial-card-copy-btn"
+                              onClick={(e) => handleCopyModalSingleSerial(sn, e)}
+                              title="Copy serial number"
+                            >
+                              {isCopied ? (
+                                <Check size={12} style={{ color: '#16a34a' }} />
+                              ) : (
+                                <Copy size={12} />
+                              )}
+                            </button>
+                            <ExternalLink size={11} className="wh-serial-card-link-icon" />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="wh-modal-footer wh-serials-modal-footer">
+              <div style={{ fontSize: '11.5px', color: '#64748b' }}>
+                💡 <em>Click any serial card to view its full lifecycle tracking &amp; audit history.</em>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  className="wh-btn wh-btn-secondary"
+                  onClick={closeSerialsModal}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 7. ASSIGN NEW PRODUCT MODAL */}
       {showAssignModal && (
         <div className="wh-modal-overlay" onClick={() => setShowAssignModal(false)}>
           <div className="wh-modal-dialog" onClick={(e) => e.stopPropagation()}>

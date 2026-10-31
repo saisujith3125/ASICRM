@@ -4,6 +4,7 @@ const { hasPermission } = require('../utils/accessControl');
 const { sequenceService } = require('../services/sequenceService');
 const { deliveryChallans, invoices, goodsReceipts, purchaseOrders, orders, quotations } = require('../data/crmStore');
 const { filterRecordsBySearch } = require('../utils/searchHelper');
+const { getDefaultBoxForProduct } = require('./warehouseController');
 
 
 const DATA_FILE = path.join(__dirname, '..', 'data', 'stocks-data.json');
@@ -1226,6 +1227,34 @@ function createEntity(req, res, type) {
       }
     }
 
+    let whLoc = body.warehouseLocation || null;
+    if (!whLoc) {
+      const defBox = getDefaultBoxForProduct({ code, name: body.name, categoryId: body.categoryId });
+      whLoc = {
+        warehouseId: body.warehouseId || 'WH-001',
+        warehouseName: body.warehouseName || 'Main Central Hub',
+        floor: defBox.floorName,
+        rack: defBox.rackName,
+        shelf: defBox.shelfName,
+        box: defBox.boxName,
+        boxCode: defBox.boxCode,
+        locationCode: defBox.locationCode,
+        binLocation: `Main Central Hub › ${defBox.floorName} › ${defBox.rackName} › ${defBox.shelfName} › ${defBox.boxName}`
+      };
+    } else {
+      whLoc = {
+        warehouseId: whLoc.warehouseId || body.warehouseId || 'WH-001',
+        warehouseName: whLoc.warehouseName || body.warehouseName || 'Main Central Hub',
+        floor: whLoc.floorName || whLoc.floor || 'Floor 1 (Ground Floor)',
+        rack: whLoc.rackName || whLoc.rack || 'Rack A (CCTV & Surveillance)',
+        shelf: whLoc.shelfName || whLoc.shelf || 'Shelf 1 (Bottom Tier)',
+        box: whLoc.boxName || whLoc.box || 'Box A1-01 (Bullet Cameras)',
+        boxCode: whLoc.boxCode || 'BX-01',
+        locationCode: whLoc.locationCode || `${whLoc.warehouseId || 'WH-001'}-${whLoc.boxCode || 'BX-01'}`,
+        binLocation: whLoc.binLocation || `${whLoc.warehouseName || 'Main Central Hub'} › ${whLoc.floor || 'Floor 1'} › ${whLoc.rack || 'Rack A'} › ${whLoc.box || 'Box 01'}`
+      };
+    }
+
     const newProd = {
       id: nextId('PRD', data.products),
       code,
@@ -1250,8 +1279,30 @@ function createEntity(req, res, type) {
       isIGSTApplicable: Boolean(body.isIGSTApplicable),
       serialized: isSerialized,
       serialNumbers: initialSerials,
+      serialMetadata: {},
+      warehouseLocation: whLoc,
       createdAt
     };
+
+    if (isSerialized && initialSerials.length > 0) {
+      initialSerials.forEach((sn) => {
+        newProd.serialMetadata[sn] = {
+          serialNumber: sn,
+          productId: newProd.id,
+          productCode: newProd.code,
+          productName: newProd.name,
+          category: body.categoryId,
+          brand: body.brandId || null,
+          status: 'IN_STOCK',
+          inwardDate: createdAt,
+          inwardCost: cost,
+          warehouse: whLoc?.warehouseName || 'Main Central Hub',
+          location: whLoc?.locationCode || null,
+          createdAt
+        };
+      });
+    }
+
     data.products.push(newProd);
 
     if (!Array.isArray(data.inventoryTransactions)) data.inventoryTransactions = [];
@@ -1276,7 +1327,11 @@ function createEntity(req, res, type) {
       totalValue: Number((openingStock * cost).toFixed(2)),
       partyName: 'Catalogue Entry',
       serialNumbers: isSerialized ? initialSerials : [],
-      remarks: 'Initial catalogue stock recorded',
+      warehouseId: whLoc?.warehouseId || 'WH-001',
+      warehouseName: whLoc?.warehouseName || 'Main Central Hub',
+      locationCode: whLoc?.locationCode || null,
+      binLocation: whLoc?.binLocation || null,
+      remarks: openingStock > 0 ? `Initial catalogue stock allocated to ${whLoc?.warehouseName} (${whLoc?.locationCode || 'Bin'})` : 'Initial catalogue stock recorded',
       createdAt
     });
     createdRecord = newProd;
@@ -1357,6 +1412,18 @@ function updateEntity(req, res, type) {
       updatedSerials = [];
     }
 
+    let nextWhLoc = body.warehouseLocation ? {
+      warehouseId: body.warehouseLocation.warehouseId || current.warehouseLocation?.warehouseId || 'WH-001',
+      warehouseName: body.warehouseLocation.warehouseName || current.warehouseLocation?.warehouseName || 'Main Central Hub',
+      floor: body.warehouseLocation.floorName || body.warehouseLocation.floor || current.warehouseLocation?.floor || 'Floor 1 (Ground Floor)',
+      rack: body.warehouseLocation.rackName || body.warehouseLocation.rack || current.warehouseLocation?.rack || 'Rack A (CCTV & Surveillance)',
+      shelf: body.warehouseLocation.shelfName || body.warehouseLocation.shelf || current.warehouseLocation?.shelf || 'Shelf 1 (Bottom Tier)',
+      box: body.warehouseLocation.boxName || body.warehouseLocation.box || current.warehouseLocation?.box || 'Box A1-01 (Bullet Cameras)',
+      boxCode: body.warehouseLocation.boxCode || current.warehouseLocation?.boxCode || 'BX-01',
+      locationCode: body.warehouseLocation.locationCode || current.warehouseLocation?.locationCode || null,
+      binLocation: body.warehouseLocation.binLocation || current.warehouseLocation?.binLocation || null
+    } : (current.warehouseLocation || null);
+
     const prevStock = Number(current.stock || 0);
     if (Number.isFinite(nextStock) && nextStock !== prevStock) {
       const delta = nextStock - prevStock;
@@ -1383,8 +1450,38 @@ function updateEntity(req, res, type) {
         taxAmount: Number((Math.abs(delta) * cost * (gst / 100)).toFixed(2)),
         totalValue: Number((Math.abs(delta) * cost).toFixed(2)),
         partyName: 'Product Master Adjustment',
+        warehouseId: nextWhLoc?.warehouseId || 'WH-001',
+        warehouseName: nextWhLoc?.warehouseName || 'Main Central Hub',
+        locationCode: nextWhLoc?.locationCode || null,
+        binLocation: nextWhLoc?.binLocation || null,
         remarks: 'Manual stock adjustment in Product Master',
         user: req.headers['x-user-name'] || req.headers['x-user-id'] || 'Admin'
+      });
+    }
+
+    const meta = current.serialMetadata && typeof current.serialMetadata === 'object' ? current.serialMetadata : {};
+    if (isSerialized && updatedSerials.length > 0) {
+      const nowStr = new Date().toISOString();
+      updatedSerials.forEach((sn) => {
+        if (!meta[sn]) {
+          meta[sn] = {
+            serialNumber: sn,
+            productId: current.id,
+            productCode: nextCode,
+            productName: nextName,
+            category: categoryId,
+            brand: brandId,
+            status: 'IN_STOCK',
+            inwardDate: nowStr,
+            inwardCost: cost,
+            warehouse: nextWhLoc?.warehouseName || 'Main Central Hub',
+            location: nextWhLoc?.locationCode || null,
+            createdAt: nowStr
+          };
+        } else if (nextWhLoc) {
+          meta[sn].warehouse = nextWhLoc.warehouseName || meta[sn].warehouse;
+          meta[sn].location = nextWhLoc.locationCode || meta[sn].location;
+        }
       });
     }
 
@@ -1412,7 +1509,9 @@ function updateEntity(req, res, type) {
       gst,
       isIGSTApplicable: body.isIGSTApplicable !== undefined ? Boolean(body.isIGSTApplicable) : Boolean(current.isIGSTApplicable),
       serialized: isSerialized,
-      serialNumbers: updatedSerials
+      serialNumbers: updatedSerials,
+      serialMetadata: meta,
+      warehouseLocation: nextWhLoc
     };
   }
   const updatedProd = data[type][index];

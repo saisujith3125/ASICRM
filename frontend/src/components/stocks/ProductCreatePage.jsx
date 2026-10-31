@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Building2, MapPin, Check, RotateCcw } from 'lucide-react';
 import { apiFetch, apiUrl } from '../../api';
 import { navigate } from '../../router';
 import { useCompanyConfig } from '../documents/companyConfig';
+import BinAllocationModal, { computeDefaultAllocation } from '../common/BinAllocationModal';
 
 const EMPTY_FORM = {
   code: '', name: '', hsnSac: '', description: '', categoryId: '', subcategoryId: '', brandId: '', unit: 'Nos', size: '',
@@ -116,6 +118,32 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
     return '';
   });
   const [showAllSerialsPreview, setShowAllSerialsPreview] = useState(false);
+  const [warehouses, setWarehouses] = useState([
+    { id: 'WH-001', name: 'Main Central Hub', code: 'WH-CHN-01', isDefault: true },
+    { id: 'WH-002', name: 'North Chennai Transit Godown', code: 'WH-CHN-02', isDefault: false },
+    { id: 'WH-003', name: 'Coimbatore Logistics Depot', code: 'WH-CBE-01', isDefault: false }
+  ]);
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState(() => initialValues?.warehouseLocation?.warehouseId || initialValues?.warehouseId || 'WH-001');
+  const [customAllocation, setCustomAllocation] = useState(() => initialValues?.warehouseLocation || null);
+  const [isCustomBinSelected, setIsCustomBinSelected] = useState(() => Boolean(initialValues?.warehouseLocation));
+  const [showBinModal, setShowBinModal] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    apiFetch(apiUrl('/api/warehouses'), { headers: headers(user) })
+      .then((r) => r.json())
+      .then((whData) => {
+        if (active && whData?.success && Array.isArray(whData.data) && whData.data.length > 0) {
+          setWarehouses(whData.data);
+          if (!selectedWarehouseId) {
+            const defWh = whData.data.find((w) => w.isDefault) || whData.data[0];
+            setSelectedWarehouseId(defWh.id);
+          }
+        }
+      })
+      .catch(() => null);
+    return () => { active = false; };
+  }, [user?.id]);
 
   const companyConfig = useCompanyConfig(user);
 
@@ -305,6 +333,13 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
               if (Array.isArray(found.serialNumbers) && found.serialNumbers.length > 0) {
                 setSerialNumbersText(found.serialNumbers.join('\n'));
               }
+              if (found.warehouseLocation) {
+                setCustomAllocation(found.warehouseLocation);
+                setIsCustomBinSelected(true);
+                if (found.warehouseLocation.warehouseId) {
+                  setSelectedWarehouseId(found.warehouseLocation.warehouseId);
+                }
+              }
             } else {
               setError(`Product "${productId}" not found.`);
             }
@@ -330,6 +365,13 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
               if (matched) {
                 if (Array.isArray(matched.serialNumbers) && matched.serialNumbers.length > 0) {
                   setSerialNumbersText(matched.serialNumbers.join('\n'));
+                }
+                if (matched.warehouseLocation) {
+                  setCustomAllocation(matched.warehouseLocation);
+                  setIsCustomBinSelected(true);
+                  if (matched.warehouseLocation.warehouseId) {
+                    setSelectedWarehouseId(matched.warehouseLocation.warehouseId);
+                  }
                 }
                 const cost = Number(matched.cost || 0);
                 const dealer = Number(matched.dealerPrice || 0);
@@ -427,6 +469,26 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
     if ((unit === 'Meter' || unit === 'Roll') && /cable|wire/i.test(name)) return true;
     return false;
   }, [form.categoryId, form.subcategoryId, form.name, form.unit, visibleCategories, subcategories]);
+
+  const currentWarehouse = useMemo(() => {
+    return (warehouses || []).find((w) => w.id === selectedWarehouseId) || (warehouses || [])[0] || null;
+  }, [warehouses, selectedWarehouseId]);
+
+  const currentAllocation = useMemo(() => {
+    if (isCustomBinSelected && customAllocation && customAllocation.warehouseId === selectedWarehouseId) {
+      return customAllocation;
+    }
+    return computeDefaultAllocation(
+      { productName: form.name, productCode: form.code, categoryId: form.categoryId },
+      currentWarehouse
+    );
+  }, [isCustomBinSelected, customAllocation, form.name, form.code, form.categoryId, currentWarehouse, selectedWarehouseId]);
+
+  const handleWarehouseChange = (whId) => {
+    setSelectedWarehouseId(whId);
+    setIsCustomBinSelected(false);
+    setCustomAllocation(null);
+  };
 
   // When cable product is detected, force serialized = false; when transitioning from cable to non-cable, restore serialized = true
   const prevIsCableRef = useRef(isCable);
@@ -755,7 +817,9 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
         gst: Number(form.gst || 0),
         isIGSTApplicable: Boolean(form.isIGSTApplicable),
         serialized: isCable ? false : Boolean(form.serialized),
-        serialNumbers: isCable ? [] : finalSerials
+        serialNumbers: isCable ? [] : finalSerials,
+        warehouseLocation: currentAllocation || null,
+        warehouseId: selectedWarehouseId || currentAllocation?.warehouseId || 'WH-001'
       };
       const isUpdating = Boolean(isExistingProduct && targetId);
       const endpoint = isUpdating ? `/api/stocks/products/${encodeURIComponent(targetId)}` : '/api/stocks/products';
@@ -1551,6 +1615,169 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
                   )}
                 </div>
               )}
+
+              {/* Storage Warehouse & Putaway Bin Allocation Card */}
+              <div
+                className="form-field-group warehouse-allocation-container"
+                style={{
+                  gridColumn: 'span 2',
+                  marginTop: '12px',
+                  padding: '16px 18px',
+                  borderRadius: '10px',
+                  background: '#ffffff',
+                  border: '1.5px solid #bfdbfe',
+                  boxShadow: '0 2px 8px -2px rgba(37,99,235,0.08)'
+                }}
+              >
+                {/* Header */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '10px',
+                    flexWrap: 'wrap',
+                    gap: '10px'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Building2 size={18} style={{ color: '#2563eb' }} />
+                    <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
+                      Storage Warehouse & Putaway Bin Allocation
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                        padding: '2px 8px',
+                        borderRadius: '5px',
+                        background: isCustomBinSelected ? '#fef3c7' : '#dcfce7',
+                        color: isCustomBinSelected ? '#92400e' : '#166534',
+                        border: `1px solid ${isCustomBinSelected ? '#fde68a' : '#bbf7d0'}`,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Check size={12} />
+                      {isCustomBinSelected ? 'Custom Bin Selected' : 'Smart Auto-Allocated'}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {isCustomBinSelected && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsCustomBinSelected(false);
+                          setCustomAllocation(null);
+                        }}
+                        className="crm-btn-secondary compact"
+                        style={{
+                          fontSize: '11.5px',
+                          fontWeight: 600,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          background: '#f8fafc',
+                          borderColor: '#cbd5e1',
+                          color: '#475569'
+                        }}
+                        title="Reset to category-based smart default bin"
+                      >
+                        <RotateCcw size={13} /> Reset to Auto-Detect
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => setShowBinModal(true)}
+                      className="crm-btn-primary compact"
+                      style={{
+                        fontSize: '11.5px',
+                        fontWeight: 600,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        background: '#2563eb',
+                        borderColor: '#1d4ed8'
+                      }}
+                    >
+                      <MapPin size={13} /> Change Storage Bin
+                    </button>
+                  </div>
+                </div>
+
+                <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 12px 0', lineHeight: '1.45' }}>
+                  Assign the physical facility and home putaway bin (Floor › Rack › Shelf › Box). When opening stock is entered, units and serials are credited directly to this location in the godown.
+                </p>
+
+                {/* Warehouse selector & Location Preview Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 1fr) minmax(320px, 1.8fr)', gap: '14px', alignItems: 'stretch' }}>
+                  {/* Facility Dropdown */}
+                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px 14px' }}>
+                    <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+                      Warehouse Facility *
+                    </label>
+                    <select
+                      value={selectedWarehouseId}
+                      onChange={(e) => handleWarehouseChange(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        border: '1px solid #cbd5e1',
+                        background: '#ffffff',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: '#0f172a'
+                      }}
+                    >
+                      {(warehouses || []).map((w) => (
+                        <option key={w.id} value={w.id}>
+                          {w.name} ({w.code || w.id}){w.isDefault ? ' — [Default Godown]' : ''}
+                        </option>
+                      ))}
+                    </select>
+                    <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '6px' }}>
+                      Godown Code: <strong style={{ color: '#1e40af' }}>{currentWarehouse?.code || selectedWarehouseId}</strong>
+                    </div>
+                  </div>
+
+                  {/* Location Path Box */}
+                  <div
+                    style={{
+                      padding: '12px 14px',
+                      borderRadius: '8px',
+                      background: '#f0fdf4',
+                      border: '1.5px solid #86efac',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between'
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                        <span style={{ fontSize: '11px', fontWeight: 800, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                          <MapPin size={13} /> Designated Putaway Storage Bin
+                        </span>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '11px', color: '#1e40af', background: '#dbeafe', padding: '2px 7px', borderRadius: '4px' }}>
+                          {currentAllocation?.locationCode || `${selectedWarehouseId}-${currentAllocation?.boxCode || 'BX-01'}`}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', marginTop: '6px', lineHeight: 1.45 }}>
+                        {currentAllocation?.binLocation || `${currentWarehouse?.name} › Floor 1 › Rack A › Shelf 1 › Box 01`}
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: '11.5px', color: '#166534', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
+                      <span>✓ Home bin assigned: Future PO goods receipts & Delivery Challan pickers will route here automatically.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -1574,6 +1801,29 @@ export default function ProductCreatePage({ user, onCancel, onSuccess, initialVa
           onChangeField={(field, val) => setQuickModal((prev) => (prev ? { ...prev, [field]: val } : null))}
           onSave={handleQuickSave}
           visibleCategories={visibleCategories}
+        />
+      )}
+
+      {showBinModal && (
+        <BinAllocationModal
+          isOpen={showBinModal}
+          onClose={() => setShowBinModal(false)}
+          onSave={(alloc) => {
+            setCustomAllocation(alloc);
+            setIsCustomBinSelected(true);
+            if (alloc.warehouseId) {
+              setSelectedWarehouseId(alloc.warehouseId);
+            }
+          }}
+          item={{
+            name: form.name,
+            code: form.code,
+            productName: form.name,
+            productCode: form.code,
+            categoryId: form.categoryId
+          }}
+          currentAllocation={currentAllocation}
+          warehouses={warehouses}
         />
       )}
     </div>

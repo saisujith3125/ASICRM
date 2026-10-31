@@ -581,6 +581,7 @@ function transferStockBetweenBins(req, res) {
 }
 
 module.exports = {
+  getDefaultBoxForProduct,
   getAllWarehouses,
   searchWarehouseLocation,
   assignProductToBin,

@@ -768,11 +768,20 @@ export default function PurchaseOrderDetail({ user, poId: propPoId, grnId: propG
                   <td style={{ padding: '8px 12px', fontSize: '12.5px', fontFamily: 'monospace', fontWeight: 600 }}>{pay.id || `PAY-${pIdx + 1}`}</td>
                   <td style={{ padding: '8px 12px', fontSize: '12.5px' }}>{formatDate(pay.date)}</td>
                   <td style={{ padding: '8px 12px', fontSize: '12.5px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', background: pay.type === 'ADVANCE' ? '#eff6ff' : '#f0fdf4', color: pay.type === 'ADVANCE' ? '#1d4ed8' : '#166534' }}>
-                      {pay.type === 'ADVANCE' ? 'Advance Payment' : 'GRN Receipt Payment'}
+                    <span style={{
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      background: pay.type === 'IMMEDIATE' ? '#e0f2fe' : (pay.type === 'ADVANCE' ? '#eff6ff' : '#f0fdf4'),
+                      color: pay.type === 'IMMEDIATE' ? '#0369a1' : (pay.type === 'ADVANCE' ? '#1d4ed8' : '#166534')
+                    }}>
+                      {pay.type === 'IMMEDIATE' ? 'Immediate Payment' : (pay.type === 'ADVANCE' ? 'Advance Payment' : 'GRN Receipt Payment')}
                     </span>
                   </td>
-                  <td style={{ padding: '8px 12px', fontSize: '12.5px' }}>{pay.mode || 'Bank Transfer'}</td>
+                  <td style={{ padding: '8px 12px', fontSize: '12.5px' }}>
+                    {pay.bankName ? `${pay.bankName} - ${pay.mode || 'Direct'}` : (pay.mode || 'Bank Transfer')}
+                  </td>
                   <td style={{ padding: '8px 12px', fontSize: '12.5px', color: '#64748b' }}>{pay.reference || '—'}</td>
                   <td style={{ padding: '8px 12px', fontSize: '12.5px', textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>
                     ₹{Number(pay.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

@@ -337,16 +337,23 @@ function getFinanceSummary(filters = {}) {
 
     if (payments.length > 0) {
       payments.forEach((pay) => {
+        const isAdv = pay.type === 'ADVANCE';
+        const isImm = pay.type === 'IMMEDIATE';
+        const docType = isImm ? 'Supplier Immediate Payment' : (isAdv ? 'Supplier Advance' : 'Supplier Outflow');
+        const eventType = isImm ? 'PO_IMMEDIATE_OUTFLOW' : (isAdv ? 'PO_ADVANCE_OUTFLOW' : 'PO_RECEIPT_OUTFLOW');
+        const desc = isImm
+          ? `Immediate payment on PO ${po.id || po.purchaseOrderId} via ${pay.bankName || 'Bank'} (${pay.mode || 'Direct'})`
+          : (isAdv
+              ? `Advance payment on PO ${po.id || po.purchaseOrderId} via ${pay.bankName || 'Bank'}`
+              : `Receipt payment on PO ${po.id || po.purchaseOrderId}${pay.grnId ? ` (${pay.grnId})` : ''}`);
         timeline.push({
           id: pay.id,
           date: pay.date || po.orderDate || po.createdAt,
-          type: pay.type === 'ADVANCE' ? 'PO_ADVANCE_OUTFLOW' : 'PO_RECEIPT_OUTFLOW',
-          docType: pay.type === 'ADVANCE' ? 'Supplier Advance' : 'Supplier Outflow',
+          type: eventType,
+          docType: docType,
           referenceId: po.id || po.purchaseOrderId,
           partyName: po.supplierSnapshot?.companyName || 'Supplier',
-          description: pay.type === 'ADVANCE'
-            ? `Advance payment on PO ${po.id || po.purchaseOrderId}`
-            : `Receipt payment on PO ${po.id || po.purchaseOrderId}${pay.grnId ? ` (${pay.grnId})` : ''}`,
+          description: desc,
           amount: Number(pay.amount || 0),
           direction: 'OUTFLOW',
           status: 'PAID'

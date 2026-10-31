@@ -40,6 +40,18 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
   const [advanceAmount, setAdvanceAmount] = useState('');
   const [advancePaymentMode, setAdvancePaymentMode] = useState('Bank Transfer');
   const [advancePaymentRef, setAdvancePaymentRef] = useState('');
+  const [availableBanks, setAvailableBanks] = useState([
+    { id: 'PM-001', code: 'HDFC-01', name: 'HDFC Bank Current Account', bankName: 'HDFC Bank', type: 'Bank', details: 'A/C 50200028741215 - IFSC HDFC0000024', subMethods: 'RTGS, NEFT, IMPS, Cheque', maxLimit: 5000000 },
+    { id: 'PM-002', code: 'SBI-01', name: 'State Bank of India (SBI)', bankName: 'State Bank of India (SBI)', type: 'Bank', details: 'A/C 382109485721 - IFSC SBIN0001234', subMethods: 'RTGS, NEFT, IMPS, Cheque', maxLimit: 2500000 },
+    { id: 'PM-003', code: 'INDUS-01', name: 'IndusInd Bank Commercial A/C', bankName: 'IndusInd Bank', type: 'Bank', details: 'A/C 201003482910 - IFSC INDB0000542', subMethods: 'RTGS, NEFT, IMPS, Cheque', maxLimit: 2000000 },
+    { id: 'PM-004', code: 'UPI-01', name: 'UPI / QR Code (HDFC)', bankName: 'HDFC Bank (UPI)', type: 'Digital', details: 'asi@hdfcbank', subMethods: 'UPI / QR Code', maxLimit: 100000 },
+    { id: 'PM-005', code: 'CHEQUE-01', name: 'Cheque / Demand Draft', bankName: 'HDFC Bank', type: 'Offline', details: 'Payable at Chennai in favor of ACTIVE SYSTEM INTEGRATION', subMethods: 'Cheque, DD', maxLimit: 1000000 },
+    { id: 'PM-006', code: 'CASH-01', name: 'Cash Counter Desk', bankName: 'Cash Office', type: 'Cash', details: 'Direct cash disbursement at counter', subMethods: 'Cash Voucher', maxLimit: 50000 }
+  ]);
+  const [selectedBankId, setSelectedBankId] = useState('PM-001');
+  const [selectedPaymentRoute, setSelectedPaymentRoute] = useState('RTGS');
+  const [immediateAmount, setImmediateAmount] = useState('');
+  const [immediatePaymentRef, setImmediatePaymentRef] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState(
     'Plot No. 10A, Perumal Kovil Street, Sivabootham, Vanagaram, Chennai - 600095'
   );
@@ -75,7 +87,8 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
       try {
         const fetchPromises = [
           apiFetch(apiUrl('/api/suppliers')),
-          apiFetch(apiUrl('/api/stocks'), { headers: { 'x-user-id': 'USR-001' } })
+          apiFetch(apiUrl('/api/stocks'), { headers: { 'x-user-id': 'USR-001' } }),
+          apiFetch(apiUrl('/api/settings/company'), { headers: { 'x-user-id': 'USR-001' } }).catch(() => null)
         ];
 
         if (editPoId) {
@@ -85,11 +98,24 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
         const responses = await Promise.all(fetchPromises);
         const supRes = responses[0];
         const stockRes = responses[1];
-        const editRes = editPoId ? responses[2] : null;
+        const settingsRes = responses[2];
+        const editRes = editPoId ? responses[3] : null;
 
         const supData = await supRes.json();
         const stockData = await stockRes.json();
+        const settingsData = settingsRes && settingsRes.ok ? await settingsRes.json().catch(() => null) : null;
         const editData = editRes ? await editRes.json() : null;
+
+        if (active && settingsData?.success && Array.isArray(settingsData.data?.paymentMethods)) {
+          const activeMethods = settingsData.data.paymentMethods.filter((m) => m.status !== 'Inactive');
+          if (activeMethods.length > 0) {
+            setAvailableBanks(activeMethods);
+            const def = activeMethods.find((m) => m.isDefault) || activeMethods[0];
+            setSelectedBankId(def.id);
+            const routes = (def.subMethods || (def.type === 'Bank' ? 'RTGS, NEFT, IMPS, Cheque' : 'Direct')).split(',').map((s) => s.trim()).filter(Boolean);
+            if (routes.length > 0) setSelectedPaymentRoute(routes[0]);
+          }
+        }
 
         if (active) {
           if (supRes.ok && supData.success && Array.isArray(supData.data)) {
@@ -428,6 +454,17 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
     };
   }, [items, isIntraState]);
 
+  const currentBank = useMemo(() => {
+    return availableBanks.find((b) => b.id === selectedBankId) || availableBanks[0] || null;
+  }, [availableBanks, selectedBankId]);
+
+  const currentBankRoutes = useMemo(() => {
+    if (!currentBank) return ['RTGS', 'NEFT', 'IMPS'];
+    const raw = currentBank.subMethods || (currentBank.type === 'Bank' ? 'RTGS, NEFT, IMPS, Cheque' : (currentBank.type === 'Digital' ? 'UPI / QR Code' : 'Voucher'));
+    const parsed = raw.split(',').map((s) => s.trim()).filter(Boolean);
+    return parsed.length > 0 ? parsed : ['RTGS', 'NEFT', 'IMPS'];
+  }, [currentBank]);
+
   const handleSubmit = async (submitStatus) => {
     setErrorMsg('');
 
@@ -443,7 +480,10 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
     }
 
     const isAdvanceTerm = /advance/i.test(paymentTerms);
+    const isImmediateTerm = /immediate/i.test(paymentTerms);
     const numAdvance = isAdvanceTerm ? Number(advanceAmount || 0) : 0;
+    const numImmediate = isImmediateTerm ? Number(immediateAmount !== '' ? immediateAmount : calculations.grandTotal) : 0;
+
     if (isAdvanceTerm && numAdvance < 0) {
       setErrorMsg('Advance amount cannot be negative.');
       return;
@@ -452,6 +492,18 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
       setErrorMsg(`Advance amount (₹${numAdvance.toLocaleString('en-IN')}) cannot exceed Grand Total (₹${calculations.grandTotal.toLocaleString('en-IN')}).`);
       return;
     }
+    if (isImmediateTerm && numImmediate < 0) {
+      setErrorMsg('Immediate payment amount cannot be negative.');
+      return;
+    }
+    if (isImmediateTerm && numImmediate > calculations.grandTotal) {
+      setErrorMsg(`Immediate payment amount (₹${numImmediate.toLocaleString('en-IN')}) cannot exceed Grand Total (₹${calculations.grandTotal.toLocaleString('en-IN')}).`);
+      return;
+    }
+
+    const bankName = currentBank?.bankName || currentBank?.name || 'HDFC Bank';
+    const route = selectedPaymentRoute || 'RTGS';
+    const fullMethodName = `${bankName} - ${route}`;
 
     setSaving(true);
     try {
@@ -475,10 +527,17 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
           serialized: it.serialized
         })),
         paymentTerms,
-        advanceAmount: isAdvanceTerm ? numAdvance : 0,
-        advancePaymentMode: isAdvanceTerm ? advancePaymentMode : null,
-        advancePaymentRef: isAdvanceTerm ? advancePaymentRef.trim() : null,
-        balanceAmount: isAdvanceTerm ? Math.max(0, calculations.grandTotal - numAdvance) : calculations.grandTotal,
+        payingBank: bankName,
+        paymentMethod: fullMethodName,
+        paymentRef: isImmediateTerm ? immediatePaymentRef.trim() : (isAdvanceTerm ? advancePaymentRef.trim() : null),
+        immediateAmount: isImmediateTerm ? numImmediate : 0,
+        advanceAmount: isImmediateTerm ? numImmediate : (isAdvanceTerm ? numAdvance : 0),
+        advancePaymentMode: isImmediateTerm ? fullMethodName : (isAdvanceTerm ? `${bankName} - ${advancePaymentMode}` : null),
+        advancePaymentRef: isImmediateTerm ? immediatePaymentRef.trim() : (isAdvanceTerm ? advancePaymentRef.trim() : null),
+        totalPaid: isImmediateTerm ? numImmediate : (isAdvanceTerm ? numAdvance : 0),
+        balanceAmount: isImmediateTerm
+          ? Math.max(0, calculations.grandTotal - numImmediate)
+          : (isAdvanceTerm ? Math.max(0, calculations.grandTotal - numAdvance) : calculations.grandTotal),
         deliveryAddress,
         termsAndConditions,
         remarks,
@@ -628,7 +687,9 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
               onChange={(e) => {
                 const val = e.target.value;
                 setPaymentTerms(val);
-                if (/100%\s*advance/i.test(val)) {
+                if (/immediate/i.test(val)) {
+                  setImmediateAmount(calculations.grandTotal > 0 ? String(calculations.grandTotal) : '');
+                } else if (/100%\s*advance/i.test(val)) {
                   setAdvanceAmount(calculations.grandTotal > 0 ? String(calculations.grandTotal) : '');
                 } else if (/50%/i.test(val)) {
                   setAdvanceAmount(calculations.grandTotal > 0 ? String(Math.round(calculations.grandTotal * 0.5)) : '');
@@ -656,6 +717,148 @@ export default function CreatePurchaseOrder({ user, editPoId = null, onClosed, o
             />
           </div>
         </div>
+
+        {/immediate/i.test(paymentTerms) && (
+          <div
+            className="po-immediate-payment-box"
+            style={{
+              marginTop: '14px',
+              padding: '16px 18px',
+              borderRadius: '8px',
+              background: '#f8fafc',
+              border: '1.5px solid #3b82f6',
+              boxShadow: '0 2px 6px rgba(59,130,246,0.06)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#1e3a8a' }}>
+                  ⚡ Immediate Payment Settlement (Outflow Execution)
+                </span>
+                <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '4px', background: '#dbeafe', color: '#1d4ed8' }}>
+                  Immediate Terms Active
+                </span>
+              </div>
+              <span style={{ fontSize: '12px', color: '#64748b' }}>
+                Paying Via: <strong style={{ color: '#0f172a' }}>{currentBank?.bankName || currentBank?.name}</strong>
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px', alignItems: 'flex-start' }}>
+              <div className="po-form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600 }}>Paying Bank Account *</label>
+                <select
+                  value={selectedBankId}
+                  onChange={(e) => {
+                    const nextId = e.target.value;
+                    setSelectedBankId(nextId);
+                    const b = availableBanks.find((x) => x.id === nextId);
+                    const routes = (b?.subMethods || (b?.type === 'Bank' ? 'RTGS, NEFT, IMPS, Cheque' : 'Direct')).split(',').map((s) => s.trim()).filter(Boolean);
+                    if (routes.length > 0) setSelectedPaymentRoute(routes[0]);
+                  }}
+                  style={{ fontWeight: 600, fontSize: '12.5px' }}
+                >
+                  {availableBanks.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name} {b.accountNumber ? `(A/C: ...${b.accountNumber.slice(-4)})` : ''} {b.maxLimit ? `[Limit: ₹${Number(b.maxLimit).toLocaleString('en-IN')}]` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="po-form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600 }}>Payment Method / Route *</label>
+                <select
+                  value={selectedPaymentRoute}
+                  onChange={(e) => setSelectedPaymentRoute(e.target.value)}
+                  style={{ fontWeight: 600, fontSize: '12.5px' }}
+                >
+                  {currentBankRoutes.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="po-form-group" style={{ margin: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 600 }}>Payment Amount (₹) *</label>
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>
+                    Max: ₹{calculations.grandTotal.toLocaleString('en-IN')}
+                  </span>
+                </div>
+                <input
+                  type="number"
+                  min="0"
+                  max={calculations.grandTotal || undefined}
+                  value={immediateAmount !== '' ? immediateAmount : (calculations.grandTotal > 0 ? String(calculations.grandTotal) : '')}
+                  onChange={(e) => setImmediateAmount(e.target.value)}
+                  placeholder={`₹${calculations.grandTotal}`}
+                  style={{
+                    fontWeight: 700,
+                    fontSize: '13.5px',
+                    fontFamily: 'monospace',
+                    borderColor: (Number(immediateAmount) > calculations.grandTotal || (currentBank?.maxLimit && Number(immediateAmount || calculations.grandTotal) > currentBank.maxLimit)) ? '#ef4444' : undefined
+                  }}
+                />
+              </div>
+
+              <div className="po-form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '12px', fontWeight: 600 }}>Transaction / UTR Reference</label>
+                <input
+                  type="text"
+                  value={immediatePaymentRef}
+                  onChange={(e) => setImmediatePaymentRef(e.target.value)}
+                  placeholder="e.g. UTR1029384756 or Cheque #501"
+                />
+              </div>
+            </div>
+
+            {Number(immediateAmount) > calculations.grandTotal && (
+              <div style={{ marginTop: '10px', padding: '8px 12px', borderRadius: '6px', background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', fontSize: '12px', fontWeight: 600 }}>
+                ⚠️ Payment amount (₹{Number(immediateAmount).toLocaleString('en-IN')}) cannot exceed the PO Grand Total (₹{calculations.grandTotal.toLocaleString('en-IN')}).
+              </div>
+            )}
+
+            {currentBank?.maxLimit && Number(immediateAmount || calculations.grandTotal) > currentBank.maxLimit && (
+              <div style={{ marginTop: '10px', padding: '8px 12px', borderRadius: '6px', background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', fontSize: '12px', fontWeight: 500 }}>
+                ⚠️ <strong>Transaction Cap Warning:</strong> Selected channel ({currentBank.name}) has a limit of ₹{Number(currentBank.maxLimit).toLocaleString('en-IN')}. For amounts above ₹1 Lakh, please select RTGS or NEFT via corporate bank account.
+              </div>
+            )}
+
+            <div style={{
+              marginTop: '12px',
+              padding: '10px 14px',
+              borderRadius: '6px',
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '8px',
+              fontSize: '12px'
+            }}>
+              <div>
+                <span style={{ color: '#64748b' }}>Account: </span>
+                <strong style={{ color: '#0f172a' }}>{currentBank?.details || currentBank?.name}</strong>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div>
+                  <span style={{ color: '#64748b' }}>Immediate Outflow: </span>
+                  <strong style={{ color: '#16a34a', fontSize: '13px' }}>
+                    ₹{(Number(immediateAmount !== '' ? immediateAmount : calculations.grandTotal) || 0).toLocaleString('en-IN')}
+                  </strong>
+                </div>
+                <div>
+                  <span style={{ color: '#64748b' }}>Balance Remaining: </span>
+                  <strong style={{ color: '#1e3a8a' }}>
+                    ₹{Math.max(0, calculations.grandTotal - (Number(immediateAmount !== '' ? immediateAmount : calculations.grandTotal) || 0)).toLocaleString('en-IN')}
+                  </strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/advance/i.test(paymentTerms) && (
           <div

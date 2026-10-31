@@ -400,7 +400,7 @@ export default function FinanceView({ user, initialSubView = 'overview' }) {
                             </span>
                           )}
                           {item.direction === 'OUTFLOW' && (
-                            <span className={`flow-badge outflow ${item.type === 'PO_ADVANCE_OUTFLOW' ? 'advance' : ''}`}>
+                            <span className={`flow-badge outflow ${item.type === 'PO_ADVANCE_OUTFLOW' ? 'advance' : (item.type === 'PO_IMMEDIATE_OUTFLOW' ? 'immediate' : '')}`}>
                               <ArrowUpRight size={12} /> {item.docType || 'Supplier Outflow'}
                             </span>
                           )}

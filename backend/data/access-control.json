@@ -1197,48 +1197,84 @@
     "paymentMethods": [
       {
         "id": "PM-001",
-        "code": "BANK",
-        "name": "Bank Transfer (NEFT / RTGS / IMPS)",
+        "code": "HDFC-01",
+        "name": "HDFC Bank Current Account",
+        "bankName": "HDFC Bank",
         "type": "Bank",
+        "accountNumber": "50200028741215",
+        "ifscCode": "HDFC0000024",
+        "branch": "Anna Nagar, Chennai",
+        "details": "HDFC Bank - A/C 50200028741215 - IFSC HDFC0000024",
+        "subMethods": "RTGS, NEFT, IMPS, Cheque",
+        "maxLimit": 5000000,
         "isDefault": true,
-        "status": "Active",
-        "details": "INDUSIND BANK / HDFC BANK - A/C 50200028741215 - IFSC HDFC0000024"
+        "status": "Active"
       },
       {
         "id": "PM-002",
-        "code": "CHEQUE",
-        "name": "Cheque / Demand Draft",
-        "type": "Offline",
+        "code": "SBI-01",
+        "name": "State Bank of India (SBI)",
+        "bankName": "State Bank of India (SBI)",
+        "type": "Bank",
+        "accountNumber": "382109485721",
+        "ifscCode": "SBIN0001234",
+        "branch": "Mount Road, Chennai",
+        "details": "SBI - A/C 382109485721 - IFSC SBIN0001234",
+        "subMethods": "RTGS, NEFT, IMPS, Cheque",
+        "maxLimit": 2500000,
         "isDefault": false,
-        "status": "Active",
-        "details": "Payable at Chennai in favor of ACTIVE SYSTEM INTEGRATION"
+        "status": "Active"
       },
       {
         "id": "PM-003",
-        "code": "UPI",
-        "name": "UPI / QR Code",
-        "type": "Digital",
+        "code": "INDUS-01",
+        "name": "IndusInd Bank Commercial A/C",
+        "bankName": "IndusInd Bank",
+        "type": "Bank",
+        "accountNumber": "201003482910",
+        "ifscCode": "INDB0000542",
+        "branch": "Nungambakkam, Chennai",
+        "details": "IndusInd Bank - A/C 201003482910 - IFSC INDB0000542",
+        "subMethods": "RTGS, NEFT, IMPS, Cheque",
+        "maxLimit": 2000000,
         "isDefault": false,
-        "status": "Active",
-        "details": "asi@hdfcbank"
+        "status": "Active"
       },
       {
         "id": "PM-004",
-        "code": "CASH",
-        "name": "Cash",
-        "type": "Cash",
+        "code": "UPI-01",
+        "name": "UPI / QR Code (HDFC)",
+        "bankName": "HDFC Bank (UPI)",
+        "type": "Digital",
+        "details": "asi@hdfcbank",
+        "subMethods": "UPI / QR Code",
+        "maxLimit": 100000,
         "isDefault": false,
-        "status": "Active",
-        "details": "Direct cash receipt on counter"
+        "status": "Active"
       },
       {
         "id": "PM-005",
-        "code": "CARD",
-        "name": "Credit / Debit Card (POS)",
-        "type": "POS",
+        "code": "CHEQUE-01",
+        "name": "Cheque / Demand Draft",
+        "bankName": "HDFC Bank",
+        "type": "Offline",
+        "details": "Payable at Chennai in favor of ACTIVE SYSTEM INTEGRATION",
+        "subMethods": "Cheque, DD",
+        "maxLimit": 1000000,
         "isDefault": false,
-        "status": "Active",
-        "details": "Merchant POS Terminal"
+        "status": "Active"
+      },
+      {
+        "id": "PM-006",
+        "code": "CASH-01",
+        "name": "Cash Counter Desk",
+        "bankName": "Cash Desk",
+        "type": "Cash",
+        "details": "Direct cash disbursement at counter",
+        "subMethods": "Cash Voucher",
+        "maxLimit": 50000,
+        "isDefault": false,
+        "status": "Active"
       }
     ],
     "currency": {

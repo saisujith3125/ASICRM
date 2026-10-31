@@ -382,21 +382,41 @@ function createPurchaseOrder(req, res) {
       roundOff: Number(roundOff !== undefined ? roundOff : finalRoundOff),
       grandTotal: Number(grandTotal !== undefined ? grandTotal : finalGrandTotal),
       paymentTerms: String(paymentTerms || 'Net 30 Days').trim(),
-      advanceAmount: Number(req.body.advanceAmount || 0),
-      advancePaymentMode: req.body.advancePaymentMode || null,
-      advancePaymentRef: req.body.advancePaymentRef || null,
-      totalPaid: Number(req.body.advanceAmount || 0),
-      balanceAmount: Math.max(0, Number(grandTotal !== undefined ? grandTotal : finalGrandTotal) - Number(req.body.advanceAmount || 0)),
-      payments: Number(req.body.advanceAmount || 0) > 0 ? [{
+      payingBank: req.body.payingBank || (req.body.advancePaymentMode && req.body.advancePaymentMode.split('-')[0]?.trim()) || 'HDFC Bank',
+      paymentMethod: req.body.paymentMethod || req.body.advancePaymentMode || 'Bank Transfer (RTGS)',
+      paymentRef: req.body.paymentRef || req.body.advancePaymentRef || '',
+      advanceAmount: /immediate/i.test(paymentTerms)
+        ? (req.body.immediateAmount !== undefined ? Number(req.body.immediateAmount) : finalGrandTotal)
+        : Number(req.body.advanceAmount || 0),
+      advancePaymentMode: req.body.paymentMethod || req.body.advancePaymentMode || null,
+      advancePaymentRef: req.body.paymentRef || req.body.advancePaymentRef || null,
+      totalPaid: /immediate/i.test(paymentTerms)
+        ? (req.body.immediateAmount !== undefined ? Math.min(finalGrandTotal, Number(req.body.immediateAmount)) : finalGrandTotal)
+        : Number(req.body.advanceAmount || 0),
+      balanceAmount: /immediate/i.test(paymentTerms)
+        ? Math.max(0, finalGrandTotal - (req.body.immediateAmount !== undefined ? Number(req.body.immediateAmount) : finalGrandTotal))
+        : Math.max(0, Number(grandTotal !== undefined ? grandTotal : finalGrandTotal) - Number(req.body.advanceAmount || 0)),
+      payments: /immediate/i.test(paymentTerms) ? [{
+        id: `PAY-IMM-${poId}`,
+        date: orderDate || new Date().toISOString().slice(0, 10),
+        type: 'IMMEDIATE',
+        bankName: req.body.payingBank || 'HDFC Bank',
+        amount: req.body.immediateAmount !== undefined ? Math.min(finalGrandTotal, Number(req.body.immediateAmount)) : finalGrandTotal,
+        mode: req.body.paymentMethod || req.body.advancePaymentMode || 'RTGS',
+        reference: req.body.paymentRef || req.body.advancePaymentRef || '',
+        status: 'PAID',
+        createdAt: new Date().toISOString()
+      }] : (Number(req.body.advanceAmount || 0) > 0 ? [{
         id: `PAY-ADV-${poId}`,
         date: orderDate || new Date().toISOString().slice(0, 10),
         type: 'ADVANCE',
+        bankName: req.body.payingBank || 'HDFC Bank',
         amount: Number(req.body.advanceAmount || 0),
         mode: req.body.advancePaymentMode || 'Bank Transfer',
         reference: req.body.advancePaymentRef || '',
         status: 'PAID',
         createdAt: new Date().toISOString()
-      }] : [],
+      }] : []),
       deliveryAddress: String(deliveryAddress || 'Plot No. 10A, Perumal Kovil Street, Sivabootham, Vanagaram, Chennai - 600095').trim(),
       termsAndConditions: String(termsAndConditions || 'Standard Purchase Terms: Goods subject to inspection on receipt. Defective or damaged items will be returned at supplier cost.').trim(),
       remarks: String(remarks || '').trim(),
@@ -564,32 +584,60 @@ function updatePurchaseOrder(req, res) {
     if (orderDate) po.orderDate = orderDate;
     if (expectedDeliveryDate !== undefined) po.expectedDeliveryDate = expectedDeliveryDate;
     if (paymentTerms !== undefined) po.paymentTerms = paymentTerms;
-    if (req.body.advanceAmount !== undefined) {
-      const adv = Number(req.body.advanceAmount || 0);
-      po.advanceAmount = adv;
-      if (req.body.advancePaymentMode) po.advancePaymentMode = req.body.advancePaymentMode;
-      if (req.body.advancePaymentRef !== undefined) po.advancePaymentRef = req.body.advancePaymentRef;
+    if (req.body.payingBank) po.payingBank = req.body.payingBank;
+    if (req.body.paymentMethod) po.paymentMethod = req.body.paymentMethod;
+    if (req.body.paymentRef !== undefined) po.paymentRef = req.body.paymentRef;
 
+    const isImm = /immediate/i.test(po.paymentTerms || '');
+    if (isImm || req.body.advanceAmount !== undefined || req.body.immediateAmount !== undefined) {
       if (!Array.isArray(po.payments)) po.payments = [];
-      const advIdx = po.payments.findIndex((p) => p.type === 'ADVANCE');
-      if (adv > 0) {
-        const advRecord = {
-          id: advIdx >= 0 ? po.payments[advIdx].id : `PAY-ADV-${po.id || po.purchaseOrderId}`,
+      if (isImm) {
+        const immAmount = Number(req.body.immediateAmount !== undefined ? req.body.immediateAmount : (req.body.advanceAmount || po.grandTotal));
+        const immIdx = po.payments.findIndex((p) => p.type === 'IMMEDIATE');
+        const immRecord = {
+          id: immIdx >= 0 ? po.payments[immIdx].id : `PAY-IMM-${po.id || po.purchaseOrderId}`,
           date: po.orderDate || new Date().toISOString().slice(0, 10),
-          type: 'ADVANCE',
-          amount: adv,
-          mode: po.advancePaymentMode || 'Bank Transfer',
-          reference: po.advancePaymentRef || '',
+          type: 'IMMEDIATE',
+          bankName: req.body.payingBank || po.payingBank || 'HDFC Bank',
+          amount: Math.min(Number(po.grandTotal || 0), immAmount),
+          mode: req.body.paymentMethod || po.paymentMethod || 'RTGS',
+          reference: req.body.paymentRef || po.paymentRef || '',
           status: 'PAID',
-          createdAt: advIdx >= 0 ? po.payments[advIdx].createdAt : new Date().toISOString()
+          createdAt: immIdx >= 0 ? po.payments[immIdx].createdAt : new Date().toISOString()
         };
-        if (advIdx >= 0) po.payments[advIdx] = advRecord;
-        else po.payments.unshift(advRecord);
-      } else if (advIdx >= 0) {
-        po.payments.splice(advIdx, 1);
+        if (immIdx >= 0) po.payments[immIdx] = immRecord;
+        else po.payments.unshift(immRecord);
+        po.advanceAmount = immRecord.amount;
+        po.advancePaymentMode = immRecord.mode;
+        po.advancePaymentRef = immRecord.reference;
+      } else if (req.body.advanceAmount !== undefined) {
+        const adv = Number(req.body.advanceAmount || 0);
+        po.advanceAmount = adv;
+        if (req.body.advancePaymentMode) po.advancePaymentMode = req.body.advancePaymentMode;
+        if (req.body.advancePaymentRef !== undefined) po.advancePaymentRef = req.body.advancePaymentRef;
+
+        const advIdx = po.payments.findIndex((p) => p.type === 'ADVANCE');
+        if (adv > 0) {
+          const advRecord = {
+            id: advIdx >= 0 ? po.payments[advIdx].id : `PAY-ADV-${po.id || po.purchaseOrderId}`,
+            date: po.orderDate || new Date().toISOString().slice(0, 10),
+            type: 'ADVANCE',
+            bankName: req.body.payingBank || po.payingBank || 'HDFC Bank',
+            amount: adv,
+            mode: po.advancePaymentMode || 'Bank Transfer',
+            reference: po.advancePaymentRef || '',
+            status: 'PAID',
+            createdAt: advIdx >= 0 ? po.payments[advIdx].createdAt : new Date().toISOString()
+          };
+          if (advIdx >= 0) po.payments[advIdx] = advRecord;
+          else po.payments.unshift(advRecord);
+        } else if (advIdx >= 0) {
+          po.payments.splice(advIdx, 1);
+        }
       }
       po.totalPaid = po.payments.reduce((s, p) => s + Number(p.amount || 0), 0);
       po.balanceAmount = Math.max(0, Number(po.grandTotal || 0) - po.totalPaid);
+      po.paymentStatus = (Number(po.grandTotal || 0) > 0 && po.totalPaid >= Number(po.grandTotal || 0)) ? 'PAID' : (po.totalPaid > 0 ? 'PARTIALLY_PAID' : 'UNPAID');
     }
     if (deliveryAddress !== undefined) po.deliveryAddress = deliveryAddress;
     if (termsAndConditions !== undefined) po.termsAndConditions = termsAndConditions;
@@ -940,6 +988,7 @@ function receiveGoods(req, res) {
         grnId: grnId,
         date: receiptDateStr,
         type: 'GRN_PAYMENT',
+        bankName: req.body.payingBank || 'HDFC Bank',
         amount: paymentNow,
         mode: paymentMode,
         reference: paymentRef,

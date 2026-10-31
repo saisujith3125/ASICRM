@@ -203,6 +203,9 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
     totalPendingQty: poData.totalPendingQty !== undefined ? Number(poData.totalPendingQty) : totalPendingQty,
     advanceAmount: Number(poData.advanceAmount || 0),
     balanceAmount: Number(poData.balanceAmount || 0),
+    payingBank: poData.payingBank || null,
+    paymentMethod: poData.paymentMethod || null,
+    paymentRef: poData.paymentRef || null,
     financials: {
       totalQty,
       totalOrderedQty: totalQty,
@@ -219,6 +222,9 @@ export function normalizePurchaseOrderDocument(poData = {}, customSettings = {})
     },
     terms: {
       paymentTerms,
+      payingBank: poData.payingBank || null,
+      paymentMethod: poData.paymentMethod || null,
+      paymentRef: poData.paymentRef || null,
       advanceAmount: Number(poData.advanceAmount || 0),
       balanceAmount: Number(poData.balanceAmount || 0),
       deliveryDue,
@@ -431,7 +437,14 @@ function PurchaseOrderHeaderBox({ company, doc }) {
             </tr>
             <tr>
               <td className="doc-po-meta-label">Payment Terms :</td>
-              <td className="doc-po-meta-val">{doc.paymentTerms}</td>
+              <td className="doc-po-meta-val">
+                {doc.paymentTerms}
+                {doc.payingBank && (
+                  <span style={{ fontSize: '10.5px', color: '#15803d', fontWeight: 700, marginLeft: '6px' }}>
+                    [✓ Paid via {doc.payingBank} ({doc.paymentMethod || 'Direct'})]
+                  </span>
+                )}
+              </td>
             </tr>
             {Number(doc?.advanceAmount || 0) > 0 && (
               <tr>

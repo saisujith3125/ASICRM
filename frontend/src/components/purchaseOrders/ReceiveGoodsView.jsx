@@ -54,6 +54,27 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
   const [paymentNow, setPaymentNow] = useState('');
   const [paymentMode, setPaymentMode] = useState('Bank Transfer');
   const [paymentRef, setPaymentRef] = useState('');
+  const [availableBanks, setAvailableBanks] = useState([
+    { id: 'PM-001', code: 'HDFC-01', name: 'HDFC Bank Current Account', bankName: 'HDFC Bank', type: 'Bank', details: 'A/C 50200028741215 - IFSC HDFC0000024', subMethods: 'RTGS, NEFT, IMPS, Cheque', maxLimit: 5000000 },
+    { id: 'PM-002', code: 'SBI-01', name: 'State Bank of India (SBI)', bankName: 'State Bank of India (SBI)', type: 'Bank', details: 'A/C 382109485721 - IFSC SBIN0001234', subMethods: 'RTGS, NEFT, IMPS, Cheque', maxLimit: 2500000 },
+    { id: 'PM-003', code: 'INDUS-01', name: 'IndusInd Bank Commercial A/C', bankName: 'IndusInd Bank', type: 'Bank', details: 'A/C 201003482910 - IFSC INDB0000542', subMethods: 'RTGS, NEFT, IMPS, Cheque', maxLimit: 2000000 },
+    { id: 'PM-004', code: 'UPI-01', name: 'UPI / QR Code (HDFC)', bankName: 'HDFC Bank (UPI)', type: 'Digital', details: 'asi@hdfcbank', subMethods: 'UPI / QR Code', maxLimit: 100000 },
+    { id: 'PM-005', code: 'CHEQUE-01', name: 'Cheque / Demand Draft', bankName: 'HDFC Bank', type: 'Offline', details: 'Payable at Chennai in favor of ACTIVE SYSTEM INTEGRATION', subMethods: 'Cheque, DD', maxLimit: 1000000 },
+    { id: 'PM-006', code: 'CASH-01', name: 'Cash Counter Desk', bankName: 'Cash Office', type: 'Cash', details: 'Direct cash disbursement at counter', subMethods: 'Cash Voucher', maxLimit: 50000 }
+  ]);
+  const [selectedBankId, setSelectedBankId] = useState('PM-001');
+  const [selectedPaymentRoute, setSelectedPaymentRoute] = useState('RTGS');
+
+  const currentBank = useMemo(() => {
+    return availableBanks.find((b) => b.id === selectedBankId) || availableBanks[0] || null;
+  }, [availableBanks, selectedBankId]);
+
+  const currentBankRoutes = useMemo(() => {
+    if (!currentBank) return ['RTGS', 'NEFT', 'IMPS'];
+    const raw = currentBank.subMethods || (currentBank.type === 'Bank' ? 'RTGS, NEFT, IMPS, Cheque' : (currentBank.type === 'Digital' ? 'UPI / QR Code' : 'Voucher'));
+    const parsed = raw.split(',').map((s) => s.trim()).filter(Boolean);
+    return parsed.length > 0 ? parsed : ['RTGS', 'NEFT', 'IMPS'];
+  }, [currentBank]);
 
   // Per-item receive state: { [productId]: { receiveNow: number, serialNumbers: string[] } }
   const [receiveInputs, setReceiveInputs] = useState({});
@@ -83,6 +104,22 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
             setSelectedPoId(eligible[0].id);
           }
         }
+
+        apiFetch(apiUrl('/api/settings/company'), { headers: { 'x-user-id': 'USR-001' } })
+          .then((r) => r.json())
+          .then((settData) => {
+            if (active && settData?.success && Array.isArray(settData.data?.paymentMethods)) {
+              const activeMethods = settData.data.paymentMethods.filter((m) => m.status !== 'Inactive');
+              if (activeMethods.length > 0) {
+                setAvailableBanks(activeMethods);
+                const def = activeMethods.find((m) => m.isDefault) || activeMethods[0];
+                setSelectedBankId(def.id);
+                const routes = (def.subMethods || (def.type === 'Bank' ? 'RTGS, NEFT, IMPS, Cheque' : 'Direct')).split(',').map((s) => s.trim()).filter(Boolean);
+                if (routes.length > 0) setSelectedPaymentRoute(routes[0]);
+              }
+            }
+          })
+          .catch(() => null);
       } catch (err) {
         console.error('Failed to load POs for receipt:', err);
       }
@@ -348,8 +385,9 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
           receivedBy,
           notes,
           items: itemsToReceive,
+          payingBank: currentBank?.bankName || currentBank?.name || 'HDFC Bank',
           paymentNow: numPaymentNow,
-          paymentMode: numPaymentNow > 0 ? paymentMode : 'Credit',
+          paymentMode: numPaymentNow > 0 ? `${currentBank?.bankName || currentBank?.name || 'HDFC Bank'} - ${selectedPaymentRoute || paymentMode}` : 'Credit',
           paymentRef: numPaymentNow > 0 ? paymentRef.trim() : null
         })
       });
@@ -1014,15 +1052,39 @@ export default function ReceiveGoodsView({ user, preselectedPoId, onBack, onComp
                       </div>
 
                       <div className="po-form-group" style={{ margin: 0 }}>
-                        <label style={{ fontSize: '12px', fontWeight: 600 }}>Payment Mode</label>
+                        <label style={{ fontSize: '12px', fontWeight: 600 }}>Paying Bank Account</label>
                         <select
-                          value={paymentMode}
-                          onChange={(e) => setPaymentMode(e.target.value)}
+                          value={selectedBankId}
+                          onChange={(e) => {
+                            const nextId = e.target.value;
+                            setSelectedBankId(nextId);
+                            const b = availableBanks.find((x) => x.id === nextId);
+                            const routes = (b?.subMethods || (b?.type === 'Bank' ? 'RTGS, NEFT, IMPS, Cheque' : 'Direct')).split(',').map((s) => s.trim()).filter(Boolean);
+                            if (routes.length > 0) setSelectedPaymentRoute(routes[0]);
+                          }}
+                          style={{ fontWeight: 600, fontSize: '12.5px' }}
                         >
-                          <option value="Bank Transfer">Bank Transfer (NEFT/RTGS/IMPS)</option>
-                          <option value="UPI">UPI / QR Code</option>
-                          <option value="Cheque">Cheque</option>
-                          <option value="Cash">Cash</option>
+                          {availableBanks.map((b) => (
+                            <option key={b.id} value={b.id}>
+                              {b.name} {b.accountNumber ? `(...${b.accountNumber.slice(-4)})` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="po-form-group" style={{ margin: 0 }}>
+                        <label style={{ fontSize: '12px', fontWeight: 600 }}>Payment Route</label>
+                        <select
+                          value={selectedPaymentRoute}
+                          onChange={(e) => {
+                            setSelectedPaymentRoute(e.target.value);
+                            setPaymentMode(e.target.value);
+                          }}
+                          style={{ fontWeight: 600, fontSize: '12.5px' }}
+                        >
+                          {currentBankRoutes.map((r) => (
+                            <option key={r} value={r}>{r}</option>
+                          ))}
                         </select>
                       </div>
 

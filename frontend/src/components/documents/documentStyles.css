@@ -5470,3 +5470,9 @@
 
 
 
+
+/* Global enforcement: hide SKU / Model across all printable documents & PDFs */
+.doc-inv-item-sku,
+.dc-item-sku {
+  display: none !important;
+}

@@ -64,9 +64,6 @@ export function estimateDcItemHeight(item) {
   if (title.length > 35) {
     height += Math.floor(title.length / 35) * 16;
   }
-  if (item.productCode || item.sku || item.model) {
-    height += 16;
-  }
   const desc = (item.productDetails || item.description || '').toString();
   if (desc) {
     height += Math.max(16, Math.ceil(desc.length / 45) * 15);
@@ -128,7 +125,7 @@ export function paginateDeliveryChallan(data) {
     // Calculate how many blank rows can safely fit without pushing the signature off the page
     const maxSafeFillerFit = Math.max(0, Math.floor(remainingSpace / 26));
     // Dynamic space rule: clamp empty lines so the signature block NEVER gets pushed off the page!
-    const blankRowsCount = Math.min(maxSafeFillerFit, Math.max(0, 16 - items.length));
+    const blankRowsCount = Math.min(maxSafeFillerFit, Math.max(0, 4 - items.length));
     return [{
       pageNumber: 1,
       items,
@@ -444,11 +441,6 @@ export function DeliveryChallanItemsTable({
                 <td style={{ textAlign: 'center', fontWeight: 700 }}>{startIndex + idx + 1}</td>
                 <td style={{ textAlign: 'left' }} className="dc-product-desc-cell">
                   <div className="dc-item-title">{item.productName || item.name || 'Equipment / Goods'}</div>
-                  {(item.productCode || item.sku || item.model) && (
-                    <div className="dc-item-sku">
-                      SKU / Model: {[item.productCode || item.sku, item.model].filter(Boolean).join(' • ')}
-                    </div>
-                  )}
                   {(item.productDetails || item.description) && (
                     <div className="dc-item-desc">{item.productDetails || item.description}</div>
                   )}

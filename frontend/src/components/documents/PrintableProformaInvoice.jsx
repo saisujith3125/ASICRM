@@ -664,7 +664,6 @@ function ProformaItemsTable({
               <td className="proforma-cell-nowrap" style={{ textAlign: 'center', fontWeight: 600, color: '#0f172a' }}>{it.sl}</td>
               <td className="proforma-cell-desc" style={{ textAlign: 'left', paddingLeft: '8px' }}>
                 <div className="doc-inv-item-name">{it.name}</div>
-                {it.sku && <div className="doc-inv-item-sku">SKU / Model: {it.sku}</div>}
                 {it.description && <div className="doc-inv-item-desc">{it.description}</div>}
 
                 {/* Serial numbers display: solid black #0f172a, naturally wrapped */}
@@ -1005,10 +1004,6 @@ export function estimateProformaItemHeight(it) {
   const name = String(it.name || it.productName || '').trim();
   if (name.length > 36) {
     h += Math.max(1, Math.ceil(name.length / 36) - 1) * 14;
-  }
-  const sku = (it.sku || it.productCode || '').trim();
-  if (sku) {
-    h += 14;
   }
   const desc = (it.description || it.productDetails || '').trim();
   if (desc) {

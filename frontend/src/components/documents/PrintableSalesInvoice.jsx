@@ -811,9 +811,6 @@ function InvoiceItemsTable({
               <td style={{ textAlign: 'center', fontWeight: 600 }}>{it.sl}</td>
               <td style={{ textAlign: 'left' }}>
                 <div className="doc-inv-item-name">{it.name}</div>
-                {it.sku && (
-                  <div className="doc-inv-item-sku">SKU: {it.sku}</div>
-                )}
                 {it.description && (
                   <div className="doc-inv-item-desc">{it.description}</div>
                 )}
@@ -1102,10 +1099,6 @@ export function estimateInvoiceItemHeight(it) {
   const name = String(it.name || it.productName || '').trim();
   if (name.length > 36) {
     h += Math.max(1, Math.ceil(name.length / 36) - 1) * 14;
-  }
-  const sku = (it.sku || it.productCode || '').trim();
-  if (sku) {
-    h += 14;
   }
   const desc = (it.description || it.productDetails || '').trim();
   if (desc) {
